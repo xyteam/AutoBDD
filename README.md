@@ -19,12 +19,12 @@ The framework provides session libraries for the controls of screen, keyboard, m
 
   * ssh_session: shell access and port mapping of remote computer.
   * screen_session: controls screen, keyboard and mouse of local or remote computer.
-      Local: through assigned X environment
-      Remote: through RDP over local X environment
+      * Local: through assigned X environment
+      * Remote: through RDP over local X environment
   * browser_session: controls local or remote browser through selenium based webdriver
   * file_session: controls local or remote file system
-      Local: direct access
-      Remote: through sshfs
+      * Local: direct access
+      * Remote: through sshfs
   * api_session: controls API request and response.
 
 ###### Framework Provided Reporting features
