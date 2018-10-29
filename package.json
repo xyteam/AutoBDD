@@ -1,0 +1,40 @@
+{
+  "name": "AutoBDD",
+  "version": "1.0.0",
+  "description": "BDD Automaiton",
+  "main": "index.js",
+  "dependencies": {
+    "chai": "<4",
+    "child_process": "^1.0.2",
+    "chimpy": "^0.52.0",
+    "cucumber": "^4.0.0",
+    "glob": "^7.1.2",
+    "java": "^0.9.0",
+    "moment": "^2.18.1",
+    "node-cmd": "^3.0.0",
+    "npm-path": "^2.0.4",
+    "request": "^2.85.0",
+    "robotjs": "^0.5.1",
+    "url-parse": "^1.1.9",
+    "webdriverio": "^4.9.10",
+    "words-to-numbers": "^1.2.1"
+  },
+  "devDependencies": {
+    "cucumber-html-reporter": "^4.0.0",
+    "cucumber-junit": "^1.7.0",
+    "json-diff": "^0.3.1"
+  },
+  "scripts": {
+    "test": "chimp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xyteam/AutoBDD.git"
+  },
+  "keywords": [
+    "chimpy",
+    "cucumber"
+  ],
+  "author": "xyteam",
+  "license": "ISC"
+}
