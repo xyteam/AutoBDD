@@ -1,0 +1,10 @@
+**/*.run
+**/*.mp4
+**/*.png
+**/*.jpg
+**/.screenshots/
+**/node_modules/
+tmp/*
+reports/*
+!**/step_images/*
+.vscode/*
