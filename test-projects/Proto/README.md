@@ -8,7 +8,7 @@ To run test in Proto project:
 ```
 $ cd <path-to>/AutoBDD
 $ npm install     # This step only need to be done once when package.json is updated
-$ . .autoPath.rc
+$ . .autoPathrc
 ```
 2. Run Test:
 ```
