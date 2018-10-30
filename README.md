@@ -36,3 +36,10 @@ JSON file at any level can be compiled into collaspable HTML report which can dr
 Test can be run in paralleled X environments on the controller system itself, and farm out to remote PCs.
 Currently the framework only supports a single controller. We are considering to add master/slave controllers to further flatten out the parallel control.
 Controller is dockerized. It can be run in any local or cloud CI environment.
+
+#### To build the framework
+```
+$ cd <path-to>/AutoBDD
+$ npm install
+$ . .autoPathrc
+```
