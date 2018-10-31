@@ -1,17 +1,15 @@
 'use strict';
+const myFrameworkPath = process.env.FrameworkPath;
+const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
 const glob = require('glob');
 const path = require('path');
 const _path = require('path');
 const _path2 = _interopRequireDefault(_path);
-const myChimpDir = process.env.HOME + '/node_modules/chimpy/';
-const _ci = require(myChimpDir + './dist/lib/ci');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; };
-const myFrameworkPath = process.env.FrameworkPath;
 const _selenium_standalone = require(myFrameworkPath + '/global/configs/selenium-standalone_config.js');
 const myGlobalStepPath = myFrameworkPath + '/global/step_definitions';
 const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions', myGlobalStepPath] : ['./features', myGlobalStepPath];
-const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 
 // for Linux chrome
 const myDownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
@@ -20,6 +18,7 @@ const myChromePreference_json = '{"download":{"default_directory":"' + myDownloa
 fs.existsSync(myChromeProfilePath) || fs.mkdirSync(myChromeProfilePath);
 fs.existsSync(myChromeProfilePath + '/Default') || fs.mkdirSync(myChromeProfilePath + '/Default');
 fs.writeFileSync(myChromeProfilePath + '/Default/Preferences', myChromePreference_json);
+const myBrowserProxySetting = (process.env.http_proxy) ? "--proxy-server=" + process.env.http_proxy : "--no-proxy-server";
 
 module.exports = {
   // - - - - CHIMP - - - -
@@ -35,19 +34,17 @@ module.exports = {
   serverPort: 8060,
   serverHost: 'localhost',
   sync: true,
-  offline: false,
+  offline: true,
   showXolvioMessages: true,
   'fail-when-no-tests-run': false,
 
   // - - - - CUCUMBER - - - -
-  path: './features',
+  path: 'features',
   require: myCombinedStepPath,
   format: 'pretty',
   tags: '~@ignore',
   singleSnippetPerFile: true,
   recommendedFilenameSeparator: '_',
-  chai: false,
-  screenshotsOnError: (0, _ci.isCI)(),
   screenshotsPath: '.screenshots',
   captureAllStepScreenshots: false,
   saveScreenshotsToDisk: true,
@@ -56,10 +53,9 @@ module.exports = {
   // viewport size smaller.
   saveScreenshotsToReport: false,
   jsonOutput: null,
-  compiler: 'js:' + path.resolve(myChimpDir, './dist/lib/babel-register.js'),
   conditionOutput: true,
 
-  // - - - - SELENIUM  - - - -
+  // - - - - SELENIUM-STANDALONE
   browser: 'chrome',
   platform: 'linux',
   name: '',
@@ -67,8 +63,11 @@ module.exports = {
   key: '',
   host: 'localhost',
   port: process.env.LOCALSELPORT,
-
-  // deviceName: null,
+  seleniumStandaloneOptions: {
+    version: _selenium_standalone.version,
+    drivers: _selenium_standalone.drivers,
+    baseURL: _selenium_standalone.baseURL
+  },
 
   // - - - - WEBDRIVER-IO  - - - -
   webdriverio: {
@@ -80,10 +79,10 @@ module.exports = {
         args: [
                 "--disable-infobars",
                 "--no-first-run",
-                "--proxy-server=" + process.env.http_proxy,
                 "--window-size=" + myDISPLAYSIZE.replace('x',','),
                 "--user-data-dir=/tmp/chrome_profile_" + process.env.DISPLAY.substr(1),
-                "--bypass-app-banner-engagement-checks"
+                "--bypass-app-banner-engagement-checks",
+                myBrowserProxySetting
               ],
         prefs: {
           'credentials_enable_service': false,
@@ -94,71 +93,23 @@ module.exports = {
       }
     },
     host: 'localhost',
-    port: null,
+    port: process.env.LOCALSELPORT,
     path: '/wd/hub',
     baseUrl: null,
+    logLevel: 'silent',
     coloredLogs: true,
     screenshotPath: null,
     waitforTimeout: 500,
     waitforInterval: 250
   },
 
-  // - - - - SESSION-MANAGER  - - - -
-  noSessionReuse: false,
+    // - - - - SESSION-MANAGER  - - - -
+    noSessionReuse: false,
 
-  // - - - - SIMIAN  - - - -
-  simianResultEndPoint: 'api.simian.io/v1.0/result',
-  simianAccessToken: false,
-  simianResultBranch: null,
-  simianRepositoryId: null,
-
-  // - - - - MOCHA  - - - -
-  mocha: false,
-  mochaCommandLineOptions: {bail: true},
-  mochaConfig: {
-    // tags and grep only work when watch mode is false
-    tags: '',
-    grep: null,
-    timeout: 60000,
-    reporter: 'spec',
-    slow: 10000,
-    useColors: true
-  },
-
-  // - - - - JASMINE  - - - -
-  jasmine: false,
-  jasmineConfig: {
-    specDir: '.',
-    specFiles: [
-      '**/*@(_spec|-spec|Spec).@(js|jsx)',
-    ],
-    helpers: [
-      'support/**/*.@(js|jsx)',
-    ],
-    stopSpecOnExpectationFailure: false,
-    random: false,
-  },
-  jasmineReporterConfig: {
-    // This options are passed to jasmine.configureDefaultReporter(...)
-    // See: http://jasmine.github.io/2.4/node.html#section-Reporters
-  },
-
-  // - - - - METEOR  - - - -
-  ddp: false,
-  serverExecuteTimeout: 10000,
-
-  // - - - - PHANTOM  - - - -
-  phantom_w: 1280,
-  phantom_h: 1024,
-  phantom_ignoreSSLErrors: false,
-
-  // - - - - DEBUGGING  - - - -
-  log: 'info',
-  debug: false,
-  seleniumDebug: null,
-  debugCucumber: null,
-  debugBrkCucumber: null,
-  debugMocha: null,
-  debugBrkMocha: null,
+    // - - - - DEBUGGING  - - - -
+    log: 'info',
+    debug: false,
+    debugCucumber: false,
+    debugBrkCucumber: false
 };
 
