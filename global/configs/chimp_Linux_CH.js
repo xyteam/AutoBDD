@@ -1,17 +1,17 @@
 'use strict';
+const myFrameworkPath = process.env.FrameworkPath;
+const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
 const glob = require('glob');
 const path = require('path');
 const _path = require('path');
 const _path2 = _interopRequireDefault(_path);
-const myFrameworkPath = process.env.FrameworkPath;
 // const myChimpDir = myFrameworkPath + '/node_modules/chimpy/';
 // const _ci = require(myChimpDir + './dist/lib/ci');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; };
 const _selenium_standalone = require(myFrameworkPath + '/global/configs/selenium-standalone_config.js');
 const myGlobalStepPath = myFrameworkPath + '/global/step_definitions';
 const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions', myGlobalStepPath] : ['./features', myGlobalStepPath];
-const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 
 // for Linux chrome
 const myDownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
@@ -60,9 +60,14 @@ module.exports = {
   // compiler: 'js:' + path.resolve(myChimpDir, './dist/lib/babel-register.js'),
   conditionOutput: true,
 
-  // - - - - SELENIUM  - - - -
+  // - - - - SELENIUM-STANDALONE
   browser: 'chrome',
   platform: 'linux',
+  seleniumStandaloneOptions: {
+    version: _selenium_standalone.version,
+    drivers: _selenium_standalone.drivers,
+    baseURL: _selenium_standalone.baseURL
+  },
   
   // - - - - WEBDRIVER-IO  - - - -
   webdriverio: {
@@ -95,13 +100,6 @@ module.exports = {
     screenshotPath: null,
     waitforTimeout: 500,
     waitforInterval: 250
-  },
-
-  // - - - - SELENIUM-STANDALONE
-  seleniumStandaloneOptions: {
-    version: _selenium_standalone.version,
-    drivers: _selenium_standalone.drivers,
-    baseURL: _selenium_standalone.baseURL
   },
   
   // - - - - SESSION-MANAGER  - - - -
