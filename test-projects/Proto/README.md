@@ -52,3 +52,4 @@ and check out the screenshot and movie in the same folder.
     5.3 Wait for the browser to be launched once for the test to get the browser version then disappear,
 
     5.4 Start the selenium-standalone as in 4.2.
+
