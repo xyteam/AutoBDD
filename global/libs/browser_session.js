@@ -38,5 +38,4 @@ module.exports = {
     session.pause(1000);
     clearInterval(handle);
   }
-
 }
