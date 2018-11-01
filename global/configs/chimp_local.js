@@ -2,12 +2,7 @@
 const myFrameworkPath = process.env.FrameworkPath;
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
-const glob = require('glob');
-const path = require('path');
-const _path = require('path');
-const _path2 = _interopRequireDefault(_path);
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; };
-const _selenium_standalone = require(myFrameworkPath + '/global/configs/selenium-standalone_config.js');
+const selenium_standalone_config = require(myFrameworkPath + '/global/configs/selenium-standalone_config.js');
 const myGlobalStepPath = myFrameworkPath + '/global/step_definitions';
 const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions', myGlobalStepPath] : ['./features', myGlobalStepPath];
 
@@ -48,9 +43,6 @@ module.exports = {
   screenshotsPath: '.screenshots',
   captureAllStepScreenshots: false,
   saveScreenshotsToDisk: true,
-  // Note: With a large viewport size and captureAllStepScreenshots enabled,
-  // you may run out of memory. Use browser.setViewportSize to make the
-  // viewport size smaller.
   saveScreenshotsToReport: false,
   jsonOutput: null,
   conditionOutput: true,
@@ -64,9 +56,9 @@ module.exports = {
   host: 'localhost',
   port: process.env.LOCALSELPORT,
   seleniumStandaloneOptions: {
-    version: _selenium_standalone.version,
-    drivers: _selenium_standalone.drivers,
-    baseURL: _selenium_standalone.baseURL
+    version: selenium_standalone_config.version,
+    drivers: selenium_standalone_config.drivers,
+    baseURL: selenium_standalone_config.baseURL
   },
 
   // - - - - WEBDRIVER-IO  - - - -
@@ -92,10 +84,6 @@ module.exports = {
         }
       }
     },
-    host: 'localhost',
-    port: process.env.LOCALSELPORT,
-    path: '/wd/hub',
-    baseUrl: null,
     logLevel: 'silent',
     coloredLogs: true,
     screenshotPath: null,
@@ -112,4 +100,3 @@ module.exports = {
     debugCucumber: false,
     debugBrkCucumber: false
 };
-
