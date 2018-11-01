@@ -6,6 +6,7 @@ if (process.env.LOCALSELPORT) {
 } else {
   switch (process.env.PLATFORM) {
     case "Win10":
+    case "Win7":
       switch (process.env.BROWSER) {
         case "IE":
           process.env.BROWSER = 'IE';
