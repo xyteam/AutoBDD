@@ -2,14 +2,21 @@ const robot = require('robotjs');
 const cmd = require('node-cmd');
 const fs = require('fs');
 const execSync = require('child_process').execSync;
-const myWorld = require(process.env.FrameworkPath + '/global/support/world').World();
+const framework_libs = require(process.env.FrameworkPath + '/global/libs/framework_libs');
 const myHOME = process.env.HOME;
+const myPlatformIdSrc = myHOME + '/Projects/xyPlatform/global/platform_id_rsa';
+const myPlatformId = myHOME + '/.ssh/platform_id_rsa';
 const myDISPLAY = process.env.DISPLAY;
 const myPLATFORM = process.env.PLATFORM;
 const myBROWSER = process.env.BROWSER;
+const mySSHHOST = process.env.SSHHOST;
+const mySSHPORT = process.env.SSHPORT;
+const mySSHUSER = process.env.SSHUSER;
+const mySSHPASS = process.env.SSHPASS;
 const myRDPHOST = process.env.RDPHOST;
 const myRDPPORT = process.env.RDPPORT;
-const mySSHPORT = process.env.SSHPORT;
+const myRDPUSER = process.env.RDPUSER || mySSHUSER;
+const myRDPPASS = process.env.RDPPASS || mySSHPASS;
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const myMOVIE = process.env.MOVIE;
 const mySCREENSHOT = process.env.SCREENSHOT;
@@ -17,9 +24,9 @@ const myREPORTDIR = process.env.REPORTDIR;
 const myMODULEPATH = process.env.MODULEPATH;
 const myFrameworkPath = process.env.FrameworkPath;
 const myDownloadPathLocal = '/tmp/download_' + myDISPLAY.substr(1); 
-const cmd_copy_AutomationKey = 'cp ' + process.env.HOME + '/Projects/xyPlatform/global/platform_id_rsa ' + myHOME + '/.ssh/automation_id_rsa; chmod 0600 ' + myHOME + '/.ssh/automation_id_rsa';
+const cmd_copy_PlatformId = 'cp ' + myPlatformIdSrc + ' ' + myPlatformId + '; chmod 0600 ' + myPlatformId;
 const cmd_umount = 'if mountpoint -q ' + myDownloadPathLocal + '; then fusermount -u ' + myDownloadPathLocal + '; fi';
-const cmd_umount_try = 'fusermount -u ' + myDownloadPathLocal;
+const cmd_umount_try = 'fusermount -q -u ' + myDownloadPathLocal;
 
 robot.setXDisplayName(myDISPLAY);
 robot.setMouseDelay(50);
@@ -30,28 +37,14 @@ var specialChar_regex = /[\:\;\,\(\)\/\'\.\&\%\-\<\>]/g;
 
 module.exports = {
   BeforeFeature: function (event) {
-    fs.existsSync(myHOME + '/.ssh') || fs.mkdirSync(myHOME + '/.ssh');
-    console.log(cmd_copy_AutomationKey);
-    execSync(cmd_copy_AutomationKey);
-    try {
-      execSync(cmd_umount_try);
-    } catch(e) {}
-    fs.existsSync(myDownloadPathLocal) || fs.mkdirSync(myDownloadPathLocal);
+    // start RDP and sshfs
+    if (mySSHHOST && mySSHPORT) {
+      framework_libs.startSshFs();
+      framework_libs.startRdesktop();
+    }
   },
 
   Before: function(scenario) {
-    // start RDP and sshfs
-    var cmd_start_rdesktop = 'DISPLAY=' + myDISPLAY + ' ' + 'rdesktop -fa 15 -mE ' + myRDPHOST + ':' + myRDPPORT + ' -u IEUser -p Passw0rd! &';
-    var cmd_sshfs_mount = 'sshfs -o uid=$(id -u),gid=$(id -g) -o IdentityFile=' + myHOME + '/.ssh/automation_id_rsa -o StrictHostKeyChecking=no -o nonempty -o port=' + mySSHPORT + ' IEUser@' + myRDPHOST + ':Downloads/ ' + myDownloadPathLocal;
-    if (myRDPHOST && (myRDPHOST != 'localhost') && myRDPPORT && mySSHPORT) {
-      execSync('echo "' + cmd_start_rdesktop + '" > /tmp/rdesktop.' + myRDPHOST + ':' + myRDPPORT + '.lock');
-      execSync('if mountpoint -q ' + myDownloadPathLocal + '; then fusermount -u ' + myDownloadPathLocal + '; fi');
-      execSync('mkdir -p ' + myDownloadPathLocal);
-      console.log(cmd_sshfs_mount);
-      execSync(cmd_sshfs_mount);
-      cmd.run(cmd_start_rdesktop);
-    }
-
     // capture and maxmize the browser window
     var windowHandle = browser.windowHandle();
     browser.window(windowHandle.value);
@@ -113,7 +106,6 @@ module.exports = {
     var cmd_wait_recording_finish = 'while lsof ' + myREPORTDIR + '/Recording_' + scenario_mp4 + '; do sleep 0.5; done';
     var cmd_take_screenshot = 'import -display ' + myDISPLAY + ' -window root '
         + myREPORTDIR + '/Captured_' + scenario_png;
-    var cmd_stop_rdesktop = 'pkill -f "rdesktop.*' + myRDPHOST + ':' + myRDPPORT + '"';
     var cmd_rename_passed_screenshot = 'mv ' + myREPORTDIR + '/Captured_' + scenario_png
         + ' ' + myREPORTDIR + '/Passed_' + scenario_png;
     var cmd_rename_failed_screenshot = 'mv ' + myREPORTDIR + '/Captured_' + scenario_png
@@ -165,16 +157,15 @@ module.exports = {
         scenario.attach(html_tag, 'text/html');
       }
     }
-    if (myRDPHOST && (myRDPHOST != 'localhost') && myRDPPORT) {
+    if (mySSHHOST && mySSHPORT) {
       try {
-        execSync(cmd_stop_rdesktop);
+        framework_libs.stopRdesktop();
+        framework_libs.stopSshFs();
+        framework_libs.stopSshTunnel();
       } catch(e) {}
-      execSync('rm -f /tmp/rdesktop.' + myRDPHOST + ':' + myRDPPORT + '.lock');
     }
   },
 
   AfterFeature: function (event) {
-    console.log(cmd_umount);
-    execSync(cmd_umount);
   }
 }
