@@ -44,7 +44,7 @@ module.exports = {
   conditionOutput: true,
 
   // - - - - SELENIUM-STANDALONE
-  browser: 'chrome',
+  browser: 'MicrosoftEdge',
   platform: 'Windows 10',
   name: '',
   user: '',
@@ -67,7 +67,7 @@ module.exports = {
     waitforTimeout: 1800,
     waitforInterval: 150,
     desiredCapabilities: {
-      browserName: "chrome",
+      browserName: "MicrosoftEdge",
       initialBrowserUrl: "about:blank",
       pageLoadStrategy: "normal",
       unhandledPromptBehavior: "dismiss",
@@ -77,15 +77,6 @@ module.exports = {
       unexpectedAlertBehaviour: "dismiss",
       elementScrollBehavior: 0,
       nativeEvents: true,
-      chromeOptions: {
-        args: ["--disable-infobars", "--start-maximized"],
-        prefs: {
-          'credentials_enable_service': false,
-          'profile': {
-            'password_manager_enabled': false
-          }
-        }
-      },
     },
   },
 

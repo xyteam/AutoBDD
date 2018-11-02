@@ -9,8 +9,10 @@ if (process.env.LOCALSELPORT) {
     case "Win7":
       switch (process.env.BROWSER) {
         case "IE":
-          process.env.BROWSER = 'IE';
           module.exports = require(myFrameworkPath + "/global/configs/chimp_Win10_IE.js");
+        break;
+        case "EDGE":
+          module.exports = require(myFrameworkPath + "/global/configs/chimp_Win10_EDGE.js");
         break;
         case "CH":
           module.exports = require(myFrameworkPath + "/global/configs/chimp_Win10_CH.js");

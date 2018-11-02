@@ -45,7 +45,7 @@ module.exports = {
 
   // - - - - SELENIUM-STANDALONE
   browser: 'internet explorer',
-  platform: 'windows',
+  platform: 'Windows 10',
   name: '',
   user: '',
   key: '',
