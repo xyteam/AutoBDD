@@ -4,7 +4,7 @@ const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
 const selenium_standalone_config = require(frameworkPath + '/framework/configs/selenium-standalone_config.js');
 const frameworkStepPath = frameworkPath + '/framework/step_definitions';
-const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions', frameworkStepPath] : ['./features', frameworkStepPath];
+const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions'] : ['./features'];
 
 // for Linux chrome
 const myDownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);

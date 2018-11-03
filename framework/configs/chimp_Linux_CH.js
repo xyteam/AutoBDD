@@ -11,7 +11,7 @@ const _path2 = _interopRequireDefault(_path);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; };
 const _selenium_standalone = require(frameworkPath + '/framework/configs/selenium-standalone_config.js');
 const frameworkStepPath = frameworkPath + '/framework/step_definitions';
-const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions', frameworkStepPath] : ['./features', frameworkStepPath];
+const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions'] : ['./features'];
 
 // for Linux chrome
 const myDownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
