@@ -11,12 +11,30 @@ $ npm install     # This step only need to be done once when package.json is upd
 $ . .autoPathrc
 ```
 
-###### Then run any of the examples below
+###### Then run local selenium-standalone server on port 4444
 
-* To run test independently from the framework:
+    * In GUI launch System Tools -> LXTerminal
+
+    * In GUI LXTerminal start selenium-standalone in debug mode
+    ```
+    $ cd ~/runProjects/AutoBDD
+    $ . .autoPathrc
+    $ DISPLAY=:0 selenium-standalone start --config=./framework/configs/selenium-standalone_config.js -- -debug true
+    ```
+
+###### Run test-proect without the framework
+
 ```
 $ cd test-projects/Proto/Examples
-$ DISPLAY=:0 chimp --browser=chrome features/webdriver_hub.feature
+$ DISPLAY=:0 chimp --browser=chrome --port=4444 features/webdriver_hub.feature
+```
+
+###### Run test-proect with of the framework
+
+* First deploy framework hooks
+```
+$ cd framework/support
+$ deploy.sh
 ```
 
 * To run all tests in the Examples suite:
@@ -60,22 +78,6 @@ $ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimp $FrameworkPath/framework_chimp.js featur
         ```
         $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=11022 PLATFORM=Win7 BROWSER=IE chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7        
         ```
-
-* To run with local selenium-standalone
-
-    * In GUI launch System Tools -> LXTerminal
-
-    * In GUI LXTerminal start selenium-standalone in debug mode
-    ```
-    $ cd ~/runProjects/AutoBDD
-    $ . .autoPathrc
-    $ DISPLAY=:0 selenium-standalone start --config=./framework/configs/selenium-standalone_config.js -- -debug true
-    ```
-
-    * In any terminal run test with 
-    ```
-    $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 LOCALSELPORT=4444 chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
-    ```
 
 * To run with local selenium-standlone and with full debug mode
     
