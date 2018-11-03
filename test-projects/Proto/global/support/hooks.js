@@ -1,33 +1,25 @@
-module.exports = function() {
-  BeforeFeature(function (event, callback) {
-    callback();
-  });
+module.exports = {
+  BeforeFeature: function (event) {
+  },
 
-  Before(function (scenario, callback) {
-    callback();
-  });
+  Before: function (scenario) {
+  },
 
-  BeforeScenario(function (event, callback) {
-    callback();
-  });
+  BeforeScenario: function (event) {
+  },
 
-  BeforeStep(function (event, callback) {
-    callback();
-  });
+  BeforeStep: function (event) {
+  },
 
-  AfterStep(function (event, callback) {
-    callback();
-  });
+  AfterStep: function (event) {
+  },
 
-  AfterScenario(function (event, callback) {
-    callback();
-  });
+  AfterScenario:  function (event) {
+  },
 
-  After(function (scenario, callback) {
-    callback();
-  });
+  After: function (scenario) {
+  },
 
-  AfterFeature(function (event, callback) {
-    callback();
-  });
+  AfterFeature:  function (event) {
+  }
 }

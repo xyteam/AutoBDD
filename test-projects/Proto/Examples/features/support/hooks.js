@@ -1,4 +1,4 @@
-const global_hooks=require("../../../global/support/hooks");
+const global_hooks = require('../../../global/support/hooks');
 
 module.exports = function() {
   this.BeforeFeature(function (event, callback) {
