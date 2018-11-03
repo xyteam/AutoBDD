@@ -9,9 +9,9 @@ robot.setKeyboardDelay(50);
 module.exports = {
 
   findImage: function(imagePath, imageName, click) {
-    var image_path = imagePath || FrameworkPath + '/global/step_images/' + process.env.PLATFORM;
+    var image_path = imagePath || FrameworkPath + '/framework/step_images/' + process.env.PLATFORM;
     var image_fullPath = image_path + '/' + imageName;
-    var findImage_JS = FrameworkPath + '/global/libs/find_image.js';
+    var findImage_JS = FrameworkPath + '/framework/libs/find_image.js';
     var command_line = 'node ' + findImage_JS + ' ' + image_fullPath;
 
     if (this.fileExisting(image_fullPath)) {
@@ -26,9 +26,9 @@ module.exports = {
   },
 
   clickImage: function(imagePath, imageName) {
-    var image_path = imagePath || FrameworkPath + '/global/step_images/' + process.env.PLATFORM;
+    var image_path = imagePath || FrameworkPath + '/framework/step_images/' + process.env.PLATFORM;
     var image_fullPath = image_path + '/' + imageName;
-    var clickImage_JS = FrameworkPath + '/global/libs/click_image.js';
+    var clickImage_JS = FrameworkPath + '/framework/libs/click_image.js';
     var command_line = 'node ' + clickImage_JS + ' ' + image_fullPath;
 
     if (this.fileExisting(image_fullPath)) {

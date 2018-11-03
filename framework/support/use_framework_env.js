@@ -1,1 +1,1 @@
-module.exports = require(process.env.FrameworkPath + "/global/support/framework_env");
+module.exports = require(process.env.FrameworkPath + '/framework/support/framework_env.js');

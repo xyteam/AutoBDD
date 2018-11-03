@@ -1,5 +1,4 @@
-// global/support/world.js
-const myFrameworkPath = process.env.FrameworkPath;
+const frameworkPath = process.env.FrameworkPath;
 module.exports = {
   World: function() {
     this.URL = require('url-parse');
@@ -7,7 +6,7 @@ module.exports = {
     this.moment = require('moment');
     this.cmd = require('node-cmd');
 
-    this.test_config = require(myFrameworkPath + '/global/configs/browser_default_config').test_config;
+    this.test_config = require(frameworkPath + '/framework/configs/browser_default_config').test_config;
 
     this.wait5 = 5*1000;
     this.wait10 = 10*1000;
@@ -39,8 +38,8 @@ module.exports = {
     this.currentTimeStamp = (new Date()).toISOString();
     this.noRecordFound_message = 'No matching records found.';
 
-    this.browser_session = require(myFrameworkPath + '/global/libs/browser_session');
-    this.robot_session = require(myFrameworkPath + '/global/libs/robot_session');
+    this.browser_session = require(frameworkPath + '/framework/libs/browser_session');
+    this.robot_session = require(frameworkPath + '/framework/libs/robot_session');
 
     return this;
   }

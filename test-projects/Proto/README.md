@@ -63,7 +63,7 @@ $ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimp $FrameworkPath/framework_chimp.js featur
     ```
     $ cd ~/runProjects/AutoBDD
     $ . .autoPathrc
-    $ DISPLAY=:0 selenium-standalone start --config=./global/configs/selenium-standalone_config.js -- -debug true
+    $ DISPLAY=:0 selenium-standalone start --config=./framework/configs/selenium-standalone_config.js -- -debug true
     ```
 
     * In any terminal run test with 

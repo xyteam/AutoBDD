@@ -22,6 +22,6 @@ if (process.env.SSHPORT) {
     process.env.RDPPASS = process.env.RDPPASS || process.env.SSHPASS;
     process.env.SELHOST = process.env.SELHOST || 'localhost';
     process.env.SELPORT = process.env.SELPORT || process.env.SSHPORT.slice(0, -3) + '444';
-    require(process.env.FrameworkPath + '/global/libs/framework_libs').startSshTunnel();
+    require(process.env.FrameworkPath + '/framework/libs/framework_libs').startSshTunnel();
   }
 }

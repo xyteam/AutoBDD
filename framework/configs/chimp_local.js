@@ -1,10 +1,10 @@
 'use strict';
-const myFrameworkPath = process.env.FrameworkPath;
+const frameworkPath = process.env.FrameworkPath;
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
-const selenium_standalone_config = require(myFrameworkPath + '/global/configs/selenium-standalone_config.js');
-const myGlobalStepPath = myFrameworkPath + '/global/step_definitions';
-const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions', myGlobalStepPath] : ['./features', myGlobalStepPath];
+const selenium_standalone_config = require(frameworkPath + '/framework/configs/selenium-standalone_config.js');
+const frameworkStepPath = frameworkPath + '/framework/step_definitions';
+const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions', frameworkStepPath] : ['./features', frameworkStepPath];
 
 // for Linux chrome
 const myDownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);

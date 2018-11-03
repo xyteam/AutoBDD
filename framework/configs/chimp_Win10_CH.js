@@ -1,5 +1,5 @@
 'use strict';
-const myFrameworkPath = process.env.FrameworkPath;
+const frameworkPath = process.env.FrameworkPath;
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
 const glob = require('glob');
@@ -7,9 +7,9 @@ const path = require('path');
 const _path = require('path');
 const _path2 = _interopRequireDefault(_path);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; };
-const _selenium_standalone = require(myFrameworkPath + '/global/configs/selenium-standalone_config.js');
-const myGlobalStepPath = myFrameworkPath + '/global/step_definitions';
-const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions', myGlobalStepPath] : ['./features', myGlobalStepPath];
+const _selenium_standalone = require(frameworkPath + '/framework/configs/selenium-standalone_config.js');
+const frameworkStepPath = frameworkPath + '/framework/step_definitions';
+const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions', frameworkStepPath] : ['./features', frameworkStepPath];
 
 module.exports = {
   // - - - - CHIMP - - - -

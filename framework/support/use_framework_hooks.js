@@ -1,4 +1,4 @@
-const myFramework_hooks=require(process.env.FrameworkPath + "/global/support/framework_hooks");
+const myFramework_hooks=require(process.env.FrameworkPath + '/framework/support/framework_hooks.js');
 
 module.exports = function() {
   this.BeforeFeature(function (event, callback) {
