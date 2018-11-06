@@ -17,7 +17,7 @@ $ . .autoPathrc
 
     * In GUI LXTerminal start selenium-standalone in debug mode
     ```
-    $ cd ~/runProjects/AutoBDD
+    $ cd ~/Projects/AutoBDD
     $ . .autoPathrc
     $ DISPLAY=:0 selenium-standalone start --config=./framework/configs/selenium-standalone_config.js -- -debug true
     ```
