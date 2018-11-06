@@ -1,7 +1,9 @@
 **/*.run
-**/*.mp4
-**/*.png
-**/*.jpg
+**/Passed_*.mp4
+**/Failed_*.mp4
+**/Recording_*.mp4
+**/Passed_*.png
+**/Failed_*.png
 **/.screenshots/
 **/node_modules/
 test-projects/**/use_framework_*.js
