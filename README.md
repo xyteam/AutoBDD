@@ -41,7 +41,7 @@ Controller is dockerized. It can be run in any local or cloud CI environment.
 ```
 $ cd <path-to>/AutoBDD
 $ npm install
-$ . .autoPathrc
+$ . .autoPathrc.sh
 ```
 
 #### To add BDD test project into the framework
