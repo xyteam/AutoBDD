@@ -13,6 +13,7 @@
 *.js eol=lf
 *.json eol=lf
 *.csv eol=lf
+*.feature eol=lf
 
 *.css text
 *.htm text
