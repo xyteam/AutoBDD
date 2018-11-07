@@ -10,7 +10,7 @@ if (process.env.BROWSER == "IE" && process.env.PLATFORM == 'Linux') {
   process.env.PLATFORM = 'Win10';
 }
 
-// if SSHPORT is defined it indicates a remote target
+// if SSHPORT is defined it indicates a remote target, weset remote env vars
 if (process.env.SSHPORT) {
   process.env.SSHHOST = process.env.SSHHOST || '10.0.2.2';
   process.env.SSHUSER = process.env.SSHUSER || 'IEUser';
@@ -22,6 +22,5 @@ if (process.env.SSHPORT) {
     process.env.RDPPASS = process.env.RDPPASS || process.env.SSHPASS;
     process.env.SELHOST = process.env.SELHOST || 'localhost';
     process.env.SELPORT = process.env.SELPORT || process.env.SSHPORT.slice(0, -3) + '444';
-    require(process.env.FrameworkPath + '/framework/libs/framework_libs').startSshTunnel();
   }
 }
