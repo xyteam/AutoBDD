@@ -6,7 +6,6 @@ Feature: Use browser inside steps
   @watch
   Scenario: Visit Webdriver Hub
     When  I visit "http://localhost:4444/wd/hub"
-    # When  I visit "http://localhost:4444/wd/hub/static/resource/hub.html"
-    Then  I should see the title contains the keyword of "webdriver hub"
+    Then  I should see the page title to contain the keyword "webdriver hub"
 
     
