@@ -1,11 +1,12 @@
+const frameworkPath = process.env.FrameworkPath;
 const robot = require('robotjs');
 const cmd = require('node-cmd');
 const fs = require('fs');
 const execSync = require('child_process').execSync;
-const framework_libs = require(process.env.FrameworkPath + '/framework/libs/framework_libs');
+const framework_libs = require(frameworkPath + '/framework/libs/framework_libs');
 const myHOME = process.env.HOME;
 const myPlatformIdSrc = myHOME + '/Projects/xyPlatform/global/platform_id_rsa';
-const myPlatformId = myHOME + '/.ssh/platform_id_rsa';
+const myPlatformIdDes = myHOME + '/.ssh/platform_id_rsa';
 const myDISPLAY = process.env.DISPLAY;
 const myPLATFORM = process.env.PLATFORM;
 const myBROWSER = process.env.BROWSER;
@@ -22,9 +23,8 @@ const myMOVIE = process.env.MOVIE;
 const mySCREENSHOT = process.env.SCREENSHOT;
 const myREPORTDIR = process.env.REPORTDIR;
 const myMODULEPATH = process.env.MODULEPATH;
-const frameworkPath = process.env.FrameworkPath;
 const myDownloadPathLocal = '/tmp/download_' + myDISPLAY.substr(1); 
-const cmd_copy_PlatformId = 'cp ' + myPlatformIdSrc + ' ' + myPlatformId + '; chmod 0600 ' + myPlatformId;
+const cmd_copy_PlatformId = 'cp ' + myPlatformIdSrc + ' ' + myPlatformIdDes + '; chmod 0600 ' + myPlatformIdDes;
 const cmd_umount = 'if mountpoint -q ' + myDownloadPathLocal + '; then fusermount -u ' + myDownloadPathLocal + '; fi';
 const cmd_umount_try = 'fusermount -q -u ' + myDownloadPathLocal;
 
