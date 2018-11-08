@@ -1,25 +1,37 @@
-module.exports = {
-  BeforeFeature: function (event) {
-  },
+const globalHooks = function() {
+  // modify or add global hooks here
+  this.BeforeFeature(function (event, callback) {
+    console.log('from global/hooks.js')
+    callback();
+  });
 
-  Before: function (scenario) {
-  },
+  this.Before(function (scenario, callback) {
+    callback();
+  });
 
-  BeforeScenario: function (event) {
-  },
+  this.BeforeScenario(function (event, callback) {
+    callback();
+  });
 
-  BeforeStep: function (event) {
-  },
+  this.BeforeStep(function (event, callback) {
+    callback();
+  });
 
-  AfterStep: function (event) {
-  },
+  this.AfterStep(function (event, callback) {
+    callback();
+  });
 
-  AfterScenario:  function (event) {
-  },
+  this.AfterScenario(function (event, callback) {
+    callback();
+  });
 
-  After: function (scenario) {
-  },
+  this.After(function (scenario, callback) {
+    callback();
+  });
 
-  AfterFeature:  function (event) {
-  }
+  this.AfterFeature(function (event, callback) {
+    callback();
+  });
 }
+module.exports = globalHooks;
+
