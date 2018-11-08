@@ -1,3 +1,4 @@
+process.env.FrameworkEnv = 'defined in framework_env.js';
 process.env.PLATFORM = process.env.PLATFORM || 'Linux';
 process.env.BROWSER = process.env.BROWSER || 'CH';
 process.env.DISPLAYSIZE = process.env.DISPLAYSIZE || '1920x1200';
