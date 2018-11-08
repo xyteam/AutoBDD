@@ -25,3 +25,11 @@ if (process.env.SSHPORT) {
     process.env.SELPORT = process.env.SELPORT || process.env.SSHPORT.slice(0, -3) + '444';
   }
 }
+
+// switches to control debugging messages
+if (process.env.DebugAll == 1) {
+  process.env.DebugFramework = 1;
+  process.env.DebugTestProject = 1;
+  process.env.DebugSelenium = 1;
+  process.env.DebugCucumber = 1;
+}
