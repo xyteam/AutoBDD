@@ -1,4 +1,6 @@
-const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/Proto';
+// screen_session.js provides functions to see the screen, to control keyboard and mouse
+
+const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const robot = require('robotjs');
 const execSync = require('child_process').execSync;
 
@@ -94,17 +96,5 @@ module.exports = {
 
   typeStringDelayed: function(string, defaultCPM) {
     robot.typeStringDelayed(string, defaultCPM);
-  },
-
-  clickAndEnter: function(browser, linkToClick) {
-    browser.waitForExist(linkToClick, 15000);
-    try {
-      browser.click(linkToClick)
-      try {
-        browser.pause(1000);
-      } catch(e) {}
-    } catch(e) {}
-    robot.keyTap('enter');
   }
-
 }
