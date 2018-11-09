@@ -48,14 +48,7 @@ module.exports = {
     // capture and maxmize the browser window
     var windowHandle = browser.windowHandle();
     browser.window(windowHandle.value);
-    if (myPLATFORM.startsWith('Win')) {
-      browser.windowHandleMaximize();
-    }
-
-    if (this.inDEBUGMODE == true) {
-      console.log('already in browser debug mode');
-    }
-
+    browser.windowHandleMaximize();
     // reset browser zoom
     robot.keyTap('0', 'control');
     browser.pause(1000);
