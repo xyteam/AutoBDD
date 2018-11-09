@@ -4,7 +4,7 @@ const fs = require('fs');
 const execSync = require('child_process').execSync;
 const myHOME = process.env.HOME;
 const myPlatformIdSrc = myHOME + '/Projects/xyPlatform/global/platform_id_rsa';
-const myPlatformId = myHOME + '/.ssh/platform_id_rsa';
+const myPlatformIdDes = myHOME + '/.ssh/platform_id_rsa';
 const myDISPLAY = process.env.DISPLAY;
 const myPLATFORM = process.env.PLATFORM;
 const myBROWSER = process.env.BROWSER;
@@ -30,14 +30,14 @@ const myMODULEPATH = process.env.MODULEPATH;
 const frameworkPath = process.env.FrameworkPath;
 const myDownloadPathLocal = '/tmp/download_' + myDISPLAY.substr(1); 
 const mySSHFSConnString = mySSHUSER + '@' + mySSHHOST + ':Downloads/ ' + myDownloadPathLocal + ' -p ' + mySSHPORT;
-const cmd_copy_PlatformId = 'cp ' + myPlatformIdSrc + ' ' + myPlatformId + '; chmod 0600 ' + myPlatformId;
+const cmd_copy_PlatformId = 'cp ' + myPlatformIdSrc + ' ' + myPlatformIdDes + '; chmod 0600 ' + myPlatformIdDes;
 const cmd_umount = 'if mountpoint -q ' + myDownloadPathLocal + '; then fusermount -u ' + myDownloadPathLocal + '; fi';
 const cmd_umount_try = 'fusermount -q -u ' + myDownloadPathLocal;
 
 // ssh_tunnel
 const cmd_check_ssh_tunnel = 'pgrep -f "ssh .*' + mySSHConnString + '"';
 const cmd_start_ssh_tunnel = 'ssh -N '
-                    + ' -o IdentityFile=' + myPlatformId
+                    + ' -o IdentityFile=' + myPlatformIdDes
                     + ' -o StrictHostKeyChecking=no '
                     + mySSHConnString + mySELPortMapString + myRDPPortMapString
                     + ' &';
@@ -46,7 +46,7 @@ const cmd_stop_ssh_tunnel = 'sleep 2; pkill -f "ssh .*' + mySSHConnString + '"';
 // sshfs_mount
 const cmd_check_sshfs_mount = 'pgrep -f "sshfs .*' + mySSHFSConnString + '"';
 const cmd_start_sshfs_mount = 'sshfs -o uid=$(id -u),gid=$(id -g) -o nonempty'
-                            + ' -o IdentityFile=' + myPlatformId
+                            + ' -o IdentityFile=' + myPlatformIdDes
                             + ' -o StrictHostKeyChecking=no '
                             + mySSHFSConnString;
 const cmd_stop_sshfs_mount = 'if mountpoint -q ' + myDownloadPathLocal
@@ -77,7 +77,7 @@ module.exports = {
   },
   startSshTunnel: function() {
     fs.existsSync(myHOME + '/.ssh') || fs.mkdirSync(myHOME + '/.ssh');
-    fs.existsSync(myPlatformId) || execSync(cmd_copy_PlatformId);
+    fs.existsSync(myPlatformIdDes) || execSync(cmd_copy_PlatformId);
     if (!this.sshTunnelRunning()) {
       cmd.run(cmd_start_ssh_tunnel);
     } 
