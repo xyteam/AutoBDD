@@ -11,7 +11,7 @@ const globalHooks = function() {
   this.BeforeFeature(function (event, callback) {
     if (frameworkHooks) frameworkHooks.BeforeFeature(event);
     // additional hook code below this line
-    console.log('from global/hooks.js')
+    if (process.env.DebugTestProject == 1) console.log('from global/hooks.js');
     callback();
   });
 
