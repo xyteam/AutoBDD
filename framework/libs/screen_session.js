@@ -4,11 +4,15 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const myDISPLAY = process.env.DISPLAY || ':0';
 const robot = require('robotjs');
 const java = require('java');
+const fs = require('fs');
 const execSync = require('child_process').execSync;
 
 // Sikuli Property
-const sikuliApiJar = 'sikulixapi-latest.jar';
+const sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-latest.jar';
 java.classpath.push(sikuliApiJar);
+if (!fs.existsSync(sikuliApiJar) || fs.statSync(sikuliApiJar).size == 0) {
+  execSync(FrameworkPath + '/framework/libs/downloadSikulixApiJar.js');
+}
 const Screen = java.import('org.sikuli.script.Screen');
 const Pattern = java.import('org.sikuli.script.Pattern');
 // Robot Property
@@ -60,7 +64,7 @@ module.exports = {
   rightClickImage: function(imagePath, imageSimilarity) {
     this.findImage(imagePath, imageSimilarity, 'right');
   },
-  
+
   keyTap: function(key, modifier) {
     var myKey = key || 'enter';
     var myModifier = modifier || null;
