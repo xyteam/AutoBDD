@@ -1,51 +1,66 @@
 // screen_session.js provides functions to see the screen, to control keyboard and mouse
 
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const myDISPLAY = process.env.DISPLAY || ':0';
 const robot = require('robotjs');
+const java = require('java');
 const execSync = require('child_process').execSync;
 
+// Sikuli Property
+const sikuliApiJar = 'sikulixapi-latest.jar';
+java.classpath.push(sikuliApiJar);
+const Screen = java.import('org.sikuli.script.Screen');
+const Pattern = java.import('org.sikuli.script.Pattern');
+// Robot Property
 robot.setXDisplayName(process.env.DISPLAY);
 robot.setMouseDelay(50);
 robot.setKeyboardDelay(50);
 
 module.exports = {
 
-  findImage: function(imagePath, imageName, click) {
-    var image_path = imagePath || FrameworkPath + '/framework/step_images/' + process.env.PLATFORM;
-    var image_fullPath = image_path + '/' + imageName;
-    var findImage_JS = FrameworkPath + '/framework/libs/find_image.js';
-    var command_line = 'node ' + findImage_JS + ' ' + image_fullPath;
+  findImage: function(imagePath, imageSimilarity, clickImage, imageFindAll) {
+    var sc = new Screen();
+    var sim_java = java.newFloat(imageSimilarity);
+    var pat = new Pattern(imagePath);
+    var returnVal = [];
+    var find_result;
 
-    if (this.fileExisting(image_fullPath)) {
-      var cmd_result = execSync(command_line).toString();
-      var find_result = cmd_result.substring(cmd_result.indexOf('\n') + 1);
-      if (find_result.includes('nodeJava_org_sikuli_script_Match')) {
-        var find_coordinate = find_result.substring(find_result.indexOf(' ') + 1);
-        return find_coordinate;
+    if (imageFindAll) {
+      find_result = sc.findAllSync(pat.similarSync(sim_java));
+      while (find_result.hasNextSync()) {
+        returnVal.push(find_result.nextSync()); 
+      }
+    } else {
+      find_result = sc.findSync(pat.similarSync(sim_java));
+      returnVal.push(find_result);
+      switch (clickImage) {
+        case (true):
+        case 'true':
+        case 'single':
+          sc.clickSync(pat.similarSync(sim_java));
+        break;
+        case 'double':
+          sc.doubleClickSync(pat.similarSync(sim_java));
+        break;
+        case 'right':
+          sc.rightClickSync(pat.similarSync(sim_java));
       }
     }
-    return null;
+    return returnVal
   },
 
-  clickImage: function(imagePath, imageName) {
-    var image_path = imagePath || FrameworkPath + '/framework/step_images/' + process.env.PLATFORM;
-    var image_fullPath = image_path + '/' + imageName;
-    var clickImage_JS = FrameworkPath + '/framework/libs/click_image.js';
-    var command_line = 'node ' + clickImage_JS + ' ' + image_fullPath;
-
-    if (this.fileExisting(image_fullPath)) {
-      var cmd_result = execSync(command_line).toString();
-      var click_result = cmd_result.substring(cmd_result.indexOf('\n') + 1);
-      if (click_result.includes('CLICK on L')) {
-        var click_coordinate;
-        click_coordinate = click_result.substring(click_result.indexOf('CLICK on L') + 10);
-        click_coordinate = click_coordinate.substring(0, click_coordinate.indexOf('] (') + 1);
-        return click_coordinate;
-      }
-    }
-    return null;
+  clickImage: function(imagePath, imageSimilarity) {
+    this.findImage(imagePath, imageSimilarity, 'single');
   },
 
+  doubleClickImage: function(imagePath, imageSimilarity) {
+    this.findImage(imagePath, imageSimilarity, 'double');
+  },
+
+  rightClickImage: function(imagePath, imageSimilarity) {
+    this.findImage(imagePath, imageSimilarity, 'right');
+  },
+  
   keyTap: function(key, modifier) {
     var myKey = key || 'enter';
     var myModifier = modifier || null;

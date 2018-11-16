@@ -1,16 +1,11 @@
 #!/usr/bin/env node
 
-const java = require('java');
-java.classpath.push(process.env.HOME + '/Projects/Sikulix/lib/sikulixlibslux.jar');
-java.classpath.push(process.env.HOME + '/Projects/Sikulix/lib/sikulixapi.jar');
-const Screen = java.import('org.sikuli.script.Screen');
+var argv = require('minimist')(process.argv.slice(2));
+const imagePath = argv.imagePath;
+const imageSimilarity = argv.imageSimilarity || 0.8;
+const clickImage = argv.clickImage || false; 
+const imageFindAll = argv.imageFindAll || false;
+const screen_session = require(process.env.FrameworkPath + '/framework/libs/screen_session');
 
-var imageFullName = process.argv[2];
-var s = new Screen();
-var r;
-try {
-  r = s.findSync(imageFullName);
-  console.log(r);
-} catch(e) {
-  console.log('image not not found: ' + imageFullName);
-}
+var location = screen_session.findImage(imagePath, imageSimilarity, clickImage, imageFindAll);
+console.log(location);
