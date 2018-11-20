@@ -14,7 +14,7 @@ const frameworkStepPath = frameworkPath + '/framework/step_definitions';
 const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions'] : ['./features'];
 
 // for Linux chrome
-const myDownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
+const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
 const myChromeProfilePath = process.env.myChromeProfilePath || '/tmp/chrome_profile_' + process.env.DISPLAY.substr(1);
 const myChromePreference_json = '{"download":{"default_directory":"' + myDownloadPathLocal + '","directory_upgrade":true},"savefile":{"default_directory":"' + myDownloadPathLocal + '"}}';
 fs.existsSync(myChromeProfilePath) || fs.mkdirSync(myChromeProfilePath);
