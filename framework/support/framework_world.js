@@ -1,3 +1,4 @@
+// global vars and functions for test scripts accessible through this.var_name
 const frameworkPath = process.env.FrameworkPath;
 const frameworkWorld = {
     World: function() {
