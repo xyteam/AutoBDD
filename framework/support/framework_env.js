@@ -6,7 +6,9 @@ process.env.FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Pr
 process.env.StepTimeoutInMS = process.env.StepTimeoutInMS || 60000;
 process.env.REPORTDIR = process.env.REPORTDIR || '.';
 process.env.MODULEPATH = process.env.MODULEPATH || '';
+process.env.DownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
 
+// auto-correct platform
 if (process.env.BROWSER == "IE" && process.env.PLATFORM == 'Linux') {
   process.env.PLATFORM = 'Win10';
 }
