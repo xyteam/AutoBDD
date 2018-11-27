@@ -1,18 +1,17 @@
 // screen_session.js provides functions to see the screen, to control keyboard and mouse
 
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const myDISPLAY = process.env.DISPLAY || ':0';
 const robot = require('robotjs');
 const java = require('java');
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 
 // Sikuli Property
-const sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-latest.jar';
-java.classpath.push(sikuliApiJar);
+const sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.4.jar';
 if (!fs.existsSync(sikuliApiJar) || fs.statSync(sikuliApiJar).size == 0) {
   execSync(FrameworkPath + '/framework/libs/downloadSikulixApiJar.js');
 }
+java.classpath.push(sikuliApiJar);
 const App = java.import('org.sikuli.script.App');
 const Screen = java.import('org.sikuli.script.Screen');
 const Region = java.import('org.sikuli.script.Region');
@@ -24,30 +23,41 @@ robot.setKeyboardDelay(50);
 
 module.exports = {
   findImage: function(onArea, imagePath, imageSimilarity, clickImage, imageFindAll) {
+    var imageSimilarity = imageSimilarity || 0.8;
+    var clickImage = clickImage || false; 
+    var imageFindAll = imageFindAll || false;
     var findRegion;
+
     switch (onArea) {
       case 'onFocus':
       case 'onFocused':
-          findRegion = App.focusedWindowSync();
+        findRegion = App.focusedWindowSync();
         break;
       case 'onScreen':
       default:
         findRegion = new Screen();
     }
+
     var sim_java = java.newFloat(imageSimilarity);
     var pat = new Pattern(imagePath);
-    var returnVal = [];
-    var find_result;
+    var returnArray = [];
 
     try {
       if (imageFindAll) {
-        find_result = findRegion.findAllSync(pat.similarSync(sim_java));
-        while (find_result.hasNextSync()) {
-          returnVal.push(find_result.nextSync()); 
+        var find_results = findRegion.findAllSync(pat.similarSync(sim_java));
+        while (find_results.hasNextSync()) {
+          var find_item = find_results.nextSync();
+          var returnItem = {dimention: null, location: null};
+          returnItem.dimention = {width: find_item.w, height: find_item.h};
+          returnItem.location = {x: find_item.x, y: find_item.y};
+          returnArray.push(returnItem); 
         }
       } else {
-        find_result = findRegion.findSync(pat.similarSync(sim_java));
-        returnVal.push(find_result);
+        var find_item = findRegion.findSync(pat.similarSync(sim_java));
+        var returnItem = {dimention: null, location: null};
+        returnItem.dimention = {width: find_item.w, height: find_item.h};
+        returnItem.location = {x: find_item.x, y: find_item.y};
+        returnArray.push(returnItem);         
         switch (clickImage) {
           case (true):
           case 'true':
@@ -61,28 +71,63 @@ module.exports = {
             findRegion.rightClickSync(pat.similarSync(sim_java));
         }
       }
-      return returnVal
+      return JSON.stringify(returnArray);
     } catch(e) {
-      console.log(e.message);
-      return false;
+      // console.log(e.message);
+      return 'not found';
     }
   },
 
+  runFindImage: function(onArea, imagePath, imageSimilarity, clickImage, imageFindAll) {
+    var outputBuffer = execSync(FrameworkPath + '/framework/libs/find_image.js'
+                      + ' --onArea=' + onArea
+                      + ' --imagePath=' + imagePath
+                      + ' --imageSimilarity=' + imageSimilarity
+                      + ' --clickImage=' + clickImage
+                      + ' --imageFindAll' + imageFindAll);
+    var outputString = outputBuffer.toString('utf8');
+    var returnVal = outputString;
+    return returnVal;
+  },
+
+  focusedFindImage: function(imagePath, imageSimilarity, clickImage, imageFindAll) {
+    var returnVal = this.runFindImage('onFocused', imagePath, imageSimilarity, clickImage, imageFindAll);
+    return returnVal;
+  },
+
+  focusedClickImage: function(imagePath, imageSimilarity) {
+    var returnVal = this.runFindImage('onFocused', imagePath, imageSimilarity, 'single');
+    return returnVal;
+  },
+
+  focusedDoubleClickImage: function(imagePath, imageSimilarity) {
+    var returnVal = this.runFindImage('onFocused', imagePath, imageSimilarity, 'double');
+    return returnVal;
+  },
+
+  focusedRightClickImage: function(imagePath, imageSimilarity) {
+    var returnVal = this.runFindImage('onFocused', imagePath, imageSimilarity, 'right');
+    return returnVal;
+  },
+
   screenFindImage: function(imagePath, imageSimilarity, clickImage, imageFindAll) {
-    var returnVal = this.areaFindImage('onScreen', imagePath, imageSimilarity, clickImage, imageFindAll);
-    return returnVal
+    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, clickImage, imageFindAll);
+    return returnVal;
   },
 
   screenClickImage: function(imagePath, imageSimilarity) {
-    this.screenFindImage(imagePath, imageSimilarity, 'single');
+    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, 'single');
+    return returnVal;
   },
 
   screenDoubleClickImage: function(imagePath, imageSimilarity) {
-    this.screenFindImage(imagePath, imageSimilarity, 'double');
+    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, 'double');
+    return returnVal;
   },
 
   screenRightClickImage: function(imagePath, imageSimilarity) {
-    this.screenFindImage(imagePath, imageSimilarity, 'right');
+    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, 'right');
+    return returnVal;
   },
 
   keyTap: function(key, modifier) {
