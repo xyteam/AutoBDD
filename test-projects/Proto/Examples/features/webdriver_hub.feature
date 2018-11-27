@@ -7,5 +7,6 @@ Feature: Use browser inside steps
   Scenario: Visit Webdriver Hub
     When  I visit "http://localhost:4444/wd/hub"
     Then  I should see the page title to contain the keyword "webdriver hub"
+    And   I should see the image of "gLogo" on the page
 
     
