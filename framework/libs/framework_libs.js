@@ -1,12 +1,25 @@
 const robot = require('robotjs');
-const cmd = require('node-cmd');
 const fs = require('fs');
+const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
+const cmd = require('node-cmd');
+
+// general and system
+const spaceChar_regex = /\s+/g;
+const specialChar_regex = /[\:\;\,\(\)\/\'\.\&\%\-\<\>]/g;
 const myHOME = process.env.HOME;
-const myPlatformIdSrc = myHOME + '/Projects/xyPlatform/global/platform_id_rsa';
-const myPlatformIdDes = myHOME + '/.ssh/platform_id_rsa';
 const myDISPLAY = process.env.DISPLAY;
+
+// test related
 const myPLATFORM = process.env.PLATFORM;
+const myDISPLAYSIZE = process.env.DISPLAYSIZE;
+const myMOVIE = process.env.MOVIE;
+const mySCREENSHOT = process.env.SCREENSHOT;
+const myREPORTDIR = process.env.REPORTDIR;
+const myMODULEPATH = process.env.MODULEPATH;
+
+// framework essential
+const frameworkPath = process.env.FrameworkPath;
 const myBROWSER = process.env.BROWSER;
 const mySSHHOST = process.env.SSHHOST;
 const mySSHPORT = process.env.SSHPORT;
@@ -18,23 +31,19 @@ const myRDPHOST = process.env.RDPHOST;
 const myRDPPORT = process.env.RDPPORT;
 const myRDPUSER = process.env.RDPUSER || mySSHUSER;
 const myRDPPASS = process.env.RDPPASS || mySSHPASS;
+
+// framework deducted
 const mySSHConnString = mySSHUSER + '@' + mySSHHOST + ' -p ' + mySSHPORT;
 const myRDPConnString = myRDPHOST + ':' + myRDPPORT + ' -u ' + myRDPUSER + ' -p ' + myRDPPASS;
 const mySELPortMapString = ' -L' + mySELPORT + ':' + mySELHOST + ':' + 4444;
 const myRDPPortMapString = ' -L' + myRDPPORT + ':' + myRDPHOST + ':' + 3389;
-const myDISPLAYSIZE = process.env.DISPLAYSIZE;
-const myMOVIE = process.env.MOVIE;
-const mySCREENSHOT = process.env.SCREENSHOT;
-const myREPORTDIR = process.env.REPORTDIR;
-const myMODULEPATH = process.env.MODULEPATH;
-const frameworkPath = process.env.FrameworkPath;
-const myDownloadPathLocal = '/tmp/download_' + myDISPLAY.substr(1); 
-const mySSHFSConnString = mySSHUSER + '@' + mySSHHOST + ':Downloads/ ' + myDownloadPathLocal + ' -p ' + mySSHPORT;
-const cmd_copy_PlatformId = 'cp ' + myPlatformIdSrc + ' ' + myPlatformIdDes + '; chmod 0600 ' + myPlatformIdDes;
-const cmd_umount = 'if mountpoint -q ' + myDownloadPathLocal + '; then fusermount -u ' + myDownloadPathLocal + '; fi';
-const cmd_umount_try = 'fusermount -q -u ' + myDownloadPathLocal;
+const myPlatformIdSrc = myHOME + '/Projects/xyPlatform/global/platform_id_rsa';
+const myPlatformIdDes = myHOME + '/.ssh/platform_id_rsa';
 
 // ssh_tunnel
+const cmd_copy_PlatformId = 'cp ' + myPlatformIdSrc + ' ' + myPlatformIdDes + ', chmod 0600 ' + myPlatformIdDes;
+const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
+const mySSHFSConnString = mySSHUSER + '@' + mySSHHOST + ':Downloads/ ' + myDownloadPathLocal + ' -p ' + mySSHPORT;
 const cmd_check_ssh_tunnel = 'pgrep -f "ssh .*' + mySSHConnString + '"';
 const cmd_start_ssh_tunnel = 'ssh -N '
                     + ' -o IdentityFile=' + myPlatformIdDes
@@ -102,12 +111,12 @@ module.exports = {
   startSshFs: function() {
     fs.existsSync(myDownloadPathLocal) || fs.mkdirSync(myDownloadPathLocal);
     if (!this.sshFsRunning()) {
-      cmd.run(cmd_start_sshfs_mount);
+      execSync(cmd_start_sshfs_mount);
     } 
   },
   stopSshFs: function() {
     if (this.sshFsRunning()) {
-      cmd.run(cmd_stop_sshfs_mount);
+      execSync(cmd_stop_sshfs_mount);
     } 
   },
 
@@ -133,5 +142,91 @@ module.exports = {
       cmd.run(cmd_stop_rdesktop);
       execSync(cmd_remove_rdesktop_lock);
     } 
+  },
+
+  // movie and screenshot
+  getScenarioNameBase: function(scenarioName) {
+    var fileBase = (myPLATFORM + '_' + myBROWSER + '_' + myMODULEPATH + '_' + scenarioName)
+                      .replace(spaceChar_regex, '_')
+                      .replace(specialChar_regex, '');
+    return fileBase;
+  },
+  recordingRunning: function(scenarioName) {
+    const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
+    const cmd_check_recording = 'pgrep -f "ffmpeg .*'
+        + myREPORTDIR + '/Recording_' + scenario_mp4
+        + '"';
+    var pidCount = execSync(cmd_check_recording).toString().split('\n').filter(Boolean).length
+    if (pidCount >= 2) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+  startRecording: function(scenarioName) {
+    const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
+    const cmd_start_recording = 'ffmpeg -y -s ' + myDISPLAYSIZE +' -f x11grab -an -nostdin -r 4 -i '
+        + myDISPLAY
+        + ' -filter:v "setpts=0.5*PTS" '
+        + myREPORTDIR + '/Recording_' + scenario_mp4
+        + ' 2> /dev/null &';
+
+    if (scenarioName) {
+      if (this.recordingRunning(scenarioName)) this.stopRecording(scenarioName);
+      exec(cmd_start_recording);
+    } else {
+      console.log('startRecording: scenarioName can not be empty');
+      return false;
+    }
+  },
+  stopRecording: function(scenarioName) {
+    const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
+    const cmd_stop_recording = 'pkill -f "ffmpeg .*'
+        + myREPORTDIR + '/Recording_' + scenario_mp4
+        + '"';
+    const cmd_wait_recording_end = 'while lsof '
+        + myREPORTDIR + '/Recording_' + scenario_mp4
+        + '; do sleep 0.5; done';
+
+    if (scenarioName) {
+      if (this.recordingRunning(scenarioName))
+      try {
+        // this command will kill self and always return error, thus must put in a try block
+        execSync(cmd_stop_recording);
+      } catch(e) {}      
+    } else {
+      console.log('stopRecording: scenarioName can not be empty');
+      return false;
+    }
+  },
+  takeScreenshot: function(scenarioName) {
+    const scenario_png = this.getScenarioNameBase(scenarioName) + '.png';
+    const cmd_take_screenshot = 'import -display ' + myDISPLAY + ' -window root '
+        + myREPORTDIR + '/Captured_' + scenario_png;
+    if (scenarioName) {
+      execSync(cmd_take_screenshot);
+    } else {
+      console.log('takeScreenshot: scenarioName can not be empty');
+      return false;
+    }
+  },
+  renamePassedFailed: function(scenarioName, scenarioResult) {
+    const scenario_base = this.getScenarioNameBase(scenarioName);
+    const scenario_mp4 = scenario_base + '.mp4';
+    const scenario_png = scenario_base + '.png';
+    const cmd_rename_screenshot = 'mv ' + myREPORTDIR + '/Captured_' + scenario_png
+                                  + ' ' + myREPORTDIR + '/' + scenarioResult + '_' + scenario_png;
+    const cmd_rename_movie = 'mv ' + myREPORTDIR + '/Recording_' + scenario_mp4
+                             + ' ' + myREPORTDIR + '/' + scenarioResult + '_' + scenario_mp4;
+    if (mySCREENSHOT == 1 || myMOVIE == 1) execSync(cmd_rename_screenshot);
+    if (mySCREENSHOT == 1) execSync(cmd_rename_movie);
+  },
+  getHtmlReportTags: function(scenarioName, scenarioResult) {
+    const scenario_base = this.getScenarioNameBase(scenarioName);
+    const scenario_mp4 = scenario_base + '.mp4';
+    const scenario_png = scenario_base + '.png';
+    const image_tag = '<img src="' + scenarioResult + '_' + encodeURIComponent(scenario_png) + '"style="max-width: 100%; height: auto;" alt="' + scenarioResult + '_' + scenario_png + '">';
+    const video_tag = '<video src="' + scenarioResult + '_' + encodeURIComponent(scenario_mp4) + '"style="max-width: 100%; height: auto;" controls poster="' + scenarioResult + '_' + scenario_png + '"/>Your browser does not support the video tag.</video>'; 
+    return [image_tag, video_tag];
   }
 }
