@@ -193,6 +193,7 @@ module.exports = {
       try {
         // this command will kill self and always return error, thus must put in a try block
         execSync(cmd_stop_recording);
+        execSync(cmd_wait_recording_end);
       } catch(e) {}      
     } else {
       console.log('stopRecording: scenarioName can not be empty');
@@ -219,7 +220,7 @@ module.exports = {
     const cmd_rename_movie = 'mv ' + myREPORTDIR + '/Recording_' + scenario_mp4
                              + ' ' + myREPORTDIR + '/' + scenarioResult + '_' + scenario_mp4;
     if (mySCREENSHOT == 1 || myMOVIE == 1) execSync(cmd_rename_screenshot);
-    if (mySCREENSHOT == 1) execSync(cmd_rename_movie);
+    if (myMOVIE == 1) execSync(cmd_rename_movie);
   },
   getHtmlReportTags: function(scenarioName, scenarioResult) {
     const scenario_base = this.getScenarioNameBase(scenarioName);
