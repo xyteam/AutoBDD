@@ -33,13 +33,21 @@ module.exports = {
 
   getLocalImageFullPath: function(filePath, fileName, fileExt) {
     var targetPath = filePath.substring(0, filePath.indexOf('step_definitions')) + 'test_images';
-    var imageFullPath = this.getTestImageFullPath(ProjectImagePath, fileName, fileExt);
+    var imageFullPath = this.getTestImageFullPath(targetPath, fileName, fileExt);
     return imageFullPath;
   },
 
   getGlobalImageFullPath: function(fileName, fileExt) {
     var targetPath = ProjectImagePath;
     var imageFullPath = this.getTestImageFullPath(targetPath, fileName, fileExt);
+    return imageFullPath;
+  },
+
+  getLocalThenGlobalImageFullPath: function(filePath, fileName, fileExt) {
+    var imageFullPath = this.getLocalImageFullPath(filePath, fileName, fileExt);
+    if (!imageFullPath) {
+      imageFullPath = this.getGlobalImageFullPath(fileName, fileExt);
+    }
     return imageFullPath;
   }
 }
