@@ -11,7 +11,8 @@ const globalWorld = {
       var self = frameworkWorld || this;
       // define global vars for this test-project below this line
       self.globalVar = 'this.globarVar defined in global/world.js';
-
+      self.web_selectors = require('../test_selectors/web_selectors');
+      self.seleniumPage_selectors = require('../test_selectors/seleniumPage_selectors');
       return self;
     }
 }
