@@ -54,26 +54,31 @@ module.exports = {
         }
       } else {
         var find_item = findRegion.findSync(pat.similarSync(sim_java));
-        var returnItem = {dimention: null, location: null};
+        var returnItem = {dimention: null, location: null, clicked: null};
         returnItem.dimention = {width: find_item.w, height: find_item.h};
         returnItem.location = {x: find_item.x, y: find_item.y};
-        returnArray.push(returnItem);         
+        var click_count = 0;
         switch (clickImage) {
           case (true):
           case 'true':
           case 'single':
-            findRegion.clickSync(pat.similarSync(sim_java));
+            click_count = findRegion.clickSync(pat.similarSync(sim_java));
           break;
           case 'double':
-            findRegion.doubleClickSync(pat.similarSync(sim_java));
+            click_count = findRegion.doubleClickSync(pat.similarSync(sim_java));
           break;
           case 'right':
-            findRegion.rightClickSync(pat.similarSync(sim_java));
+            click_count = findRegion.rightClickSync(pat.similarSync(sim_java));
         }
+        if (click_count > 0) {
+          var clicked_target = find_item.getTargetSync();
+          returnItem.clicked = {x: clicked_target.x, y: clicked_target.y}
+        }
+        returnArray.push(returnItem);
       }
       return JSON.stringify(returnArray);
     } catch(e) {
-      // console.log(e.message);
+      console.log(e.message);
       return 'not found';
     }
   },
@@ -86,7 +91,7 @@ module.exports = {
                       + ' --clickImage=' + clickImage
                       + ' --imageFindAll' + imageFindAll);
     var outputString = outputBuffer.toString('utf8');
-    var returnVal = outputString;
+    var returnVal = outputString.substring(outputString.lastIndexOf('['), outputString.lastIndexOf(']') + 1);
     return returnVal;
   },
 
