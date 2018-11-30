@@ -17,12 +17,14 @@ module.exports = {
         var fileFullPath = targetPath + platformBrowserPath + '/' + fileName + '.' + ext;
         if (fs.existsSync(fileFullPath)) imageFullPath = fileFullPath;
       });
-    } else if ((imageFullPath == null) && fs.existsSync(targetPath + platformOnlyPath)) {
+    }
+    if ((imageFullPath == null) && fs.existsSync(targetPath + platformOnlyPath)) {
       imageExt.some(function(ext) {
         var fileFullPath = targetPath + platformOnlyPath + '/' + fileName + '.' + ext;
         if (fs.existsSync(fileFullPath)) imageFullPath = fileFullPath;
       });
-    } else if ((imageFullPath == null) && fs.existsSync(targetPath)) {
+    }
+    if ((imageFullPath == null) && fs.existsSync(targetPath)) {
       imageExt.some(function(ext) {
         var fileFullPath = targetPath + '/' + fileName + '.' + ext;
         if (fs.existsSync(fileFullPath)) imageFullPath = fileFullPath;
