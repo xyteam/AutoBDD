@@ -19,9 +19,9 @@ Feature: Use browser inside steps
 
   Scenario: Visit Webdriver Hub - check page image
     When  I visit "http://localhost:4444/wd/hub"
-    And   I should see the "Selenium_CreateSession_Button" image on the page
-    When  I click the "Selenium_CreateSession_Button" image on the page
-    Then  I should see the "Selenium_CreateNewSession" image on the screen
+    And   I should see the "Selenium_CreateSession_button" image on the page
+    When  I click the "Selenium_CreateSession_button" image on the page
+    Then  I should see the "Selenium_CreateNewSession_modal" image on the screen
 
   Scenario: File Open and Download - check PDF file
     When  I visit "http://www.orimi.com/pdf-test.pdf"
