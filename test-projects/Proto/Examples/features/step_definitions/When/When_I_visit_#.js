@@ -1,5 +1,5 @@
 module.exports = function() {
-  this.Given(/^I visit "([^"]*)"$/, {timeout: process.env.StepTimeoutInMS}, function (url) {
+  this.When(/^I visit "([^"]*)"$/, {timeout: process.env.StepTimeoutInMS}, function (url) {
     // debug messages
     if (process.env.DebugTestProject == 1) {
       console.log(process.env.FrameworkEnv);
