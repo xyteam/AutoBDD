@@ -1,5 +1,5 @@
 module.exports = function() {
-  this.Given(/^I should see the image of "([^"]*)" on the page$/, {timeout: process.env.StepTimeoutInMS}, function (imageName) {
+  this.Given(/^I should see the "([^"]*)" image on the page$/, {timeout: process.env.StepTimeoutInMS}, function (imageName) {
     var imageFullPath = this.fs_session.getLocalThenGlobalImageFullPath(__dirname, imageName);
     var imageSimilarity = 0.8;
     var resultString = this.screen_session.focusedFindImage(imageFullPath, imageSimilarity);
