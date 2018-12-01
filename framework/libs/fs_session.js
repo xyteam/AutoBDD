@@ -56,7 +56,14 @@ module.exports = {
   },
 
   deleteDownloadFile: function(fileName, fileExt) {
-    const rm_downloadFile_cmd = 'rm -f ' + DownloadPathLocal + '/' + fileName + '*.' + fileExt;
+    const fileFullPath = DownloadPathLocal + '/' + fileName + '.' + fileExt;
+    const oldFilesFullPath = DownloadPathLocal + '/' + fileName + '\\ \\([0-9]*\\)' + '.' + fileExt;
+    const rm_downloadFile_cmd = 'rm -f ' + fileFullPath + ' ' + oldFilesFullPath;
     execSync(rm_downloadFile_cmd);
-  }
+  },
+
+  checkDownloadFile: function(fileName, fileExt) {
+    const fileFullPath = DownloadPathLocal + '/' + fileName + '.' + fileExt;
+    return fs.existsSync(fileFullPath);
+  },  
 }
