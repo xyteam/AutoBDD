@@ -4,8 +4,6 @@ module.exports = function() {
     var downloadUrl = browser.getUrl();
     var fileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.'));
     var fileExt = downloadUrl.substring(downloadUrl.lastIndexOf('.') + 1);
-    console.log(fileName);
-    console.log(fileExt);
     this.fs_session.deleteDownloadFile(fileName, fileExt);
 
     // click PDF download icon
