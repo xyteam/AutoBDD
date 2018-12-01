@@ -6,8 +6,6 @@
 **/Failed_*.png
 **/.screenshots/
 **/node_modules/
-test-projects/**/use_framework_*.js
 tmp/*
 reports/*
-!**/step_images/*
 .vscode/*
