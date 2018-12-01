@@ -1,1 +1,1 @@
-module.exports = require(process.env.FrameworkPath + "/global/support/env");
+module.exports = require('../../../global/support/env');
