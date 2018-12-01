@@ -26,8 +26,8 @@ Feature: Use browser inside steps
   Scenario: File Open and Download - check PDF file
     When  I visit "http://www.orimi.com/pdf-test.pdf"
     And   I should see the "Yukon_Logo" image on the page
-    When  I save the PDF file
-    And   the downloaded file should contain "PDF Test File"
+    When  I download the PDF file by clicking the "PDF_download_icon"
+    Then  the downloaded file should contain "PDF Test File"
 
   Scenario: File Download - check XLS file
     When  I visit "http://go.microsoft.com/fwlink/?LinkID=521962"
