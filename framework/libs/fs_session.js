@@ -2,7 +2,9 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const ProjectPath = FrameworkPath + '/test-projects/' + process.env.ThisProject;
 const ProjectImagePath = ProjectPath + '/global/test_images'
+const DownloadPathLocal = process.env.DownloadPathLocal;
 const fs = require('fs');
+const execSync = require('child_process').execSync;
 
 module.exports = {
   getTestImageFullPath: function(filePath, fileName, fileExt) {
@@ -51,5 +53,10 @@ module.exports = {
       imageFullPath = this.getGlobalImageFullPath(fileName, fileExt);
     }
     return imageFullPath;
+  },
+
+  deleteDownloadFile: function(fileName, fileExt) {
+    const rm_downloadFile_cmd = 'rm -f ' + DownloadPathLocal + '/' + fileName + '*.' + fileExt;
+    execSync(rm_downloadFile_cmd);
   }
 }
