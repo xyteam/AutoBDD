@@ -5,6 +5,7 @@ const ProjectImagePath = ProjectPath + '/global/test_images'
 const DownloadPathLocal = process.env.DownloadPathLocal;
 const fs = require('fs');
 const pdfParse = require('pdf-parse');
+const XLSX = require('xlsx');
 const execSync = require('child_process').execSync;
 
 module.exports = {
@@ -65,17 +66,15 @@ module.exports = {
 
   checkDownloadFile: function(fileName, fileExt) {
     const fileFullPath = DownloadPathLocal + '/' + fileName + '.' + fileExt;
-    if (fs.existsSync(fileFullPath)) {
-      return fileFullPath;
-    } else {
-      return false;
+    while (!fs.existsSync(fileFullPath)) {
+      browser.pause(1000);
     }
+    return fileFullPath;
   },
 
   readPdfData: function(pdfFullPath) {
     const dataBuffer = fs.readFileSync(pdfFullPath);
     var pdfData = null;
-
     // pdfParse is an async function, need a while-wait statement for pdfData to be filled.
     pdfParse(dataBuffer).then(function(data) {
       pdfData = data;
@@ -83,7 +82,13 @@ module.exports = {
     while (pdfData == null) {
       browser.pause(1000);
     }
-
     return pdfData;
+  },
+
+  readXlsData: function(xlsFullPath) {
+    const dataBuffer = fs.readFileSync(xlsFullPath);
+    const workbook = XLSX.read(dataBuffer, {type:'buffer'});
+    var  xlsData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header:1});
+    return xlsData;
   }
 }
