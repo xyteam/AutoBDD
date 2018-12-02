@@ -13,6 +13,7 @@
     "moment": "^2.22.2",
     "node-cmd": "^3.0.0",
     "npm-path": "^2.0.4",
+    "pdf-parse": "^1.1.1",
     "request": "^2.88.0",
     "robotjs": "^0.5.1",
     "url-parse": "^1.4.4",
