@@ -25,8 +25,8 @@ Feature: Use browser inside steps
 
   Scenario: File Open and Download - check PDF file
     When  I visit "http://www.orimi.com/pdf-test.pdf"
-    And   I should see the "Yukon_Logo" image on the page
-    When  I download the PDF file by clicking the "PDF_download_icon"
+    # And   I should see the "Yukon_Logo" image on the page
+    # When  I download the PDF file by clicking the "PDF_download_icon"
     Then  the downloaded PDF file should contain "PDF Test File"
 
   Scenario: File Download - check XLS file

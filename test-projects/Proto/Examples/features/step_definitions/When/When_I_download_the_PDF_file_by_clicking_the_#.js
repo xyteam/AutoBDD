@@ -24,7 +24,11 @@ module.exports = function() {
     expect(resultString).not.toContain('not found');
     expect(resultString).not.toContain('error');
     var resultArray = JSON.parse(resultString);
-    while (!this.fs_session.checkDownloadFile(fileName, fileExt)) browser.pause(1000);
-    expect(this.fs_session.checkDownloadFile(fileName, fileExt)).toBe(true);
+    var downloadFilePath = this.fs_session.checkDownloadFile(fileName, fileExt);
+    while (!downloadFilePath) {
+      browser.pause(1000);
+      downloadFilePath = this.fs_session.checkDownloadFile(fileName, fileExt);
+    }
+    expect(downloadFilePath).toContain(fileName + '.' + fileExt);
   });
 };
