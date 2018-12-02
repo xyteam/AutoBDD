@@ -4,6 +4,7 @@ const ProjectPath = FrameworkPath + '/test-projects/' + process.env.ThisProject;
 const ProjectImagePath = ProjectPath + '/global/test_images'
 const DownloadPathLocal = process.env.DownloadPathLocal;
 const fs = require('fs');
+const pdfParse = require('pdf-parse');
 const execSync = require('child_process').execSync;
 
 module.exports = {
@@ -64,6 +65,25 @@ module.exports = {
 
   checkDownloadFile: function(fileName, fileExt) {
     const fileFullPath = DownloadPathLocal + '/' + fileName + '.' + fileExt;
-    return fs.existsSync(fileFullPath);
-  },  
+    if (fs.existsSync(fileFullPath)) {
+      return fileFullPath;
+    } else {
+      return false;
+    }
+  },
+
+  readPdfData: function(pdfFullPath) {
+    const dataBuffer = fs.readFileSync(pdfFullPath);
+    var pdfData = null;
+
+    // pdfParse is an async function, need a while-wait statement for pdfData to be filled.
+    pdfParse(dataBuffer).then(function(data) {
+      pdfData = data;
+    });
+    while (pdfData == null) {
+      browser.pause(1000);
+    }
+
+    return pdfData;
+  }
 }
