@@ -1,7 +1,7 @@
-Feature: Use browser inside steps
+Feature: webdriver hub page
 
-  As a developer
-  I want to open browser and visit Selenium Standalone
+  As a QA Engineer
+  I want to open the Selenium Standalone Hub page with a browser and investigate its features
 
   Scenario: Visit Webdriver Hub - check page element
     When  I visit "http://localhost:4444/wd/hub"
@@ -22,13 +22,4 @@ Feature: Use browser inside steps
     And   I should see the "Selenium_CreateSession_button" image on the page
     When  I click the "Selenium_CreateSession_button" image on the page
     Then  I should see the "Selenium_CreateNewSession_modal" image on the screen
-
-  Scenario: File Open and Download - check PDF file
-    When  I visit "http://www.orimi.com/pdf-test.pdf"
-    And   I should see the "Yukon_Logo" image on the page
-    When  I download the PDF file by clicking "PDF_download_icon"
-    Then  the downloaded PDF file should contain "PDF Test File"
-
-  Scenario: File Download - check XLS file
-    When  I download the XLS file by going to URL "https://www.sample-videos.com/xls/Sample-Spreadsheet-10-rows.xls"
-    And   the downloaded XLS file should contain 10 rows
+    
