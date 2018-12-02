@@ -3,7 +3,7 @@ require(frameworkPath + '/framework/support/framework_env.js');
 
 // if SSHPORT is defined it indicates a remote target, We will establish SSH tunnel
 if ((process.env.SSHPORT) && (process.env.SSHHOST == '10.0.2.2')) {
-  require(process.env.FrameworkPath + '/framework/libs/framework_libs').startSshTunnel();
+  require(frameworkPath + '/framework/libs/framework_libs').startSshTunnel();
 }
 
 if (process.env.LOCALSELPORT) {
