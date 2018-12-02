@@ -8,9 +8,6 @@ const execSync = require('child_process').execSync;
 
 // Sikuli Property
 const sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.4.jar';
-if (!fs.existsSync(sikuliApiJar) || fs.statSync(sikuliApiJar).size == 0) {
-  execSync(FrameworkPath + '/framework/libs/downloadSikulixApiJar.js');
-}
 java.classpath.push(sikuliApiJar);
 const App = java.import('org.sikuli.script.App');
 const Screen = java.import('org.sikuli.script.Screen');
