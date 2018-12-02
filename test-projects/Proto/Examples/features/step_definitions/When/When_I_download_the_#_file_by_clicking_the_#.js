@@ -1,5 +1,5 @@
 module.exports = function() {
-  this.When(/^I download the PDF file by clicking the "([^"]*)"$/, {timeout: process.env.StepTimeoutInMS}, function (imageName) {
+  this.When(/^I download the (PDF) file by clicking "([^"]*)"$/, {timeout: process.env.StepTimeoutInMS}, function (fileType, imageName) {
     // delete previous download file
     var downloadUrl = browser.getUrl();
     var fileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.'));
@@ -25,10 +25,6 @@ module.exports = function() {
     expect(resultString).not.toContain('error');
     var resultArray = JSON.parse(resultString);
     var downloadFilePath = this.fs_session.checkDownloadFile(fileName, fileExt);
-    while (!downloadFilePath) {
-      browser.pause(1000);
-      downloadFilePath = this.fs_session.checkDownloadFile(fileName, fileExt);
-    }
     expect(downloadFilePath).toContain(fileName + '.' + fileExt);
   });
 };

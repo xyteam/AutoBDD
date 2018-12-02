@@ -25,12 +25,10 @@ Feature: Use browser inside steps
 
   Scenario: File Open and Download - check PDF file
     When  I visit "http://www.orimi.com/pdf-test.pdf"
-    # And   I should see the "Yukon_Logo" image on the page
-    # When  I download the PDF file by clicking the "PDF_download_icon"
+    And   I should see the "Yukon_Logo" image on the page
+    When  I download the PDF file by clicking "PDF_download_icon"
     Then  the downloaded PDF file should contain "PDF Test File"
 
   Scenario: File Download - check XLS file
-    When  I visit "http://go.microsoft.com/fwlink/?LinkID=521962"
-    And   the downloaded XLS file should contain the following fields
-    | Segment :: Country :: Product :: Discount Band :: Units Sold :: Manufacturing Price :: Sale Price :: Gross Sales :: Discounts :: Sales :: COGS :: Profit :: Date :: Month Number :: Month Name :: Year |
-    And   the downloaded XLS file should contain "700" rows
+    When  I download the XLS file by going to URL "https://www.sample-videos.com/xls/Sample-Spreadsheet-10-rows.xls"
+    And   the downloaded XLS file should contain 10 rows
