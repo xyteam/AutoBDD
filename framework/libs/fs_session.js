@@ -1,5 +1,6 @@
 // fs_session.js provides functions to read and write the Downlaods folder of the target system (local or remote)
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const FrameworkImagePath = FrameworkPath + 'framework/support/framework_images';
 const ProjectPath = FrameworkPath + '/test-projects/' + process.env.ThisProject;
 const ProjectImagePath = ProjectPath + '/global/test_images'
 const DownloadPathLocal = process.env.DownloadPathLocal;
@@ -48,6 +49,12 @@ module.exports = {
     var imageFullPath = this.getTestImageFullPath(targetPath, fileName, fileExt);
     return imageFullPath;
   },
+
+  getFrameworkImageFullPath: function(fileName, fileExt) {
+    var targetPath = FrameworkImagePath;
+    var imageFullPath = this.getTestImageFullPath(targetPath, fileName, fileExt);
+    return imageFullPath;
+  },  
 
   getLocalThenGlobalImageFullPath: function(filePath, fileName, fileExt) {
     var imageFullPath = this.getLocalImageFullPath(filePath, fileName, fileExt);
