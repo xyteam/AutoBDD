@@ -11,3 +11,4 @@ tmp/*
 reports/*
 !**/step_images/*
 .vscode/*
+report-archive/*
