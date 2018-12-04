@@ -7,8 +7,13 @@ module.exports = {
   BeforeFeature: function (event) {
     // start RDP and sshfs
     if (process.env.SSHHOST && process.env.SSHPORT) {
+      // these start functions will prevent double running
       framework_libs.startSshFs();
-      framework_libs.startRdesktop();
+      if (process.env.MOVIE == 1 || process.env.SCREENSHOT == 1) {
+        framework_libs.startRdesktop();
+        // TODO: will convert this sleep statement into actual wait of the RDP target
+        browser.pause(5000);
+      }
     }
   },
 
@@ -27,13 +32,8 @@ module.exports = {
     var scenarioName = scenario.getName();
 
     // increase IE browser script execution time
-    if (process.env.BROWSER == 'IE') {
-      browser.timeouts('script', 60000);
-    }
-
-    if (process.env.MOVIE == 1) {
-      framework_libs.startRecording(scenarioName);
-    }
+    if (process.env.BROWSER == 'IE') browser.timeouts('script', 60000);
+    if (process.env.MOVIE == 1) framework_libs.startRecording(scenarioName);
   },
 
   BeforeStep: function(event) {
@@ -80,17 +80,16 @@ module.exports = {
     // need to perform these steps before tear down RDP
     screen_session.keyTap('0', 'control');
     browser.pause(1000);
-
-    if (process.env.SSHHOST && process.env.SSHPORT) {
-      try {
-        framework_libs.stopRdesktop();
-        framework_libs.stopSshFs();
-        framework_libs.stopSshTunnel();
-      } catch(e) {}
-    }
   },
 
   AfterFeature: function (event) {
     browser.end();
+    if (process.env.SSHHOST && process.env.SSHPORT) {
+      try {
+        if (process.env.MOVIE == 1 || process.env.SCREENSHOT == 1) framework_libs.stopRdesktop();
+        framework_libs.stopSshFs();
+        framework_libs.stopSshTunnel();
+      } catch(e) {}
+    }
   }
 }

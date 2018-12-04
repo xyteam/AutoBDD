@@ -1,10 +1,10 @@
 'use strict';
 const frameworkPath = process.env.FrameworkPath;
+const projectFullPath = process.env.FrameworkPath + '/test-projects/' + process.env.ThisProject; 
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
 const selenium_standalone_config = require(frameworkPath + '/framework/configs/selenium-standalone_config.js');
-const frameworkStepPath = frameworkPath + '/framework/step_definitions';
-const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions'] : ['./features'];
+const myCombinedStepPath = ['features', projectFullPath + '/global'];
 
 // for Linux chrome
 const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
@@ -50,9 +50,6 @@ module.exports = {
   // - - - - SELENIUM-STANDALONE
   browser: 'chrome',
   platform: 'linux',
-  name: '',
-  user: '',
-  key: '',
   host: 'localhost',
   port: process.env.LOCALSELPORT,
   seleniumStandaloneOptions: {

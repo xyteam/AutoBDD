@@ -13,11 +13,13 @@
     "moment": "^2.22.2",
     "node-cmd": "^3.0.0",
     "npm-path": "^2.0.4",
+    "pdf-parse": "^1.1.1",
     "request": "^2.88.0",
     "robotjs": "^0.5.1",
     "url-parse": "^1.4.4",
     "webdriverio": "^4.14.0",
-    "words-to-numbers": "^1.5.1"
+    "words-to-numbers": "^1.5.1",
+    "xlsx": "^0.14.1"
   },
   "devDependencies": {
     "cucumber-html-reporter": "^4.0.4",

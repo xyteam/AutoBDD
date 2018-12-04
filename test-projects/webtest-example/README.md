@@ -1,4 +1,4 @@
-# Proto
+# webtest-example
 
 This project is a prototype test project for the framework. The purpose of this project is to test the integration of test project with the AutoBDD framework. In theory user can reference to this Proto project to add new test projects.
 
@@ -25,7 +25,7 @@ $ . .autoPathrc
 ###### Run test-proect without the framework
 
 ```
-$ cd test-projects/Proto/Examples
+$ cd test-projects/webtest-example/Examples
 $ DISPLAY=:0 chimp --browser=chrome --port=4444 features/webdriver_hub.feature
 ```
 
@@ -39,13 +39,13 @@ $ deploy.sh
 
 * To run all tests in the Examples suite:
 ```
-$ cd test-projects/Proto/Examples
+$ cd test-projects/webtest-example/Examples
 $ DISPLAY=:0 chimp $FrameworkPath/framework_chimp.js
 ```
 
 * To run a particular test by line number with Screenshot and Movie, controllable independently:
 ```
-$ cd test-projects/Proto/Examples
+$ cd test-projects/webtest-example/Examples
 $ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
 ```
     and check out the screenshot and movie in the same folder.

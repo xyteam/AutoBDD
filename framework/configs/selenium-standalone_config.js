@@ -22,7 +22,7 @@ module.exports = {
     edge: {
       version: '10240',
       arch: process.arch,
-      baseURL: 'https://download.microsoft.com/download/8/D/0/8D0D08CF-790D-4586-B726-C6469A9ED49C/MicrosoftWebDriver.exe'
+      baseURL: 'http://download.microsoft.com/download/8/D/0/8D0D08CF-790D-4586-B726-C6469A9ED49C/MicrosoftWebDriver.exe'
     }
   }
 };
