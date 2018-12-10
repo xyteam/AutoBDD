@@ -13,22 +13,41 @@ module.exports = {
   getTestImageFullPath: function(filePath, fileName, fileExt) {
     var imageExt = fileExt || ['gif', 'jpg', 'png'];
     var targetPath = filePath;
-    var platformBrowserPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER;
+    var platformBrowserXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER + '/' + process.env.XVFB;
+    var platformBrowserPath = '/' + process.env.PLATFORM + '/' + process.env.XVFB;
+    var platformXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER;
     var platformOnlyPath = '/' + process.env.PLATFORM;
     var imageFullPath = null;
 
+    // TESTIMAGE/PLATFORM/BROWSER/XVFB/
+    if ((imageFullPath == null) && (process.env.XVFB == 'XVFB') && fs.existsSync(targetPath + platformBrowserXVFBPath)) {
+      imageExt.some(function(ext) {
+        var fileFullPath = targetPath + platformBrowserXVFBPath + '/' + fileName + '.' + ext;
+        if (fs.existsSync(fileFullPath)) imageFullPath = fileFullPath;
+      });
+    }
+    // TESTIMAGE/PLATFORM/BROWSER/
     if ((imageFullPath == null) && fs.existsSync(targetPath + platformBrowserPath)) {
       imageExt.some(function(ext) {
         var fileFullPath = targetPath + platformBrowserPath + '/' + fileName + '.' + ext;
         if (fs.existsSync(fileFullPath)) imageFullPath = fileFullPath;
       });
     }
+    // TESTIMAGE/PLATFORM/XVFB/
+    if ((imageFullPath == null) && (process.env.XVFB == 'XVFB') && fs.existsSync(targetPath + platformXVFBPath)) {
+      imageExt.some(function(ext) {
+        var fileFullPath = targetPath + platformXVFBPath + '/' + fileName + '.' + ext;
+        if (fs.existsSync(fileFullPath)) imageFullPath = fileFullPath;
+      });
+    }
+    // TESTIMAGE/PLATFORM/
     if ((imageFullPath == null) && fs.existsSync(targetPath + platformOnlyPath)) {
       imageExt.some(function(ext) {
         var fileFullPath = targetPath + platformOnlyPath + '/' + fileName + '.' + ext;
         if (fs.existsSync(fileFullPath)) imageFullPath = fileFullPath;
       });
     }
+    // TESTIMAGE/
     if ((imageFullPath == null) && fs.existsSync(targetPath)) {
       imageExt.some(function(ext) {
         var fileFullPath = targetPath + '/' + fileName + '.' + ext;

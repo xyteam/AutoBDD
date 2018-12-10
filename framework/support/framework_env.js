@@ -10,8 +10,13 @@ process.env.DownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1)
 process.env.imageSimilarity = process.env.imageSimilarity || 0.8;
 process.env.imageWaitTime = process.env.imageWaitTime || 1;
 
+// auto-detect XVFB
+if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0' ) {
+  process.env.XVFB = process.env.XVFB || 'XVFB';
+}
+
 // auto-correct platform
-if (process.env.BROWSER == "IE" && process.env.PLATFORM == 'Linux') {
+if (process.env.BROWSER == 'IE' && process.env.PLATFORM == 'Linux') {
   process.env.PLATFORM = 'Win10';
 }
 
