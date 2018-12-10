@@ -37,7 +37,7 @@ module.exports = {
     // capture and maxmize the browser window
     var windowHandle = browser.windowHandle();
     browser.window(windowHandle.value);
-    browser.windowHandleMaximize();
+    // browser.windowHandleMaximize();
     // reset browser zoom
     screen_session.keyTap('0', 'control');
     browser.pause(1000);
