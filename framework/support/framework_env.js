@@ -7,6 +7,8 @@ process.env.StepTimeoutInMS = process.env.StepTimeoutInMS || 60000;
 process.env.REPORTDIR = process.env.REPORTDIR || '.';
 process.env.MODULEPATH = process.env.MODULEPATH || '';
 process.env.DownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
+process.env.imageSimilarity = process.env.imageSimilarity || 0.8;
+process.env.imageWaitTime = process.env.imageWaitTime || 1;
 
 // auto-correct platform
 if (process.env.BROWSER == "IE" && process.env.PLATFORM == 'Linux') {
