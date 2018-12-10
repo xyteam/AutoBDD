@@ -64,7 +64,7 @@ const cmd_stop_sshfs_mount = 'if mountpoint -q ' + myDownloadPathLocal
 // rdesktop
 const cmd_check_rdesktop = 'pgrep -f "rdesktop .*' + myRDPHOST + ':' + myRDPPORT + '"';
 const cmd_start_rdesktop = 'DISPLAY=' + myDISPLAY
-                          + ' rdesktop -fa 15 -mE '
+                          + ' rdesktop -fa 16 -mE '
                           + myRDPConnString
                           + ' &';
 const cmd_stop_rdesktop = 'pkill -f "rdesktop .*' + myRDPHOST + ':' + myRDPPORT + '"';
