@@ -11,8 +11,24 @@ module.exports = {
       framework_libs.startSshFs();
       if (process.env.MOVIE == 1 || process.env.SCREENSHOT == 1) {
         framework_libs.startRdesktop();
-        // TODO: will convert this sleep statement into actual wait of the RDP target
-        browser.pause(5000);
+        var targetDesktopImage;
+        switch (process.env.PLATFORM) {
+          case 'Win10':
+            targetDesktopImage = frameworkPath + '/framework/support/framework_images/windows10_startButton.png';
+            break;
+          case 'Win7':
+            targetDesktopImage = frameworkPath + '/framework/support/framework_images/windows10_startButton.png';
+            break;
+        }
+        try {
+          var imageSimilarity = process.env.imageSimilarity;
+          var imageWaitTime = 10;
+          screen_session.screenWaitImage(targetDesktopImage, imageSimilarity, imageWaitTime);
+          console.log('can see desktop');
+        } catch(e) {
+          console.log('cannot see desktop');
+        }
+        // browser.pause(5000);
       }
     }
   },
