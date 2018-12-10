@@ -72,8 +72,8 @@ module.exports = {
     var scenarioName = scenario.getName();
 
     if (process.env.MOVIE == 1) {
-      framework_libs.stopRecording(scenarioName);
       framework_libs.takeScreenshot(scenarioName);
+      framework_libs.stopRecording(scenarioName);
     } else if (process.env.SCREENSHOT == 1) {
       framework_libs.takeScreenshot(scenarioName);
     }
