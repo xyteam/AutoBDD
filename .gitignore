@@ -1,4 +1,5 @@
 **/*.run
+**/.DS_Store
 **/Passed_*.mp4
 **/Failed_*.mp4
 **/Recording_*.mp4
