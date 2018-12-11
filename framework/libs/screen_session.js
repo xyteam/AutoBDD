@@ -51,15 +51,15 @@ module.exports = {
         var find_results = findRegion.findAllSync(target);
         while (find_results.hasNextSync()) {
           var find_item = find_results.nextSync();
-          var returnItem = {dimention: null, location: null};
-          returnItem.dimention = {width: find_item.w, height: find_item.h};
+          var returnItem = {dimension: null, location: null};
+          returnItem.dimension = {width: find_item.w, height: find_item.h};
           returnItem.location = {x: find_item.x, y: find_item.y};
           returnArray.push(returnItem); 
         }
       } else {
         var find_item = findRegion.waitSync(target, imageWaitTime);
-        var returnItem = {dimention: null, location: null, clicked: null};
-        returnItem.dimention = {width: find_item.w, height: find_item.h};
+        var returnItem = {dimension: null, location: null, clicked: null};
+        returnItem.dimension = {width: find_item.w, height: find_item.h};
         returnItem.location = {x: find_item.x, y: find_item.y};
         var click_count = 0;
         switch (imageAction) {
