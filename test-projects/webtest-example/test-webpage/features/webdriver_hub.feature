@@ -1,9 +1,11 @@
 Feature: webdriver hub page
 
   As a QA Engineer
-  I want to open the Selenium Standalone Hub page with a browser and investigate its features
+  I want to inviestigate a few items at the Selenium Webdriver Hub page:
+    1. page elements - Create Session
+    2. page images - Create Session
 
-  Scenario: Visit Webdriver Hub - check page element
+  Scenario: Check Webdriver Hub page elements - Create Session
     When  I visit "http://localhost:4444/wd/hub"
     Then  I should see the page title to contain "webdriver hub"
     When  I click the "Create Session" button on the page
@@ -17,9 +19,10 @@ Feature: webdriver hub page
     | iphone            |  
     | opera             |  
 
-  Scenario: Visit Webdriver Hub - check page image
+  Scenario: Check Webdriver Hub page images - Create Session
     When  I visit "http://localhost:4444/wd/hub"
     And   I should see the "Selenium_CreateSession_button" image on the page
     When  I click the "Selenium_CreateSession_button" image on the page
     Then  I should see the "Selenium_CreateNewSession_modal" image on the screen
-    
+    When  I click the "Selenium_SelectBrowsers_dropDownClosed" image on the page
+    When  I click the "Selenium_SelectBrowsers_dropDownOpened" image on the page
