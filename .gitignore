@@ -7,6 +7,8 @@
 **/Failed_*.png
 **/.screenshots/
 **/node_modules/
+**/npm-debug.log
+**/sikulixapi*.jar
 tmp/*
 reports/*
 .vscode/*
