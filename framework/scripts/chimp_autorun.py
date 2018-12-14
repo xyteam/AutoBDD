@@ -118,7 +118,13 @@ def parse_arguments():
     '''
     parse command line arguments
     '''
-    descript = 'This python scripts can be used to run chimp in parallel and generate cucumber report.'
+    descript = "This python scripts can be used to run chimp in parallel and generate cucumber report. "
+    descript += "Command Example: "
+    descript += " framework/scripts/chimp_autorun.py --parallel 2 --movie 0"
+    descript += " --platform Linux --browser CH"
+    descript += " --projectbase test-projects --project webtest-example"
+    descript += " --module test-webpage test-download --output ~/Run/reports"
+
     parser = argparse.ArgumentParser(description=descript)
 
     parser.add_argument(
