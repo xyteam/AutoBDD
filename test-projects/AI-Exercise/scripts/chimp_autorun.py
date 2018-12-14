@@ -43,6 +43,7 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
             ' --format=json:' + report_file + '.json' \
             ' 2>&1 > ' + report_file + '.run'
         print('RUNNING #{}: {}'.format(current_index, run_file))
+        # print(cmd)
         os.system(cmd)
     elif platform == 'Win7' or platform == 'Win10':
         for rdp in host:
@@ -84,7 +85,8 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
         if path.getsize(report_json_file) > 1:
             try:
                 json.loads(open(report_json_file).read())
-                report_cmd = 'node ' + path.join(CURRENTDIR, 'generate-reports.js') + ' ' + report_json_file
+                report_cmd = 'node ' + path.join(
+                    CURRENTDIR, 'generate-reports.js') + ' ' + report_json_file
                 os.system(report_cmd)
             except ValueError as e:
                 print(str(e))
@@ -125,7 +127,7 @@ def parse_arguments():
         dest="PARALLEL",
         default='MAX',
         help=
-        "chimp parallel run number, all available host will be used when set to MAX. defalue value: MAX"
+        "chimp parallel run number, all available host will be used when set to MAX. Default value: MAX"
     )
 
     parser.add_argument(
@@ -133,21 +135,21 @@ def parse_arguments():
         "--SCREENSHOT",
         dest="SCREENSHOT",
         default="1",
-        help="record screent shot when chimp finished. defalue value: 1")
+        help="record screent shot when chimp finished. Default value: 1")
 
     parser.add_argument(
         "--movie",
         "--MOVIE",
         dest="MOVIE",
         default="0",
-        help="record movie when chimp running. defalue value: 0")
+        help="record movie when chimp running. Default value: 0")
 
     parser.add_argument(
         "--runlevel",
         "--RUNLEVEL",
         dest="RUNLEVEL",
         default="Scenario",
-        help="Run automation by Module or by Scenario. defalue value: Scenario"
+        help="Run automation by Module or by Scenario. Default value: Scenario"
     )
 
     parser.add_argument(
@@ -155,14 +157,14 @@ def parse_arguments():
         "--PLATFORM",
         dest="PLATFORM",
         default="Win7",
-        help="Run chimp on the given platform. defalue value: Win7")
+        help="Run chimp on the given platform. Default value: Win7")
 
     parser.add_argument(
         "--browser",
         "--BROWSER",
         dest="BROWSER",
         default="CH",
-        help="Run chimp on the given browser. defalue value: CH")
+        help="Run chimp on the given browser. Default value: CH")
 
     parser.add_argument(
         "--debugmode",
@@ -174,11 +176,11 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "--project_name",
-        "--PROJECT_NAME",
-        dest="PROJECT_NAME",
-        default="Proto",
-        help="Run chimp on the given project. defalue value: Examples")
+        "--project",
+        "--PROJECT",
+        dest="PROJECT",
+        default="test-projects/webtest-example",
+        help="Run chimp on the given project. Default value: test-projects/webtest-example")
 
     parser.add_argument(
         "--rerun",
@@ -200,7 +202,7 @@ def parse_arguments():
         "--OUTPUT",
         dest="OUTPUT",
         default="report-archive",
-        help="The directory to generate report into")
+        help="The directory to generate report into. Default: report-archive")
 
     parser.add_argument(
         "--tag", "--TAG", nargs='+', dest="TAG", help="Added tag for chimp.")
@@ -238,7 +240,7 @@ class ChimpAutoRun:
         self.platform = arguments.PLATFORM
         self.browser = arguments.BROWSER
         self.debugmode = arguments.DEBUGMODE
-        self.project_name = arguments.PROJECT_NAME
+        self.project = arguments.PROJECT
 
         self.module = arguments.MODULE
         if arguments.TAG is not None:
@@ -260,24 +262,22 @@ class ChimpAutoRun:
         self.chimp_profile = path.join(self.FrameworkPath,
                                        'framework_chimp.js')
 
-        self.test_projects_path = path.join(self.FrameworkPath,
-                                            'test-projects')
-        self.project_full_path = path.join(self.test_projects_path,
-                                           self.project_name)
+        # self.test_projects_path = path.join(self.FrameworkPath,
+        #                                     'test-projects')
+        self.project_full_path = path.join(self.FrameworkPath, self.project)
 
         # Create report directory
         if not path.exists(path.join(self.FrameworkPath, self.output)):
             os.makedirs(path.join(self.FrameworkPath, self.output))
         self.report_dir = path.join(
             self.FrameworkPath, self.output, '_'.join(
-                (self.rumtime_stamp, self.project_name, self.platform,
+                (self.rumtime_stamp, self.project, self.platform,
                  self.browser)))
         if self.movie == '1':
             self.report_dir += 'v'
         else:
             self.report_dir += 's'
         try:
-            print('self.report_dir:' + self.report_dir)
             os.makedirs(self.report_dir)
         except OSError as e:
             if e.errno != errno.EEXIST:
@@ -457,15 +457,15 @@ class ChimpAutoRun:
         assert path.exists(config_file), '{} is not exits'.format(config_file)
 
         with open(config_file) as fname:
-            heard = fname.readline()
-            while 'SSHHOST' not in heard:
-                heard = fname.readline()
-            heardarray = heard.strip().split()
+            head = fname.readline()
+            while 'SSHHOST' not in head:
+                head = fname.readline()
+            headarray = head.strip().split()
 
             for item in fname:
                 hostinfo = item.strip().split()
                 if len(hostinfo) > 1:
-                    hostdict = dict(zip(heardarray, hostinfo))
+                    hostdict = dict(zip(headarray, hostinfo))
                     if hostdict['Status'] == 'on' and hostdict[
                             'PLATFORM'] == self.platform:
                         self.thread_count += int(hostdict['Thread'])
@@ -507,7 +507,7 @@ class ChimpAutoRun:
         if path.exists(self.report_dir + '/cucumber-report.html.json'):
             os.remove(self.report_dir + '/cucumber-report.html.json')
         cmd_generate_report = 'node ' + path.join(CURRENTDIR, 'generate-reports.js') + ' ' + \
-            ' ' + self.report_dir + ' ' + self.project_name + ' \'Automation Report\' ' +  \
+            ' ' + self.report_dir + ' ' + self.project + ' \'Automation Report\' ' +  \
             ' ' + self.platform + ' ' + self.browser + ' ' + self.parallel + ' ' + self.rumtime_stamp + \
             ' ' + run_duration + ' ' + rerun_path + ' ' + self.args
         print('Generate Report On: {}'.format(self.report_dir))
@@ -606,8 +606,6 @@ if __name__ == "__main__":
     else:
         chimp_run.create_module_array()
 
-    for item in chimp_run.sarray:
-        print(item)
-        print(chimp_run.sarray[item])
     chimp_run.run_in_parallel()
     chimp_run.generate_report()
+
