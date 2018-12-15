@@ -85,8 +85,7 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
         if path.getsize(report_json_file) > 1:
             try:
                 json.loads(open(report_json_file).read())
-                report_cmd = 'node ' + path.join(
-                    CURRENTDIR, 'generate-reports.js') + ' ' + report_json_file
+                report_cmd = path.join(environ['FrameworkPath'], 'framework', 'scripts', 'generate-reports.js') + ' ' + report_json_file
                 os.system(report_cmd)
             except ValueError as e:
                 print(str(e))
@@ -267,7 +266,7 @@ class ChimpAutoRun:
         self.display = ':99'
         self.display_size = '1920x1200'
 
-        if 'FrameworkPath' not in environ:
+        if 'PathFramework' not in environ:
             self.FrameworkPath = path.join(environ['HOME'], 'Projects',
                                            'AutoBDD')
         else:
@@ -518,7 +517,7 @@ class ChimpAutoRun:
 
         if path.exists(self.report_dir + '/cucumber-report.html.json'):
             os.remove(self.report_dir + '/cucumber-report.html.json')
-        cmd_generate_report = 'node ' + path.join(CURRENTDIR, 'generate-reports.js') + ' ' + \
+        cmd_generate_report = path.join(self.FrameworkPath, 'framework', 'scripts', 'generate-reports.js') + ' ' + \
             ' ' + self.report_dir + ' ' + self.project + ' \'Automation Report\' ' +  \
             ' ' + self.platform + ' ' + self.browser + ' ' + self.parallel + ' ' + self.rumtime_stamp + \
             ' ' + run_duration + ' ' + rerun_path + ' ' + self.args
