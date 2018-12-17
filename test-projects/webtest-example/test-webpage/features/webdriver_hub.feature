@@ -25,4 +25,4 @@ Feature: webdriver hub page
     When  I click the "Selenium_CreateSession_button" image on the page
     Then  I should see the "Selenium_CreateNewSession_modal" image on the screen
     When  I click the "Selenium_SelectBrowsers_dropDownClosed" image on the page
-    When  I click the "Selenium_SelectBrowsers_dropDownOpened" image on the page
+    Then  I should see the "Selenium_SelectBrowsers_dropDownOpened" image on the page
