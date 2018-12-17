@@ -266,7 +266,7 @@ class ChimpAutoRun:
         self.display = ':99'
         self.display_size = '1920x1200'
 
-        if 'PathFramework' not in environ:
+        if 'FrameworkPath' not in environ:
             self.FrameworkPath = path.join(environ['HOME'], 'Projects',
                                            'AutoBDD')
         else:
