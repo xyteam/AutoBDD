@@ -79,31 +79,31 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
 
     time.sleep(2)
 
-    # generate cucumber report for single json file
-    report_json_file = report_file + '.json'
-    if path.exists(report_json_file):
-        if path.getsize(report_json_file) > 1:
-            try:
-                json.loads(open(report_json_file).read())
-                report_cmd = path.join(environ['FrameworkPath'], 'framework', 'scripts', 'generate-reports.js') + ' ' + report_json_file
-                os.system(report_cmd)
-            except ValueError as e:
-                print(str(e))
-                print(
-                    'Warning: {} is not json format'.format(report_json_file))
-                open(report_dir + '/NoReportScenarios.txt',
-                     'a').write('{}::{}\n'.format(module, run_file))
-                os.remove(report_json_file)
-        else:
-            os.remove(report_json_file)
-            print('Warning: {} is smaller than the specified minimum size'.
-                  format(report_json_file))
-            open(report_dir + '/NoReportScenarios.txt',
-                 'a').write('{}::{}\n'.format(module, run_file))
-    else:
-        print('Warning: {} is not exits'.format(report_json_file))
-        open(report_dir + '/NoReportScenarios.txt',
-             'a').write('{}::{}\n'.format(module, run_file))
+    # # generate cucumber report for single json file
+    # report_json_file = report_file + '.json'
+    # if path.exists(report_json_file):
+    #     if path.getsize(report_json_file) > 1:
+    #         try:
+    #             json.loads(open(report_json_file).read())
+    #             report_cmd = path.join(environ['FrameworkPath'], 'framework', 'scripts', 'generate-reports.js') + ' ' + report_json_file
+    #             os.system(report_cmd)
+    #         except ValueError as e:
+    #             print(str(e))
+    #             print(
+    #                 'Warning: {} is not json format'.format(report_json_file))
+    #             open(report_dir + '/NoReportScenarios.txt',
+    #                  'a').write('{}::{}\n'.format(module, run_file))
+    #             os.remove(report_json_file)
+    #     else:
+    #         os.remove(report_json_file)
+    #         print('Warning: {} is smaller than the specified minimum size'.
+    #               format(report_json_file))
+    #         open(report_dir + '/NoReportScenarios.txt',
+    #              'a').write('{}::{}\n'.format(module, run_file))
+    # else:
+    #     print('Warning: {} is not exits'.format(report_json_file))
+    #     open(report_dir + '/NoReportScenarios.txt',
+    #          'a').write('{}::{}\n'.format(module, run_file))
 
     if platform == 'Win7' or platform == 'Win10':
         if path.exists(lock_file):
@@ -122,9 +122,36 @@ def parse_arguments():
     descript += " framework/scripts/chimp_autorun.py --parallel 2 --movie 0"
     descript += " --platform Linux --browser CH"
     descript += " --projectbase test-projects --project webtest-example"
-    descript += " --module test-webpage test-download --output ~/Run/reports"
+    descript += " --module test-webpage test-download --reportbase ~/Run/reports"
 
     parser = argparse.ArgumentParser(description=descript)
+
+    parser.add_argument(
+        "--timestamp",
+        "--TIMESTAMP",
+        dest="TIMESTAMP",
+        default=None,
+        help=
+        "time stamp in single string, i.e., 20181218_072018PST, will be used in report folder name, useful when you different docker containers and use the same folder for the report"
+    )
+
+    parser.add_argument(
+        "--runonly",
+        "--RUNONLY",
+        dest="RUNONLY",
+        default=None,
+        help=
+        "instead of running test and generating report for each run, this will run test only but will not generate cucumber report. Default: None"
+    )
+    
+    parser.add_argument(
+        "--reportonly",
+        "--REPORTONLY",
+        dest="REPORTONLY",
+        default=None,
+        help=
+        "instead of running test and generating report for each run, this will generate cucumber report only for the given path. Default: None"
+    )
 
     parser.add_argument(
         "--parallel",
@@ -201,23 +228,30 @@ def parse_arguments():
         help="Rerun failed scenarios on selected cucumber report")
 
     parser.add_argument(
-        "--module",
-        "--MODULE",
+        "--modulelist",
+        "--MODULELIST",
         nargs='+',
-        dest="MODULE",
+        dest="MODULELIST",
         default=[],
         required=True,
-        help="Run which module.")
+        help="Spece separated list of modules to run.")
 
     parser.add_argument(
-        "--output",
-        "--OUTPUT",
-        dest="OUTPUT",
-        default="report-archive",
-        help="The directory to generate report into. Default: report-archive")
+        "--reportbase",
+        "--REPORTBASE",
+        dest="REPORTBASE",
+        default=None,
+        help="The full path base directory for all reports into. Default: None, report will be archived in framework/test-reports")
+    
+    parser.add_argument(
+        "--reportpath",
+        "--REPORTPATH",
+        dest="REPORTPATH",
+        default=None,
+        help="The report directory inside REPORTBASE to generate reports into. If ommited script will generate a timestamped path. Default: None")
 
     parser.add_argument(
-        "--tag", "--TAG", nargs='+', dest="TAG", help="Added tag for chimp.")
+        "--tags", "--TAGS", nargs='+', dest="TAGLIST", help="Added cucumber tags for chimp.")
 
     parser.add_argument(
         '--version', '-v', action='version', version='%(prog)s V1.0')
@@ -241,36 +275,37 @@ class ChimpAutoRun:
         if 'TZ' not in environ:
             os.environ['TZ'] = 'America/Los_Angeles'
         time.tzset()
-        self.rumtime_stamp = time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
+        
+        if 'FrameworkPath' not in environ:
+            self.FrameworkPath = path.join(environ['HOME'], 'Projects',
+                                           'AutoBDD')
+        else:
+            self.FrameworkPath = environ['FrameworkPath']
 
+        self.reportonly = arguments.REPORTONLY
+        self.rumtime_stamp = arguments.TIMESTAMP if arguments.TIMESTAMP else time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
         self.parallel = arguments.PARALLEL
         self.screenshot = arguments.SCREENSHOT
         self.movie = arguments.MOVIE
-        self.output = arguments.OUTPUT
-
         self.runlevel = arguments.RUNLEVEL
         self.platform = arguments.PLATFORM
         self.browser = arguments.BROWSER
         self.debugmode = arguments.DEBUGMODE
         self.projectbase = arguments.PROJECTBASE
         self.project = arguments.PROJECT
+        self.reportbase = arguments.REPORTBASE if arguments.REPORTBASE else path.join(self.FrameworkPath, 'test-reports')
+        self.reportpath = arguments.REPORTPATH if arguments.REPORTPATH else '_'.join((self.project, self.rumtime_stamp))
 
-        self.module = arguments.MODULE
-        if arguments.TAG is not None:
-            self.args = '_'.join((arguments.MODULE + arguments.TAG))
-            self.tag = ' --tags ' + ','.join(arguments.TAG)
+        self.modulelist = arguments.MODULELIST
+        if arguments.TAGLIST is not None:
+            self.args = '_'.join((arguments.MODULELIST + arguments.TAGLIST))
+            self.tags = ' --tags ' + ','.join(arguments.TAGLIST)
         else:
-            self.args = '_'.join(arguments.MODULE)
-            self.tag = ''
-        self.tagarray = arguments.TAG
+            self.args = '_'.join(arguments.MODULELIST)
+            self.tags = ''
+        self.tagarray = arguments.TAGLIST
         self.display = ':99'
         self.display_size = '1920x1200'
-
-        if 'PathFramework' not in environ:
-            self.FrameworkPath = path.join(environ['HOME'], 'Projects',
-                                           'AutoBDD')
-        else:
-            self.FrameworkPath = environ['FrameworkPath']
 
         # self.test_projects_path = path.join(self.FrameworkPath,
         #                                     'test-projects')
@@ -278,16 +313,9 @@ class ChimpAutoRun:
         # Each runable module should have a chimp.js
         self.chimp_profile = path.join('chimp.js')
         # Create report directory
-        if not path.exists(path.join(self.FrameworkPath, self.output)):
-            os.makedirs(path.join(self.FrameworkPath, self.output))
-        self.report_dir = path.join(
-            self.FrameworkPath, self.output, '_'.join(
-                (self.rumtime_stamp, self.project, self.platform,
-                 self.browser)))
-        if self.movie == '1':
-            self.report_dir += 'v'
-        else:
-            self.report_dir += 's'
+        if not path.exists(path.join(self.FrameworkPath, self.reportbase)):
+            os.makedirs(path.join(self.FrameworkPath, self.reportbase))
+        self.report_dir = path.join(self.reportbase, self.reportpath)
         try:
             os.makedirs(self.report_dir)
         except OSError as e:
@@ -336,7 +364,7 @@ class ChimpAutoRun:
             if runlevel is Scenario, then Scenarios line number will be found and saved to scenario array
         '''
         print('self.project_full_path: ' + self.project_full_path)
-        for mod in self.module:
+        for mod in self.modulelist:
             self.marray[mod] = self.get_feature_files(
                 path.join(self.project_full_path, mod))
             self.features_count += len(self.marray[mod])
@@ -430,7 +458,7 @@ class ChimpAutoRun:
                                             index('SFPortal-G2') + 1:-2])
                     scenario_run_path = 'features/' + scenario_name + ':' + str(
                         scenario_line)
-                    if scenario_module in self.module:
+                    if scenario_module in self.modulelist:
                         if scenario_module not in self.sarray:
                             self.sarray[scenario_module] = [scenario_run_path]
                         else:
@@ -443,7 +471,7 @@ class ChimpAutoRun:
                       'r') as fname:
                 for item in fname.readlines():
                     scenario_info = item.strip().split('::')
-                    if scenario_info[0] in self.module:
+                    if scenario_info[0] in self.modulelist:
                         rerun_scenario = scenario_info[1].replace('\\', '')
                         rerun_scenario = re.sub('--tags.*', '',
                                                 rerun_scenario).strip()
@@ -578,7 +606,7 @@ class ChimpAutoRun:
         for module in run_array:
             for fname in run_array[module]:
                 current_index += 1
-                run_file = fname.replace(' ', '\ ') + self.tag
+                run_file = fname.replace(' ', '\ ') + self.tags
                 report_name = (module + '_' + fname).replace(' ', '_').replace(
                     ':', '_').replace('/', '_')
 
@@ -607,7 +635,6 @@ class ChimpAutoRun:
         # Wait for test to finish then record the end time
         self.end_time = time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
 
-
 if __name__ == "__main__":
     command_arguments = parse_arguments()
     print(command_arguments)
@@ -617,6 +644,11 @@ if __name__ == "__main__":
     else:
         chimp_run.create_module_array()
 
-    chimp_run.run_in_parallel()
-    chimp_run.generate_report()
-
+     
+    if command_arguments.RUNONLY:
+        chimp_run.run_in_parallel()
+    elif command_arguments.REPORTONLY:
+        chimp_run.generate_report()
+    else:
+        chimp_run.run_in_parallel()
+        chimp_run.generate_report()
