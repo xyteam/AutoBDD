@@ -16,9 +16,9 @@ module.exports = {
     // Sikuli Property
     const sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.4.jar';
     java.classpath.push(sikuliApiJar);
-    const App = java.import('org.sikuli.script.App');
+    // const App = java.import('org.sikuli.script.App');
+    // const Region = java.import('org.sikuli.script.Region');
     const Screen = java.import('org.sikuli.script.Screen');
-    const Region = java.import('org.sikuli.script.Region');
     const Pattern = java.import('org.sikuli.script.Pattern');
 
     var imageSimilarity = parseFloat(imageSimilarity) || parseFloat(process.env.imageSimilarity) || 0.8;
@@ -32,9 +32,9 @@ module.exports = {
     var sim_java = java.newFloat(imageSimilarity);
 
     switch (onArea) {
-      case 'onFocused':
-        findRegion = App.focusedWindowSync();
-        break;
+      // case 'onFocused':
+      //   findRegion = App.focusedWindowSync();
+      //   break;
       case 'onScreen':
       default:
         findRegion = new Screen();
@@ -58,22 +58,24 @@ module.exports = {
         }
       } else {
         var find_item = findRegion.waitSync(target, imageWaitTime);
+        // uncomment this line to show selected image, however this will break test in xvfb
+        // find_item.highlight(1);
         var returnItem = {dimension: null, location: null, clicked: null};
         returnItem.dimension = {width: find_item.w, height: find_item.h};
         returnItem.location = {x: find_item.x, y: find_item.y};
         var click_count = 0;
         switch (imageAction) {
           case 'single':
-            click_count = findRegion.clickSync(target);
+            click_count = find_item.clickSync();
           break;
           case 'double':
-            click_count = findRegion.doubleClickSync(target);
+            click_count = find_item.doubleClickSync();
           break;
           case 'right':
-            click_count = findRegion.rightClickSync(target);
+            click_count = find_item.rightClickSync();
           break;
           case 'hover':
-            click_count = findRegion.hoverSync(target);
+            click_count = find_item.hoverSync();
           break;
         }
         if (click_count > 0) {
