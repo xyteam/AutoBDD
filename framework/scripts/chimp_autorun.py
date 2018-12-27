@@ -36,6 +36,8 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
             ' SCREENSHOT=' + screenshot + \
             ' BROWSER=' + browser + \
             ' DEBUGMODE=' + debugmode + \
+            ' MODULE=' + module + \
+            ' BROWSER=' + browser + \
             ' DISPLAYSIZE=' + display_size + \
             ' PLATFORM=' + platform + \
             ' xvfb-run -a ' + ' -s "-screen 0, ' + display_size + 'x16"' + \
@@ -60,6 +62,7 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
                     ' MOVIE=' + movie + \
                     ' SCREENSHOT=' + screenshot + \
                     ' DEBUGMODE=' + debugmode + \
+                    ' MODULE=' + module + \
                     ' BROWSER=' + browser + \
                     ' DISPLAYSIZE=' + display_size + \
                     ' PLATFORM=' + platform + \
@@ -122,7 +125,7 @@ def parse_arguments():
     descript += " framework/scripts/chimp_autorun.py --parallel 2 --movie 0"
     descript += " --platform Linux --browser CH"
     descript += " --projectbase test-projects --project webtest-example"
-    descript += " --module test-webpage test-download --reportbase ~/Run/reports"
+    descript += " --modulelist test-webpage test-download --reportbase ~/Run/reports"
 
     parser = argparse.ArgumentParser(description=descript)
 
