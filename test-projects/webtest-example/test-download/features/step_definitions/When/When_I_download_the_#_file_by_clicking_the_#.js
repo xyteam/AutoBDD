@@ -8,19 +8,19 @@ module.exports = function() {
 
     // click PDF download icon
     var imageFullPath = this.fs_session.getLocalThenGlobalImageFullPath(__dirname, imageName);
-    var imageSimilarity = 0.8;
+    var imageSimilarity = process.env.imageSimilarity;
+    var imageWaitTime = process.env.imageWaitTime;
     console.log(imageFullPath);
     // shake mouse to induce the display of PDF download icon
     this.screen_session.moveMouse(0, 0);
     this.screen_session.moveMouse(100, 100);
-    var resultString = this.screen_session.focusedFindImage(imageFullPath, imageSimilarity, 'single');
+    var resultString = this.screen_session.screenFindImage(imageFullPath, imageSimilarity, imageWaitTime, 'single');
     expect(resultString).not.toContain('not found');
     expect(resultString).not.toContain('error');
     var resultArray = JSON.parse(resultString);
     // click LinuxSave_button
     var saveButtonFullPath = this.fs_session.getLocalThenGlobalImageFullPath(__dirname, 'LinuxSave_button');
-    var imageSimilarity = 0.8;
-    var resultString = this.screen_session.focusedFindImage(saveButtonFullPath, imageSimilarity, 'single');
+    var resultString = this.screen_session.screenFindImage(saveButtonFullPath, imageSimilarity, imageWaitTime,'single');
     expect(resultString).not.toContain('not found');
     expect(resultString).not.toContain('error');
     var resultArray = JSON.parse(resultString);

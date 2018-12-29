@@ -1,0 +1,186 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.29.3">
+      <projectUrl>https://github.com/xyteam/AutoBDD.git/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.9.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/xyteam/AutoBDD.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <assignedNode>ec2-user</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># Prepare test code
+# Download and Start application-under-test (here is selenium on 4444)
+cd ${WORKSPACE}
+START_TIMESTAMP=$(date +%Y%m%d_%H%M%S%Z)
+echo START_TIMESTAMP=${START_TIMESTAMP} &gt; ${WORKSPACE}/build.properties
+cd test-projects/webtest-example
+for i in 01 02 03 04 05 06 07 08
+do
+	rm -rf test-download-$i
+	rm -rf test-webpage-$i
+	cp -r test-download test-download-$i
+	cp -r test-webpage test-webpage-$i
+done
+cd ${WORKSPACE}
+. ${HOME}/.bashrc; nvm use v8; npm install;
+. ${WORKSPACE}/.autoPathrc.sh
+
+selenium-standalone install --config=framework/configs/selenium-standalone_config.js
+JENKINS_NODE_COOKIE=dontKillMe nohup \
+selenium-standalone start --config=framework/configs/selenium-standalone_config.js \
+&gt; /dev/null 2&gt;&amp;1 &amp;
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Rebuild test code with a container
+# Download Sikulix JAR
+cd ${WORKSPACE}
+source ${WORKSPACE}/build.properties
+CONTAINER_NAME=$(basename ${JOB_NAME})
+
+ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+  &quot;sudo docker run -d --rm=false \
+  --user=u$(id -u) --privileged \
+  --name ${CONTAINER_NAME} \
+  -v ${WORKSPACE}:/home/u$(id -u)/ \
+  -v /home/ec2-user/.bashrc:/home/u$(id -u)/.bashrc \
+  -v /home/ec2-user/.pki:/home/u$(id -u)/.pki \
+  -v /home/ec2-user/.nvm:/home/u$(id -u)/.nvm \
+  --net=host \
+  --shm-size 128M \
+  xyplatform:lubuntu1804 \
+  /bin/bash -c &apos;cd; . .bashrc; nvm use v8; npm rebuild; \
+  . .autoPathrc.sh; \
+  ./framework/libs/downloadSikulixApiJar.js&apos;&quot;
+
+ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+   &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
+
+ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+  &quot;if sudo docker container wait ${CONTAINER_NAME}; then \
+      sudo docker rm ${CONTAINER_NAME}; \
+   fi&quot;
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Run test
+cd ${WORKSPACE}
+source ${WORKSPACE}/build.properties
+CONTAINER_NAME=$(basename ${JOB_NAME})
+  
+ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+  &quot;sudo docker run -d --rm=false \
+  --user=u$(id -u) --privileged \
+  --name ${CONTAINER_NAME} \
+  -v ${WORKSPACE}:/home/u$(id -u)/ \
+  -v /home/ec2-user/.bashrc:/home/u$(id -u)/.bashrc \
+  -v /home/ec2-user/.pki:/home/u$(id -u)/.pki \
+  -v /home/ec2-user/.nvm:/home/u$(id -u)/.nvm \
+  --net=host \
+  --shm-size 128M \
+  xyplatform:lubuntu1804 \
+  /bin/bash -c &apos;cd; . .bashrc; . .autoPathrc.sh; \
+  ./framework/scripts/chimp_autorun.py --parallel 1 --runonly true \
+  --timestamp ${START_TIMESTAMP} --movie 1 \
+  --platform Linux --browser CH --module \
+  	test-webpage-01 \
+    test-webpage-02 \
+    test-webpage-03 \
+    test-webpage-04 \
+    test-webpage-05 \
+    test-webpage-06 \
+    test-webpage-07 \
+    test-webpage-08 \
+  	test-download-01 \
+    test-download-02 \
+    test-download-03 \
+    test-download-04 \
+    test-download-05 \
+    test-download-06 \
+    test-download-07 \
+    test-download-08&apos;&quot;
+
+ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+   &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
+   
+ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+  &quot;if sudo docker container wait ${CONTAINER_NAME}; then \
+      sudo docker rm ${CONTAINER_NAME}; \
+   fi&quot;</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Generate Report
+cd ${WORKSPACE}
+source ${WORKSPACE}/build.properties
+CONTAINER_NAME=$(basename ${JOB_NAME})
+  
+ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+  &quot;sudo docker run -d --rm=false \
+  --user=u$(id -u) --privileged \
+  --name ${CONTAINER_NAME} \
+  -v ${WORKSPACE}:/home/u$(id -u)/ \
+  -v /home/ec2-user/.bashrc:/home/u$(id -u)/.bashrc \
+  -v /home/ec2-user/.pki:/home/u$(id -u)/.pki \
+  -v /home/ec2-user/.nvm:/home/u$(id -u)/.nvm \
+  --net=host \
+  --shm-size 128M \
+  xyplatform:lubuntu1804 \
+  /bin/bash -c &apos;cd; . .bashrc; . .autoPathrc.sh; \
+  ./framework/scripts/chimp_autorun.py --parallel 1 --reportonly true \
+  --timestamp ${START_TIMESTAMP} --movie 1 \
+  --platform Linux --browser CH --module \
+  	test-webpage-01 \
+    test-webpage-02 \
+    test-webpage-03 \
+    test-webpage-04 \
+    test-webpage-05 \
+    test-webpage-06 \
+    test-webpage-07 \
+    test-webpage-08 \
+  	test-download-01 \
+    test-download-02 \
+    test-download-03 \
+    test-download-04 \
+    test-download-05 \
+    test-download-06 \
+    test-download-07 \
+    test-download-08&apos;&quot;
+
+ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+   &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
+   
+ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+  &quot;if sudo docker container wait ${CONTAINER_NAME}; then \
+      sudo docker rm ${CONTAINER_NAME}; \
+   fi&quot;</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

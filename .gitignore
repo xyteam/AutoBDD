@@ -1,4 +1,5 @@
 **/*.run
+**/.DS_Store
 **/Passed_*.mp4
 **/Failed_*.mp4
 **/Recording_*.mp4
@@ -6,6 +7,8 @@
 **/Failed_*.png
 **/.screenshots/
 **/node_modules/
+**/npm-debug.log
+**/sikulixapi*.jar
 tmp/*
 reports/*
 .vscode/*

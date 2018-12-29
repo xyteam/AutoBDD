@@ -1,3 +1,6 @@
+#!/usr/bin/env node
+
+var argv = require('minimist')(process.argv.slice(2));
 const fs = require('fs');
 const reporter = require('cucumber-html-reporter');
 
@@ -34,7 +37,7 @@ if (fs.lstatSync(report_on).isDirectory()) {
     options.output = report_on + '/cucumber-report.html'
 } else if (fs.lstatSync(report_on).isFile()) {
     options.jsonFile = report_on;
-    options.theme = 'bootstrap';
+    options.theme = 'foundation';
     options.output = report_on + '.html';
 } else {
     console.log('Reporter Error: 1st parameter need to be a jsonDir or jsonFile.');
