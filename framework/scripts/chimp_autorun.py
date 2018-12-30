@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Type python chimp_auto_v1.py --help for more informantion
+Type python chimp_autorun.py --help for more informantion
 '''
 
 import sys
@@ -45,14 +45,14 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
             ' --format=json:' + report_file + '.json' \
             ' 2>&1 > ' + report_file + '.run'
         print('RUNNING #{}: {}'.format(current_index, run_file))
-        print(cmd)
+        # print(cmd)
         os.system(cmd)
     elif platform == 'Win7' or platform == 'Win10':
         for rdp in host:
             cmd = ''
             lock_file = ''
             time.sleep(random.uniform(0, 1))
-            # avoid different process using same RDP HOST simultaneously
+            # avoid different process using same SSH PORT simultaneously
             lock_file = '/tmp/rdesktop.' + rdp['SSHHOST'] + ':' + rdp[
                 'SSHPORT'] + '.lock'
             if not os.path.exists(lock_file):
@@ -112,8 +112,8 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
         if path.exists(lock_file):
             os.remove(lock_file)
 
-    print(' *** {} of {}\'\' finished *** '.format(current_index,
-                                                   total_run_count))
+    print(' *** {} of {}\'\' completed *** '.format(current_index,
+                                                    total_run_count))
 
 
 def parse_arguments():
@@ -146,7 +146,7 @@ def parse_arguments():
         help=
         "instead of running test and generating report for each run, this will run test only but will not generate cucumber report. Default: None"
     )
-    
+
     parser.add_argument(
         "--reportonly",
         "--REPORTONLY",
@@ -245,7 +245,7 @@ def parse_arguments():
         dest="REPORTBASE",
         default=None,
         help="The full path base directory for all reports into. Default: None, report will be archived in framework/test-reports")
-    
+
     parser.add_argument(
         "--reportpath",
         "--REPORTPATH",
@@ -254,7 +254,11 @@ def parse_arguments():
         help="The report directory inside REPORTBASE to generate reports into. If ommited script will generate a timestamped path. Default: None")
 
     parser.add_argument(
-        "--tags", "--TAGS", nargs='+', dest="TAGLIST", help="Added cucumber tags for chimp.")
+        "--tags",
+        "--TAGS",
+        nargs='+',
+        dest="TAGLIST",
+        help="Added cucumber tags for chimp.")
 
     parser.add_argument(
         '--version', '-v', action='version', version='%(prog)s V1.0')
@@ -278,7 +282,7 @@ class ChimpAutoRun:
         if 'TZ' not in environ:
             os.environ['TZ'] = 'America/Los_Angeles'
         time.tzset()
-        
+
         if 'FrameworkPath' not in environ:
             self.FrameworkPath = path.join(environ['HOME'], 'Projects',
                                            'AutoBDD')
@@ -348,7 +352,7 @@ class ChimpAutoRun:
         self.host = []
         self.thread_count = 0
         self.end_time = time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
-        self.get_availiable_rdp()
+        self.get_available_host()
 
     def get_feature_files(self, directory):
         '''
@@ -364,7 +368,6 @@ class ChimpAutoRun:
     def create_module_array(self):
         '''
             save feature files path in module array
-            if runlevel is Scenario, then Scenarios line number will be found and saved to scenario array
         '''
         print('self.project_full_path: ' + self.project_full_path)
         for mod in self.modulelist:
@@ -373,63 +376,9 @@ class ChimpAutoRun:
             self.features_count += len(self.marray[mod])
 
         if self.runlevel == 'Scenario':
-            for module in self.marray:
-                file_array = []
-                for feature_file in self.marray[module]:
-                    with open(
-                            path.join(self.project_full_path, module,
-                                      feature_file)) as f:
-                        farray = f.readlines()
-                        flen = len(farray)
-                        for num in range(flen):
-                            if 'Scenario Outline: ' in farray[num]:
-                                scenario_line = num
-                                while num <= flen and 'Examples:' not in farray[
-                                        num]:
-                                    num += 1
-                                num += 1
-                                while num < flen:
-                                    if len(farray[num].strip(
-                                    )) > 0 and '|' == farray[num].strip(
-                                    )[0] and '|' == farray[num].strip()[-1]:
-                                        break
-                                    num += 1
-                                num += 1
-                                while num < flen:
-                                    if 'Scenario: ' in farray[
-                                            num] or 'Scenario Outline: ' in farray[
-                                                num]:
-                                        break
-                                    line_content = farray[num].strip()
-                                    if len(line_content
-                                           ) > 0 and '|' == line_content[
-                                               0] and '|' == line_content[-1]:
-                                        if self.tagarray is not None:
-                                            for tag in self.tagarray:
-                                                if tag in farray[scenario_line
-                                                                 - 1]:
-                                                    file_array.append(
-                                                        feature_file + ':' +
-                                                        str(num + 1))
-                                                    break
-                                        else:
-                                            file_array.append(feature_file +
-                                                              ':' +
-                                                              str(num + 1))
-                                    num += 1
-                            elif 'Scenario: ' in farray[num]:
-                                if self.tagarray is not None:
-                                    for tag in self.tagarray:
-                                        if tag in farray[num - 1]:
-                                            file_array.append(feature_file +
-                                                              ':' +
-                                                              str(num + 1))
-                                            break
-                                else:
-                                    file_array.append(feature_file + ':' +
-                                                      str(num + 1))
-                self.sarray[module] = file_array
-                self.scenarios_count += len(self.sarray[module])
+            from chimp_dryrun import dry_run
+            self.sarray, self.scenarios_count = dry_run(
+                self.project_full_path, self.modulelist, self.tags)
 
     def create_rerun_module_array(self):
         '''
@@ -490,9 +439,9 @@ class ChimpAutoRun:
             return False
         return True
 
-    def get_availiable_rdp(self):
+    def get_available_host(self):
         '''
-        get avaiable rdp by reading config file
+        get avaiable host by reading config file
         '''
         config_file = path.join(self.FrameworkPath, 'framework', 'configs',
                                 'chimp_run_host.config')
@@ -509,7 +458,7 @@ class ChimpAutoRun:
                 if len(hostinfo) > 1:
                     hostdict = dict(zip(headarray, hostinfo))
                     if hostdict['Status'] == 'on' and hostdict[
-                            'PLATFORM'] == self.platform:
+                            'Platform'] == self.platform:
                         self.thread_count += int(hostdict['Thread'])
                         self.host.append(hostdict)
         print('\n*** Avaliable Host: ***')
@@ -609,7 +558,7 @@ class ChimpAutoRun:
         for module in run_array:
             for fname in run_array[module]:
                 current_index += 1
-                run_file = fname.replace(' ', '\ ') + self.tags
+                run_file = fname.replace(' ', '\ ')
                 report_name = (module + '_' + fname).replace(' ', '_').replace(
                     ':', '_').replace('/', '_')
 
@@ -638,6 +587,7 @@ class ChimpAutoRun:
         # Wait for test to finish then record the end time
         self.end_time = time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
 
+
 if __name__ == "__main__":
     command_arguments = parse_arguments()
     print(command_arguments)
@@ -647,7 +597,6 @@ if __name__ == "__main__":
     else:
         chimp_run.create_module_array()
 
-     
     if command_arguments.RUNONLY:
         chimp_run.run_in_parallel()
     elif command_arguments.REPORTONLY:
