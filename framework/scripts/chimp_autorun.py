@@ -191,15 +191,15 @@ def parse_arguments():
         "--platform",
         "--PLATFORM",
         dest="PLATFORM",
-        default="Win7",
-        help="Run chimp on the given platform. Default value: Win7")
+        default="Linux",
+        help="Run chimp on the given platform. Acceptable values: Linux, Win7, Win10. Default value: Linux")
 
     parser.add_argument(
         "--browser",
         "--BROWSER",
         dest="BROWSER",
         default="CH",
-        help="Run chimp on the given browser. Default value: CH")
+        help="Run chimp on the given browser. Acceptable values: CH, IE. Default value: CH")
 
     parser.add_argument(
         "--debugmode",
