@@ -11,18 +11,25 @@
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.ChoiceParameterDefinition>
+          <name>ParallelDocker</name>
+          <description>number of parallel docker containers to run</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>2</string>
+              <string>4</string>
+              <string>8</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
           <name>ParallelThread</name>
-          <description>number of parallel-threads to run</description>
+          <description>number of parallel threads per docker container</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>1</string>
               <string>2</string>
               <string>3</string>
               <string>4</string>
-              <string>5</string>
-              <string>6</string>
-              <string>7</string>
-              <string>8</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -122,45 +129,31 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
 cd ${WORKSPACE}
 source ${WORKSPACE}/build.properties
 CONTAINER_NAME=$(basename ${JOB_NAME})
-  
-ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
-  &quot;sudo docker run -d --rm=false \
-  --user=u$(id -u) --privileged \
-  --name ${CONTAINER_NAME} \
-  -v ${WORKSPACE}:/home/u$(id -u)/ \
-  -v /home/vagrant/.bashrc:/home/u$(id -u)/.bashrc \
-  -v /home/vagrant/.pki:/home/u$(id -u)/.pki \
-  -v /home/vagrant/.nvm:/home/u$(id -u)/.nvm \
-  --net=host \
-  --shm-size $(expr ${ParallelThread} \* 128)M \
-  xyplatform:lubuntu1804 \
-  /bin/bash -c &apos;cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; . .autoPathrc.sh; \
-  ./framework/scripts/chimp_autorun.py --parallel ${ParallelThread} --runonly true \
-  --timestamp ${START_TIMESTAMP} --movie 1 \
-  --platform Linux --browser CH --module \
-  	test-webpage-01 \
-    test-webpage-02 \
-    test-webpage-03 \
-    test-webpage-04 \
-    test-webpage-05 \
-    test-webpage-06 \
-    test-webpage-07 \
-    test-webpage-08 \
-  	test-download-01 \
-    test-download-02 \
-    test-download-03 \
-    test-download-04 \
-    test-download-05 \
-    test-download-06 \
-    test-download-07 \
-    test-download-08&apos;&quot;
 
+for dockerIndex in $(seq ${ParallelDocker}); do
+  module_list=$(for i in $(seq $(expr 8 / ${ParallelDocker})); do echo test-webpage-0$(expr ${ParallelDocker} \* $(expr $i - 1) + ${dockerIndex}) test-download-0$(expr ${ParallelDocker} \* $(expr $i - 1) + ${dockerIndex}); done | tr &apos;\n&apos; &apos; &apos;)
+  ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
+    &quot;sudo docker run -d --rm=false \
+    --user=u$(id -u) --privileged \
+    --name ${CONTAINER_NAME}-0${dockerIndex} \
+    -v ${WORKSPACE}:/home/u$(id -u)/ \
+    -v /home/vagrant/.bashrc:/home/u$(id -u)/.bashrc \
+    -v /home/vagrant/.pki:/home/u$(id -u)/.pki \
+    -v /home/vagrant/.nvm:/home/u$(id -u)/.nvm \
+    --net=host \
+    --shm-size $(expr ${ParallelThread} \* 128)M \
+    xyplatform:lubuntu1804 \
+    /bin/bash -c &apos;cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; . .autoPathrc.sh; \
+    ./framework/scripts/chimp_autorun.py --parallel ${ParallelThread} --runonly true \
+    --timestamp ${START_TIMESTAMP} --movie 1 \
+    --platform Linux --browser CH --module \
+      ${module_list}&apos;&quot;
+done
+
+CONTAINER_LIST=$(sudo docker ps -q --filter name=${CONTAINER_NAME} | tr &apos;\n&apos; &apos; &apos;)
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
-   &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
-   
-ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
-  &quot;if sudo docker container wait ${CONTAINER_NAME}; then \
-      sudo docker rm ${CONTAINER_NAME}; \
+  &quot;if sudo docker container wait ${CONTAINER_LIST}; then \
+      sudo docker container rm {CONTAINER_LIST}; \
    fi&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

@@ -50,7 +50,13 @@ do
 	cp -r test-download test-download-$i
 	cp -r test-webpage test-webpage-$i
 done
-cd ${WORKSPACE}; npm install; . .autoPathrc.sh
+
+cd ${WORKSPACE}; npm install; . .autoPathrc.sh;
+if [ -f ${HOME}/Run/AutoBDD/framework/libs/sikulixapi-1.1.4.jar ]; then
+	cp ${HOME}/Run/AutoBDD/framework/libs/sikulixapi-1.1.4.jar ./framework/libs/sikulixapi-1.1.4.jar;
+else
+	. ./framework/libs/downloadSikulixApiJar.js;
+fi
 
 selenium-standalone install --config=framework/configs/selenium-standalone_config.js
 JENKINS_NODE_COOKIE=dontKillMe nohup \
@@ -78,8 +84,7 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   --net=host \
   --shm-size 128M \
   xyplatform:lubuntu1804 \
-  /bin/bash -c &apos;cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; . .autoPathrc.sh; \
-  ./framework/libs/downloadSikulixApiJar.js&apos;&quot;
+  /bin/bash -c &apos;cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; npm rebuild;&apos;&quot;
 
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
    &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
