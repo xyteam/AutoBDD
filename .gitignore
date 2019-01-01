@@ -1,4 +1,5 @@
 **/*.run
+**/.DS_Store
 **/Passed_*.mp4
 **/Failed_*.mp4
 **/Recording_*.mp4
@@ -6,8 +7,9 @@
 **/Failed_*.png
 **/.screenshots/
 **/node_modules/
-test-projects/**/use_framework_*.js
+**/npm-debug.log
+**/sikulixapi*.jar
 tmp/*
 reports/*
-!**/step_images/*
 .vscode/*
+report-archive/*

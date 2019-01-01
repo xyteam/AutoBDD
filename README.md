@@ -49,5 +49,5 @@ Just add the entire test folder under test-projects.
 
 #### To run BDD test project inside the framework
 Refer to:
-[Prototype Test Project README.md](./test-projects/Proto/README.md)
+[Prototype Test Project README.md](./test-projects/webtest-example/README.md)
 

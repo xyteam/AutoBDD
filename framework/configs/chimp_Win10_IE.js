@@ -1,15 +1,10 @@
 'use strict';
 const frameworkPath = process.env.FrameworkPath;
+const projectFullPath = process.env.FrameworkPath + '/test-projects/' + process.env.ThisProject; 
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
-const glob = require('glob');
-const path = require('path');
-const _path = require('path');
-const _path2 = _interopRequireDefault(_path);
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; };
-const _selenium_standalone = require(frameworkPath + '/framework/configs/selenium-standalone_config.js');
-const frameworkStepPath = frameworkPath + '/framework/step_definitions';
-const myCombinedStepPath = fs.existsSync('../step_definitions') ? ['./features', '../step_definitions'] : ['./features'];
+const selenium_standalone_config = require(frameworkPath + '/framework/configs/selenium-standalone_config.js');
+const myCombinedStepPath = ['features', projectFullPath + '/global'];
 
 module.exports = {
   // - - - - CHIMP - - - -
@@ -52,20 +47,13 @@ module.exports = {
   host: process.env.SELHOST,
   port: process.env.SELPORT,
   seleniumStandaloneOptions: {
-    version: _selenium_standalone.version,
-    drivers: _selenium_standalone.drivers,
-    baseURL: _selenium_standalone.baseURL
+    version: selenium_standalone_config.version,
+    drivers: selenium_standalone_config.drivers,
+    baseURL: selenium_standalone_config.baseURL
   },
 
   // - - - - WEBDRIVER-IO  - - - -
   webdriverio: {
-    sync: true,
-    deprecationWarnings: false,
-    logLevel: 'silent',
-    coloredLogs: true,
-    screenshotPath: null,
-    waitforTimeout: 1800,
-    waitforInterval: 150,
     desiredCapabilities: {
       browserName: "internet explorer",
       initialBrowserUrl: "about:blank",
@@ -90,16 +78,21 @@ module.exports = {
       // "ie.forceCreateProcessApi": false,
       // "ie.forceShellWindowsApi": false,
       // "ie.useLegacyFileUploadDialogHandling": false
-    }
+    },
+    logLevel: 'silent',
+    coloredLogs: true,
+    screenshotPath: null,
+    waitforTimeout: 500,
+    waitforInterval: 250
   },
 
-    // - - - - SESSION-MANAGER  - - - -
-    noSessionReuse: false,
+  // - - - - SESSION-MANAGER  - - - -
+  noSessionReuse: false,
 
-    // - - - - DEBUGGING  - - - -
-    log: 'info',
-    debug: false,
-    debugCucumber: false,
-    debugBrkCucumber: false
+  // - - - - DEBUGGING  - - - -
+  log: 'info',
+  debug: false,
+  debugCucumber: false,
+  debugBrkCucumber: false
 };
 

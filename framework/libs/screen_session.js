@@ -6,69 +6,77 @@ const java = require('java');
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 
-// Sikuli Property
-const sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.4.jar';
-if (!fs.existsSync(sikuliApiJar) || fs.statSync(sikuliApiJar).size == 0) {
-  execSync(FrameworkPath + '/framework/libs/downloadSikulixApiJar.js');
-}
-java.classpath.push(sikuliApiJar);
-const App = java.import('org.sikuli.script.App');
-const Screen = java.import('org.sikuli.script.Screen');
-const Region = java.import('org.sikuli.script.Region');
-const Pattern = java.import('org.sikuli.script.Pattern');
 // Robot Property
 robot.setXDisplayName(process.env.DISPLAY);
 robot.setMouseDelay(50);
 robot.setKeyboardDelay(50);
 
 module.exports = {
-  findImage: function(onArea, imagePath, imageSimilarity, clickImage, imageFindAll) {
-    var imageSimilarity = imageSimilarity || 0.8;
-    var clickImage = clickImage || false; 
+  findImage: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
+    // Sikuli Property
+    const sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.4.jar';
+    java.classpath.push(sikuliApiJar);
+    // const App = java.import('org.sikuli.script.App');
+    // const Region = java.import('org.sikuli.script.Region');
+    const Screen = java.import('org.sikuli.script.Screen');
+    const Pattern = java.import('org.sikuli.script.Pattern');
+
+    var imageSimilarity = parseFloat(imageSimilarity) || parseFloat(process.env.imageSimilarity) || 0.8;
+    var imageWaitTime = parseFloat(imageWaitTime) || parseFloat(process.env.imageWaitTime) || 1;
+    var imageAction = imageAction || false; 
     var imageFindAll = imageFindAll || false;
+
+    var returnArray = [];
     var findRegion;
+    var target;
+    var sim_java = java.newFloat(imageSimilarity);
 
     switch (onArea) {
-      case 'onFocus':
-      case 'onFocused':
-        findRegion = App.focusedWindowSync();
-        break;
+      // case 'onFocused':
+      //   findRegion = App.focusedWindowSync();
+      //   break;
       case 'onScreen':
       default:
         findRegion = new Screen();
     }
 
-    var sim_java = java.newFloat(imageSimilarity);
-    var pat = new Pattern(imagePath);
-    var returnArray = [];
+    if (imagePath == 'center') {
+      target = findRegion.getCenterSync();
+    } else {
+      target = (new Pattern(imagePath)).similarSync(sim_java);
+    }
 
     try {
       if (imageFindAll) {
-        var find_results = findRegion.findAllSync(pat.similarSync(sim_java));
+        var find_results = findRegion.findAllSync(target);
         while (find_results.hasNextSync()) {
           var find_item = find_results.nextSync();
-          var returnItem = {dimention: null, location: null};
-          returnItem.dimention = {width: find_item.w, height: find_item.h};
+          var returnItem = {dimension: null, location: null};
+          returnItem.dimension = {width: find_item.w, height: find_item.h};
           returnItem.location = {x: find_item.x, y: find_item.y};
           returnArray.push(returnItem); 
         }
       } else {
-        var find_item = findRegion.findSync(pat.similarSync(sim_java));
-        var returnItem = {dimention: null, location: null, clicked: null};
-        returnItem.dimention = {width: find_item.w, height: find_item.h};
+        var find_item = findRegion.waitSync(target, imageWaitTime);
+        // uncomment this line to show selected image, however this will break test in xvfb
+        // find_item.highlight(1);
+        var returnItem = {dimension: null, location: null, clicked: null};
+        returnItem.dimension = {width: find_item.w, height: find_item.h};
         returnItem.location = {x: find_item.x, y: find_item.y};
         var click_count = 0;
-        switch (clickImage) {
-          case (true):
-          case 'true':
+        switch (imageAction) {
           case 'single':
-            click_count = findRegion.clickSync(pat.similarSync(sim_java));
+            click_count = find_item.clickSync();
           break;
           case 'double':
-            click_count = findRegion.doubleClickSync(pat.similarSync(sim_java));
+            click_count = find_item.doubleClickSync();
           break;
           case 'right':
-            click_count = findRegion.rightClickSync(pat.similarSync(sim_java));
+            click_count = find_item.rightClickSync();
+          break;
+          case 'hover':
+            click_count = find_item.hoverSync();
+          break;
         }
         if (click_count > 0) {
           var clicked_target = find_item.getTargetSync();
@@ -79,59 +87,56 @@ module.exports = {
       return JSON.stringify(returnArray);
     } catch(e) {
       console.log(e.message);
-      return 'not found';
+      return 'error';
     }
   },
 
-  runFindImage: function(onArea, imagePath, imageSimilarity, clickImage, imageFindAll) {
+  runFindImage: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
     var outputBuffer = execSync(FrameworkPath + '/framework/libs/find_image.js'
                       + ' --onArea=' + onArea
                       + ' --imagePath=' + imagePath
                       + ' --imageSimilarity=' + imageSimilarity
-                      + ' --clickImage=' + clickImage
+                      + ' --imageWaitTime=' + imageWaitTime
+                      + ' --imageAction=' + imageAction
                       + ' --imageFindAll' + imageFindAll);
     var outputString = outputBuffer.toString('utf8');
+    console.log(outputString);
     var returnVal = outputString.substring(outputString.lastIndexOf('['), outputString.lastIndexOf(']') + 1);
     return returnVal;
   },
 
-  focusedFindImage: function(imagePath, imageSimilarity, clickImage, imageFindAll) {
-    var returnVal = this.runFindImage('onFocused', imagePath, imageSimilarity, clickImage, imageFindAll);
+  screenFindImage: function(imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
+    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll);
     return returnVal;
   },
 
-  focusedClickImage: function(imagePath, imageSimilarity) {
-    var returnVal = this.runFindImage('onFocused', imagePath, imageSimilarity, 'single');
+  screenWaitImage: function(imagePath, imageSimilarity, imageWaitTime) {
+    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime);
     return returnVal;
   },
 
-  focusedDoubleClickImage: function(imagePath, imageSimilarity) {
-    var returnVal = this.runFindImage('onFocused', imagePath, imageSimilarity, 'double');
-    return returnVal;
-  },
-
-  focusedRightClickImage: function(imagePath, imageSimilarity) {
-    var returnVal = this.runFindImage('onFocused', imagePath, imageSimilarity, 'right');
-    return returnVal;
-  },
-
-  screenFindImage: function(imagePath, imageSimilarity, clickImage, imageFindAll) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, clickImage, imageFindAll);
+  screenHoverImage: function(imagePath, imageSimilarity) {
+    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'hover');
     return returnVal;
   },
 
   screenClickImage: function(imagePath, imageSimilarity) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, 'single');
+    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'single');
     return returnVal;
   },
 
   screenDoubleClickImage: function(imagePath, imageSimilarity) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, 'double');
+    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'double');
     return returnVal;
   },
 
   screenRightClickImage: function(imagePath, imageSimilarity) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, 'right');
+    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'right');
+    return returnVal;
+  },
+
+  screenHoverCenter: function() {
+    var returnVal = this.runFindImage('onScreen', 'center', null, null, 'hover');
     return returnVal;
   },
 

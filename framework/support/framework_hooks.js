@@ -7,8 +7,29 @@ module.exports = {
   BeforeFeature: function (event) {
     // start RDP and sshfs
     if (process.env.SSHHOST && process.env.SSHPORT) {
+      // these start functions will prevent double running
       framework_libs.startSshFs();
-      framework_libs.startRdesktop();
+      if (process.env.MOVIE == 1 || process.env.SCREENSHOT == 1) {
+        framework_libs.startRdesktop();
+        var targetDesktopImage;
+        switch (process.env.PLATFORM) {
+          case 'Win10':
+            targetDesktopImage = frameworkPath + '/framework/support/framework_images/windows10_startButton.png';
+            break;
+          case 'Win7':
+            targetDesktopImage = frameworkPath + '/framework/support/framework_images/windows10_startButton.png';
+            break;
+        }
+        try {
+          var imageSimilarity = process.env.imageSimilarity;
+          var imageWaitTime = 10;
+          screen_session.screenWaitImage(targetDesktopImage, imageSimilarity, imageWaitTime);
+          console.log('can see desktop');
+        } catch(e) {
+          console.log('cannot see desktop');
+        }
+        // browser.pause(5000);
+      }
     }
   },
 
@@ -16,7 +37,7 @@ module.exports = {
     // capture and maxmize the browser window
     var windowHandle = browser.windowHandle();
     browser.window(windowHandle.value);
-    browser.windowHandleMaximize();
+    // browser.windowHandleMaximize();
     // reset browser zoom
     screen_session.keyTap('0', 'control');
     browser.pause(1000);
@@ -27,13 +48,8 @@ module.exports = {
     var scenarioName = scenario.getName();
 
     // increase IE browser script execution time
-    if (process.env.BROWSER == 'IE') {
-      browser.timeouts('script', 60000);
-    }
-
-    if (process.env.MOVIE == 1) {
-      framework_libs.startRecording(scenarioName);
-    }
+    if (process.env.BROWSER == 'IE') browser.timeouts('script', 60000);
+    if (process.env.MOVIE == 1) framework_libs.startRecording(scenarioName);
   },
 
   BeforeStep: function(event) {
@@ -56,8 +72,8 @@ module.exports = {
     var scenarioName = scenario.getName();
 
     if (process.env.MOVIE == 1) {
-      framework_libs.stopRecording(scenarioName);
       framework_libs.takeScreenshot(scenarioName);
+      framework_libs.stopRecording(scenarioName);
     } else if (process.env.SCREENSHOT == 1) {
       framework_libs.takeScreenshot(scenarioName);
     }
@@ -80,17 +96,16 @@ module.exports = {
     // need to perform these steps before tear down RDP
     screen_session.keyTap('0', 'control');
     browser.pause(1000);
-
-    if (process.env.SSHHOST && process.env.SSHPORT) {
-      try {
-        framework_libs.stopRdesktop();
-        framework_libs.stopSshFs();
-        framework_libs.stopSshTunnel();
-      } catch(e) {}
-    }
   },
 
   AfterFeature: function (event) {
     browser.end();
+    if (process.env.SSHHOST && process.env.SSHPORT) {
+      try {
+        if (process.env.MOVIE == 1 || process.env.SCREENSHOT == 1) framework_libs.stopRdesktop();
+        framework_libs.stopSshFs();
+        framework_libs.stopSshTunnel();
+      } catch(e) {}
+    }
   }
 }

@@ -16,7 +16,7 @@ const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const myMOVIE = process.env.MOVIE;
 const mySCREENSHOT = process.env.SCREENSHOT;
 const myREPORTDIR = process.env.REPORTDIR;
-const myMODULEPATH = process.env.MODULEPATH;
+const myMODULE = process.env.MODULE;
 
 // framework essential
 const frameworkPath = process.env.FrameworkPath;
@@ -64,7 +64,7 @@ const cmd_stop_sshfs_mount = 'if mountpoint -q ' + myDownloadPathLocal
 // rdesktop
 const cmd_check_rdesktop = 'pgrep -f "rdesktop .*' + myRDPHOST + ':' + myRDPPORT + '"';
 const cmd_start_rdesktop = 'DISPLAY=' + myDISPLAY
-                          + ' rdesktop -fa 15 -mE '
+                          + ' rdesktop -fa 16 -mE '
                           + myRDPConnString
                           + ' &';
 const cmd_stop_rdesktop = 'pkill -f "rdesktop .*' + myRDPHOST + ':' + myRDPPORT + '"';
@@ -146,7 +146,7 @@ module.exports = {
 
   // movie and screenshot
   getScenarioNameBase: function(scenarioName) {
-    var fileBase = (myPLATFORM + '_' + myBROWSER + '_' + myMODULEPATH + '_' + scenarioName)
+    var fileBase = (myPLATFORM + '_' + myBROWSER + '_' + myMODULE + '_' + scenarioName)
                       .replace(spaceChar_regex, '_')
                       .replace(specialChar_regex, '');
     return fileBase;
