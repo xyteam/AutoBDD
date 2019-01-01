@@ -25,7 +25,7 @@
     <submoduleCfg class="list"/>
     <extensions/>
   </scm>
-  <assignedNode>ec2-user</assignedNode>
+  <assignedNode>AutoBDD</assignedNode>
   <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
@@ -34,8 +34,11 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command># Prepare test code
+      <command>#!/bin/bash
+
+# Checkout project and multiply 8x test modules (for demo purpose)
 # Download and Start application-under-test (here is selenium on 4444)
+cd ${HOME}; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8
 cd ${WORKSPACE}
 START_TIMESTAMP=$(date +%Y%m%d_%H%M%S%Z)
 echo START_TIMESTAMP=${START_TIMESTAMP} &gt; ${WORKSPACE}/build.properties
@@ -47,9 +50,7 @@ do
 	cp -r test-download test-download-$i
 	cp -r test-webpage test-webpage-$i
 done
-cd ${WORKSPACE}
-. ${HOME}/.bashrc; nvm use v8; npm install;
-. ${WORKSPACE}/.autoPathrc.sh
+cd ${WORKSPACE}; npm install; . .autoPathrc.sh
 
 selenium-standalone install --config=framework/configs/selenium-standalone_config.js
 JENKINS_NODE_COOKIE=dontKillMe nohup \
@@ -58,55 +59,58 @@ selenium-standalone start --config=framework/configs/selenium-standalone_config.
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># Rebuild test code with a container
+      <command>#!/bin/bash
+
+# NPM rebuild project with a container
 # Download Sikulix JAR
 cd ${WORKSPACE}
 source ${WORKSPACE}/build.properties
 CONTAINER_NAME=$(basename ${JOB_NAME})
 
-ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   &quot;sudo docker run -d --rm=false \
   --user=u$(id -u) --privileged \
   --name ${CONTAINER_NAME} \
   -v ${WORKSPACE}:/home/u$(id -u)/ \
-  -v /home/ec2-user/.bashrc:/home/u$(id -u)/.bashrc \
-  -v /home/ec2-user/.pki:/home/u$(id -u)/.pki \
-  -v /home/ec2-user/.nvm:/home/u$(id -u)/.nvm \
+  -v /home/vagrant/.bashrc:/home/u$(id -u)/.bashrc \
+  -v /home/vagrant/.pki:/home/u$(id -u)/.pki \
+  -v /home/vagrant/.nvm:/home/u$(id -u)/.nvm \
   --net=host \
   --shm-size 128M \
   xyplatform:lubuntu1804 \
-  /bin/bash -c &apos;cd; . .bashrc; nvm use v8; npm rebuild; \
-  . .autoPathrc.sh; \
+  /bin/bash -c &apos;cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; . .autoPathrc.sh; \
   ./framework/libs/downloadSikulixApiJar.js&apos;&quot;
 
-ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
    &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
 
-ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   &quot;if sudo docker container wait ${CONTAINER_NAME}; then \
       sudo docker rm ${CONTAINER_NAME}; \
    fi&quot;
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># Run test
+      <command>#!/bin/bash
+
+# Run test with docker container
 cd ${WORKSPACE}
 source ${WORKSPACE}/build.properties
 CONTAINER_NAME=$(basename ${JOB_NAME})
   
-ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   &quot;sudo docker run -d --rm=false \
   --user=u$(id -u) --privileged \
   --name ${CONTAINER_NAME} \
   -v ${WORKSPACE}:/home/u$(id -u)/ \
-  -v /home/ec2-user/.bashrc:/home/u$(id -u)/.bashrc \
-  -v /home/ec2-user/.pki:/home/u$(id -u)/.pki \
-  -v /home/ec2-user/.nvm:/home/u$(id -u)/.nvm \
+  -v /home/vagrant/.bashrc:/home/u$(id -u)/.bashrc \
+  -v /home/vagrant/.pki:/home/u$(id -u)/.pki \
+  -v /home/vagrant/.nvm:/home/u$(id -u)/.nvm \
   --net=host \
-  --shm-size 1G \
+  --shm-size 128M \
   xyplatform:lubuntu1804 \
-  /bin/bash -c &apos;cd; . .bashrc; . .autoPathrc.sh; \
-  ./framework/scripts/chimp_autorun.py --parallel 8 --runonly true \
+  /bin/bash -c &apos;cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; . .autoPathrc.sh; \
+  ./framework/scripts/chimp_autorun.py --parallel 1 --runonly true \
   --timestamp ${START_TIMESTAMP} --movie 1 \
   --platform Linux --browser CH --module \
   	test-webpage-01 \
@@ -126,32 +130,34 @@ ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
     test-download-07 \
     test-download-08&apos;&quot;
 
-ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
    &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
    
-ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   &quot;if sudo docker container wait ${CONTAINER_NAME}; then \
       sudo docker rm ${CONTAINER_NAME}; \
    fi&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># Generate Report
+      <command>#!/bin/bash
+
+# Generate Report with docker container
 cd ${WORKSPACE}
 source ${WORKSPACE}/build.properties
 CONTAINER_NAME=$(basename ${JOB_NAME})
   
-ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   &quot;sudo docker run -d --rm=false \
   --user=u$(id -u) --privileged \
   --name ${CONTAINER_NAME} \
   -v ${WORKSPACE}:/home/u$(id -u)/ \
-  -v /home/ec2-user/.bashrc:/home/u$(id -u)/.bashrc \
-  -v /home/ec2-user/.pki:/home/u$(id -u)/.pki \
-  -v /home/ec2-user/.nvm:/home/u$(id -u)/.nvm \
+  -v /home/vagrant/.bashrc:/home/u$(id -u)/.bashrc \
+  -v /home/vagrant/.pki:/home/u$(id -u)/.pki \
+  -v /home/vagrant/.nvm:/home/u$(id -u)/.nvm \
   --net=host \
   --shm-size 128M \
   xyplatform:lubuntu1804 \
-  /bin/bash -c &apos;cd; . .bashrc; . .autoPathrc.sh; \
+  /bin/bash -c &apos;cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; . .autoPathrc.sh; \
   ./framework/scripts/chimp_autorun.py --parallel 1 --reportonly true \
   --timestamp ${START_TIMESTAMP} --movie 1 \
   --platform Linux --browser CH --module \
@@ -172,15 +178,22 @@ ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
     test-download-07 \
     test-download-08&apos;&quot;
 
-ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
    &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
    
-ssh -i $HOME/.ssh/docker_id_rsa -t -t localhost \
+ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   &quot;if sudo docker container wait ${CONTAINER_NAME}; then \
       sudo docker rm ${CONTAINER_NAME}; \
    fi&quot;</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
-  <buildWrappers/>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.37">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+      <disableDeferredWipeout>false</disableDeferredWipeout>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+  </buildWrappers>
 </project>
