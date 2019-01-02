@@ -117,9 +117,8 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
    &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
 
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
-  &quot;if sudo docker container wait ${CONTAINER_NAME}; then \
-      sudo docker rm ${CONTAINER_NAME}; \
-   fi&quot;
+  &quot;sudo docker container wait ${CONTAINER_NAME}; \
+   sudo docker rm ${CONTAINER_NAME};&quot;
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
@@ -152,9 +151,8 @@ done
 
 CONTAINER_LIST=$(sudo docker ps -q --filter name=${CONTAINER_NAME} | tr &apos;\n&apos; &apos; &apos;)
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
-  &quot;if sudo docker container wait ${CONTAINER_LIST}; then \
-      sudo docker container rm {CONTAINER_LIST}; \
-   fi&quot;</command>
+  &quot;sudo docker container wait ${CONTAINER_LIST}; \
+   sudo docker container rm ${CONTAINER_LIST};&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
@@ -200,9 +198,9 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
    &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
    
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
-  &quot;if sudo docker container wait ${CONTAINER_NAME}; then \
-      sudo docker rm ${CONTAINER_NAME}; \
-   fi&quot;</command>
+  &quot;sudo docker container wait ${CONTAINER_NAME}; \
+   sudo docker rm ${CONTAINER_NAME};&quot;
+</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
