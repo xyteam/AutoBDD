@@ -1,4 +1,7 @@
+**/test-projects
+!test-projects/*-example/
 **/*.run
+**/*.pyc
 **/.DS_Store
 **/Passed_*.mp4
 **/Failed_*.mp4
