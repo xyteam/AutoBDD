@@ -1,5 +1,7 @@
 test-projects/*
 !test-projects/*-example/
+test-reports/*
+!test-reports/*-example/
 **/*.run
 **/*.pyc
 **/.DS_Store
