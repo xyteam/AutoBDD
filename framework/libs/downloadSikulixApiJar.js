@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var argv = require('minimist')(process.argv.slice(2));
+process.env.DISPLAY = process.env.DISPLAY || ':0';
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const sikuliApiJar = argv.sikulixApiJar || FrameworkPath + '/framework/libs/sikulixapi-1.1.4.jar';
 const sikuliApiUrl_latest = 'https://raiman.github.io/SikuliX1/sikulixapi.jar';
@@ -47,7 +48,7 @@ findJarStat(sikuliApiJar, sikuliApiUrl).then(function(jarStat) {
     const Screen = java.import('org.sikuli.script.Screen');
     console.log(sikuliApiJar + ' jar file is good');
   } catch(e) {
-    throw Error (sikuliApiJar + ' jar import error');
+    throw Error (sikuliApiJar + ' jar import error: ' + e);
   }
 }).catch(function(e) {
   console.log(e);
