@@ -51,18 +51,20 @@ module.exports = {
         var find_results = findRegion.findAllSync(target);
         while (find_results.hasNextSync()) {
           var find_item = find_results.nextSync();
-          var returnItem = {dimension: null, location: null};
-          returnItem.dimension = {width: find_item.w, height: find_item.h};
+          var returnItem = {location: null, dimension: null, center: null, clicked: null};
           returnItem.location = {x: find_item.x, y: find_item.y};
+          returnItem.dimension = {width: find_item.w, height: find_item.h};
+          returnItem.center = {x: find_item.x + find_item.w / 2, y: find_item.y + find_item.h / 2};
           returnArray.push(returnItem); 
         }
       } else {
         var find_item = findRegion.waitSync(target, imageWaitTime);
         // uncomment this line to show selected image, however this will break test in xvfb
         // find_item.highlight(1);
-        var returnItem = {dimension: null, location: null, clicked: null};
-        returnItem.dimension = {width: find_item.w, height: find_item.h};
+        var returnItem = {location: null, dimension: null, center: null, clicked: null};
         returnItem.location = {x: find_item.x, y: find_item.y};
+        returnItem.dimension = {width: find_item.w, height: find_item.h};
+        returnItem.center = {x: find_item.x + find_item.w / 2, y: find_item.y + find_item.h / 2};
         var click_count = 0;
         switch (imageAction) {
           case 'single':
@@ -174,6 +176,10 @@ module.exports = {
 
   moveMouse: function(xOffset, yOffset) {
     robot.moveMouse(xOffset, yOffset);
+  },
+
+  dragMouse: function(xOffset, yOffset) {
+    robot.dragMouse(xOffset, yOffset);
   },
 
   mouseClick: function(button, double) {
