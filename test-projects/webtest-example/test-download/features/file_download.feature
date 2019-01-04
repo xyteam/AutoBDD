@@ -5,7 +5,7 @@ Feature: file download
 
   Scenario: File Open and Download - check PDF file
     When  I visit "http://www.orimi.com/pdf-test.pdf"
-    And   I should see the "Yukon_Logo" image on the page
+    Then  I should see the "Yukon_Logo" image on the screen
     When  I download the PDF file by clicking "PDF_download_icon"
     Then  the downloaded PDF file should contain "PDF Test File"
 
