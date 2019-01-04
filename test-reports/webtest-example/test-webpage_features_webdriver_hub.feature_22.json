@@ -1,0 +1,143 @@
+[
+  {
+    "description": "  As a QA Engineer\n  I want to inviestigate a few items at the Selenium Webdriver Hub page:\n    1. page elements - Create Session\n    2. page images - Create Session",
+    "elements": [
+      {
+        "id": "webdriver-hub-page;check-webdriver-hub-page-images---create-session",
+        "keyword": "Scenario",
+        "line": 22,
+        "name": "Check Webdriver Hub page images - Create Session",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Before ",
+            "result": {
+              "status": "passed",
+              "duration": 1202549255
+            },
+            "hidden": true,
+            "match": {
+              "location": "/home/vagrant/Run/AutoBDD/test-projects/webtest-example/global/support/hooks.js:18"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "name": "I visit \"http://localhost:4444/wd/hub\"",
+            "result": {
+              "status": "passed",
+              "duration": 124556846
+            },
+            "line": 23,
+            "match": {
+              "location": "/home/vagrant/Run/AutoBDD/test-projects/webtest-example/test-webpage/features/step_definitions/When/When_I_visit_#.js:2"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "name": "I should see the \"Selenium_CreateSession_button\" image on the screen",
+            "result": {
+              "status": "passed",
+              "duration": 4835777481
+            },
+            "line": 24,
+            "match": {
+              "location": "/home/vagrant/Run/AutoBDD/test-projects/webtest-example/test-webpage/features/step_definitions/Then/Then_I_should_see_the_#_image_on_the_screen.js:2"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "name": "I click the \"Selenium_CreateSession_button\" image on the screen",
+            "result": {
+              "status": "passed",
+              "duration": 5014124392
+            },
+            "line": 25,
+            "match": {
+              "location": "/home/vagrant/Run/AutoBDD/test-projects/webtest-example/test-webpage/features/step_definitions/When/When_I_click_the_#_image_on_the_screen.js:2"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "name": "I should see the \"Selenium_CreateNewSession_modal\" image on the screen",
+            "result": {
+              "status": "passed",
+              "duration": 4524924023
+            },
+            "line": 26,
+            "match": {
+              "location": "/home/vagrant/Run/AutoBDD/test-projects/webtest-example/test-webpage/features/step_definitions/Then/Then_I_should_see_the_#_image_on_the_screen.js:2"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "name": "I click the \"Selenium_SelectBrowsers_dropDownClosed\" image on the screen",
+            "result": {
+              "status": "passed",
+              "duration": 4761688494
+            },
+            "line": 27,
+            "match": {
+              "location": "/home/vagrant/Run/AutoBDD/test-projects/webtest-example/test-webpage/features/step_definitions/When/When_I_click_the_#_image_on_the_screen.js:2"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "name": "I should see the \"Selenium_SelectBrowsers_dropDownOpened\" image on the screen",
+            "result": {
+              "status": "passed",
+              "duration": 4029233445
+            },
+            "line": 28,
+            "match": {
+              "location": "/home/vagrant/Run/AutoBDD/test-projects/webtest-example/test-webpage/features/step_definitions/Then/Then_I_should_see_the_#_image_on_the_screen.js:2"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "After ",
+            "result": {
+              "status": "passed",
+              "duration": 222513
+            },
+            "hidden": true,
+            "match": {
+              "location": "/home/vagrant/Run/AutoBDD/node_modules/chimpy/dist/lib/cucumberjs/hooks.js:68"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "After ",
+            "result": {
+              "status": "passed",
+              "duration": 1877421467
+            },
+            "hidden": true,
+            "embeddings": [
+              {
+                "data": "PHZpZGVvIHNyYz0iUGFzc2VkX0xpbnV4X0NIX3Rlc3R3ZWJwYWdlX0NoZWNrX1dlYmRyaXZlcl9IdWJfcGFnZV9pbWFnZXNfX0NyZWF0ZV9TZXNzaW9uLm1wNCJzdHlsZT0ibWF4LXdpZHRoOiAxMDAlOyBoZWlnaHQ6IGF1dG87IiBjb250cm9scyBwb3N0ZXI9IlBhc3NlZF9MaW51eF9DSF90ZXN0d2VicGFnZV9DaGVja19XZWJkcml2ZXJfSHViX3BhZ2VfaW1hZ2VzX19DcmVhdGVfU2Vzc2lvbi5wbmciLz5Zb3VyIGJyb3dzZXIgZG9lcyBub3Qgc3VwcG9ydCB0aGUgdmlkZW8gdGFnLjwvdmlkZW8+",
+                "mime_type": "text/html"
+              }
+            ],
+            "match": {
+              "location": "/home/vagrant/Run/AutoBDD/test-projects/webtest-example/global/support/hooks.js:48"
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "webdriver-hub-page",
+    "keyword": "Feature",
+    "line": 1,
+    "name": "webdriver hub page",
+    "tags": [],
+    "uri": "/home/vagrant/Run/AutoBDD/test-projects/webtest-example/test-webpage/features/webdriver_hub.feature"
+  }
+]
