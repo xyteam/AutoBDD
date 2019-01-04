@@ -1,4 +1,4 @@
-**/test-projects
+test-projects/*
 !test-projects/*-example/
 **/*.run
 **/*.pyc
