@@ -11,6 +11,6 @@ Feature: file download
 
   Scenario: File Download - check XLS file
     When  I download the XLS file by going to URL "https://www.sample-videos.com/xls/Sample-Spreadsheet-10-rows.xls"
-    And   the downloaded XLS file should contain 10 rows
+    Then  the downloaded XLS file should contain 10 rows
 
 
