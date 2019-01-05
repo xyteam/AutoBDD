@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "6c646598-0c79-4a2c-8252-b584a8699b73",
+		"_postman_id": "df7027c9-989e-43d8-a5d3-390c0d80e856",
 		"name": "Restful_Booker_Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -16,7 +16,7 @@
 							"script": {
 								"id": "fe986005-9c87-48dd-8da8-e1c877f419db",
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"pm.test(\"Status code is 201\", function () {",
 									"    pm.response.to.have.status(201);",
 									"});",
 									""
@@ -103,10 +103,10 @@
 							"script": {
 								"id": "2e14ac18-e666-4a46-a188-6c33b6599637",
 								"exec": [
-									"pm.test(\"Is Susan Brown\", function () {",
+									"pm.test(\"Has firstname and lastname\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.firstname).to.eql('Susan');",
-									"    pm.expect(jsonData.lastname).to.eql('Brown');",
+									"    pm.expect(jsonData.firstname).not.equal(null);",
+									"    pm.expect(jsonData.lastname).not.equal(null);",
 									"});"
 								],
 								"type": "text/javascript"
