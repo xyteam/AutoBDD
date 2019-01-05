@@ -8,7 +8,7 @@ const execSync = require('child_process').execSync;
 
 // Robot Property
 robot.setXDisplayName(process.env.DISPLAY);
-robot.setMouseDelay(50);
+robot.setMouseDelay(1000);
 robot.setKeyboardDelay(50);
 
 module.exports = {
@@ -54,17 +54,18 @@ module.exports = {
           var returnItem = {location: null, dimension: null, center: null, clicked: null};
           returnItem.location = {x: find_item.x, y: find_item.y};
           returnItem.dimension = {width: find_item.w, height: find_item.h};
-          returnItem.center = {x: find_item.x + find_item.w / 2, y: find_item.y + find_item.h / 2};
+          returnItem.center = {x: find_item.x + Math.round(find_item.w / 2), y: find_item.y + Math.round(find_item.h / 2)};
           returnArray.push(returnItem); 
         }
       } else {
         var find_item = findRegion.waitSync(target, imageWaitTime);
         // uncomment this line to show selected image, however this will break test in xvfb
         // find_item.highlight(1);
-        var returnItem = {location: null, dimension: null, center: null, clicked: null};
+        var returnItem = {location: null, dimension: null, center: null, clicked: null, score: null};
         returnItem.location = {x: find_item.x, y: find_item.y};
         returnItem.dimension = {width: find_item.w, height: find_item.h};
-        returnItem.center = {x: find_item.x + find_item.w / 2, y: find_item.y + find_item.h / 2};
+        returnItem.center = {x: find_item.x + Math.round(find_item.w / 2), y: find_item.y + Math.round(find_item.h / 2)};
+        returnItem.score = find_item.getScoreSync();
         var click_count = 0;
         switch (imageAction) {
           case 'single':
@@ -88,22 +89,28 @@ module.exports = {
       }
       return JSON.stringify(returnArray);
     } catch(e) {
-      console.log(e.message);
-      return 'error';
+      return '[not found]';
     }
   },
 
   runFindImage: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
-    var outputBuffer = execSync(FrameworkPath + '/framework/libs/find_image.js'
-                      + ' --onArea=' + onArea
-                      + ' --imagePath=' + imagePath
-                      + ' --imageSimilarity=' + imageSimilarity
-                      + ' --imageWaitTime=' + imageWaitTime
-                      + ' --imageAction=' + imageAction
-                      + ' --imageFindAll' + imageFindAll);
-    var outputString = outputBuffer.toString('utf8');
-    console.log(outputString);
-    var returnVal = outputString.substring(outputString.lastIndexOf('['), outputString.lastIndexOf(']') + 1);
+    var outputBuffer;
+    var outputString;
+    var returnVal;
+    try {
+      outputBuffer = execSync(FrameworkPath + '/framework/libs/find_image.js'
+                        + ' --onArea=' + onArea
+                        + ' --imagePath=' + imagePath
+                        + ' --imageSimilarity=' + imageSimilarity
+                        + ' --imageWaitTime=' + imageWaitTime
+                        + ' --imageAction=' + imageAction
+                        + ' --imageFindAll' + imageFindAll);
+      outputString = outputBuffer.toString('utf8');
+      console.log(outputString);
+      returnVal = outputString.substring(outputString.lastIndexOf('['), outputString.lastIndexOf(']') + 1);
+    } catch(e){
+      returnVal = 'execSync error: ' + e.message;
+    }
     return returnVal;
   },
 
@@ -173,6 +180,13 @@ module.exports = {
     });
   },
 
+  drag_and_drop(object, target) {
+    robot.moveMouse(object.x, object.y);
+    robot.mouseToggle('down');
+    robot.dragMouse(object.x+10, object.y);
+    robot.dragMouse(target.x-10, target.y);
+    robot.mouseToggle('up');
+  },
 
   moveMouse: function(xOffset, yOffset) {
     robot.moveMouse(xOffset, yOffset);
@@ -184,6 +198,10 @@ module.exports = {
 
   mouseClick: function(button, double) {
     robot.mouseClick(button, double);
+  },
+
+  mouseToggle: function() {
+
   },
 
   getMousePos: function() {
