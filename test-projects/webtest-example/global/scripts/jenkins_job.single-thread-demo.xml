@@ -8,6 +8,49 @@
       <projectUrl>https://github.com/xyteam/AutoBDD.git/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>ParallelThread</name>
+          <description>number of parallel-threads to run</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Movie</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>0</string>
+              <string>1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Platform</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Linux</string>
+              <string>Win10</string>
+              <string>Win7</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Browser</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>CH</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
   </properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@3.9.1">
     <configVersion>2</configVersion>
@@ -43,12 +86,14 @@ cd ${WORKSPACE}
 START_TIMESTAMP=$(date +%Y%m%d_%H%M%S%Z)
 echo START_TIMESTAMP=${START_TIMESTAMP} &gt; ${WORKSPACE}/build.properties
 cd test-projects/webtest-example
-for i in 01 02 03 04 05 06 07 08
+for i in 01 02 03 04
 do
 	rm -rf test-download-$i
 	rm -rf test-webpage-$i
+    rm -rf test-postman-$i
 	cp -r test-download test-download-$i
 	cp -r test-webpage test-webpage-$i
+	cp -r test-postman test-postman-$i
 done
 
 cd ${WORKSPACE}; npm install; . .autoPathrc.sh;
@@ -71,7 +116,7 @@ selenium-standalone start --config=framework/configs/selenium-standalone_config.
 # Download Sikulix JAR
 cd ${WORKSPACE}
 source ${WORKSPACE}/build.properties
-CONTAINER_NAME=$(basename ${JOB_NAME})
+CONTAINER_NAME=$(basename ${JOB_NAME})-npm-rebuild
 
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   &quot;sudo docker run -d --rm=false \
@@ -100,7 +145,7 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
 # Run test with docker container
 cd ${WORKSPACE}
 source ${WORKSPACE}/build.properties
-CONTAINER_NAME=$(basename ${JOB_NAME})
+CONTAINER_NAME=$(basename ${JOB_NAME})-run-test
   
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   &quot;sudo docker run -d --rm=false \
@@ -111,28 +156,24 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   -v /home/vagrant/.pki:/home/u$(id -u)/.pki \
   -v /home/vagrant/.nvm:/home/u$(id -u)/.nvm \
   --net=host \
-  --shm-size 128M \
+  --shm-size $(expr ${ParallelThread} \* 128)M \
   xyplatform:lubuntu1804 \
   /bin/bash -c &apos;cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; . .autoPathrc.sh; \
-  ./framework/scripts/chimp_autorun.py --parallel 1 --runonly true \
-  --timestamp ${START_TIMESTAMP} --movie 1 \
-  --platform Linux --browser CH --module \
+  ./framework/scripts/chimp_autorun.py --parallel ${ParallelThread} --runonly true \
+  --timestamp ${START_TIMESTAMP} --movie ${Movie} \
+  --platform ${Platform} --browser ${Browser} --module \
   	test-webpage-01 \
     test-webpage-02 \
     test-webpage-03 \
     test-webpage-04 \
-    test-webpage-05 \
-    test-webpage-06 \
-    test-webpage-07 \
-    test-webpage-08 \
   	test-download-01 \
     test-download-02 \
     test-download-03 \
     test-download-04 \
-    test-download-05 \
-    test-download-06 \
-    test-download-07 \
-    test-download-08&apos;&quot;
+  	test-postman-01 \
+    test-postman-02 \
+    test-postman-03 \
+    test-postman-04&apos;&quot;
 
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
    &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
@@ -148,7 +189,7 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
 # Generate Report with docker container
 cd ${WORKSPACE}
 source ${WORKSPACE}/build.properties
-CONTAINER_NAME=$(basename ${JOB_NAME})
+CONTAINER_NAME=$(basename ${JOB_NAME})-gen-report
   
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   &quot;sudo docker run -d --rm=false \
@@ -169,18 +210,14 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
     test-webpage-02 \
     test-webpage-03 \
     test-webpage-04 \
-    test-webpage-05 \
-    test-webpage-06 \
-    test-webpage-07 \
-    test-webpage-08 \
   	test-download-01 \
     test-download-02 \
     test-download-03 \
     test-download-04 \
-    test-download-05 \
-    test-download-06 \
-    test-download-07 \
-    test-download-08&apos;&quot;
+  	test-postman-01 \
+    test-postman-02 \
+    test-postman-03 \
+    test-postman-04&apos;&quot;
 
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
    &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
