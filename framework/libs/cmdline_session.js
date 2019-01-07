@@ -9,6 +9,10 @@ module.exports = {
   runCmd: function(command) {
     var result;
     var exitcode;
+    var displayMsg = 'command: \n' + command + '\n\n';
+
+    browser.url('data: text/plain;charset=utf-8, ' + encodeUrl(displayMsg));
+
     try {
         result = execSync(command).toString();
         exitcode = 0;
@@ -16,9 +20,11 @@ module.exports = {
         result = e.stdout.toString();
         exitcode = e.status;
     }
-    var result_displayData = encodeUrl(result);
-    browser.url('data: text/plain;charset=utf-8, ' + result_displayData);
+
+    displayMsg += 'result: \n' + result;
+    browser.url('data: text/plain;charset=utf-8, ' + encodeUrl(displayMsg));
     browser.pause(1000);
+
     return {"output": result, "exitcode": exitcode}    
   },
 
