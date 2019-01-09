@@ -4,8 +4,7 @@ Feature: postman collection
   I want to use postman to run my collectioin test
 
   Background: User have postman collection files
-    Given I am preparing to run postman test
-    And   I have a postman environment file "Restful-Booker.postman_environment"
+    Given I have a postman environment file "Restful-Booker.postman_environment"
     And   I have a postman collection file "Restful-Booker.postman_collection"
 
   Scenario: Run postman collection test - in newman commandline
