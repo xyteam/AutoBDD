@@ -1,6 +1,7 @@
 // browser_session.js provides additional functions to see and control the browser
 
 const screen_session = require('./screen_session');
+const encodeUrl = require('encodeurl');
 
 module.exports = {
   resetAll: function(session) {
@@ -50,5 +51,10 @@ module.exports = {
       } catch(e) {}
     } catch(e) {}
     screen_session.keyTap('enter');
+  },
+
+  displayMessage: function(session, displayMsg) {
+    session.url('data: text/plain;charset=utf-8, ' + encodeUrl(displayMsg, {charset: 'utf-8'}));
+    session.pause(1000);
   }
 }
