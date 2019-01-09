@@ -19,10 +19,19 @@ module.exports = {
     return {"output": result, "exitcode": exitcode}    
   },
 
-  runJavaCucumberScenario: function(javaProject, feature, scenario) {
+  runMvnClean: function(javaProject) {
     var javaProjectPath = FrameworkPath + '/test-projects/' + javaProject;
     var mvn_command = 'cd ' + javaProjectPath + '; ';
-    mvn_command += 'mvn clean test ';
+    mvn_command += 'DISPLAY=' + process.env.DISPLAY + ' mvn clean';
+    console.log(mvn_command);
+    var mvn_result = this.runCmd(mvn_command);
+    return mvn_result;
+  },
+
+  runMvnTestScenario: function(javaProject, feature, scenario) {
+    var javaProjectPath = FrameworkPath + '/test-projects/' + javaProject;
+    var mvn_command = 'cd ' + javaProjectPath + '; ';
+    mvn_command += 'DISPLAY=' + process.env.DISPLAY + ' mvn test ';
     mvn_command += '-Dbrowser=\"chrome\" ';
     mvn_command += '-Dcucumber.options=\"classpath:features/' + feature + '\" ';
     mvn_command += '-Dcucumber.options=\"--name \'' + scenario + '\'\" ';
