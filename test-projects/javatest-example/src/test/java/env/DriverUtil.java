@@ -322,6 +322,8 @@ public class DriverUtil {
 				return driver;
 			case "chrome":
 				final ChromeOptions chromeOptions = new ChromeOptions();
+				chromeOptions.addArguments("--no-sandbox");
+				chromeOptions.addArguments("--start-maximized");
 				if (headless) {
 					chromeOptions.addArguments("--headless");
 				}
