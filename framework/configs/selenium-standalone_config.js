@@ -2,10 +2,10 @@
 // 3.5.0 to 3.14.0 is known to break in IE with "Error: Invalid timeout type specified: ms".
 module.exports = {
   baseURL: 'http://selenium-release.storage.googleapis.com',
-  version: '3.141.0',
+  version: '3.141.5',
   drivers: {
     chrome: {
-      version: '2.43',
+      version: '2.45',
       arch: process.arch,
       baseURL: 'http://chromedriver.storage.googleapis.com'
     },

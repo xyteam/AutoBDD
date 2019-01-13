@@ -1,0 +1,68 @@
+# To run all tests(detached) 	: sudo MYUSER=u$(id -u) docker-compose 
+up -d
+# To run specific test		: sudo MYUSER=u$(id -u) docker-compose 
+run <service_name>
+# To clean up all tests		: sudo MYUSER=u$(id -u) docker-compose 
+down
+# available <service_name>:
+# - Mod_test_webpage
+# - Mod_test_download
+
+version: '3.5'
+services:
+  Mod_test_webpage:
+   build:
+     context: .
+     shm_size: '256M'
+   image: xyplatform:lubuntu1804
+   user: ${MYUSER:?User is not defined. Please run with sudo 
+MYUSER=u$(id -u) docker-compose <up|down|run>}
+   volumes:
+     - ~/.m2:/home/${MYUSER}/.m2
+     - ~/Run:/home/${MYUSER}/Run
+     - ~/.bashrc:/home/${MYUSER}/.bashrc
+     - ~/.pki:/home/${MYUSER}/.pki
+     - ~/.nvm:/home/${MYUSER}/.nvm
+   network_mode: "host"
+   command: /bin/bash -c "cd; . .bashrc; . .nvm/nvm.sh; . 
+.nvm/bash_completion; nvm use v8; cd ~/Run/AutoBDD; npm rebuild; . 
+.autoPathrc.sh; ./framework/scripts/chimp_autorun.py --parallel 2 
+--movie 1 --platform Linux --browser CH --module test-webpage"
+
+  
+  Mod_test_download:
+   build:
+     context: .
+     shm_size: '256M'
+   image: xyplatform:lubuntu1804
+   user: ${MYUSER:?User is not defined. Please run with sudo 
+MYUSER=u$(id -u) docker-compose <up|down|run>}
+   volumes:
+     - ~/.m2:/home/${MYUSER}/.m2
+     - ~/Run:/home/${MYUSER}/Run
+     - ~/.bashrc:/home/${MYUSER}/.bashrc
+     - ~/.pki:/home/${MYUSER}/.pki
+     - ~/.nvm:/home/${MYUSER}/.nvm
+   network_mode: "host"
+   command: /bin/bash -c "cd; . .bashrc; . .nvm/nvm.sh; . 
+.nvm/bash_completion; nvm use v8; cd ~/Run/AutoBDD; npm rebuild; . 
+.autoPathrc.sh; ./framework/scripts/chimp_autorun.py --parallel 2 
+--movie 1 --platform Linux --browser CH --module test-download"
+
+#experimental
+  Mod_PROJ_ui:
+   build:
+     context: .
+     shm_size: '256M'
+   image: xyplatform:lubuntu1804
+   user: ${MYUSER:?User is not defined. Please run with sudo 
+MYUSER=u$(id -u) docker-compose <up|down|run>}
+   volumes:
+     - ~/.m2:/home/${MYUSER}/.m2
+     - ~/Run:/home/${MYUSER}/Run
+     - ~/.bashrc:/home/${MYUSER}/.bashrc
+     - ~/.pki:/home/${MYUSER}/.pki
+     - ~/.nvm:/home/${MYUSER}/.nvm
+   network_mode: "host"
+   command: /bin/bash -c "cd ~/Run/AutoBDD/test-projects/OOH; DISPLAY=:0 
+mvn clean test -pl ui -Dbrowser=chrome"

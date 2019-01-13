@@ -33,6 +33,36 @@
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Movie</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>0</string>
+              <string>1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Platform</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Linux</string>
+              <string>Win10</string>
+              <string>Win7</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Browser</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>CH</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -70,12 +100,14 @@ cd ${WORKSPACE}
 START_TIMESTAMP=$(date +%Y%m%d_%H%M%S%Z)
 echo START_TIMESTAMP=${START_TIMESTAMP} &gt; ${WORKSPACE}/build.properties
 cd test-projects/webtest-example
-for i in 01 02 03 04 05 06 07 08
+for i in 01 02 03 04
 do
 	rm -rf test-download-$i
 	rm -rf test-webpage-$i
+    rm -rf test-postman-$i
 	cp -r test-download test-download-$i
 	cp -r test-webpage test-webpage-$i
+	cp -r test-postman test-postman-$i
 done
 
 cd ${WORKSPACE}; npm install; . .autoPathrc.sh;
@@ -98,7 +130,7 @@ selenium-standalone start --config=framework/configs/selenium-standalone_config.
 # Download Sikulix JAR
 cd ${WORKSPACE}
 source ${WORKSPACE}/build.properties
-CONTAINER_NAME=$(basename ${JOB_NAME})
+CONTAINER_NAME=$(basename ${JOB_NAME})-npm-rebuild
 
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   &quot;sudo docker run -d --rm=false \
@@ -117,9 +149,8 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
    &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
 
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
-  &quot;if sudo docker container wait ${CONTAINER_NAME}; then \
-      sudo docker rm ${CONTAINER_NAME}; \
-   fi&quot;
+  &quot;sudo docker container wait ${CONTAINER_NAME}; \
+   sudo docker rm ${CONTAINER_NAME};&quot;
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
@@ -128,10 +159,15 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
 # Run test with docker container
 cd ${WORKSPACE}
 source ${WORKSPACE}/build.properties
-CONTAINER_NAME=$(basename ${JOB_NAME})
+CONTAINER_NAME=$(basename ${JOB_NAME})-run-test
 
 for dockerIndex in $(seq ${ParallelDocker}); do
-  module_list=$(for i in $(seq $(expr 8 / ${ParallelDocker})); do echo test-webpage-0$(expr ${ParallelDocker} \* $(expr $i - 1) + ${dockerIndex}) test-download-0$(expr ${ParallelDocker} \* $(expr $i - 1) + ${dockerIndex}); done | tr &apos;\n&apos; &apos; &apos;)
+  module_list=$(for i in $(seq $(expr 4 / ${ParallelDocker})); do \
+                    echo test-webpage-0$(expr ${ParallelDocker} \* $(expr $i - 1) + ${dockerIndex}) \
+                         test-download-0$(expr ${ParallelDocker} \* $(expr $i - 1) + ${dockerIndex}) \
+                         test-postman-0$(expr ${ParallelDocker} \* $(expr $i - 1) + ${dockerIndex}) ; done \
+                | tr &apos;\n&apos; &apos; &apos;)
+                
   ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
     &quot;sudo docker run -d --rm=false \
     --user=u$(id -u) --privileged \
@@ -145,16 +181,15 @@ for dockerIndex in $(seq ${ParallelDocker}); do
     xyplatform:lubuntu1804 \
     /bin/bash -c &apos;cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; . .autoPathrc.sh; \
     ./framework/scripts/chimp_autorun.py --parallel ${ParallelThread} --runonly true \
-    --timestamp ${START_TIMESTAMP} --movie 1 \
-    --platform Linux --browser CH --module \
+    --timestamp ${START_TIMESTAMP} --movie ${Movie} \
+    --platform ${Platform} --browser ${Browser} --module \
       ${module_list}&apos;&quot;
 done
 
 CONTAINER_LIST=$(sudo docker ps -q --filter name=${CONTAINER_NAME} | tr &apos;\n&apos; &apos; &apos;)
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
-  &quot;if sudo docker container wait ${CONTAINER_LIST}; then \
-      sudo docker container rm {CONTAINER_LIST}; \
-   fi&quot;</command>
+  &quot;sudo docker container wait ${CONTAINER_LIST}; \
+   sudo docker container rm ${CONTAINER_LIST};&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
@@ -162,7 +197,7 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
 # Generate Report with docker container
 cd ${WORKSPACE}
 source ${WORKSPACE}/build.properties
-CONTAINER_NAME=$(basename ${JOB_NAME})
+CONTAINER_NAME=$(basename ${JOB_NAME})-gen-report
   
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   &quot;sudo docker run -d --rm=false \
@@ -179,30 +214,15 @@ ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
   ./framework/scripts/chimp_autorun.py --parallel 1 --reportonly true \
   --timestamp ${START_TIMESTAMP} --movie 1 \
   --platform Linux --browser CH --module \
-  	test-webpage-01 \
-    test-webpage-02 \
-    test-webpage-03 \
-    test-webpage-04 \
-    test-webpage-05 \
-    test-webpage-06 \
-    test-webpage-07 \
-    test-webpage-08 \
-  	test-download-01 \
-    test-download-02 \
-    test-download-03 \
-    test-download-04 \
-    test-download-05 \
-    test-download-06 \
-    test-download-07 \
-    test-download-08&apos;&quot;
+  	test-webpage&apos;&quot;
 
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
    &quot;sudo docker logs -f ${CONTAINER_NAME}&quot;
    
 ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/platform_id_rsa -t -t localhost \
-  &quot;if sudo docker container wait ${CONTAINER_NAME}; then \
-      sudo docker rm ${CONTAINER_NAME}; \
-   fi&quot;</command>
+  &quot;sudo docker container wait ${CONTAINER_NAME}; \
+   sudo docker rm ${CONTAINER_NAME};&quot;
+</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

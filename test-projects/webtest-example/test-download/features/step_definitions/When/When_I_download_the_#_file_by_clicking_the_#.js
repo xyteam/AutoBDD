@@ -1,5 +1,5 @@
 module.exports = function() {
-  this.When(/^I download the (PDF) file by clicking "([^"]*)"$/, {timeout: process.env.StepTimeoutInMS}, function (fileType, imageName) {
+  this.When(/^I download the (PDF) file by clicking "([^"]*)"$/, {timeout: process.env.StepTimeoutInMS * 2}, function (fileType, imageName) {
     // delete previous download file
     var downloadUrl = browser.getUrl();
     var fileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.'));

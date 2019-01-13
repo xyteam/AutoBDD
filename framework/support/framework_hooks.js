@@ -99,7 +99,6 @@ module.exports = {
   },
 
   AfterFeature: function (event) {
-    browser.end();
     if (process.env.SSHHOST && process.env.SSHPORT) {
       try {
         if (process.env.MOVIE == 1 || process.env.SCREENSHOT == 1) framework_libs.stopRdesktop();

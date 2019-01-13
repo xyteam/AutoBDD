@@ -10,6 +10,24 @@ const XLSX = require('xlsx');
 const execSync = require('child_process').execSync;
 
 module.exports = {
+  getTestFileFullPath: function(filePath, fileName, fileExt) {
+    var testFileExt = fileExt || ['json'];
+    var targetPath = filePath;
+    var testFileFullPath = null;
+
+    testFileExt.some(function(ext) {
+      var fileFullPath = targetPath + '/' + fileName + '.' + ext;
+      if (fs.existsSync(fileFullPath)) testFileFullPath = fileFullPath;
+    })
+    return testFileFullPath;
+  },
+
+  getLocalTestFileFullPath: function(filePath, fileName, fileExt) {
+    var targetPath = filePath.substring(0, filePath.indexOf('step_definitions')) + 'test_files';
+    var testFileFullPath = this.getTestFileFullPath(targetPath, fileName, fileExt);
+    return testFileFullPath;
+  },
+
   getTestImageFullPath: function(filePath, fileName, fileExt) {
     var imageExt = fileExt || ['gif', 'jpg', 'png'];
     var targetPath = filePath;
