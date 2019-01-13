@@ -40,7 +40,7 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
             ' BROWSER=' + browser + \
             ' DISPLAYSIZE=' + display_size + \
             ' PLATFORM=' + platform + \
-            ' xvfb-run -a ' + ' -s "-screen 0, ' + display_size + 'x16"' + \
+            ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
             ' chimpy ' + chimp_profile + ' ' + './' + run_file + \
             ' --format=json:' + report_file + '.json' \
             ' 2>&1 > ' + report_file + '.run'
@@ -68,7 +68,7 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
                     ' PLATFORM=' + platform + \
                     ' SSHHOST=' + rdp['SSHHOST'] + \
                     ' SSHPORT=' + rdp['SSHPORT'] + \
-                    ' xvfb-run -a ' + ' -s "-screen 0, ' + display_size + 'x16"' + \
+                    ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                     ' chimpy ' + chimp_profile + ' ' + './' + run_file + \
                     ' --format=json:' + report_file + '.json' + \
                     ' 2>&1 > ' + report_file + '.run'
