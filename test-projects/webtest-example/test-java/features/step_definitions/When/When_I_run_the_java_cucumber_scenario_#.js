@@ -1,5 +1,5 @@
 module.exports = function() {
-       this.When(/^I run the java cucumber scenario "([^"]*)"$/, function (javacucumberScenario) {
+       this.When(/^I run the java cucumber scenario "([^"]*)"$/, {timeout: process.env.StepTimeoutInMS * 2}, function (javacucumberScenario) {
         var result = this.javacucumber_session.runMvnTestScenario(this.javacucumber_project, this.javacucumber_featureFile,javacucumberScenario);
         console.log(result.output);
         this.browser_session.displayMessage(browser, result.output);
