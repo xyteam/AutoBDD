@@ -4,27 +4,15 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 const encodeUrl = require('encodeurl');
+const cmdline_session = require('./cmdline_session');
 
 module.exports = {
-  runCmd: function(command) {
-    var result;
-    var exitcode;
-    try {
-        result = execSync(command).toString();
-        exitcode = 0;
-    } catch(e) {
-        result = e.stdout.toString();
-        exitcode = e.status;
-    }
-    return {"output": result, "exitcode": exitcode}    
-  },
-
   runMvnClean: function(javaProject) {
     var javaProjectPath = FrameworkPath + '/test-projects/' + javaProject;
     var mvn_command = 'cd ' + javaProjectPath + '; ';
     mvn_command += 'DISPLAY=' + process.env.DISPLAY + ' mvn clean';
     console.log(mvn_command);
-    var mvn_result = this.runCmd(mvn_command);
+    var mvn_result = cmdline_session.runCmd(mvn_command);
     return mvn_result;
   },
 
@@ -36,7 +24,7 @@ module.exports = {
     mvn_command += '-Dcucumber.options=\"classpath:features/' + feature + '\" ';
     mvn_command += '-Dcucumber.options=\"--name \'' + scenario + '\'\" ';
     console.log(mvn_command);
-    var mvn_result = this.runCmd(mvn_command);
+    var mvn_result = cmdline_session.runCmd(mvn_command);
     return mvn_result;
   }
 }
