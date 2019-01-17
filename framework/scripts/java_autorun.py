@@ -30,7 +30,7 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
     module_path = project_full_path + '/' + module
     if platform == 'Linux':
         time.sleep(random.uniform(0, 1))
-        cmd = 'cd ' + project_full_path + ';' + \
+        cmd = 'cd ' + module_path + ';' + \
             ' REPORTDIR=' + report_dir + \
             ' MOVIE=' + movie + \
             ' SCREENSHOT=' + screenshot + \
@@ -41,7 +41,7 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
             ' DISPLAYSIZE=' + display_size + \
             ' PLATFORM=' + platform + \
             ' xvfb-run --auto-servernum --server-args=\"-screen 0 ' + display_size + 'x16\"' + \
-            ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + module + '/' + run_file + \
+            ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=src/test/resources/\"' + run_file + \
             ' --plugin pretty --plugin json:' + report_file + '.json\"' + \
             ' 2>&1 > ' + report_file + '.run'
         print('RUNNING #{}: {}'.format(current_index, run_file))
@@ -69,7 +69,7 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
                     ' SSHHOST=' + rdp['SSHHOST'] + \
                     ' SSHPORT=' + rdp['SSHPORT'] + \
                     ' xvfb-run --auto-servernum --server-args=\"-screen 0 ' + display_size + 'x16\"' + \
-                    ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + module + '/' + run_file + \
+                    ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=src/test/resources/\"' + run_file + \
                     ' --plugin pretty --plugin json:' + report_file + '.json\"' + \
                     ' 2>&1 > ' + report_file + '.run'
                 time.sleep(random.uniform(1, 2))
@@ -361,7 +361,7 @@ class ChimpAutoRun:
         assert path.isdir(directory), '{} is not exits'.format(directory)
         return [
             path.join('features', fname)
-            for fname in os.listdir(path.join(directory, 'features'))
+            for fname in os.listdir(path.join(directory, 'src', 'test', 'resources', 'features'))
             if fname.endswith('.feature')
         ]
 
@@ -376,7 +376,7 @@ class ChimpAutoRun:
             self.features_count += len(self.marray[mod])
 
         if self.runlevel == 'Scenario':
-            from chimp_dryrun import dry_run
+            from java_dryrun import dry_run
             self.sarray, self.scenarios_count = dry_run(
                 self.project_full_path, self.modulelist, self.tags)
 
