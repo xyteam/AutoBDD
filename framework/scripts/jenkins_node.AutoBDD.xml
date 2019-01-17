@@ -1,0 +1,21 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<slave>
+  <name>AutoBDD</name>
+  <description>Jenkins Agent to run AutoBDD projects</description>
+  <remoteFS>/home/vagrant/jenkins-agent</remoteFS>
+  <numExecutors>1</numExecutors>
+  <mode>NORMAL</mode>
+  <retentionStrategy class="hudson.slaves.RetentionStrategy$Always"/>
+  <launcher class="hudson.plugins.sshslaves.SSHLauncher" plugin="ssh-slaves@1.29.4">
+    <host>localhost</host>
+    <port>22</port>
+    <credentialsId>0de92a27-18ce-452f-af95-24a397cc661b</credentialsId>
+    <launchTimeoutSeconds>210</launchTimeoutSeconds>
+    <maxNumRetries>10</maxNumRetries>
+    <retryWaitTime>15</retryWaitTime>
+    <sshHostKeyVerificationStrategy class="hudson.plugins.sshslaves.verifiers.NonVerifyingKeyVerificationStrategy"/>
+    <tcpNoDelay>true</tcpNoDelay>
+  </launcher>
+  <label>AutoBDD</label>
+  <nodeProperties/>
+</slave>

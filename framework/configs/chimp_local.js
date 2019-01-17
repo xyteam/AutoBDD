@@ -68,6 +68,7 @@ module.exports = {
         args: [
                 "--disable-infobars",
                 "--no-first-run",
+                "--no-sandbox",
                 "--window-size=" + myDISPLAYSIZE.replace('x',','),
                 "--user-data-dir=/tmp/chrome_profile_" + process.env.DISPLAY.substr(1),
                 "--bypass-app-banner-engagement-checks",
