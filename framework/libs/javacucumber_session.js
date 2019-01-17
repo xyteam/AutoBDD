@@ -7,7 +7,7 @@ const encodeUrl = require('encodeurl');
 const cmdline_session = require('./cmdline_session');
 
 module.exports = {
-  runMvnClean: function(javaProject) {
+  runMvnCleanProject: function(javaProject) {
     var javaProjectPath = FrameworkPath + '/test-projects/' + javaProject;
     var mvn_command = 'cd ' + javaProjectPath + '; ';
     mvn_command += 'DISPLAY=' + process.env.DISPLAY + ' mvn clean';
@@ -16,9 +16,20 @@ module.exports = {
     return mvn_result;
   },
 
-  runMvnTestScenario: function(javaProject, feature, scenario) {
+  runMvnCleanModule: function(javaProject, module) {
     var javaProjectPath = FrameworkPath + '/test-projects/' + javaProject;
-    var mvn_command = 'cd ' + javaProjectPath + '; ';
+    var javaProjectModulePath = javaProjectPath + '/' + module;
+    var mvn_command = 'cd ' + javaProjectModulePath + '; ';
+    mvn_command += 'DISPLAY=' + process.env.DISPLAY + ' mvn clean';
+    console.log(mvn_command);
+    var mvn_result = cmdline_session.runCmd(mvn_command);
+    return mvn_result;
+  },
+
+  runMvnTestScenario: function(javaProject, module, feature, scenario) {
+    var javaProjectPath = FrameworkPath + '/test-projects/' + javaProject;
+    var javaProjectModulePath = javaProjectPath + '/' + module;
+    var mvn_command = 'cd ' + javaProjectModulePath + '; ';
     mvn_command += 'DISPLAY=' + process.env.DISPLAY + ' mvn test ';
     mvn_command += '-Dbrowser=\"chrome\" ';
     mvn_command += '-Dcucumber.options=\"classpath:features/' + feature + '\" ';
