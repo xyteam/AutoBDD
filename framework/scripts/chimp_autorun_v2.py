@@ -65,6 +65,10 @@ def run_chimp(index, host, platform, browser, report_dir, movie, screenshot,
         print('RUNNING #{}: {}'.format(index, run_file))
         # print(cmd)
         os.system(cmd)
+<<<<<<< HEAD
+=======
+
+>>>>>>> Uncomment run command line
         # update test case status
         DB.update({'status': 'runned'}, doc_ids=[case.doc_id])
 
