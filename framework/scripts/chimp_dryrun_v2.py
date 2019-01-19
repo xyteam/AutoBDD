@@ -10,7 +10,8 @@ import re
 import subprocess
 from os import environ
 
-SCENARIO_INFO = {
+CASE_INFO = {
+    "uri": "",
     "feature": "",
     "scenario": "",
     "line": "",
@@ -87,7 +88,7 @@ def parse_arguments():
     parser.add_argument(
         "--tags",
         "--TAGS",
-        dest="TAGLIST",
+        dest="TAGS",
         help=
         "Only execute the features or scenarios with tags matching the expression (repeatable) (default: "
         ")")
@@ -105,7 +106,14 @@ def parse_arguments():
 
 
 class ChimpDryRun():
-    def __init__(self, arguments):
+    def __init__(self,
+                 projectbase,
+                 project,
+                 modulelist,
+                 platform,
+                 browser,
+                 tags=None,
+                 output=None):
         if 'FrameworkPath' not in environ:
             self.FrameworkPath = path.join(environ['HOME'], 'Projects',
                                            'AutoBDD')
@@ -117,26 +125,30 @@ class ChimpDryRun():
         if not path.exists(self.runner_path):
             os.makedirs(self.runner_path)
 
-        self.modulelist = arguments.MODULELIST
+        self.modulelist = modulelist
         self.tags = []
-        if arguments.TAGLIST:
-            self.tags = ['--tags', arguments.TAGLIST]
-        self.projectbase = arguments.PROJECTBASE
-        self.project = arguments.PROJECT
+        if tags:
+            self.tags = ['--tags', tags]
+        self.projectbase = projectbase
+        self.project = project
         self.project_full_path = path.join(self.FrameworkPath,
                                            self.projectbase, self.project)
-        self.platform = arguments.PLATFORM
-        self.browser = arguments.BROWSER
+        self.platform = platform
+        self.browser = browser
         self.out_array = []
-        self.out_path = arguments.OUTPUT
+        self.out_path = output
         if not self.out_path:
             self.out_path = self.runner_path
+
+        self.case_info = CASE_INFO
+        self.case_info['platform'] = self.platform
+        self.case_info['browser'] = self.browser
 
     def get_dry_run_resluts(self):
         assert path.exists(self.project_full_path)
         for module in self.modulelist:
             dry_run_path = path.join(self.runner_path, module + '.json')
-            print(dry_run_path)
+            print('Dry run output:' + dry_run_path)
             results = subprocess.Popen(
                 [
                     'cucumber-js', '--dry-run', '-f', 'json:' + dry_run_path,
@@ -144,28 +156,31 @@ class ChimpDryRun():
                 ] + self.tags,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
-            print(results.communicate()[0])
+
+            results.communicate()
 
             with open(dry_run_path, 'r') as fname:
                 data = json.load(fname)
                 for feature in data:
-                    out_json = SCENARIO_INFO.copy()
-                    out_json['feature'] = feature['name']
                     for scenario in feature['elements']:
+                        out_json = self.case_info.copy()
+                        out_json['uri'] = feature['uri']
+                        out_json['feature'] = feature['name']
                         out_json['scenario'] = scenario['name']
                         out_json['line'] = scenario['line']
                         self.out_array.append(out_json)
 
         out_path = path.join(self.out_path, '.runcase.json')
+        print('Run case path: ' + out_path)
         with open(out_path, 'w') as fname:
             json.dump(self.out_array, fname, indent=4)
-        
+
         return out_path
-            
-             
+
 
 if __name__ == "__main__":
-    command_arguments = parse_arguments()
-    dryrun = ChimpDryRun(command_arguments)
+    arguments = parse_arguments()
+    dryrun = ChimpDryRun(arguments.PROJECTBASE, arguments.PROJECT,
+                         arguments.MODULELIST, arguments.PLATFORM,
+                         arguments.BROWSER, arguments.TAGS, arguments.OUTPUT)
     dryrun.get_dry_run_resluts()
-
