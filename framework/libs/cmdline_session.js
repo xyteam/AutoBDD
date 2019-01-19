@@ -4,6 +4,11 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 
+// remote command
+const myPlatformIdSrc = process.env.HOME + '/Projects/xyPlatform/global/platform_id_rsa';
+const myPlatformIdDes = process.env.HOME + '/.ssh/platform_id_rsa';
+const cmd_copy_PlatformId = 'cp ' + myPlatformIdSrc + ' ' + myPlatformIdDes + ', chmod 0600 ' + myPlatformIdDes;
+
 module.exports = {
   runCmd: function(command) {
     var result;
@@ -18,6 +23,31 @@ module.exports = {
         exitcode = e.status;
     }
 
+    return {"output": result, "exitcode": exitcode}    
+  },
+
+  remoteRunCmd: function(command, sshLogin, sshPort, keyFile) {
+    var mySshLogin = sshLogin || 'vagrant@localhost';
+    var mySshPort = sshPort || 22;
+    var myKeyFile = keyFile || process.env.HOME + '/.ssh/platform_id_rsa';
+    var myCommand = 'ssh ' + mySshLogin + ' -p ' + mySshPort
+                      + ' -o IdentityFile=' + myKeyFile
+                      + ' -o StrictHostKeyChecking=no '
+                      + command;
+  
+    var result;
+    var exitcode;
+
+    fs.existsSync(process.env.HOME + '/.ssh') || fs.mkdirSync(process.env.HOME + '/.ssh');
+    fs.existsSync(myPlatformIdDes) || execSync(cmd_copy_PlatformId);
+
+    try {
+        result = execSync(myCommand).toString();
+        exitcode = 0;
+    } catch(e) {
+        result = e.stdout.toString();
+        exitcode = e.status;
+    }
     return {"output": result, "exitcode": exitcode}    
   },
 

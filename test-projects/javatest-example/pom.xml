@@ -1,8 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+ <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>sc-java-testing</groupId>
-  <artifactId>sc-java-testing</artifactId>
+  <groupId>com.AutoBDD.javatest-example</groupId>
+  <artifactId>javatest-example</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
   
   	<repositories>
 		<repository>
@@ -10,7 +11,11 @@
 		    <url>https://jitpack.io</url>
 		</repository>
 	</repositories>
-	
+
+    <modules>
+        <module>ui</module>
+    </modules>
+
 	<dependencies>
 		<!-- These are the cucumber dependencies -->
 		<dependency>
@@ -70,17 +75,6 @@
 					<source>1.8</source>
 					<target>1.8</target>
 					<compilerArgument>-Werror</compilerArgument>
-
-					<systemPropertyVariables>
-						<property>
-							<name>browser</name>
-							<value>${browser}</value>
-						</property>
-						<property>
-							<name>cloud_config</name>
-							<value>${cloud_config}</value>
-						</property>
-					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 		</plugins>
