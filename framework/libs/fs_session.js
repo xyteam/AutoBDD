@@ -32,8 +32,8 @@ module.exports = {
     var imageExt = fileExt || ['gif', 'jpg', 'png'];
     var targetPath = filePath;
     var platformBrowserXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER + '/' + process.env.XVFB;
-    var platformBrowserPath = '/' + process.env.PLATFORM + '/' + process.env.XVFB;
-    var platformXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER;
+    var platformXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.XVFB;
+    var platformBrowserPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER;
     var platformOnlyPath = '/' + process.env.PLATFORM;
     var imageFullPath = null;
 
