@@ -4,7 +4,7 @@
   "description": "BDD Automaiton",
   "main": "index.js",
   "dependencies": {
-    "chai": "<4",
+    "@wdio/sync": "^5.3.2",
     "child_process": "^1.0.2",
     "chimpy": "^0.54.0",
     "cucumber": "^5.1.0",
@@ -15,12 +15,12 @@
     "moment": "^2.23.0",
     "newman": "^4.3.1",
     "node-cmd": "^3.0.0",
+    "npm": "^6.6.0",
     "npm-path": "^2.0.4",
     "pdf-parse": "^1.1.1",
     "request": "^2.88.0",
     "robotjs": "^0.5.1",
     "url-parse": "^1.4.4",
-    "webdriverio": "^4.14.1",
     "words-to-numbers": "^1.5.1",
     "xlsx": "^0.14.1"
   },
