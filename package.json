@@ -23,6 +23,8 @@
     "xlsx": "^0.14.1"
   },
   "devDependencies": {
+    "forever": "~0.15.3",
+    "http-server": "~0.11.0",
     "cryptiles": ">=4.1.2",
     "cucumber-html-reporter": "^4.0.4",
     "cucumber-junit": "^1.7.1",
@@ -32,7 +34,9 @@
     "json-diff": "^0.5.3"
   },
   "scripts": {
-    "test": "chimp"
+    "demo-app": "forever start -s ./node_modules/.bin/http-server ./demo-app -s -p 8082",
+    "stop": "pgrep -f demo-app | xargs forever stop",
+    "test": "chimpy"
   },
   "repository": {
     "type": "git",
