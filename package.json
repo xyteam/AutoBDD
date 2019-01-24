@@ -34,9 +34,10 @@
     "json-diff": "^0.5.3"
   },
   "scripts": {
+    "install-selenium": "selenium-standalone install --config=framework/configs/selenium-standalone_config.js",
     "demo-app": "forever start -s ./node_modules/.bin/http-server ./demo-app -s -p 8082",
-    "selenium": "selenium-standalone install --config=framework/configs/selenium-standalone_config.js && DISPLAY=:0 selenium-standalone start --config=framework/configs/selenium-standalone_config.js -- -port 5555 2>&1 > /dev/null &",
-    "stop": " pkill -f selenium-standalone; pkill -f http-server",
+    "selenium-server": "DISPLAY=:0 forever start -s ./node_modules/.bin/selenium-standalone start --config=./framework/configs/selenium-standalone_config.js -- -port 5555 2>&1",
+    "stop": "forever stopall",
     "test": "chimpy"
   },
   "repository": {
