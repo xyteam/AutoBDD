@@ -21,7 +21,7 @@ module.exports = function() {
     // click LinuxSave_button
     var saveButtonFullPath = this.fs_session.getLocalThenGlobalImageFullPath(__dirname, 'FileSave_button');
     console.log(saveButtonFullPath);
-    var resultString = this.screen_session.screenFindImage(saveButtonFullPath, imageSimilarity, imageWaitTime,'single');
+    var resultString = this.screen_session.screenFindImage(saveButtonFullPath, (imageSimilarity * .9), imageWaitTime,'single');
     expect(resultString).not.toContain('not found');
     expect(resultString).not.toContain('error');
     var resultArray = JSON.parse(resultString);
