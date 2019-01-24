@@ -11,7 +11,7 @@
     "glob": "^7.1.3",
     "java": "^0.11.0",
     "minimist": "^1.2.0",
-    "moment": "^2.23.0",
+    "moment": "^2.24.0",
     "newman": "^4.3.1",
     "node-cmd": "^3.0.0",
     "npm-path": "^2.0.4",
@@ -35,7 +35,8 @@
   },
   "scripts": {
     "demo-app": "forever start -s ./node_modules/.bin/http-server ./demo-app -s -p 8082",
-    "stop": "pgrep -f demo-app | xargs forever stop",
+    "selenium": "selenium-standalone install --config=framework/configs/selenium-standalone_config.js && DISPLAY=:0 selenium-standalone start --config=framework/configs/selenium-standalone_config.js -- -port 5555 2>&1 > /dev/null &",
+    "stop": " pkill -f selenium-standalone; pkill -f http-server",
     "test": "chimpy"
   },
   "repository": {
