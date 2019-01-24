@@ -23,7 +23,7 @@ module.exports = {
   },
 
   getLocalTestFileFullPath: function(filePath, fileName, fileExt) {
-    var targetPath = filePath.substring(0, filePath.indexOf('step_definitions')) + 'test_files';
+    var targetPath = filePath.substring(0, filePath.indexOf('steps')) + 'test_files';
     var testFileFullPath = this.getTestFileFullPath(targetPath, fileName, fileExt);
     return testFileFullPath;
   },
@@ -76,7 +76,7 @@ module.exports = {
   },
 
   getLocalImageFullPath: function(filePath, fileName, fileExt) {
-    var targetPath = filePath.substring(0, filePath.indexOf('step_definitions')) + 'test_images';
+    var targetPath = filePath.substring(0, filePath.indexOf('steps')) + 'test_images';
     var imageFullPath = this.getTestImageFullPath(targetPath, fileName, fileExt);
     return imageFullPath;
   },
