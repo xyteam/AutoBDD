@@ -1,52 +1,37 @@
 # webtest-example
 
-This project is a prototype test project for the framework. The purpose of this project is to test the integration of test project with the AutoBDD framework. In theory user can reference to this Proto project to add new test projects.
+The purpose of this project is to demo the AutoBDD framework. In theory user can replicate this project their new test projects.
 
-#### To run test in Proto project:
+#### To run test in this project:
 
-###### First source AutoBDD env vars:
+###### Assuming you have built this project:
 ```
-$ cd <path-to>/AutoBDD
-$ npm install     # This step only need to be done once when package.json is updated
+$ spr
+$ cd ~/Run/AutoBDD
+$ npm install       # run only once on fresh ~/Run folder or new package added to the package.json
 $ . .autoPathrc
 ```
 
-###### Then run local selenium-standalone server on port 4444
-
-    * In GUI launch System Tools -> LXTerminal
-
-    * In GUI LXTerminal start selenium-standalone in debug mode
-    ```
-    $ cd ~/Projects/AutoBDD
-    $ . .autoPathrc
-    $ DISPLAY=:0 selenium-standalone start --config=./framework/configs/selenium-standalone_config.js -- -debug true
-    ```
-
-###### Run test-proect without the framework
-
+###### Setup apps for the demo
 ```
-$ cd test-projects/webtest-example/Examples
-$ DISPLAY=:0 chimp --browser=chrome --port=4444 features/webdriver_hub.feature
+$ npm run install-selenium
+$ npm start
 ```
 
-###### Run test-proect with of the framework
-
-* First deploy framework hooks
+###### Run the demo
 ```
-$ cd framework/support
-$ deploy.sh
+$ npm run test-init
+$ npm test
 ```
 
-* To run all tests in the Examples suite:
-```
-$ cd test-projects/webtest-example/Examples
-$ DISPLAY=:0 chimp $FrameworkPath/framework_chimp.js
+and monitor the test run in the vagrant guest GUI console
+* To run a particular test by line number or by scenario name with Screenshot and Movie:
 ```
 
-* To run a particular test by line number with Screenshot and Movie, controllable independently:
-```
-$ cd test-projects/webtest-example/Examples
-$ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
+$ cd test-projects/webtest-example/test-webpage
+$ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimpy features/webdriver_hub.feature:8
+or
+$ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimpy features/webdriver_hub.feature --name="Check Webdriver Hub page elements - Create Session"
 ```
     and check out the screenshot and movie in the same folder.
 
@@ -54,43 +39,29 @@ $ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimp $FrameworkPath/framework_chimp.js featur
 
     * Local Linux with chrome (default)
     ```
-    $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
+    $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 chimpy features/webdriver_hub.feature:8
     ```
 
     * Remote Windows 10/7 with CH/IE
-        * Needs to start win10desktop01 or win7desktop01 respectively in xyPlatform as target
+        * Needs to start win10desktop01 or win7desktop01 respectively in xyPlatform as the remote target.
         * Win10 and CH
         ```
-        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=21022 PLATFORM=Win10 BROWSER=CH chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
+        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=21022 PLATFORM=Win10 BROWSER=CH chimpy features/webdriver_hub.feature:8
         ```
 
         * Win10 and IE
         ```
-        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=21022 PLATFORM=Win10 BROWSER=IE chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
+        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=21022 PLATFORM=Win10 BROWSER=IE chimpy features/webdriver_hub.feature:8
         ```
 
         * Win7 and CH
         ```
-        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=11022 PLATFORM=Win7 BROWSER=CH chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
+        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=11022 PLATFORM=Win7 BROWSER=CH chimpy features/webdriver_hub.feature:8
         ```
 
         * Win7 and IE
         ```
-        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=11022 PLATFORM=Win7 BROWSER=IE chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7        
+        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=11022 PLATFORM=Win7 BROWSER=IE chimpy features/webdriver_hub.feature:8        
         ```
 
-* To run with local selenium-standlone and with full debug mode
-    
-    Due to chimp session manager needs to find the brower version it will try to start a selenium-standalone automatically then close it. In auto selenium mode this will not be a problem, in manual selenium mode becuase the version retriving part is auto thus manual selenium-standalone needs ot yield for that part.
-
-    * Stop the local selenium-standalone by Control-C in the terminal
-
-    * Start the test with full debug mode:
-    ```
-    $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 LOCALSELPORT=4444 chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7 -- -debug=true
-    ```
-
-    * Wait for the browser to be launched once for the test to get the browser version then disappear
-
-    * Start the selenium-standalone
 
