@@ -4,7 +4,9 @@ The purpose of this project is to demo the AutoBDD framework. In theory user can
 
 ## Demo
 
-#### Build AutoBDD Framework (only run once if not already):
+#### Build AutoBDD Framework
+
+(only run once if not already):
 ```
 $ spr
 $ cd ~/Run/AutoBDD
@@ -12,7 +14,7 @@ $ npm install
 $ . .autoPathrc
 ```
 
-#### Setup apps for the demo
+#### Setup target test apps for the demo
 ```
 $ npm run install-selenium
 $ npm start
@@ -42,7 +44,7 @@ $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 chimpy features/webdriver_hub.feature:8
 ```
 #### Remote Windows 10/7 with CH/IE
 
-Needs to start win10desktop01 or win7desktop01 respectively in xyPlatform as the remote target.
+Needs to start win10desktop01 or win7desktop01 in xyPlatform as the remote test client
 
 ###### Win10 and CH
 ```
