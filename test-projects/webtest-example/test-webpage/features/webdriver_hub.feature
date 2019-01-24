@@ -6,7 +6,7 @@ Feature: webdriver hub page
     2. page images - Create Session
 
   Scenario: Check Webdriver Hub page elements - Create Session
-    When  I visit "http://localhost:4444/wd/hub"
+    When  I visit "http://localhost:5555/wd/hub"
     Then  I should see the page title to contain "webdriver hub"
     When  I click the "Create Session" button on the page
     Then  I should see the "Create a New Session" modal-dialog
@@ -20,7 +20,7 @@ Feature: webdriver hub page
     | opera             |  
 
   Scenario: Check Webdriver Hub page images - Create Session
-    When  I visit "http://localhost:4444/wd/hub"
+    When  I visit "http://localhost:5555/wd/hub"
     Then  I should see the "Selenium_CreateSession_button" image on the screen
     When  I click the "Selenium_CreateSession_button" image on the screen
     Then  I should see the "Selenium_CreateNewSession_modal" image on the screen
