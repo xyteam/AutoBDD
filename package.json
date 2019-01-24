@@ -6,10 +6,20 @@
   "dependencies": {
     "child_process": "^1.0.2",
     "chimpy": "^0.54.0",
+    "cryptiles": ">=4.1.2",
     "cucumber": "^5.1.0",
+    "cucumber-html-reporter": "^4.0.4",
+    "cucumber-junit": "^1.7.1",
+    "deep-extend": ">=0.5.1",
     "encodeurl": "^1.0.2",
+    "error-stack-parser": "^2.0.2",
+    "forever": "~0.15.3",
     "glob": "^7.1.3",
+    "hapi": "^17.8.1",
+    "hoek": "^6.1.2",
+    "http-server": "~0.11.0",
     "java": "^0.11.0",
+    "json-diff": "^0.5.3",
     "minimist": "^1.2.0",
     "moment": "^2.24.0",
     "newman": "^4.3.1",
@@ -22,24 +32,19 @@
     "words-to-numbers": "^1.5.1",
     "xlsx": "^0.14.1"
   },
-  "devDependencies": {
-    "forever": "~0.15.3",
-    "http-server": "~0.11.0",
-    "cryptiles": ">=4.1.2",
-    "cucumber-html-reporter": "^4.0.4",
-    "cucumber-junit": "^1.7.1",
-    "deep-extend": ">=0.5.1",
-    "hapi": "^17.8.1",
-    "hoek": "^6.1.2",
-    "json-diff": "^0.5.3"
-  },
   "scripts": {
     "install-selenium": "selenium-standalone install --config=framework/configs/selenium-standalone_config.js",
     "demo-app": "forever start -s ./node_modules/.bin/http-server ./demo-app -s -p 8082",
     "selenium-server": "DISPLAY=:0 forever start -s ./node_modules/.bin/selenium-standalone start --config=./framework/configs/selenium-standalone_config.js -- -port 5555 2>&1",
     "start": "npm run demo-app && npm run selenium-server",
     "stop": "forever stopall",
-    "test": "chimpy"
+    "download-sikuliapi": "./framework/libs/downloadSikulixApiJar.js",
+    "test-init": "npm run download-sikuliapi && cd ./test-projects/webtest-example/test-init && DISPLAY=:0 chimpy",
+    "test-webpage": "cd ./test-projects/webtest-example/test-webpage && DISPLAY=:0 chimpy",
+    "test-download": "cd ./test-projects/webtest-example/test-download && DISPLAY=:0 chimpy",
+    "test-postman": "cd ./test-projects/webtest-example/test-postman && DISPLAY=:0 chimpy",
+    "test-java": "cd ./test-projects/webtest-example/test-java && DISPLAY=:0 chimpy",
+    "test": "npm run test-webpage && npm run test-download && npm run test-postman && npm run test-java"
   },
   "repository": {
     "type": "git",
