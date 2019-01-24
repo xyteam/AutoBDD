@@ -1,14 +1,14 @@
 # webtest-example
 
-The purpose of this project is to demo the AutoBDD framework. In theory user can replicate this project their new test projects.
+The purpose of this project is to demo the AutoBDD framework. In theory user can replicate this project as their new test projects.
 
-#### To run test in this project:
+#### Demo
 
-###### Assuming you have built this project:
+###### Build AutoBDD Framework (only run once if not already):
 ```
 $ spr
 $ cd ~/Run/AutoBDD
-$ npm install       # run only once on fresh ~/Run folder or new package added to the package.json
+$ npm install
 $ . .autoPathrc
 ```
 
@@ -35,7 +35,7 @@ $ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimpy features/webdriver_hub.feature --name="
 ```
     and check out the screenshot and movie in the same folder.
 
-* To run with full automatic mode
+#### Run Test with Additional Control
 
     * Local Linux with chrome (default)
     ```
@@ -64,4 +64,25 @@ $ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimpy features/webdriver_hub.feature --name="
         $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=11022 PLATFORM=Win7 BROWSER=IE chimpy features/webdriver_hub.feature:8        
         ```
 
+#### Run Test with Framework Automation
 
+    ###### Run Test
+    '''
+    $ cd ~/Run/AutoBDD
+    $ ./framework/scripts/chimp_autorun.py --help   # to see all the control options
+    $ ./framework/scripts/chimp_autorun.py --parallel 2 --modulelist test-webpage test-download test-postman test-java
+    '''
+    When the test is done, go to the report directory listed in
+    "*** Report Directory: ***"
+    section to review the test results:
+
+    ###### Results Folder
+
+    * cucumber-report.html - master test report in collaspable HTML format
+    * cucumber-report.html.json.html - master test report one page HTML format
+    * cucumber-report.html.json - master test result in cucumber JSON format
+    * *.png - final screenshot
+    * *.mp4 - movie
+    * *.json - individual test run result in cucumber JSON format
+    * *.run - individual test run log
+    
