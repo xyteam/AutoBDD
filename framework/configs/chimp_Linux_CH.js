@@ -83,6 +83,7 @@ module.exports = {
         }
       }
     },
+    baseUrl: null,
     logLevel: 'silent',
     coloredLogs: true,
     screenshotPath: null,
