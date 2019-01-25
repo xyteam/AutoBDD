@@ -12,15 +12,13 @@ module.exports = (falseCase, expectedUrlPart) => {
     const currentUrl = browser.url().value;
 
     if (falseCase) {
-        expect(currentUrl).to.not
-            .contain(
+        expect(currentUrl).not.toContain(
                 expectedUrlPart,
                 `Expected URL "${currentUrl}" not to contain ` +
                 `"${expectedUrlPart}"`
             );
     } else {
-        expect(currentUrl).to
-            .contain(
+        expect(currentUrl).toContain(
                 expectedUrlPart,
                 `Expected URL "${currentUrl}" to contain "${expectedUrlPart}"`
             );

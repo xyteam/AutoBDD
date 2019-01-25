@@ -12,14 +12,12 @@ module.exports = (falseCase, expectedTitle) => {
     const title = browser.getTitle();
 
     if (falseCase) {
-        expect(title).to.not
-            .contain(
+        expect(title).not.toContain(
                 expectedTitle,
                 `Expected title not to contain "${expectedTitle}"`
             );
     } else {
-        expect(title).to
-            .contain(
+        expect(title).toContain(
                 expectedTitle,
                 `Expected title to contain "${expectedTitle}" 
                         but found "${title}"`
