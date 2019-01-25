@@ -41,8 +41,8 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
             ' DISPLAYSIZE=' + display_size + \
             ' PLATFORM=' + platform + \
             ' xvfb-run --auto-servernum --server-args=\"-screen 0 ' + display_size + 'x16\"' + \
-            ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=src/test/resources/\"' + run_file + \
-            ' --plugin pretty --plugin json:' + report_file + '.json\"' + \
+            ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"src/test/resources/features/' + run_file + \
+            ' --plugin pretty --add-plugin json:' + report_file + '.json\"' + \
             ' 2>&1 > ' + report_file + '.run'
         print('RUNNING #{}: {}'.format(current_index, run_file))
         # print(cmd)
@@ -69,8 +69,8 @@ def run_chimp(module, run_file, report_name, platform, browser, debugmode,
                     ' SSHHOST=' + rdp['SSHHOST'] + \
                     ' SSHPORT=' + rdp['SSHPORT'] + \
                     ' xvfb-run --auto-servernum --server-args=\"-screen 0 ' + display_size + 'x16\"' + \
-                    ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=src/test/resources/\"' + run_file + \
-                    ' --plugin pretty --plugin json:' + report_file + '.json\"' + \
+                    ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"src/test/resources/features/' + run_file + \
+                    ' --plugin pretty --add-plugin json:' + report_file + '.json\"' + \
                     ' 2>&1 > ' + report_file + '.run'
                 time.sleep(random.uniform(1, 2))
                 break
