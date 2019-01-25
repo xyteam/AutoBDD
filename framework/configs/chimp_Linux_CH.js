@@ -4,7 +4,7 @@ const projectFullPath = process.env.FrameworkPath + '/test-projects/' + process.
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
 const selenium_standalone_config = require(frameworkPath + '/framework/configs/selenium-standalone_config.js');
-const myCombinedStepPath = ['features', projectFullPath + '/global'];
+const myCombinedStepPath = ['support', projectFullPath + '/project/support', frameworkPath + '/framework/support'];
 
 // for Linux chrome
 const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
@@ -29,7 +29,7 @@ module.exports = {
   serverPort: 8060,
   serverHost: 'localhost',
   sync: true,
-  offline: false,
+  offline: true,
   showXolvioMessages: true,
   'fail-when-no-tests-run': false,
 
@@ -40,6 +40,8 @@ module.exports = {
   tags: '~@ignore',
   singleSnippetPerFile: true,
   recommendedFilenameSeparator: '_',
+  chai: false,
+  screenshotsOnError: false,
   screenshotsPath: '.screenshots',
   captureAllStepScreenshots: false,
   saveScreenshotsToDisk: true,
@@ -70,6 +72,7 @@ module.exports = {
                 "--window-size=" + myDISPLAYSIZE.replace('x',','),
                 "--user-data-dir=/tmp/chrome_profile_" + process.env.DISPLAY.substr(1),
                 "--bypass-app-banner-engagement-checks",
+                "--incognito",
                 myBrowserProxySetting
               ],
         prefs: {
@@ -80,6 +83,7 @@ module.exports = {
         }
       }
     },
+    baseUrl: null,
     logLevel: 'silent',
     coloredLogs: true,
     screenshotPath: null,

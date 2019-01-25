@@ -1,96 +1,92 @@
 # webtest-example
 
-This project is a prototype test project for the framework. The purpose of this project is to test the integration of test project with the AutoBDD framework. In theory user can reference to this Proto project to add new test projects.
+The purpose of this project is to demo the AutoBDD framework. In theory user can replicate this project as their new test projects.
 
-#### To run test in Proto project:
+## Demo
 
-###### First source AutoBDD env vars:
+#### Build AutoBDD Framework
+
+(only run once if not already):
 ```
-$ cd <path-to>/AutoBDD
-$ npm install     # This step only need to be done once when package.json is updated
+$ spr
+$ cd ~/Run/AutoBDD
+$ npm install
 $ . .autoPathrc
 ```
 
-###### Then run local selenium-standalone server on port 4444
-
-    * In GUI launch System Tools -> LXTerminal
-
-    * In GUI LXTerminal start selenium-standalone in debug mode
-    ```
-    $ cd ~/Projects/AutoBDD
-    $ . .autoPathrc
-    $ DISPLAY=:0 selenium-standalone start --config=./framework/configs/selenium-standalone_config.js -- -debug true
-    ```
-
-###### Run test-proect without the framework
-
+#### Setup target test apps for the demo
 ```
-$ cd test-projects/webtest-example/Examples
-$ DISPLAY=:0 chimp --browser=chrome --port=4444 features/webdriver_hub.feature
+$ npm run install-selenium
+$ npm start
 ```
 
-###### Run test-proect with of the framework
+#### Run the demo
+```
+$ npm run test-init
+$ npm test
+```
+and monitor the test run in the vagrant guest GUI console
 
-* First deploy framework hooks
+## Run Single Test with Screenshot and Movie:
 ```
-$ cd framework/support
-$ deploy.sh
-```
-
-* To run all tests in the Examples suite:
-```
-$ cd test-projects/webtest-example/Examples
-$ DISPLAY=:0 chimp $FrameworkPath/framework_chimp.js
-```
-
-* To run a particular test by line number with Screenshot and Movie, controllable independently:
-```
-$ cd test-projects/webtest-example/Examples
-$ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
+$ cd test-projects/webtest-example/test-webpage
+$ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimpy features/webdriver_hub.feature:8
+or
+$ SCREENSHOT=1 MOVIE=1 DISPLAY=:0 chimpy features/webdriver_hub.feature --name="Check Webdriver Hub page elements - Create Session"
 ```
     and check out the screenshot and movie in the same folder.
 
-* To run with full automatic mode
+## Run Test with Additional Control
 
-    * Local Linux with chrome (default)
-    ```
-    $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
-    ```
+#### Local Linux with chrome (default)
+```
+$ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 chimpy features/webdriver_hub.feature:8
+```
+#### Remote Windows 10/7 with CH/IE
 
-    * Remote Windows 10/7 with CH/IE
-        * Needs to start win10desktop01 or win7desktop01 respectively in xyPlatform as target
-        * Win10 and CH
-        ```
-        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=21022 PLATFORM=Win10 BROWSER=CH chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
-        ```
+Needs to start win10desktop01 or win7desktop01 in xyPlatform as the remote test client
 
-        * Win10 and IE
-        ```
-        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=21022 PLATFORM=Win10 BROWSER=IE chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
-        ```
+###### Win10 and CH
+```
+$ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=21022 PLATFORM=Win10 BROWSER=CH chimpy features/webdriver_hub.feature:8
+```
 
-        * Win7 and CH
-        ```
-        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=11022 PLATFORM=Win7 BROWSER=CH chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7
-        ```
+###### Win10 and IE
+```
+$ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=21022 PLATFORM=Win10 BROWSER=IE chimpy features/webdriver_hub.feature:8
+```
 
-        * Win7 and IE
-        ```
-        $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=11022 PLATFORM=Win7 BROWSER=IE chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7        
-        ```
+###### Win7 and CH
+```
+$ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=11022 PLATFORM=Win7 BROWSER=CH chimpy features/webdriver_hub.feature:8
+```
 
-* To run with local selenium-standlone and with full debug mode
-    
-    Due to chimp session manager needs to find the brower version it will try to start a selenium-standalone automatically then close it. In auto selenium mode this will not be a problem, in manual selenium mode becuase the version retriving part is auto thus manual selenium-standalone needs ot yield for that part.
+###### Win7 and IE
+```
+$ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 SSHHOST=10.0.2.2 SSHPORT=11022 PLATFORM=Win7 BROWSER=IE chimpy features/webdriver_hub.feature:8        
+```
 
-    * Stop the local selenium-standalone by Control-C in the terminal
+## Run Test with Framework Automation
 
-    * Start the test with full debug mode:
-    ```
-    $ DISPLAY=:0 SCREENSHOT=1 MOVIE=1 LOCALSELPORT=4444 chimp $FrameworkPath/framework_chimp.js features/webdriver_hub.feature:7 -- -debug=true
-    ```
+#### Run Test
+```
+$ cd ~/Run/AutoBDD
+$ ./framework/scripts/chimp_autorun.py --help   # to see all the control options
+$ ./framework/scripts/chimp_autorun.py --parallel 2 --modulelist test-webpage test-download test-postman test-java
+```
 
-    * Wait for the browser to be launched once for the test to get the browser version then disappear
+    When the test is done, go to the report directory listed in
 
-    * Start the selenium-standalone
+    "*** Report Directory: ***"
 
+    section to review the test results:
+
+#### Results Folder Files
+
+    cucumber-report.html            <- master test report in collaspable HTML format
+    cucumber-report.html.json.html  <- master test report one page HTML format
+    cucumber-report.html.json       <- master test result in cucumber JSON format
+    *.png                           <- final screenshot
+    *.mp4                           <- movie
+    *.json                          <- individual test run result in cucumber JSON format
+    *.run                           <- individual test run log

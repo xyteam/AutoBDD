@@ -23,7 +23,7 @@ module.exports = {
   },
 
   getLocalTestFileFullPath: function(filePath, fileName, fileExt) {
-    var targetPath = filePath.substring(0, filePath.indexOf('step_definitions')) + 'test_files';
+    var targetPath = filePath.substring(0, filePath.indexOf('steps')) + 'test_files';
     var testFileFullPath = this.getTestFileFullPath(targetPath, fileName, fileExt);
     return testFileFullPath;
   },
@@ -32,8 +32,8 @@ module.exports = {
     var imageExt = fileExt || ['gif', 'jpg', 'png'];
     var targetPath = filePath;
     var platformBrowserXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER + '/' + process.env.XVFB;
-    var platformBrowserPath = '/' + process.env.PLATFORM + '/' + process.env.XVFB;
-    var platformXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER;
+    var platformXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.XVFB;
+    var platformBrowserPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER;
     var platformOnlyPath = '/' + process.env.PLATFORM;
     var imageFullPath = null;
 
@@ -76,7 +76,7 @@ module.exports = {
   },
 
   getLocalImageFullPath: function(filePath, fileName, fileExt) {
-    var targetPath = filePath.substring(0, filePath.indexOf('step_definitions')) + 'test_images';
+    var targetPath = filePath.substring(0, filePath.indexOf('steps')) + 'test_images';
     var imageFullPath = this.getTestImageFullPath(targetPath, fileName, fileExt);
     return imageFullPath;
   },
