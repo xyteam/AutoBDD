@@ -3,4 +3,5 @@ const projectFullPath = process.env.FrameworkPath + '/test-projects/' + process.
 
 var moduleChimp = require(projectFullPath + '/project/support/project_chimp.js');
 // modify or add myChimp attributes as necessary
+moduleChimp.offline=false;
 module.exports = moduleChimp; 

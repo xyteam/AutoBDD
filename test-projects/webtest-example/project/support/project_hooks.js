@@ -6,7 +6,7 @@ if (process.env.FrameworkPath) {
   frameworkHooks = null;
 }
 
-const globalHooks = function() {
+const projectHooks = function() {
   // modify or add global hooks here
   this.BeforeFeature(function (event, callback) {
     if (frameworkHooks) frameworkHooks.BeforeFeature(event);
@@ -57,5 +57,5 @@ const globalHooks = function() {
     callback();
   });
 }
-module.exports = globalHooks;
+module.exports = projectHooks;
 
