@@ -141,12 +141,12 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect that element "([^"]*)?" is( not)* ([\d]+)px (broad|tall)$/,
+        /^I expect that element "([^"]*)?" is( not)* ([\d.]+)px (broad|tall)$/,
         checkDimension
     );
 
     this.Then(
-        /^I expect that element "([^"]*)?" is( not)* positioned at ([\d]+)px on the (x|y) axis$/,
+        /^I expect that element "([^"]*)?" is( not)* positioned at ([\d.]+)px on the (x|y) axis$/,
         checkOffset
     );
 

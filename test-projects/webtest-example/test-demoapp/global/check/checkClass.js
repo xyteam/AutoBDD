@@ -13,14 +13,12 @@ module.exports = (elem, falseCase, expectedClassName) => {
     const classesList = browser.getAttribute(elem, 'className').split(' ');
 
     if (falseCase === 'does not have') {
-        expect(classesList).to.not
-            .include(
+        expect(classesList).not.toContain(
                 expectedClassName,
                 `Element ${elem} should not have the class ${expectedClassName}`
             );
     } else {
-        expect(classesList).to
-            .include(
+        expect(classesList).toContain(
                 expectedClassName,
                 `Element ${elem} should have the class ${expectedClassName}`
             );
