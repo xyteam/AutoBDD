@@ -186,7 +186,11 @@ module.exports = {
         + '"';
     const cmd_wait_recording_end = 'while lsof '
         + myREPORTDIR + '/Recording_' + scenario_mp4
-        + '; do sleep 0.5; done';
+        + '; do sleep 0.5; done;'
+        + 'sleep 0.5;'
+        + 'while [ ! -f '
+        + myREPORTDIR + '/Recording_' + scenario_mp4
+        + ' ]; do sleep 0.5; done;'
 
     if (scenarioName) {
       if (this.recordingRunning(scenarioName))
