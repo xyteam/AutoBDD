@@ -12,12 +12,12 @@ module.exports = (element, falseCase) => {
     const isVisible = browser.isVisibleWithinViewport(element);
 
     if (falseCase) {
-        expect(isVisible).not.toEqual(
+        expect(isVisible).not.toBe(
                 true,
                 `Expected element "${element}" to be outside the viewport`
             );
     } else {
-        expect(isVisible).toEqual(
+        expect(isVisible).toBe(
                 true,
                 `Expected element "${element}" to be inside the viewport`
             );

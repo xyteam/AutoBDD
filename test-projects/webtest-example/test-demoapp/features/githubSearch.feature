@@ -17,4 +17,4 @@ Scenario: search for webdriverio repository
     And   I add "selenium" to the inputfield "[placeholder='Search GitHub']"
     When  I press "Enter"
     Then  I expect that element ".header-search-input" contains the text "webdriverio selenium"
-    And   I expect that element ".repo-list-item:first-child" contains the text "A Node.js bindings implementation for the W3C WebDriver protocol"
+    And   I expect that element ".repo-list-item:first-child" contains the text "Next-gen WebDriver test automation framework for Node.js"

@@ -23,6 +23,7 @@ Feature: Test visibility of elements
         Then  I expect that element "#makeInvisible" becomes not visible
 
     Scenario: Element in the viewport
+        When  I scroll to element "h1"
         Then  I expect that element "h1" is within the viewport
 
     Scenario: Element outside the viewport
