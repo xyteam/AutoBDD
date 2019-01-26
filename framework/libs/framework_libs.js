@@ -6,7 +6,7 @@ const cmd = require('node-cmd');
 
 // general and system
 const spaceChar_regex = /\s+/g;
-const specialChar_regex = /[\:\;\,\(\)\/\'\.\&\%\-\<\>]/g;
+const specialChar_regex = /[\:\;\,\(\)\/\'\"\.\&\%\-\<\>]/g;
 const myHOME = process.env.HOME;
 const myDISPLAY = process.env.DISPLAY;
 
@@ -186,19 +186,23 @@ module.exports = {
         + '"';
     const cmd_wait_recording_end = 'while lsof '
         + myREPORTDIR + '/Recording_' + scenario_mp4
-        + '; do sleep 0.5; done';
+        + '; do sleep 0.5; done;'
+        + 'sleep 0.5;'
+        + 'while [ ! -f '
+        + myREPORTDIR + '/Recording_' + scenario_mp4
+        + ' ]; do sleep 0.5; done;'
 
     if (scenarioName) {
       if (this.recordingRunning(scenarioName))
-      try {
-        // this command will kill self and always return error, thus must put in a try block
-        execSync(cmd_stop_recording);
-        execSync(cmd_wait_recording_end);
-      } catch(e) {}      
-    } else {
-      console.log('stopRecording: scenarioName can not be empty');
-      return false;
-    }
+        try {
+          // this command will kill self and always return error, thus must put in a try block
+          execSync(cmd_stop_recording);
+          execSync(cmd_wait_recording_end);
+        } catch(e) {}      
+      } else {
+        console.log('stopRecording: scenarioName can not be empty');
+        return false;
+      }
   },
   takeScreenshot: function(scenarioName) {
     const scenario_png = this.getScenarioNameBase(scenarioName) + '.png';
@@ -220,7 +224,14 @@ module.exports = {
     const cmd_rename_movie = 'mv ' + myREPORTDIR + '/Recording_' + scenario_mp4
                              + ' ' + myREPORTDIR + '/' + scenarioResult + '_' + scenario_mp4;
     if (mySCREENSHOT == 1 || myMOVIE == 1) execSync(cmd_rename_screenshot);
-    if (myMOVIE == 1) execSync(cmd_rename_movie);
+    if (myMOVIE == 1) {
+      try {
+        execSync(cmd_rename_movie);
+      } catch(e) {
+        this.stopRecording(scenarioName);
+        execSync(cmd_rename_movie);
+      }
+    }
   },
   getHtmlReportTags: function(scenarioName, scenarioResult) {
     const scenario_base = this.getScenarioNameBase(scenarioName);
