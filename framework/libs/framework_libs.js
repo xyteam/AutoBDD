@@ -6,7 +6,7 @@ const cmd = require('node-cmd');
 
 // general and system
 const spaceChar_regex = /\s+/g;
-const specialChar_regex = /[\:\;\,\(\)\/\'\.\&\%\-\<\>]/g;
+const specialChar_regex = /[\:\;\,\(\)\/\'\"\.\&\%\-\<\>]/g;
 const myHOME = process.env.HOME;
 const myDISPLAY = process.env.DISPLAY;
 
