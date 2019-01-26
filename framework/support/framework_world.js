@@ -1,8 +1,11 @@
-// global vars and functions for test scripts accessible through this.var_name
+// framework_world
 const frameworkPath = process.env.FrameworkPath;
+
 const frameworkWorld = {
     World: function() {
         var self = this;
+
+        // define framework_world variables here
         self.frameworkVar = 'defined in framework_world.js';
         self.test_config = require(frameworkPath + '/framework/configs/default_test_config').test_config;
 
@@ -17,4 +20,5 @@ const frameworkWorld = {
         return self;
     }
 }
+
 module.exports = frameworkWorld;
