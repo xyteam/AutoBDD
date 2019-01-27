@@ -69,12 +69,15 @@ module.exports = {
         var click_count = 0;
         switch (imageAction) {
           case 'single':
+            click_count = find_item.hoverSync();
             click_count = find_item.clickSync();
           break;
           case 'double':
+            click_count = find_item.hoverSync();
             click_count = find_item.doubleClickSync();
           break;
           case 'right':
+            click_count = find_item.hoverSync();
             click_count = find_item.rightClickSync();
           break;
           case 'hover':
