@@ -1,53 +1,65 @@
 # AutoBDD
 BDD Automation Framework
 
-Powerful, Flexible and Easy to use automation framework that puts complete control back to the users:
+Powerful, Flexible and Easy-to-Use BDD Automation Framework
 
-  * Describe user behaviors in BDD
-  * Implement test exactly as described
-  * Test exactly as described
-  * Report exactly as described
+* Powerful - Test any local or remote target in single or parallel manner
+* Flexible - Runs on any local desktop or cloud system
+* Easy-To-Use - Most of the technical configurations are simplified to single-command actions
 
-###### Framework Philosophy
-This framework is built on the following philosophy:
-  * Product Requirement can be translated into Test Requirements in High-Level BDD statements.
-  * High-level BDD can be further translated into Actionable BDD statements (test cases).
-  * Actionable BDD statements can be implemented into test scripts
+###### Philosophy
+Low Entry Bar
+  * **Given** any BDD test project
+  * **When** you use the AutoBDD framework
+  * **Then** you can Test Anything
+  * **And** Test Remote Target
+  * **And** Code Less, Test More
 
-###### Framework Provided Interfaces
-The framework provides session libraries for the controls of screen, keyboard, mouse, browser, file system and API to allow test code to take full control of the test target.
+High Performance
+  * **And** Your test project can:
+    * Deploy Anywhere
+    * Test in Parallel
+    * Jenkins Ready
+    * Integrate with Any Service
 
-  * ssh_session: shell access and port mapping of remote computer.
-  * screen_session: controls screen, keyboard and mouse of local or remote computer.
-      * Local: through assigned X environment
-      * Remote: through RDP over local X environment
-  * browser_session: controls local or remote browser through selenium based webdriver
-  * file_session: controls local or remote file system
-      * Local: direct access
-      * Remote: through sshfs
-  * api_session: controls API request and response.
+###### At A Glance
+Platform:
+  * Linux Based (Ubuntu 1804)
+    * Load with many tools
+        * browser
+        * rdp
+        * virtual X env
+        * screenshot and movie tools
+        * ssh tools
+        * docker
+        * jenkins
+Framework:
+  * Chimpy-JS
+    * Cucumber-JS
+    * WebdriverIO
+    * Selenium
+    * Robot-JS
+    * Sikulix
+  * Framework Tools
+    * XVFB-Runner
+    * Jenkins Node and Jobs
+  * 3rd Party Tools
+    * Cucumber-Report
+    * Demo-App
 
-###### Framework Provided Reporting features
-The framework provides control on screenshot and movie recording along with raw test result in JSON files for each test case.
-The framework also provides commands to compile test case level JSON files into test suite level JSON files and run level master JSON file.
-JSON file at any level can be compiled into collaspable HTML report which can drill down to individual test case and test steps with screenshots and replable movie.
-
-###### Framework Provided Run features
-Test can be run in paralleled X environments on the controller system itself, and farm out to remote PCs.
-Currently the framework only supports a single controller. We are considering to add master/slave controllers to further flatten out the parallel control.
-Controller is dockerized. It can be run in any local or cloud CI environment.
-
-#### To build the framework
+###### To build the framework
+AutoBDD can be run on any Ubuntu 18.04 system with a list of tools installed. We have created a vagrant configuration which you can deplly with a few commands.
+Refer to [xyPlatform README.md](https://github.com/xyteam/xyPlatform)
+  * Spin up l1804Base VM
+  * (Windows) cygwin $ or (MacOS) bash $
+  * vagrant ssh l1804Base
+  Inside l1804Base bash
 ```
-$ cd <path-to>/AutoBDD
+$ spr
+$ cd ~/Run/AutoBDD
 $ npm install
 $ . .autoPathrc.sh
 ```
-
-#### To add BDD test project into the framework
-Just add the entire test folder under test-projects.
-
-#### To run BDD test project inside the framework
-Refer to:
+###### To see it in action:
 [Prototype Test Project README.md](./test-projects/webtest-example/README.md)
 
