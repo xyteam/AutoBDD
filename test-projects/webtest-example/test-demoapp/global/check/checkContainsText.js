@@ -11,13 +11,13 @@ module.exports = (elementType, element, falseCase, expectedText) => {
      * The command to perform on the browser object
      * @type {String}
      */
-    let command = 'getValue';
+    let command = 'getText';
 
     if (
-        elementType === 'button' ||
-        browser.getAttribute(element, 'value') === null
+        browser.getText(element) == '' &&
+        browser.getAttribute(element, 'value') !== null
     ) {
-        command = 'getText';
+        command = 'getValue';
     }
 
     /**

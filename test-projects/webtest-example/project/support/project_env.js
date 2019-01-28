@@ -1,7 +1,7 @@
 // if the framework is used
 if (process.env.FrameworkPath) {
-    require(process.env.FrameworkPath + '/framework/support/framework_env.js');  
+    require(process.env.FrameworkPath + '/framework/support/framework_env.js');
+    process.env.ThisProject = 'webtest-example';
+    process.env.ProjectPath = process.env.FrameworkPath + '/test-projects/' + process.env.ThisProject;
 } 
-// define global Env vars here
-process.env.ThisProject = 'webtest-example';
-process.env.ProjectEnv = 'defined in project_env.js';
+// define project level Env vars here

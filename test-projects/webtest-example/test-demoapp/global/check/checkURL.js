@@ -10,13 +10,14 @@ module.exports = (falseCase, expectedUrl) => {
      * @type {String}
      */
     const currentUrl = browser.url().value;
+    var myExoectedUrl = (expectedUrl.match('^http[s]*://')) ? expectedUrl : browser.options.baseUrl + expectedUrl
 
     if (falseCase) {
-        expect(currentUrl).not.toEqual(expectedUrl, `expected url not to be "${currentUrl}"`);
+        expect(currentUrl).not.toEqual(myExoectedUrl, `expected url not to be "${currentUrl}"`);
     } else {
         expect(currentUrl).toEqual(
-                expectedUrl,
-                `expected url to be "${expectedUrl}" but found ` +
+            myExoectedUrl,
+                `expected url to be "${myExoectedUrl}" but found ` +
                 `"${currentUrl}"`
             );
     }

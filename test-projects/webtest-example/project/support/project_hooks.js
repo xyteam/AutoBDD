@@ -6,56 +6,44 @@ if (process.env.FrameworkPath) {
   frameworkHooks = null;
 }
 
-const projectHooks = function() {
+const projectHooks = {
   // modify or add global hooks here
-  this.BeforeFeature(function (event, callback) {
-    if (frameworkHooks) frameworkHooks.BeforeFeature(event);
+  BeforeFeature: function(feature, callback) {
+    if (frameworkHooks) frameworkHooks.BeforeFeature(feature, callback);
     // additional hook code below this line
-    if (process.env.DebugTestProject == 1) console.log('from global/hooks.js');
     callback();
-  });
+  },
 
-  this.Before(function (scenario, callback) {
-    if (frameworkHooks) frameworkHooks.Before(scenario);
+  BeforeScenario: function(scenario, callback) {
+    if (frameworkHooks) frameworkHooks.BeforeScenario(scenario, callback);
     // additional hook code below this line
     callback();
-  });
+  },
 
-  this.BeforeScenario(function (event, callback) {
-    if (frameworkHooks) frameworkHooks.BeforeScenario(event);
+  BeforeStep: function(step, callback) {
+    if (frameworkHooks) frameworkHooks.BeforeStep(step, callback);
     // additional hook code below this line
     callback();
-  });
+  },
 
-  this.BeforeStep(function (event, callback) {
-    if (frameworkHooks) frameworkHooks.BeforeStep(event);
+  AfterStep: function(step, callback) {
+    if (frameworkHooks) frameworkHooks.AfterStep(step, callback);
     // additional hook code below this line
     callback();
-  });
+  },
 
-  this.AfterStep(function (event, callback) {
-    if (frameworkHooks) frameworkHooks.AfterStep(event);
+  AfterScenario: function(scenario, callback) {
+    if (frameworkHooks) frameworkHooks.AfterScenario(scenario, callback);
     // additional hook code below this line
     callback();
-  });
+  },
 
-  this.AfterScenario(function (event, callback) {
-    if (frameworkHooks) frameworkHooks.AfterScenario(event);
+  AfterFeature: function(feature, callback) {
+    if (frameworkHooks) frameworkHooks.AfterFeature(feature, callback);
     // additional hook code below this line
     callback();
-  });
-
-  this.After(function (scenario, callback) {
-    if (frameworkHooks) frameworkHooks.After(scenario);
-    // additional hook code below this line
-    callback();
-  });
-
-  this.AfterFeature(function (event, callback) {
-    if (frameworkHooks) frameworkHooks.AfterFeature(event);
-    // additional hook code below this line
-    callback();
-  });
+  },
 }
+
 module.exports = projectHooks;
 

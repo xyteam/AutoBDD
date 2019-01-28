@@ -13,18 +13,18 @@ module.exports = (element, falsCase, exactly) => {
     const nrOfElements = browser.elements(element).value;
 
     if (falsCase === true) {
-        expect(nrOfElements).toEqual.lengthOf(
+        expect(nrOfElements.length).toBe(
             0,
             `Element with selector "${element}" should not exist on the page`
         );
     } else if (exactly) {
-        expect(nrOfElements).toEqual.lengthOf(
+        expect(nrOfElements.length).toBe(
             exactly,
             `Element with selector "${element}" should exist exactly ` +
             `${exactly} time(s)`
         );
     } else {
-        expect(nrOfElements).not.toBeLessThan(
+        expect(nrOfElements.length).not.toBeLessThan(
             1,
             `Element with selector "${element}" should exist on the page`
         );

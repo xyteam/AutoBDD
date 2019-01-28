@@ -1,10 +1,9 @@
 const frameworkPath = process.env.FrameworkPath;
-const execSync = require('child_process').execSync;
 const framework_libs = require(frameworkPath + '/framework/libs/framework_libs');
 const screen_session = require(frameworkPath + '/framework/libs/screen_session');
 
-module.exports = {
-  BeforeFeature: function (event) {
+const frameworkHooks = {
+  BeforeFeature: function(feature, callback) {
     // start RDP and sshfs
     if (process.env.SSHHOST && process.env.SSHPORT) {
       // these start functions will prevent double running
@@ -31,44 +30,30 @@ module.exports = {
         // browser.pause(5000);
       }
     }
+    callback();
   },
 
-  Before: function(scenario) {
-    // capture and maxmize the browser window
-    var windowHandle = browser.windowHandle();
-    browser.window(windowHandle.value);
-    // browser.windowHandleMaximize();
-    // reset browser zoom
-    screen_session.keyTap('0', 'control');
-    browser.pause(1000);
-  },
-
-  BeforeScenario: function(event) {
-    var scenario = event.getPayloadItem('scenario');
+  BeforeScenario: function(scenario, callback) {
     var scenarioName = scenario.getName();
-
+    browser.windowHandleMaximize();
     // increase IE browser script execution time
     if (process.env.BROWSER == 'IE') browser.timeouts('script', 60000);
     if (process.env.MOVIE == 1) framework_libs.startRecording(scenarioName);
+    callback();
   },
 
-  BeforeStep: function(event) {
-    var step = event.getPayloadItem('step');
+  BeforeStep: function(step, callback) {
     var stepName = step.getName();
+    callback();
   },
 
-  AfterStep: function(event) {
-    var step = event.getPayloadItem('step');
+  AfterStep: function(step, callback) {
     var stepName = step.getName();
+    callback();
   },
 
   // this AfterScenario has scenario info but without result. Use After below if you need result
-  AfterScenario: function(event) {
-    var scenario = event.getPayloadItem('scenario');
-    var scenarioName = scenario.getName();
-  },
-
-  After: function(scenario) {
+  AfterScenario: function(scenario, callback) {
     var scenarioName = scenario.getName();
 
     if (process.env.MOVIE == 1) {
@@ -96,9 +81,10 @@ module.exports = {
     // need to perform these steps before tear down RDP
     screen_session.keyTap('0', 'control');
     browser.pause(1000);
+    callback();
   },
 
-  AfterFeature: function (event) {
+  AfterFeature: function(feature, callback) {
     if (process.env.SSHHOST && process.env.SSHPORT) {
       try {
         if (process.env.MOVIE == 1 || process.env.SCREENSHOT == 1) framework_libs.stopRdesktop();
@@ -106,5 +92,8 @@ module.exports = {
         framework_libs.stopSshTunnel();
       } catch(e) {}
     }
+    callback();
   }
 }
+
+module.exports = frameworkHooks;

@@ -6,7 +6,7 @@ Feature: Test if the url is a certain value
         Given I open the site "/"
         Then  I expect that the url is not "http://www.google.com/"
 
-    Scenario: The url should be http://127.0.0.1:8080/
+    Scenario: The url should be baseURL
         Given I open the site "/"
         Then  I expect that the url is "/"
 
