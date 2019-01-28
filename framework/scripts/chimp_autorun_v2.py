@@ -63,7 +63,6 @@ def run_chimp(index, host, platform, browser, report_dir, movie, screenshot,
             ' chimpy ' + chimp_profile + ' ' + './' + run_file + \
             ' --format=json:' + report_file + '.json' \
             ' 2>&1 > ' + report_file + '.run'
-
     elif platform == 'Win7' or platform == 'Win10':
         for rdp in host:
             cmd = ''
