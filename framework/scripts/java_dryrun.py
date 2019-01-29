@@ -19,7 +19,7 @@ def dry_run(projectpath, modules, tags):
         for content in stdout.decode('utf-8').split('\n'):
             if 'Scenario:' in content or 'Scenario Outline:' in content:
                 filepath = content.split('#')[1].strip()
-                filepath_base = '/'.join(filepath.split('/')[-2:])
+                filepath_base = '/'.join(filepath.split('/')[-1:])
                 marray[module].append(filepath_base)
                 count += 1
 
