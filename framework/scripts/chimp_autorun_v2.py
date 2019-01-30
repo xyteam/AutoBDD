@@ -62,7 +62,7 @@ def run_chimp(index, host, platform, browser, report_dir, movie, screenshot,
             ' PLATFORM=' + platform + \
             ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
             ' chimpy ' + chimp_profile + ' ' + './' + run_file + \
-            ' --format=json:' + report_file + '.json' \
+            ' --format=json:' + report_file + '.subjason' \
             ' 2>&1 > ' + report_file + '.run'
     elif platform == 'Win7' or platform == 'Win10':
         for rdp in host:
@@ -87,7 +87,7 @@ def run_chimp(index, host, platform, browser, report_dir, movie, screenshot,
                     ' SSHPORT=' + rdp['SSHPORT'] + \
                     ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                     ' chimpy ' + chimp_profile + ' ' + './' + run_file + \
-                    ' --format=json:' + report_file + '.json' + \
+                    ' --format=json:' + report_file + '.subjason' + \
                     ' 2>&1 > ' + report_file + '.run'
                 time.sleep(random.uniform(1, 2))
                 break
@@ -101,7 +101,7 @@ def run_chimp(index, host, platform, browser, report_dir, movie, screenshot,
 
     # update test case status
     print('Update status on: {}'.format(group))
-    group.update({'status': 'runned', "run_file": report_file + '.json'}, doc_ids=[id])
+    group.update({'status': 'runned', "run_file": report_file + '.subjason'}, doc_ids=[id])
     time.sleep(1)
     print('COMPLETED: {} of {}\'\''.format(index, total))
 
@@ -277,7 +277,6 @@ def get_scenario_status(scenario_out):
             return 'failed'
     return 'passed'
 
-
 class ChimpAutoRun:
     '''
     run chimp
@@ -370,35 +369,6 @@ class ChimpAutoRun:
                                   self.modulelist, self.platform, self.browser,
                                   self.tags, self.report_dir)
             self.runcase = dry_run.get_dry_run_resluts()
-
-    def get_rerun_out(self):
-        '''
-        get failed scenario from cucumber report
-        '''
-        report_data = json.loads(
-            open(path.join(self.rerun_dir, 'cucumber-report.html.json')).read())
-        run_cases = json.loads(
-            open(path.join(self.rerun_dir, '.runcase.subjason')).read())
-        for element in report_data:
-            for scenario in element['elements']:
-                result, status = '', ''
-                # get status
-                for step in scenario['steps']:
-                    result += step['result']['status']
-                if 'failed' not in result and 'skipped' not in result and 'undefined' not in result:
-                    status = 'passed'
-                else:
-                    status = 'failed'
-                for case in run_cases:
-                    if case['scenario'] == scenario['name'] and case[
-                            'line'] == scenario['line']:
-                        case['status'] = status
-                        break
-        out_path = path.join(self.report_dir, '.runcase.subjason')
-        print('Run case path: ' + out_path)
-        with open(out_path, 'w') as fname:
-            json.dump(run_cases, fname, indent=4)
-        self.runcase = out_path
 
     def is_rerun(self):
         return True if self.rerun_dir else False
