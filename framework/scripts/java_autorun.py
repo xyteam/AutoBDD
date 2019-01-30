@@ -360,7 +360,8 @@ class ChimpAutoRun:
         '''
         assert path.isdir(directory), '{} is not exits'.format(directory)
         return [
-            path.join('features', fname)
+            #path.join('features', fname)
+			fname
             for fname in os.listdir(path.join(directory, 'src', 'test', 'resources', 'features'))
             if fname.endswith('.feature')
         ]
