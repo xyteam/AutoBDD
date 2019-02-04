@@ -58,6 +58,7 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
 
 #### To build the framework
 AutoBDD can be run on any Ubuntu 18.04 system with necessary tools. The installation of the tools are automated into Vagrant configuration files which you can deploy with a few commands.
+
 Refer to the [xyPlatform README.md](https://github.com/xyteam/xyPlatform) for detail steps
 
 Here is a high level summary of the steps:
@@ -75,7 +76,8 @@ Here is a high level summary of the steps:
     $ cd ~/Run/AutoBDD
     $ npm install
     $ . .autoPathrc.sh
-  ```
+    ```
+  
 #### To see example test project in action:
 
 [Example Test Project README.md](./test-projects/webtest-example/README.md)
