@@ -25,41 +25,51 @@ High Performance
 ###### At A Glance
 Platform:
   * Linux Based (Ubuntu 1804)
-    * Load with many tools
-        * browser
-        * rdp
-        * virtual X env
-        * screenshot and movie tools
-        * ssh tools
-        * docker
-        * jenkins
+    * real browsers
+    * rdp
+    * virtual X env
+    * screenshot and movie tools
+    * ssh tools
+    * docker
+    * jenkins
 Framework:
   * Chimpy-JS
     * Cucumber-JS
     * WebdriverIO
     * Selenium
-    * Robot-JS
-    * Sikulix
   * Framework Tools
-    * XVFB-Runner
-    * Jenkins Node and Jobs
-  * 3rd Party Tools
-    * Cucumber-Report
-    * Demo-App
+    * Secured Remote Control
+      * Screen
+      * Keyboard
+      * Mouse
+      * CMD Shell
+      * File System
+    * Image and Movie Capturing
+    * Parellel Test Runner
+  * Easy 3rd Party Tools Integration
+    * Local Jenkins CI
+    * Cucumber Reporter
+    * Jira/TestRail/TestLink
+    * Precanned Test Steps
 
 ###### To build the framework
-AutoBDD can be run on any Ubuntu 18.04 system with a list of tools installed. We have created a vagrant configuration which you can deplly with a few commands.
-Refer to [xyPlatform README.md](https://github.com/xyteam/xyPlatform)
-  * Spin up l1804Base VM
-  * (Windows) cygwin $ or (MacOS) bash $
-  * vagrant ssh l1804Base
-  Inside l1804Base bash
-```
-$ spr
-$ cd ~/Run/AutoBDD
-$ npm install
-$ . .autoPathrc.sh
-```
-###### To see it in action:
-[Prototype Test Project README.md](./test-projects/webtest-example/README.md)
+AutoBDD can be run on any Ubuntu 18.04 system with necessary tools. The installation of the necessaru tools are automated into Vagrant configuration files which you can deploy with a few commands.
+Refer to the [xyPlatform README.md](https://github.com/xyteam/xyPlatform):
+  * To Spin up l1804Base VM
+    * In Windows cygwin bash or MacOS terminal bash:
+      * create $HOM/Projects folder
+      * git clone xyPlatform and AutoBDD projects
+      * cd xyPlatform/lubuntu
+      * vagrant up l1804Base
+      * vagrant ssh l1804Base
+  * To Build AutoBDD
+    * In l1804Base bash shell
+    ```
+    $ spr
+    $ cd ~/Run/AutoBDD
+    $ npm install
+    $ . .autoPathrc.sh
+  ```
+###### To see example test project in action:
+[Example Test Project README.md](./test-projects/webtest-example/README.md)
 
