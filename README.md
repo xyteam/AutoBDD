@@ -9,6 +9,7 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
 
 #### Philosophy
 ##### Low Entry Bar
+
   * **Given** any BDD test project
   * **When** you use the AutoBDD framework
   * **Then** you can Test Anything
@@ -16,6 +17,7 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
   * **And** Code Less, Test More
 
 ##### High Performance
+
   * **And** Your test project can:
     * Deploy Anywhere
     * Test in Parallel
@@ -24,6 +26,7 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
 
 #### At A Glance
 ##### Platform:
+
   * Linux Based (Ubuntu 1804)
     * real browsers
     * rdp
@@ -33,6 +36,7 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
     * docker
     * jenkins
 ##### Framework:
+
   * Chimpy-JS
     * Cucumber-JS
     * WebdriverIO
@@ -73,5 +77,6 @@ Here is a high level summary of the steps:
     $ . .autoPathrc.sh
   ```
 #### To see example test project in action:
+
 [Example Test Project README.md](./test-projects/webtest-example/README.md)
 
