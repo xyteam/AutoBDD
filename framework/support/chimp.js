@@ -1,5 +1,5 @@
 const frameworkPath = process.env.FrameworkPath;
-require(frameworkPath + '/framework/support/framework_env.js');
+require(frameworkPath + '/framework/support/env.js');
 
 // if SSHPORT is defined it indicates a remote target, We will establish SSH tunnel
 if ((process.env.SSHPORT) && (process.env.SSHHOST == '10.0.2.2')) {

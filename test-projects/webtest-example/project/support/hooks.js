@@ -1,7 +1,7 @@
 // if the framework is used
 var frameworkHooks;
 if (process.env.FrameworkPath) {
-  frameworkHooks = require(process.env.FrameworkPath + '/framework/support/framework_hooks.js');  
+  frameworkHooks = require(process.env.FrameworkPath + '/framework/support/hooks.js');  
 } else {
   frameworkHooks = null;
 }

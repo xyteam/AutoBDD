@@ -13,10 +13,10 @@ const frameworkHooks = {
         var targetDesktopImage;
         switch (process.env.PLATFORM) {
           case 'Win10':
-            targetDesktopImage = frameworkPath + '/framework/support/framework_images/windows10_startButton.png';
+            targetDesktopImage = frameworkPath + '/framework/support/images/windows10_startButton.png';
             break;
           case 'Win7':
-            targetDesktopImage = frameworkPath + '/framework/support/framework_images/windows10_startButton.png';
+            targetDesktopImage = frameworkPath + '/framework/support/images/windows10_startButton.png';
             break;
         }
         try {
