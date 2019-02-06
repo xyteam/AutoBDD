@@ -1,4 +1,4 @@
-import checkIfElementExists from '../lib/checkIfElementExists';
+import checkIfElementExists from '../common/checkIfElementExists';
 
 /**
  * Perform an click action on the given element
