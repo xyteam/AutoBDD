@@ -25,9 +25,11 @@
     "newman": "^4.3.1",
     "node-cmd": "^3.0.0",
     "npm-path": "^2.0.4",
+    "path": "^0.12.7",
     "pdf-parse": "^1.1.1",
     "request": "^2.88.0",
     "robotjs": "^0.5.1",
+    "stack-generator": "^2.0.3",
     "url-parse": "^1.4.4",
     "words-to-numbers": "^1.5.1",
     "xlsx": "^0.14.1"

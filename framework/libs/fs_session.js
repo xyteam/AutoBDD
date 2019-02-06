@@ -1,8 +1,8 @@
 // fs_session.js provides functions to read and write the Downlaods folder of the target system (local or remote)
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const FrameworkImagePath = FrameworkPath + 'framework/support/framework_images';
+const FrameworkImagePath = FrameworkPath + 'framework/support/images';
 const ProjectPath = FrameworkPath + '/test-projects/' + process.env.ThisProject;
-const ProjectImagePath = ProjectPath + '/global/test_images'
+const ProjectImagePath = ProjectPath + '/project/support/images'
 const DownloadPathLocal = process.env.DownloadPathLocal;
 const fs = require('fs');
 const pdfParse = require('pdf-parse');
@@ -23,7 +23,7 @@ module.exports = {
   },
 
   getLocalTestFileFullPath: function(filePath, fileName, fileExt) {
-    var targetPath = filePath.substring(0, filePath.indexOf('steps')) + 'test_files';
+    var targetPath = filePath.substring(0, filePath.indexOf('steps')) + 'files';
     var testFileFullPath = this.getTestFileFullPath(targetPath, fileName, fileExt);
     return testFileFullPath;
   },
@@ -76,7 +76,7 @@ module.exports = {
   },
 
   getLocalImageFullPath: function(filePath, fileName, fileExt) {
-    var targetPath = filePath.substring(0, filePath.indexOf('steps')) + 'test_images';
+    var targetPath = filePath.substring(0, filePath.indexOf('steps')) + 'images';
     var imageFullPath = this.getTestImageFullPath(targetPath, fileName, fileExt);
     return imageFullPath;
   },

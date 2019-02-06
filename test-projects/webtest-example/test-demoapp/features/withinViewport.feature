@@ -18,3 +18,9 @@ Feature: Viewport test
         When  I scroll to element "footer"
         Then  I expect that element "footer" is within the viewport
         And   I expect that element "h1" is not within the viewport
+
+  Scenario: Check demo page images - Drop-Down List
+    Given I open the url "/"
+    When  I scroll to element "footer"
+    When  I click the "First_option" image on the screen
+    Then  I should see the "First_option_Opened" image on the screen

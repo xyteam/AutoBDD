@@ -1,6 +1,6 @@
 var projectHooks;
 if (process.env.FrameworkPath) {
-  projectHooks = require(process.env.ProjectPath + '/project/support/project_hooks.js');  
+  projectHooks = require(process.env.ProjectPath + '/project/support/hooks.js');  
 } else {
   projectHooks = null;
 }
