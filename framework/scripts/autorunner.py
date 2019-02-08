@@ -27,7 +27,7 @@ DB = TinyDB(tinydb_path)
 
 
 def run_chimp(index, host, platform, browser, report_dir, movie, screenshot,
-                 debugmode, display_size, chimp_profile, project_type):
+                 debugmode, display_size, chimp_profile, project_type, features_path):
     ''' Run '''
     if platform == 'Linux':
         print ("\n### CHIMPY RUN START - {} ### =====================================".format(index))
@@ -75,7 +75,8 @@ def run_chimp(index, host, platform, browser, report_dir, movie, screenshot,
                 ' --format=json:' + report_file + '.json' \
                 ' 2>&1 > ' + report_file + '.run'
         else:
-            run_file = '/'.join(uri_array[6:]) + ":" + str (case['line'])
+            flength = len(filter(None, features_path.split('/')))
+            run_file = '/'.join(uri_array[flength+3:]) + ":" + str (case['line'])
             module_path = '/'.join(uri_array[0:3])
             print (" > Running Maven command")
             print ("    > Actual runfile --> {}".format(run_file))
@@ -91,7 +92,7 @@ def run_chimp(index, host, platform, browser, report_dir, movie, screenshot,
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
                 ' xvfb-run --auto-servernum --server-args=\"-screen 0 ' + display_size + 'x16\"' + \
-                ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"src/test/resources/' + run_file + \
+                ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + path.join (features_path, run_file) + \
                 ' --plugin pretty --add-plugin json:' + report_file + '.json\"' + \
                 ' 2>&1 > ' + report_file + '.run'
 
@@ -123,14 +124,6 @@ def parse_arguments():
 
     parser = argparse.ArgumentParser(description=descript)
 
-    parser.add_argument(
-        "--projecttype",
-        "--PROJECTTYPE",
-        dest="PROJECT_TYPE",
-        default="Maven",
-        help=
-        "project type to specify the suitable runner. Valid options are \"Maven\" and \"Chimpy\". Default value: Maven"
-    )
     parser.add_argument(
         "--timestamp",
         "--TIMESTAMP",
@@ -279,6 +272,23 @@ def parse_arguments():
         help="The path for dry run json file")
 
     parser.add_argument(
+        "--projecttype",
+        "--PROJECTTYPE",
+        dest="PROJECTTYPE",
+        default="Maven",
+        help=
+        "project type to specify the suitable runner. Valid options are \"Maven\" and \"Chimpy\". Default value: Maven"
+    )
+
+    parser.add_argument(
+        "--featurespath",
+        "--FEATURESPATH",
+        dest="FEATUREPATH",
+        default="src/test/resources/",
+        help=
+        "Path to features directory from module. Default value: src/test/resources/"
+    )
+    parser.add_argument(
         '--version', '-v', action='version', version='%(prog)s V1.0')
 
     args = parser.parse_args()
@@ -319,7 +329,8 @@ class ChimpAutoRun:
         self.debugmode = arguments.DEBUGMODE
         self.projectbase = arguments.PROJECTBASE
         self.project = arguments.PROJECT
-        self.projecttype = arguments.PROJECT_TYPE
+        self.projecttype = arguments.PROJECTTYPE
+        self.featurespath = arguments.FEATUREPATH
         self.reportbase = arguments.REPORTBASE if arguments.REPORTBASE else path.join(
             self.FrameworkPath, 'test-reports')
         self.reportpath = arguments.REPORTPATH if arguments.REPORTPATH else '_'.join(
@@ -368,7 +379,6 @@ class ChimpAutoRun:
         print ("Report base     : " + self.reportbase)
         print ("Report path     : " + self.reportpath)
         print ("Report directory: " + self.report_dir)
-        
         print ("Project full    : " + self.project_full_path)
         print ("Chimp profile   : " + self.chimp_profile)
 
@@ -394,10 +404,10 @@ class ChimpAutoRun:
             assert self.dryrunout.endswith('.json')
         else:
             print ( "DRY RUN PATH NOT FOUND")
-            from chimp_dryrun_v2 import ChimpDryRun
+            from autorunner_dryrun import ChimpDryRun
             dry_run = ChimpDryRun(self.projectbase, self.project,
                                   self.modulelist, self.platform, self.browser,
-                                  self.tags ,self.projecttype)
+                                  self.tags ,self.projecttype , self.featurespath)
             self.dryrunout = dry_run.get_dry_run_results()
 
     def is_rerun(self):
@@ -537,7 +547,7 @@ class ChimpAutoRun:
                 args=(index, self.host, self.platform, self.browser,
                       self.report_dir, self.movie, self.screenshot,
                       self.debugmode, self.display_size, self.chimp_profile ,
-                      self.projecttype))
+                      self.projecttype, self.featurespath))
         pool.close()
         pool.join()
 
@@ -555,6 +565,8 @@ if __name__ == "__main__":
         chimp_run.get_dry_run_out()
 
     chimp_run.init_tinydb()
+
+    
 
     if command_arguments.RUNONLY:
         chimp_run.run_in_parallel()
