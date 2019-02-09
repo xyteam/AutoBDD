@@ -12,10 +12,7 @@ const projectWorld = {
     World: function() {
       var self = frameworkWorld || this;
 
-      // define project_world variables here
-      self.web_selectors = require('./selectors/web_selectors');
-      self.seleniumPage_selectors = require('./selectors/seleniumPage_selectors');
-    
+      // define project_world variables here    
       glob.sync('./steps/**/*.js').forEach( function(file) {
         self.project_steps += require(path.resolve(file));
       });

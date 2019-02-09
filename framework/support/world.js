@@ -15,6 +15,9 @@ const frameworkWorld = {
         self.javacucumber_session = require(frameworkPath + '/framework/libs/javacucumber_session');
         self.screen_session = require(frameworkPath + '/framework/libs/screen_session');
 
+        self.web_selectors = require('./selectors/web_selectors');
+        self.seleniumPage_selectors = require('./selectors/seleniumPage_selectors');
+  
         glob.sync('./steps/**/*.js').forEach( function(file) {
             self.framework_steps += require(path.resolve(file));
         });
