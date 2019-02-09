@@ -46,7 +46,8 @@
     "test-download": "cd ./test-projects/webtest-example/test-download && DISPLAY=:0 chimpy",
     "test-postman": "cd ./test-projects/webtest-example/test-postman && DISPLAY=:0 chimpy",
     "test-java": "cd ./test-projects/webtest-example/test-java && DISPLAY=:0 chimpy",
-    "test": "npm run test-webpage && npm run test-download && npm run test-postman && npm run test-java"
+    "test-demoapp": "cd ./test-projects/webtest-example/test-demoapp && DISPLAY=:0 chimpy",
+    "test": "npm run test-webpage && npm run test-download && npm run test-postman && npm run test-java && npm run test-demoapp"
   },
   "repository": {
     "type": "git",
