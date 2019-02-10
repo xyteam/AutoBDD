@@ -155,7 +155,7 @@ def parse_arguments():
     descript += " --projectbase test-projects --project webtest-example"
     descript += " --modulelist test-webpage test-download --reportbase ~/Run/reports"
 
-    parser = argparse.ArgumentParser(description=descript)
+    parser = argparse.ArgumentParser(fromfile_prefix_chars='@', description=descript)
 
     parser.add_argument(
         "--timestamp",
@@ -308,9 +308,9 @@ def parse_arguments():
         "--projecttype",
         "--PROJECTTYPE",
         dest="PROJECTTYPE",
-        default="Maven",
+        default="Auto",
         help=
-        "project type to specify the suitable runner. Valid options are \"Maven\" and \"Chimpy\". Default value: Maven"
+        "project type to specify the suitable runner. Available options are \"Maven\", \"Chimpy\", and \"Auto\". Default value: Auto"
     )
 
     parser.add_argument(
@@ -324,7 +324,11 @@ def parse_arguments():
     parser.add_argument(
         '--version', '-v', action='version', version='%(prog)s V1.0')
 
-    args = parser.parse_args()
+    if sys.argv[1].startswith('@'):
+        args = parser.parse_args (shlex.split (open (sys.argv[1][1:]).read()))
+    else:
+        args = parser.parse_args()
+
     print('\nInput parameters:')
     for arg in vars(args):
         print('{:*>15}: {}'.format(arg, getattr(args, arg)))
@@ -381,6 +385,8 @@ class ChimpAutoRun:
 
         self.project_full_path = path.join(self.FrameworkPath,
                                            self.projectbase, self.project)
+        self.isMaven = self.isMavenProject (arguments.PROJECTTYPE)
+
         # Each runable module should have a chimp.js
         self.chimp_profile = path.join('chimp.js')
         # Create report directory
@@ -462,8 +468,8 @@ class ChimpAutoRun:
             print ( "DRY RUN PATH NOT FOUND")
             from autorunner_dryrun import ChimpDryRun
             dry_run = ChimpDryRun(self.projectbase, self.project,
-                                  self.modulelist, self.platform, self.browser,
-                                  self.tags ,self.projecttype , self.featurespath)
+                                  self.modulelist, self.platform, self.browser, self.isMaven,
+                                  self.tags, self.featurespath)
             self.dryrunout = dry_run.get_dry_run_results()
 
     def is_rerun(self):
@@ -603,7 +609,7 @@ class ChimpAutoRun:
                 args=(index, self.host, self.platform, self.browser,
                       self.report_dir, self.movie, self.screenshot,
                       self.debugmode, self.display_size, self.chimp_profile ,
-                      self.projecttype, self.featurespath))
+                      self.projecttype, self.featurespath, self.isMaven))
         pool.close()
         pool.join()
 
