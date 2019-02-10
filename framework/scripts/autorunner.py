@@ -17,6 +17,7 @@ import os.path as path
 from os import environ
 from datetime import datetime
 from tinydb import TinyDB, Query
+import shlex
 
 # new tiny db
 tinydb_path = '/tmp/db.json'
@@ -59,14 +60,13 @@ def run_chimp(index,
               features_path):
     ''' Run '''
     if platform == 'Linux':
-        print ("\n### CHIMPY RUN START - {} ### =====================================".format(index))
+        print ("\n### TEST RUN START - {} ### =====================================".format(index))
         time.sleep(random.uniform(0, 2))
         #Get matched case from tinydb
         case = Query()
 
-        results = DB.search((case.status == 'notrun') & (
-            case.platform == platform) & (case.browser == browser))
-        print (" > results {}".format(results))
+        results = DB.search((case.status == 'notrun') & (case.platform == platform) & (case.browser == browser))
+        #print (" > results {}".format(results))
         if len(results) == 0:
             return
         case = results[0]
@@ -142,7 +142,7 @@ def run_chimp(index,
 
         # update test case status
         DB.update({'status': 'runned'}, doc_ids=[case.doc_id])
-        print ("### CHIMPY RUN END ### =====================================\n\n")
+        print ("### TEST RUN END ### =====================================\n\n")
 
 def parse_arguments():
     '''

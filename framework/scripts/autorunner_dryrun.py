@@ -112,8 +112,9 @@ class ChimpDryRun():
                  modulelist,
                  platform,
                  browser,
-                 tags=None,
-                 projecttype="maven",
+                 isMaven,
+                 tags=None,                 
+                 featurespath="src/test/resources",
                  output=None):
         if 'FrameworkPath' not in environ:
             self.FrameworkPath = path.join(environ['HOME'], 'Projects',
@@ -135,7 +136,8 @@ class ChimpDryRun():
         self.project_full_path = path.join(self.FrameworkPath,
                                            self.projectbase, self.project)
         self.platform = platform
-        self.projecttype = projecttype
+        self.isMaven = isMaven
+        self.featurespath = featurespath
         self.browser = browser
         self.out_array = []
         self.out_path = output
@@ -152,14 +154,14 @@ class ChimpDryRun():
             dry_run_path = path.join(self.runner_path, module + '.json')
             print('Dry run output:' + dry_run_path)
 
-            featurepath = path.join(self.project_full_path, module)
-            if (self.projecttype.lower() == "maven"):
-                featurepath = path.join (self.project_full_path, module, 'src', 'test', 'resources')
+            finalfeaturepath = path.join(self.project_full_path, module)
+            if self.isMaven:
+                finalfeaturepath = path.join (self.project_full_path, module, self.featurespath)
 
             results = subprocess.Popen(
                 [
                     'cucumber-js', '--dry-run', '-f', 'json:' + dry_run_path,
-                    featurepath
+                    finalfeaturepath
                 ] + self.tags,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
