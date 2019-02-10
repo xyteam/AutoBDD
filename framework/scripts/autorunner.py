@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Type python autorunner.py --help for more informantion
+Type python autorunner.py --help for more information
 '''
 
 import sys
@@ -57,7 +57,8 @@ def run_chimp(index,
               display_size, 
               chimp_profile, 
               project_type, 
-              features_path):
+              features_path,
+              isMaven):
     ''' Run '''
     if platform == 'Linux':
         print ("\n### TEST RUN START - {} ### =====================================".format(index))
@@ -89,7 +90,8 @@ def run_chimp(index,
                                                                  index, 
                                                                  report_dir)
 
-        
+        run_file = run_file.replace(' ', '\ ')
+        report_file = report_file.replace(' ','\ ')
         time.sleep(random.uniform(0, 1))
         cmd = ""
         if isMaven:
