@@ -33,11 +33,11 @@ var options = {
 
 if (fs.lstatSync(report_on).isDirectory()) {
     options.jsonDir = report_on;
-    options.theme = 'bootstrap';
+    options.theme = 'foundation';
     options.output = report_on + '/cucumber-report.html'
 } else if (fs.lstatSync(report_on).isFile()) {
     options.jsonFile = report_on;
-    options.theme = 'foundation';
+    options.theme = 'bootstrap';
     options.output = report_on + '.html';
 } else {
     console.log('Reporter Error: 1st parameter need to be a jsonDir or jsonFile.');

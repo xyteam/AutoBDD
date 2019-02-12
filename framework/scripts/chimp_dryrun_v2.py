@@ -18,7 +18,8 @@ CASE_INFO = {
     "platform": "Linux",
     "browser": "CH",
     "HOST": "default",
-    "SSHPORT": "default"
+    "SSHPORT": "default",
+    "status": "notrun"
 }
 
 
@@ -28,7 +29,7 @@ def parse_arguments():
     '''
     descript = "This python scripts can be used to dry run cucumber and save scenarios information to json file. "
     descript += "Command Example: "
-    descript += " framework/scripts/chimp_dryrun.py"
+    descript += " framework/scripts/chimp_dryrun_v2.py"
     descript += " --projectbase test-projects --project webtest-example"
     descript += " --modulelist test-webpage test-download --reportbase ~/Run/reports"
     descript += " --tags '@test1 or @test2'"
@@ -94,7 +95,7 @@ def parse_arguments():
         ")")
 
     parser.add_argument(
-        '--version', '-v', action='version', version='%(prog)s V1.0')
+        '--version', '-v', action='version', version='%(prog)s V2.0')
 
     args = parser.parse_args()
 
@@ -120,11 +121,6 @@ class ChimpDryRun():
         else:
             self.FrameworkPath = environ['FrameworkPath']
 
-        self.runner_path = path.join(self.FrameworkPath, 'framework',
-                                     'scripts', 'runner')
-        if not path.exists(self.runner_path):
-            os.makedirs(self.runner_path)
-
         self.modulelist = modulelist
         self.tags = []
         if tags:
@@ -136,9 +132,13 @@ class ChimpDryRun():
         self.platform = platform
         self.browser = browser
         self.out_array = []
+
         self.out_path = output
         if not self.out_path:
-            self.out_path = self.runner_path
+            self.out_path = path.join(self.FrameworkPath, 'framework',
+                                      'scripts', 'runner')
+            if not path.exists(self.out_path):
+                os.makedirs(self.out_path)
 
         self.case_info = CASE_INFO
         self.case_info['platform'] = self.platform
@@ -147,7 +147,7 @@ class ChimpDryRun():
     def get_dry_run_resluts(self):
         assert path.exists(self.project_full_path)
         for module in self.modulelist:
-            dry_run_path = path.join(self.runner_path, module + '.json')
+            dry_run_path = path.join(self.out_path, module + '.subjason')
             print('Dry run output:' + dry_run_path)
             results = subprocess.Popen(
                 [
@@ -170,7 +170,7 @@ class ChimpDryRun():
                         out_json['line'] = scenario['line']
                         self.out_array.append(out_json)
 
-        out_path = path.join(self.out_path, '.runcase.json')
+        out_path = path.join(self.out_path, '.runcase.subjason')
         print('Run case path: ' + out_path)
         with open(out_path, 'w') as fname:
             json.dump(self.out_array, fname, indent=4)
