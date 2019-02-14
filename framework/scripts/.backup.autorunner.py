@@ -19,14 +19,14 @@ from datetime import datetime
 from tinydb import TinyDB, Query
 import shlex
 
-DB = None
+# new tiny db
+tinydb_path = '/tmp/db.json'
+if path.exists(tinydb_path):
+    print('remove db.json')
+    os.remove(tinydb_path)
+DB = TinyDB(tinydb_path)
 
-def definepath (case, isMaven, features_path, report_dir):
-    # uri_array = case['uri'].split('/')
-    # module_path = '/'.join(uri_array[0:-2])
-    # module = uri_array[-1].split('.')[0]
-    # report_file = report_dir + '/' + case['uri'].replace('/', '_') + '_' + str(case['line'])
-    # run_file = '/'.join(uri_array[-2:]) + ':' + str(case['line'])
+def definepath (case, isMaven, features_path, index, report_dir):
     uri_array = case['uri'].split('/')
 
     if isMaven:
@@ -34,19 +34,15 @@ def definepath (case, isMaven, features_path, report_dir):
         featurespath_length = len(filter(None, features_path.split('/')))
         runfile_length = modulepath_length + featurespath_length
         module_index = modulepath_length - 1
-    else: #isChimpy
+    else:
         modulepath_length = -2 #...[..]/[test.feature]
         runfile_length = -2
         module_index = -1 #for chimpy, it will get the xxx.features (xxx as module)
 
     module_path = '/'.join(uri_array[0:modulepath_length])
     module = uri_array[module_index].split('.')[0]
-    report_file = report_dir + '/' + case['uri'].replace('/', '_') + "_" + str(case['line'])
     run_file = '/'.join(uri_array[runfile_length:]) + ":" + str(case['line'])
-    
-    #Handle space in feature_file
-    run_file = run_file.replace(' ', '\ ')
-    report_file = report_file.replace(' ','\ ')
+    report_file = report_dir + '/' + case['uri'].replace('/', '_') + "-" + str(index)
 
     return module_path, module, run_file, report_file
 
@@ -60,40 +56,48 @@ def run_chimp(index,
               debugmode, 
               display_size, 
               chimp_profile, 
-              total,
               project_type, 
               features_path,
               isMaven):
     ''' Run '''
-    time.sleep(random.uniform(0,2))
-    #Get matched case from tinydb
-    query = Query()
-    group = None
-    id    = None
-    case  = None
-    for table in DB.tables():
-        group = DB.table(table)
-        results = group.search((
-            (query.status == 'notrun') | (query.status == 'failed')) & (
-                query.platform == platform) & (query.browser == browser))
-        if len(results) > 0:
-            case = results[0]
-            id   = results[0].doc_id
-            break
-    
-    if not id: return
-    group.update ({'status': 'running'}, doc_ids=[id])
-
-    module_path, module, run_file, report_file = definepath (case, 
-                                                             isMaven, 
-                                                             features_path,                                                      
-                                                             report_dir)
     if platform == 'Linux':
-        time.sleep(random.uniform(0, 1))
+        print ("\n### TEST RUN START - {} ### =====================================".format(index))
+        time.sleep(random.uniform(0, 2))
+        #Get matched case from tinydb
+        case = Query()
 
+        results = DB.search((case.status == 'notrun') & (case.platform == platform) & (case.browser == browser))
+        #print (" > results {}".format(results))
+        if len(results) == 0:
+            return
+        case = results[0]
+        DB.update({'status': 'running'}, doc_ids=[case.doc_id])
+ 
+        # uri_array = case['uri'].split('/')
+        # print ("    > uri_array -->     {}".format(uri_array))
+        # module_path = '/'.join(uri_array[0:-2])
+        # print ("    > module_Path -->   {}".format(module_path))
+        # module = uri_array[-1].split('.')[0]
+        # print ("    > module -->        {}".format(module))
+        # report_file = report_dir + '/' + case['uri'].replace('/', '_') + "-" + str(index)
+        # print ("    > report_file -->   {}".format(report_file))
+        # run_file = '/'.join(uri_array[-2:]) + ':' + str(case['line'])    
+        # print ("    > run_file -->>     {}".format(run_file))
+
+        module_path, module, run_file, report_file = definepath (case, 
+                                                                 isMaven, 
+                                                                 features_path, 
+                                                                 index, 
+                                                                 report_dir)
+
+        run_file = run_file.replace(' ', '\ ')
+        report_file = report_file.replace(' ','\ ')
+        time.sleep(random.uniform(0, 1))
         cmd = ""
-        if isMaven: #isMaven on Linux
+        if isMaven:
             print (" > Running Maven command")
+            print ("    > Actual runfile --> {}".format(run_file))
+            print ("    > module_Path -->    {}".format(module_path))
             cmd = 'cd ' + module_path + ';' + \
                 ' REPORTDIR=' + report_dir + \
                 ' MOVIE=' + movie + \
@@ -106,11 +110,12 @@ def run_chimp(index,
                 ' PLATFORM=' + platform + \
                 ' xvfb-run --auto-servernum --server-args=\"-screen 0 ' + display_size + 'x16\"' + \
                 ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + path.join (features_path, run_file) + \
-                ' --plugin pretty --add-plugin json:' + report_file + '.subjason\"' + \
+                ' --plugin pretty --add-plugin json:' + report_file + '.json\"' + \
                 ' 2>&1 > ' + report_file + '.run'
-            
-        else: #isChimpy on Linux
+        else:
             print (" > Running Chimpy command")
+            print ("    > Actual runfile --> {}".format(run_file))
+            print ("    > module_Path -->    {}".format(module_path))
             cmd = 'cd ' + module_path + ';' + \
                 ' REPORTDIR=' + report_dir + \
                 ' MOVIE=' + movie + \
@@ -123,85 +128,31 @@ def run_chimp(index,
                 ' PLATFORM=' + platform + \
                 ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                 ' chimpy ' + chimp_profile + ' ' + './' + run_file + \
-                ' --format=json:' + report_file + '.subjason' \
+                ' --format=json:' + report_file + '.json' \
                 ' 2>&1 > ' + report_file + '.run'
-    elif platform == 'Win7' or platform == 'Win10':
-        if isMaven: #isMaven on Windows
-            for rdp in host:
-                cmd = ''
-                lock_file = ''
-                time.sleep(random.uniform(0, 1))
-                # avoid different process using same SSH PORT simultaneously
-                lock_file = '/tmp/rdesktop.' + rdp['SSHHOST'] + ':' + rdp[
-                    'SSHPORT'] + '.lock'
-                if not os.path.exists(lock_file):
-                    open(lock_file, 'a').close()
-                    cmd = 'cd ' + module_path + ';' + \
-                        ' REPORTDIR=' + report_dir + \
-                        ' MOVIE=' + movie + \
-                        ' SCREENSHOT=' + screenshot + \
-                        ' DEBUGMODE=' + debugmode + \
-                        ' MODULE=' + module + \
-                        ' BROWSER=' + browser + \
-                        ' DISPLAYSIZE=' + display_size + \
-                        ' PLATFORM=' + platform + \
-                        ' SSHHOST=' + rdp['SSHHOST'] + \
-                        ' SSHPORT=' + rdp['SSHPORT'] + \
-                        ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
-                        ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + path.join (features_path, run_file) + \
-                        ' --plugin pretty --add-plugin json:' + report_file + '.subjason\"' + \
-                        ' 2>&1 > ' + report_file + '.run'
-                    time.sleep(random.uniform(1, 2))
-                    break
-        else: #isChimpy on Windows
-            for rdp in host:
-                cmd = ''
-                lock_file = ''
-                time.sleep(random.uniform(0, 1))
-                # avoid different process using same SSH PORT simultaneously
-                lock_file = '/tmp/rdesktop.' + rdp['SSHHOST'] + ':' + rdp[
-                    'SSHPORT'] + '.lock'
-                if not os.path.exists(lock_file):
-                    open(lock_file, 'a').close()
-                    cmd = 'cd ' + module_path + ';' + \
-                        ' REPORTDIR=' + report_dir + \
-                        ' MOVIE=' + movie + \
-                        ' SCREENSHOT=' + screenshot + \
-                        ' DEBUGMODE=' + debugmode + \
-                        ' MODULE=' + module + \
-                        ' BROWSER=' + browser + \
-                        ' DISPLAYSIZE=' + display_size + \
-                        ' PLATFORM=' + platform + \
-                        ' SSHHOST=' + rdp['SSHHOST'] + \
-                        ' SSHPORT=' + rdp['SSHPORT'] + \
-                        ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
-                        ' chimpy ' + chimp_profile + ' ' + './' + run_file + \
-                        ' --format=json:' + report_file + '.subjason' + \
-                        ' 2>&1 > ' + report_file + '.run'
-                    time.sleep(random.uniform(1, 2))
-                    break
-    else:
-        assert False, 'Can not process on {}'.format(platform)        
+
         
-    print('RUNNING #{}: {}'.format(index, run_file))
-    # print(cmd)
+        print('RUNNING #{}: {}'.format(index, run_file))
+        # print(cmd)
 
-    time.sleep(1)
-    os.system(cmd)
+        print ("==== ACTUAL COMMAND EXECUTED ====")
+        print (cmd)
+        print ("==== END OF COMMAND ====")
 
-    # update test case status
-    print('Update status on: {}'.format(group))
-    group.update({'status': 'runned', "run_file": report_file + '.subjason'}, doc_ids=[id])
-    time.sleep(1)
-    print('COMPLETED: {} of {}\'\''.format(index, total))
+        os.system(cmd)
+
+
+        # update test case status
+        DB.update({'status': 'runned'}, doc_ids=[case.doc_id])
+        print ("### TEST RUN END ### =====================================\n\n")
 
 def parse_arguments():
     '''
     parse command line arguments
     '''
-    descript = "This python scripts can be used to run chimp/maven in parallel and generate cucumber report. "
+    descript = "This python scripts can be used to run chimp in parallel and generate cucumber report. "
     descript += "Command Example: "
-    descript += " framework/scripts/autorunner.py --parallel 2 --movie 0"
+    descript += " framework/scripts/chimp_autorun.py --parallel 2 --movie 0"
     descript += " --platform Linux --browser CH"
     descript += " --projectbase test-projects --project webtest-example"
     descript += " --modulelist test-webpage test-download --reportbase ~/Run/reports"
@@ -257,6 +208,14 @@ def parse_arguments():
         dest="MOVIE",
         default="0",
         help="record movie when chimp running. Default value: 0")
+
+    parser.add_argument(
+        "--runlevel",
+        "--RUNLEVEL",
+        dest="RUNLEVEL",
+        default="Scenario",
+        help="run automation by Module or by Scenario. Default value: Scenario"
+    )
 
     parser.add_argument(
         "--platform",
@@ -341,9 +300,9 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "--runcase",
-        "--RUNCASE",
-        dest="RUNCASE",
+        "--dryrunout",
+        "--DRYRUNOUT",
+        dest="DRYRUNOUT",
         default=None,
         help="The path for dry run json file")
 
@@ -377,14 +336,6 @@ def parse_arguments():
         print('{:*>15}: {}'.format(arg, getattr(args, arg)))
     return args
 
-def get_scenario_status(scenario_out):
-    scenario = json.loads(open(scenario_out).read())
-    steps = scenario[0]['elements'][0]['steps']
-    for step in steps:
-        status = step['result']['status']
-        if status in ['failed', 'skipped', 'notdefined', 'pending', 'ambiguous']:
-            return 'failed'
-    return 'passed'
 
 class ChimpAutoRun:
     '''
@@ -411,6 +362,7 @@ class ChimpAutoRun:
         self.parallel = arguments.PARALLEL
         self.screenshot = arguments.SCREENSHOT
         self.movie = arguments.MOVIE
+        self.runlevel = arguments.RUNLEVEL
         self.platform = arguments.PLATFORM
         self.browser = arguments.BROWSER
         self.debugmode = arguments.DEBUGMODE
@@ -426,10 +378,10 @@ class ChimpAutoRun:
         self.modulelist = arguments.MODULELIST
         self.tags = arguments.TAGS
         if self.tags:
-            self.args = self.tags.replace(' ', '_')
+            self.args = self.tags.replace(' ', '_') 
         else:
             self.args = ''
-        self.runcase = arguments.RUNCASE
+        self.dryrunout = arguments.DRYRUNOUT
         self.display = ':99'
         self.display_size = '1920x1200'
 
@@ -450,13 +402,14 @@ class ChimpAutoRun:
                 raise
         print('\n*** Report Directory: ***\n {}'.format(self.report_dir))
 
-        self.rerun_dir = None
+        self.rerun = None
         if arguments.RERUN is not None:
-            self.rerun_dir = path.join(
+            self.rerun = path.join(
                 path.abspath(path.join(self.report_dir, '..')),
                 arguments.RERUN)
-            assert path.exists(self.rerun_dir), '{} is not exits'.format(
-                self.rerun_dir)
+            assert path.exists(self.rerun), '{} is not exits'.format(
+                self.rerun)
+            self.runlevel = 'Scenario'
 
         # remove /tmp/*.lock file
         for item in os.listdir('/tmp/'):
@@ -469,6 +422,11 @@ class ChimpAutoRun:
         print ("Report directory: " + self.report_dir)
         print ("Project full    : " + self.project_full_path)
         print ("Chimp profile   : " + self.chimp_profile)
+
+        if arguments.RERUN is not None:
+            print ("Rerun path      : " + self.rerun)
+        else:
+            print ("NO RERUN ")
 
         self.marray = {}
         self.sarray = {}
@@ -504,45 +462,35 @@ class ChimpAutoRun:
         return result
 
     def get_dry_run_out(self):
-        if self.runcase:
-            assert path.exists(self.runcase)
+        if self.dryrunout:
+            print ( "DRY RUN PATH FOUND")
+            assert path.exists(self.dryrunout)
+            assert self.dryrunout.endswith('.json')
         else:
+            print ( "DRY RUN PATH NOT FOUND")
             from autorunner_dryrun import ChimpDryRun
             dry_run = ChimpDryRun(self.projectbase, self.project,
                                   self.modulelist, self.platform, self.browser, self.isMaven,
-                                  self.tags, self.featurespath, self.report_dir)
-            self.runcase = dry_run.get_dry_run_results()
+                                  self.tags, self.featurespath)
+            self.dryrunout = dry_run.get_dry_run_results()
 
     def is_rerun(self):
-        return True if self.rerun_dir else False
-
-    @staticmethod
-    def new_tinydb(report_path):
-        tinydb_path = path.join(report_path, 'db.subjason')
-        return TinyDB(tinydb_path, indent=4)
-
-    def copy_db_file(self):
-        shutil.copy2(path.join(self.rerun_dir, 'db.subjason'), self.report_dir)
+        if self.rerun is None:
+            return False
+        return True
 
     def init_tinydb(self):
-        if self.is_rerun():
-            for table in DB.tables():
-                group = DB.table(table)
-                for item in group:
-                    status = get_scenario_status(item['run_file'])
-                    if status is not 'passed':
-                        self.scenarios_count += 1
-                    group.update({'status': status}, doc_ids=[item.doc_id])
-        else:
-            runcases = json.loads(open(self.runcase).read())
-            self.scenarios_count = len(runcases)
-            print ( "Scenario number in tinydb --> {}".format(self.scenarios_count))
-            for case in runcases:      
-                case['run_file'] = None
-                table = DB.table(case['feature'])
-                table.insert(case)
-                print ("Case --> {}\n".format(case))
-        DB.purge_table('_default')
+        runcases = json.loads(open(self.dryrunout).read())
+        print("run cases tinydb")
+        self.scenarios_count = len(runcases)
+        print ( "Scenario number in tinydb --> {}".format(self.scenarios_count))
+        i = 0
+        for case in runcases:      
+            i += 1
+            case['status'] = 'notrun'            
+            print ("Case {} --> {}\n".format(i,case))
+            DB.insert(case)
+        print("end run cases tinydb")
 
     def get_available_host(self):
         '''
@@ -552,8 +500,11 @@ class ChimpAutoRun:
                                 'chimp_run_host.config')
         assert path.exists(config_file), '{} is not exits'.format(config_file)
 
+        print ("Config file     : " + config_file)
+
         with open(config_file) as fname:
             head = fname.readline()
+            print (" >> HEAD : " + head)
             while 'SSHHOST' not in head:
                 head = fname.readline()
             headarray = head.strip().split()
@@ -579,7 +530,9 @@ class ChimpAutoRun:
 
     def generate_report(self):
         '''
-
+        Merge files if rerun cucumber reports
+        Generate report by calling generate-reports.js
+        if run level is scenario, then merge report
         '''
         # get run duration
         t1 = self.rumtime_stamp
@@ -593,38 +546,47 @@ class ChimpAutoRun:
         run_duration = str(etime - stime)
         print('Run Duration: {}'.format(run_duration))
 
-        # generate cucumber report json file
-        query = Query()
-        cucumber_report_json = []
-        for table in DB.tables():
-            group = DB.table(table)
-            results = group.search((query.status == 'runned') | (query.status == 'passed'))
-            feature_report = None
-            for item in results:
-                element = json.loads(open(item['run_file']).read())[0]
-                if not feature_report:
-                    feature_report = element
-                else:
-                    feature_report['elements'].append(element['elements'][0])
-            cucumber_report_json.append(feature_report)
+        if self.rerun is not None:
+            rerun_path = self.rerun
+            for fname in os.listdir(self.rerun):
+                if not path.exists(os.path.join(self.report_dir, fname)):
+                    if not fname.startswith('cucumber-report'):
+                        shutil.copy2(
+                            os.path.join(self.rerun, fname), self.report_dir)
+        else:
+            rerun_path = 'None'
 
-        report_json_path = os.path.join(self.report_dir, 'cucumber-report.json')
-        with open(report_json_path, 'w') as fname:
-            json.dump(cucumber_report_json, fname, indent=4)
-
-        if self.is_rerun():
-            for fname in os.listdir(self.rerun_dir):
-                if fname.startswith('Passed_') and fname.endswith('.png'):
-                    shutil.copy2(path.join(self.rerun_dir, fname), self.report_dir)
-
-        # generate cucumber report
+        if path.exists(self.report_dir + '/cucumber-report.html.json'):
+            os.remove(self.report_dir + '/cucumber-report.html.json')
         cmd_generate_report = path.join(self.FrameworkPath, 'framework', 'scripts', 'generate-reports.js') + ' ' + \
-            ' ' + report_json_path + ' ' + self.project + ' \'Automation Report\' ' +  \
+            ' ' + self.report_dir + ' ' + self.project + ' \'Automation Report\' ' +  \
             ' ' + self.platform + ' ' + self.browser + ' ' + self.parallel + ' ' + self.rumtime_stamp + \
-            ' ' + run_duration + ' ' + str(self.rerun_dir) + ' ' + self.args.replace(' ', '_')
-        print('Generate Report On: {}'.format(report_json_path))
-        print(cmd_generate_report)
+            ' ' + run_duration + ' ' + rerun_path + ' ' + self.args.replace(' ', '_')
+        print('Generate Report On: {}'.format(self.report_dir))
         os.system(cmd_generate_report)
+
+        if self.runlevel == 'Scenario':
+            # Merge json file and generate report
+            report_json_path = self.report_dir + '/cucumber-report.html.json'
+            new_data_json = []
+            with open(report_json_path, 'r') as data_file:
+                data_json = json.load(data_file)
+                for item in data_json:
+                    SAMEURI = False
+                    for new_item in new_data_json:
+                        if new_item['uri'] == item['uri']:
+                            SAMEURI = True
+                            new_item['elements'].extend(item['elements'])
+                            break
+                    if not SAMEURI:
+                        new_data_json.append(item)
+
+            with open(report_json_path, 'w') as outfile:
+                json.dump(new_data_json, outfile)
+
+            cmd_generate_report = cmd_generate_report.replace(
+                self.report_dir, report_json_path)
+            os.system(cmd_generate_report)
 
     def run_in_parallel(self):
         '''
@@ -637,18 +599,19 @@ class ChimpAutoRun:
             pool_number = int(self.thread_count)
         else:
             pool_number = min(int(self.thread_count), int(self.parallel))
-        print('POOL NUMBER: {}'.format(pool_number))
-        print('TOTAL SCENARIOS: {}'.format(self.scenarios_count))
+        print('pool number: {}'.format(pool_number))
+        print('scenario count: {}'.format(self.scenarios_count))
 
         pool = Pool(pool_number)
+
         for index in range(1, self.scenarios_count + 1):
+            
             pool.apply_async(
                 run_chimp,
                 args=(index, self.host, self.platform, self.browser,
                       self.report_dir, self.movie, self.screenshot,
                       self.debugmode, self.display_size, self.chimp_profile ,
-                      self.scenarios_count, self.projecttype, self.featurespath, 
-                      self.isMaven))
+                      self.projecttype, self.featurespath, self.isMaven))
         pool.close()
         pool.join()
 
@@ -661,11 +624,13 @@ if __name__ == "__main__":
     chimp_run = ChimpAutoRun(command_arguments)
     
     if chimp_run.is_rerun():
-        chimp_run.copy_db_file()
+        'chimp_run.get_rerun_out()'
     else:
         chimp_run.get_dry_run_out()
-    DB = chimp_run.new_tinydb(chimp_run.report_dir)
+
     chimp_run.init_tinydb()
+
+    
 
     if command_arguments.RUNONLY:
         chimp_run.run_in_parallel()
@@ -674,5 +639,3 @@ if __name__ == "__main__":
     else:
         chimp_run.run_in_parallel()
         chimp_run.generate_report()
-
-    DB.close()
