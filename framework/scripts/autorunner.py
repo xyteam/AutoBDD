@@ -206,7 +206,7 @@ def parse_arguments():
     descript += " --projectbase test-projects --project webtest-example"
     descript += " --modulelist test-webpage test-download --reportbase ~/Run/reports"
 
-    parser = argparse.ArgumentParser(fromfile_prefix_chars='@', description=descript)
+    parser = argparse.ArgumentParser(fromfile_prefix_chars='<<<', description=descript)
 
     parser.add_argument(
         "--timestamp",
@@ -367,7 +367,7 @@ def parse_arguments():
     parser.add_argument(
         '--version', '-v', action='version', version='%(prog)s V1.0')
 
-    if sys.argv[1].startswith('@'):
+    if sys.argv[1].startswith('<<<'):
         args = parser.parse_args (shlex.split (open (sys.argv[1][1:]).read()))
     else:
         args = parser.parse_args()
