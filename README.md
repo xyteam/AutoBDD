@@ -12,49 +12,51 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
 
   * **Given** any BDD test project
   * **When** you use the AutoBDD framework
-  * **Then** you can Test Anything
-  * **And** Test Remote Target
-  * **And** Code Less, Test More
+  * **Then** you can test anything on screen
+  * **And** you can test anything on network
+  * **And** test any local or remote target
+  * **And** code less and achieve more
 
-##### High Performance
+##### High Capability
 
   * **And** Your test project can:
-    * Deploy Anywhere
-    * Test in Parallel
-    * Jenkins Ready
-    * Integrate with Any Service
+    * deploy anywhere
+    * run in parallel
+    * jenkins ready
+    * integrate with other services
 
 #### At A Glance
 ##### Platform:
 
-  * Linux Based (Ubuntu 1804)
-    * real browsers
-    * rdp
-    * virtual X env
-    * screenshot and movie tools
+  * Linux Base (Ubuntu 1804)
+    * local or remote desktops
+      * local X desktops via virtual frame buffer
+      * remote desktops via RDP or VNC over ssh
+    * screenshot and movie recording tools
     * ssh tools
     * docker
     * jenkins
+    * development tools (nodejs, python, java, etc.)
 ##### Framework:
 
-  * Chimpy-JS
+  * Automation Tools
     * Cucumber-JS
-    * WebdriverIO
-    * Selenium
-  * Framework Tools
-    * Secured Remote Control
-      * Screen
-      * Keyboard
-      * Mouse
-      * CMD Shell
-      * File System
-    * Image and Movie Capturing
+    * Precanned Cucumber Steps
+    * Cucumber Reporting
     * Parellel Test Runner
+    * Automatic Image and Movie Capturing
+  * Web Browser Libraries
+    * webdriverio (js)
+    * webdriver (java)
+  * Screen and Robot Libraries
+    * Sikulix (Screen)
+    * Robot-JS (Keyboard and Mouse)
+  * Remote Access Libraries
+    * CMD Shell
+    * File System
   * Easy 3rd Party Tools Integration
     * Local Jenkins CI
-    * Cucumber Reporter
     * Jira/TestRail/TestLink
-    * Precanned Test Steps
 
 #### To build the framework
 AutoBDD can be run on any Ubuntu 18.04 system with necessary tools. The installation of the tools are automated into Vagrant configuration files which you can deploy with a few commands.
