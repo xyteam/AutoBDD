@@ -106,7 +106,7 @@ def run_chimp(index,
                 ' PLATFORM=' + platform + \
                 ' xvfb-run --auto-servernum --server-args=\"-screen 0 ' + display_size + 'x16\"' + \
                 ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + path.join (features_path, run_file) + \
-                ' --plugin pretty --add-plugin json:' + report_file + '.subjason\"' + \
+                ' --plugin pretty --add-plugin json:' + report_file + '.subjson\"' + \
                 ' 2>&1 > ' + report_file + '.run'
             
         else: #isChimpy on Linux
@@ -123,7 +123,7 @@ def run_chimp(index,
                 ' PLATFORM=' + platform + \
                 ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                 ' chimpy ' + chimp_profile + ' ' + './' + run_file + \
-                ' --format=json:' + report_file + '.subjason' \
+                ' --format=json:' + report_file + '.subjson' \
                 ' 2>&1 > ' + report_file + '.run'
     elif platform == 'Win7' or platform == 'Win10':
         if isMaven: #isMaven on Windows
@@ -149,7 +149,7 @@ def run_chimp(index,
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                         ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + path.join (features_path, run_file) + \
-                        ' --plugin pretty --add-plugin json:' + report_file + '.subjason\"' + \
+                        ' --plugin pretty --add-plugin json:' + report_file + '.subjson\"' + \
                         ' 2>&1 > ' + report_file + '.run'
                     time.sleep(random.uniform(1, 2))
                     break
@@ -176,7 +176,7 @@ def run_chimp(index,
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                         ' chimpy ' + chimp_profile + ' ' + './' + run_file + \
-                        ' --format=json:' + report_file + '.subjason' + \
+                        ' --format=json:' + report_file + '.subjson' + \
                         ' 2>&1 > ' + report_file + '.run'
                     time.sleep(random.uniform(1, 2))
                     break
@@ -191,7 +191,7 @@ def run_chimp(index,
 
     # update test case status
     print('Update status on: {}'.format(group))
-    group.update({'status': 'runned', "run_file": report_file + '.subjason'}, doc_ids=[id])
+    group.update({'status': 'runned', "run_file": report_file + '.subjson'}, doc_ids=[id])
     time.sleep(1)
     print('COMPLETED: {} of {}\'\''.format(index, total))
 
@@ -518,11 +518,11 @@ class ChimpAutoRun:
 
     @staticmethod
     def new_tinydb(report_path):
-        tinydb_path = path.join(report_path, 'db.subjason')
+        tinydb_path = path.join(report_path, 'db.subjson')
         return TinyDB(tinydb_path, indent=4)
 
     def copy_db_file(self):
-        shutil.copy2(path.join(self.rerun_dir, 'db.subjason'), self.report_dir)
+        shutil.copy2(path.join(self.rerun_dir, 'db.subjson'), self.report_dir)
 
     def init_tinydb(self):
         if self.is_rerun():

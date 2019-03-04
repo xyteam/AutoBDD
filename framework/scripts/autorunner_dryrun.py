@@ -151,7 +151,7 @@ class ChimpDryRun():
     def get_dry_run_results(self):
         assert path.exists(self.project_full_path)
         for module in self.modulelist:
-            dry_run_path = path.join(self.out_path, module + '.subjason')
+            dry_run_path = path.join(self.out_path, module + '.subjson')
             print('Dry run output:' + dry_run_path)
 
             finalfeaturepath = path.join(self.project_full_path, module)
@@ -179,7 +179,7 @@ class ChimpDryRun():
                         out_json['line'] = scenario['line']
                         self.out_array.append(out_json)
 
-        out_path = path.join(self.out_path, '.runcase.subjason')
+        out_path = path.join(self.out_path, '.runcase.subjson')
         print('Run case path: ' + out_path)
         with open(out_path, 'w') as fname:
             json.dump(self.out_array, fname, indent=4)
