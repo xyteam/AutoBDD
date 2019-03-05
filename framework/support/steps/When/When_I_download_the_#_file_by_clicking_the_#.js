@@ -7,7 +7,7 @@ module.exports = function() {
     this.fs_session.deleteDownloadFile(fileName, fileExt);
 
     // click PDF download icon
-    var imageFullPath = this.fs_session.getLocalThenGlobalImageFullPath(__dirname, imageName);
+    var imageFullPath = this.fs_session.globalSearchImagePath(__dirname, imageName);
     var imageSimilarity = process.env.imageSimilarity;
     var imageWaitTime = process.env.imageWaitTime;
     console.log(imageFullPath);
@@ -19,7 +19,7 @@ module.exports = function() {
     expect(resultString).not.toContain('error');
     var resultArray = JSON.parse(resultString);
     // click LinuxSave_button
-    var saveButtonFullPath = this.fs_session.getLocalThenGlobalImageFullPath(__dirname, 'FileSave_button');
+    var saveButtonFullPath = this.fs_session.globalSearchImagePath(__dirname, 'FileSave_button');
     console.log(saveButtonFullPath);
     var resultString = this.screen_session.screenFindImage(saveButtonFullPath, (imageSimilarity * .9), imageWaitTime,'single');
     expect(resultString).not.toContain('not found');

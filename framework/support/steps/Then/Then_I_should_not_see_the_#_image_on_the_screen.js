@@ -1,6 +1,6 @@
 module.exports = function() {
   this.Then(/^I should not see the "([^"]*)" image on the screen$/, {timeout: process.env.StepTimeoutInMS}, function (imageName) {
-    var imageFullPath = this.fs_session.getLocalThenGlobalImageFullPath(__dirname, imageName);
+    var imageFullPath = this.fs_session.globalSearchImagePath(__dirname, imageName);
     var imageSimilarity = this.objectSimilarity;
     var imageWaitTime = 1;
     browser.pause(500);
