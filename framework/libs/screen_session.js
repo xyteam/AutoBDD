@@ -14,7 +14,21 @@ robot.setKeyboardDelay(50);
 module.exports = {
   findImage: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
     // Sikuli Property
-    const sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.4.jar';
+    var ubuntuReleaseBuffer = execSync('lsb_release -rs');
+    var ubuntuReleaseString = ubuntuReleaseBuffer.toString('utf8').trim();
+    var sikuliApiJar;
+    console.log(ubuntuReleaseString);
+    switch (ubuntuReleaseString) {
+      case '16.04':
+        console.log('here');
+        sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.3.jar';
+        break;
+      case '18.04':
+      default:
+        console.log('there');
+        sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.4.jar';
+        break;
+    }
     java.classpath.push(sikuliApiJar);
     // const App = java.import('org.sikuli.script.App');
     // const Region = java.import('org.sikuli.script.Region');

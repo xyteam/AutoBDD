@@ -2,7 +2,7 @@
 
 var argv = require('minimist')(process.argv.slice(2));
 process.env.DISPLAY = process.env.DISPLAY || ':0';
-const onArea = argv.onArea;
+const onArea = argv.onArea || 'onScreen';
 const imagePath = argv.imagePath;
 const imageSimilarity = argv.imageSimilarity || parseFloat(process.env.imageSimilarity) || 0.8;
 const imageWaitTime = argv.imageWaitTime || parseFloat(process.env.imageWaitTime) || 1;
