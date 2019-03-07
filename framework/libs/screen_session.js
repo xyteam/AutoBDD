@@ -20,12 +20,10 @@ module.exports = {
     console.log(ubuntuReleaseString);
     switch (ubuntuReleaseString) {
       case '16.04':
-        console.log('here');
         sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.3.jar';
         break;
       case '18.04':
       default:
-        console.log('there');
         sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.4.jar';
         break;
     }
