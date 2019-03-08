@@ -206,7 +206,7 @@ def parse_arguments():
     descript += " --projectbase test-projects --project webtest-example"
     descript += " --modulelist test-webpage test-download --reportbase ~/Run/reports"
 
-    parser = argparse.ArgumentParser(fromfile_prefix_chars='args=', description=descript)
+    parser = argparse.ArgumentParser(fromfile_prefix_chars='+', description=descript)
 
     parser.add_argument(
         "--timestamp",
@@ -263,6 +263,7 @@ def parse_arguments():
         "--PLATFORM",
         dest="PLATFORM",
         default="Linux",
+        choices=["Linux", "Win7", "Win10"],
         help=
         "Run chimp on the given platform. Acceptable values: Linux, Win7, Win10. Default value: Linux"
     )
@@ -272,6 +273,7 @@ def parse_arguments():
         "--BROWSER",
         dest="BROWSER",
         default="CH",
+        choices=["CH", "IE"],
         help=
         "Run chimp on the given browser. Acceptable values: CH, IE. Default value: CH"
     )
@@ -281,6 +283,7 @@ def parse_arguments():
         "--DEBUGMODE",
         dest="DEBUGMODE",
         default="None",
+        choices=["None", "Elements", "Console", "Sources", "Network"],
         help=
         "hit F12 in browser, takes None, Elements, Console, Sources and Network"
     )
@@ -352,6 +355,7 @@ def parse_arguments():
         "--PROJECTTYPE",
         dest="PROJECTTYPE",
         default="Auto",
+        choices=["Auto", "Chimpy", "Maven"],
         help=
         "project type to specify the suitable runner. Available options are \"Maven\", \"Chimpy\", and \"Auto\". Default value: Auto"
     )
@@ -367,8 +371,8 @@ def parse_arguments():
     parser.add_argument(
         '--version', '-v', action='version', version='%(prog)s V1.0')
 
-    if sys.argv[1].startswith('args='):
-        args = parser.parse_args (shlex.split (open (sys.argv[1][5:]).read()))
+    if sys.argv[1].startswith('+'):
+        args = parser.parse_args (shlex.split (open (sys.argv[1][1:]).read()))
     else:
         args = parser.parse_args()
 
@@ -463,13 +467,6 @@ class ChimpAutoRun:
             if item.endswith(".lock"):
                 os.remove('/tmp/' + item)
 
-        print ("Framework path  : " + self.FrameworkPath)
-        print ("Report base     : " + self.reportbase)
-        print ("Report path     : " + self.reportpath)
-        print ("Report directory: " + self.report_dir)
-        print ("Project full    : " + self.project_full_path)
-        print ("Chimp profile   : " + self.chimp_profile)
-
         self.marray = {}
         self.sarray = {}
         self.features_count = 0
@@ -489,7 +486,6 @@ class ChimpAutoRun:
         else: #auto-detect
             print ("*** Project Type is set to auto-detect ***")
             for fname in os.listdir (self.project_full_path):
-                print ( " > FILE : {}".format (fname))
                 if "pom.xml" in fname:
                     result = True
                     break
@@ -536,12 +532,12 @@ class ChimpAutoRun:
         else:
             runcases = json.loads(open(self.runcase).read())
             self.scenarios_count = len(runcases)
-            print ( "Scenario number in tinydb --> {}".format(self.scenarios_count))
+            #print ( "Scenario number in tinydb --> {}".format(self.scenarios_count))
             for case in runcases:      
                 case['run_file'] = None
                 table = DB.table(case['feature'])
                 table.insert(case)
-                print ("Case --> {}\n".format(case))
+                #print ("Case --> {}\n".format(case))
         DB.purge_table('_default')
 
     def get_available_host(self):
