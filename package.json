@@ -37,8 +37,7 @@
   "scripts": {
     "install-selenium": "selenium-standalone install --config=framework/configs/selenium-standalone_config.js",
     "demo-app": "forever start -s ./node_modules/.bin/http-server ./demo-app -s -p 8082",
-    "selenium-server": "DISPLAY=:0 forever start -s ./node_modules/.bin/selenium-standalone start --config=./framework/configs/selenium-standalone_config.js -- -port 5555 2>&1",
-    "start": "npm run demo-app && npm run selenium-server",
+    "start": "npm run demo-app",
     "stop": "forever stopall",
     "download-sikuliapi": "./framework/libs/downloadSikulixApiJar.js",
     "test-init": "npm run download-sikuliapi && cd ./test-projects/webtest-example/test-init && DISPLAY=:0 chimpy",
