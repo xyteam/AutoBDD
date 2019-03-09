@@ -64,15 +64,16 @@ module.exports = {
       browserName: 'chrome',
       initialBrowserUrl: "about:blank",
       chromeOptions: {
-        // binary: '/usr/bin/google-chrome',
+        // binary: '/usr/bin/chromium-browser',
         args: [
                 "--disable-infobars",
                 "--no-first-run",
+                "--bypass-app-banner-engagement-checks",
                 "--no-sandbox",
                 "--window-size=" + myDISPLAYSIZE.replace('x',','),
                 "--user-data-dir=/tmp/chrome_profile_" + process.env.DISPLAY.substr(1),
-                "--bypass-app-banner-engagement-checks",
                 "--incognito",
+                "--enable-logging=stderr --v=1",
                 myBrowserProxySetting
               ],
         prefs: {
@@ -85,6 +86,7 @@ module.exports = {
     },
     baseUrl: null,
     logLevel: 'silent',
+    deprecationWarnings: false,
     coloredLogs: true,
     screenshotPath: null,
     waitforTimeout: 500,

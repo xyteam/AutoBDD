@@ -17,7 +17,7 @@ module.exports = {
     var ubuntuReleaseBuffer = execSync('lsb_release -rs');
     var ubuntuReleaseString = ubuntuReleaseBuffer.toString('utf8').trim();
     var sikuliApiJar;
-    console.log(ubuntuReleaseString);
+    // console.log(ubuntuReleaseString);
     switch (ubuntuReleaseString) {
       case '16.04':
         sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.3.jar';

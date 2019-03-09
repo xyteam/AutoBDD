@@ -1,6 +1,8 @@
 const All = {
-  select: '//select',
-  select_option: '//select/option'
+  texted_button: 'button=__TEXT__',
+  texted_label: 'label=__TEXT__',
+  texted_modalDialog: '//*[@class="modal-dialog" and //*[text()="__TEXT__"]]',
+  texted_option: 'option=__TEXT__',
 };
 
 const CH = {
