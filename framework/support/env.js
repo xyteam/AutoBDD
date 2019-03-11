@@ -9,9 +9,17 @@ process.env.MODULEPATH = process.env.MODULEPATH || '';
 process.env.DownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
 process.env.imageSimilarity = process.env.imageSimilarity || 0.8;
 process.env.imageWaitTime = process.env.imageWaitTime || 1;
+const execSync = require('child_process').execSync;
+
+// auto-detect ReleaseString
+if (process.env.PLATFORM == 'Linux') {
+  var ubuntuReleaseBuffer = execSync('lsb_release -rs');
+  var ubuntuReleaseString = ubuntuReleaseBuffer.toString('utf8').trim();
+  process.env.ReleaseString = ubuntuReleaseString;
+}
 
 // auto-detect XVFB
-if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0' ) {
+if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0') {
   process.env.XVFB = process.env.XVFB || 'XVFB';
 }
 

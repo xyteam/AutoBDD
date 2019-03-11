@@ -14,11 +14,8 @@ robot.setKeyboardDelay(50);
 module.exports = {
   findImage: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
     // Sikuli Property
-    var ubuntuReleaseBuffer = execSync('lsb_release -rs');
-    var ubuntuReleaseString = ubuntuReleaseBuffer.toString('utf8').trim();
     var sikuliApiJar;
-    // console.log(ubuntuReleaseString);
-    switch (ubuntuReleaseString) {
+    switch (process.env.ReleaseString) {
       case '16.04':
         sikuliApiJar = FrameworkPath + '/framework/libs/sikulixapi-1.1.3.jar';
         break;
