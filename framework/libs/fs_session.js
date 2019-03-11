@@ -41,16 +41,23 @@ module.exports = {
   getTestImagePath: function(filePath, fileName, fileExt) {
     var imageExt = fileExt || ['gif', 'jpg', 'png'];
     var targetPath = filePath;
-    var platformBrowserXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER + '/' + process.env.XVFB;
-    var platformXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.XVFB;
+    var platformReleaseXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.ReleaseString + '/' + process.env.XVFB;
+    var platformReleasePath = '/' + process.env.PLATFORM + '/' + process.env.ReleaseString;
     var platformBrowserPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER;
     var platformOnlyPath = '/' + process.env.PLATFORM;
     var imagePath = null;
 
-    // TESTIMAGE/PLATFORM/BROWSER/XVFB/
-    if ((imagePath == null) && (process.env.XVFB == 'XVFB') && fs.existsSync(targetPath + platformBrowserXVFBPath)) {
+    // TESTIMAGE/PLATFORM/RELEASE/XVFB/
+    if ((imagePath == null) && (process.env.PLATFORM == 'Linux') && (process.env.XVFB == 'XVFB') && fs.existsSync(targetPath + platformReleaseXVFBPath)) {
       imageExt.some(function(ext) {
-        var filePath = targetPath + platformBrowserXVFBPath + '/' + fileName + '.' + ext;
+        var filePath = targetPath + platformReleaseXVFBPath + '/' + fileName + '.' + ext;
+        if (fs.existsSync(filePath)) imagePath = filePath;
+      });
+    }
+    // TESTIMAGE/PLATFORM/RELEASE/
+    if ((imagePath == null) && (process.env.PLATFORM == 'Linux') && fs.existsSync(targetPath + platformReleasePath)) {
+      imageExt.some(function(ext) {
+        var filePath = targetPath + platformReleasePath + '/' + fileName + '.' + ext;
         if (fs.existsSync(filePath)) imagePath = filePath;
       });
     }
@@ -58,13 +65,6 @@ module.exports = {
     if ((imagePath == null) && fs.existsSync(targetPath + platformBrowserPath)) {
       imageExt.some(function(ext) {
         var filePath = targetPath + platformBrowserPath + '/' + fileName + '.' + ext;
-        if (fs.existsSync(filePath)) imagePath = filePath;
-      });
-    }
-    // TESTIMAGE/PLATFORM/XVFB/
-    if ((imagePath == null) && (process.env.XVFB == 'XVFB') && fs.existsSync(targetPath + platformXVFBPath)) {
-      imageExt.some(function(ext) {
-        var filePath = targetPath + platformXVFBPath + '/' + fileName + '.' + ext;
         if (fs.existsSync(filePath)) imagePath = filePath;
       });
     }
@@ -86,19 +86,19 @@ module.exports = {
   },
 
   getModuleImagePath: function(filePath, fileName, fileExt) {
-    var targetPath = ModuleSupportPath + '/testimages/';
+    var targetPath = ModuleSupportPath + '/testimages';
     var imagePath = this.getTestImagePath(targetPath, fileName, fileExt);
     return imagePath;
   },
 
   getProjectImagePath: function(fileName, fileExt) {
-    var targetPath = ProjectSupportPath + '/testimages/';
+    var targetPath = ProjectSupportPath + '/testimages';
     var imagePath = this.getTestImagePath(targetPath, fileName, fileExt);
     return imagePath;
   },
 
   getFrameworkImagePath: function(fileName, fileExt) {
-    var targetPath = FrameworkSupportPath + '/testimages/';
+    var targetPath = FrameworkSupportPath + '/testimages';
     var imagePath = this.getTestImagePath(targetPath, fileName, fileExt);
     return imagePath;
   },  
