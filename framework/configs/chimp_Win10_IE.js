@@ -79,6 +79,7 @@ module.exports = {
       // "ie.forceShellWindowsApi": false,
       // "ie.useLegacyFileUploadDialogHandling": false
     },
+    baseUrl: 'about:blank',
     logLevel: 'silent',
     coloredLogs: true,
     screenshotPath: null,

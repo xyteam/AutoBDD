@@ -84,7 +84,7 @@ module.exports = {
         }
       }
     },
-    baseUrl: null,
+    baseUrl: 'chrome:version',
     logLevel: 'silent',
     deprecationWarnings: false,
     coloredLogs: true,
