@@ -19,11 +19,4 @@ Feature: drag and drop page
     When  I drag "Drag_me" and drop to "Dropzone"
     Then  I should not see the "Dropzone" image on the screen
 
-  Scenario: Drag to dropzone - by image2
-    When  I visit "http://localhost:8082/"
-    And   I scroll to element "head"
-    Then  I should see the "Drag_me" image on the screen
-    And   I should see the "Dropzone2" image on the screen
-    When  I drag "Drag_me" and drop to "Dropzone2"
-    Then  I should not see the "Dropzone2" image on the screen
 
