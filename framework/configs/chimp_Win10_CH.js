@@ -75,6 +75,7 @@ module.exports = {
         }
       },
     },
+    baseUrl: 'chrome:version',
     logLevel: 'silent',
     coloredLogs: true,
     screenshotPath: null,
