@@ -4,7 +4,7 @@ Feature: file download
   I want to open browser to download a few files and investigate file contents
 
   Scenario: File Open and Download - check PDF file
-    When  I open the site "http://www.orimi.com/pdf-test.pdf"
+    When  I open the url "http://www.orimi.com/pdf-test.pdf"
     Then  I should see the "Yukon_Logo" image on the screen
     When  I download the PDF file by clicking "PDF_download_icon"
     Then  the downloaded PDF file should contain "PDF Test File"
