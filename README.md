@@ -3,9 +3,9 @@ BDD Automation Framework
 
 Powerful, Flexible and Easy-to-Use BDD Automation Framework
 
-* Powerful - Test any local or remote target in single or parallel manner
-* Flexible - Runs on any local desktop or cloud system
-* Easy-To-Use - Most of the technical configurations are simplified to single-command actions
+* Powerful - Automate anything you can see on a PC, local or remote, Web or non-Web
+* Flexible - Runs on any local desktop or cloud system, single thread or parallel
+* Easy-To-Use - Most of the technical steps are simplified into a few single-command actions
 
 #### Philosophy
 ##### Low Entry Bar
@@ -84,3 +84,11 @@ Here is a high level summary of the steps:
 
 [Example Test Project README.md](./test-projects/webtest-example/README.md)
 
+#### Special Mentions
+  * Demo-App application and Precanned Cucumber-JS Steps are taken from *[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)*
+  * Image Regognizing library is taken from *[SikulixAPI](https://github.com/RaiMan/SikuliX1)*
+  * Keyboard and Mouse control library is taken from *[RobotJS](https://github.com/octalmage/robotjs)*
+  * Framework Control libraries are taken from *[Chimpy](https://github.com/TheBrainFamily/chimpy)* and its dependency node modules which include:
+      * cucumber-js
+      * v4.webdriverio
+  * And many other opensource npm libraries
