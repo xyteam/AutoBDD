@@ -85,10 +85,10 @@ Here is a high level summary of the steps:
 [Example Test Project README.md](./test-projects/webtest-example/README.md)
 
 #### Special Mentions
-  * Demo-App application and Precanned Cucumber-JS Steps are taken from *[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)*
-  * Image Regognizing library is taken from *[RaiMan/SikuliX1](https://github.com/RaiMan/SikuliX1)*
-  * Keyboard and Mouse control library is taken from *[octalmage/robotjs](https://github.com/octalmage/robotjs)*
-  * Framework Control libraries are taken from *[TheBrainFamily/chimpy](https://github.com/TheBrainFamily/chimpy)* and its dependency node modules which include:
+  * Demo-App application and Precanned Cucumber-JS Steps are taken from **[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)**
+  * Image Regognizing library is taken from **[RaiMan/SikuliX1](https://github.com/RaiMan/SikuliX1)**
+  * Keyboard and Mouse control library is taken from **[octalmage/robotjs](https://github.com/octalmage/robotjs)**
+  * Framework Control libraries are taken from **[TheBrainFamily/chimpy](https://github.com/TheBrainFamily/chimpy)** and its dependency node modules which include:
       * cucumber-js
       * v4.webdriverio
   * And many other open-source npm libraries
