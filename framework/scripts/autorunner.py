@@ -41,8 +41,11 @@ def definepath (case, isMaven, features_path, report_dir):
 
     module_path = '/'.join(uri_array[0:modulepath_length])
     module = uri_array[module_index].split('.')[0]
-    report_file = report_dir + '/' + case['uri'].replace('/', '_') + "_" + str(case['line'])
-    run_file = '/'.join(uri_array[runfile_length:]) + ":" + str(case['line'])
+    report_file = report_dir + '/' + case['uri'].replace('/', '_')
+    run_file = '/'.join(uri_array[runfile_length:])
+    if int(case['line']) != 0:
+        report_file += "_" + str(case['line'])
+        run_file += ":" + str(case['line'])
     
     #Handle space in feature_file
     run_file = run_file.replace(' ', '\ ')
@@ -184,7 +187,7 @@ def run_chimp(index,
         assert False, 'Can not process on {}'.format(platform)        
         
     print('RUNNING #{}: {}'.format(index, run_file))
-    # print(cmd)
+    print(cmd)
 
     time.sleep(1)
     os.system(cmd)
@@ -303,6 +306,12 @@ def parse_arguments():
         help="Run chimp on the given project. Default value: webtest-example")
 
     parser.add_argument(
+        "--runlevel", "--RUNLEVEL",
+        dest="RUNLEVEL",
+        default="Scenario",
+        help="Run automation by 'Feature' or by 'Scenario' level. defalue value: Scenario")
+
+    parser.add_argument(
         "--rerun",
         "--RERUN",
         dest="RERUN",
@@ -383,11 +392,12 @@ def parse_arguments():
 
 def get_scenario_status(scenario_out):
     scenario = json.loads(open(scenario_out).read())
-    steps = scenario[0]['elements'][0]['steps']
-    for step in steps:
-        status = step['result']['status']
-        if status in ['failed', 'skipped', 'notdefined', 'pending', 'ambiguous']:
-            return 'failed'
+    for element in scenario[0]['elements']:
+        steps = element['steps']
+        for step in steps:
+            status = step['result']['status']
+            if status in ['failed', 'skipped', 'notdefined', 'pending', 'ambiguous']:
+                return 'failed'
     return 'passed'
 
 class ChimpAutoRun:
@@ -417,6 +427,7 @@ class ChimpAutoRun:
         self.movie = arguments.MOVIE
         self.platform = arguments.PLATFORM
         self.browser = arguments.BROWSER
+        self.runlevel = arguments.RUNLEVEL
         self.debugmode = arguments.DEBUGMODE
         self.projectbase = arguments.PROJECTBASE
         self.project = arguments.PROJECT
@@ -531,14 +542,24 @@ class ChimpAutoRun:
                     group.update({'status': status}, doc_ids=[item.doc_id])
         else:
             runcases = json.loads(open(self.runcase).read())
-            self.scenarios_count = len(runcases)
-            #print ( "Scenario number in tinydb --> {}".format(self.scenarios_count))
-            for case in runcases:      
-                case['run_file'] = None
-                table = DB.table(case['feature'])
-                table.insert(case)
-                #print ("Case --> {}\n".format(case))
-        DB.purge_table('_default')
+            if self.runlevel.strip().lower() == 'feature':
+                for case in runcases:
+                    if case['feature'] not in DB.tables():
+                        case['run_file'] = None
+                        case['line'] = 0
+                        table = DB.table(case['feature'])
+                        table.insert(case)
+                DB.purge_table('_default')
+                self.scenarios_count = len(DB.tables())
+            else:
+                #print ( "Scenario number in tinydb --> {}".format(self.scenarios_count))
+                for case in runcases:      
+                    case['run_file'] = None
+                    table = DB.table(case['feature'])
+                    table.insert(case)
+                    #print ("Case --> {}\n".format(case))
+                DB.purge_table('_default')
+                self.scenarios_count = len(runcases)
 
     def get_available_host(self):
         '''
@@ -592,6 +613,7 @@ class ChimpAutoRun:
         # generate cucumber report json file
         query = Query()
         cucumber_report_json = []
+        DB.purge_table('_default')
         for table in DB.tables():
             group = DB.table(table)
             results = group.search((query.status == 'runned') | (query.status == 'passed'))
