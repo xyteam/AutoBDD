@@ -9,71 +9,143 @@
 // --trUser=user_email --trPassword=user_password \
 // --trCmd=getProject --trProjectId=63
 
-var argv = require('minimist')(process.argv.slice(2));
+const buildOptions = require('minimist-options');
+const minimist = require('minimist');
 const fs = require('fs');
 const Testrail = require('testrail-api');
 
-const trUrl = argv.trUrl || 'http://testrail.cadreon.com/testrail';
-const trUser = argv.trUser;
-const trPassword = argv.trPassword;
-const trCmd = argv.trCmd || 'getProjects';
-const trProjectId = argv.trProjectId || 63;
-const trSectionId = argv.trSectionId || 1916442;
-const trSuiteId = argv.trSuiteId || 20657;
-const trRunId = argv.trRunId || 26073;
-const trUserId = argv.trRunId || 1;
-const trUserEmail = argv.trRunId || '';
-const trFilter = argv.trFilter || {};
-
-var testrail = new Testrail({
-    host: trUrl,
-    user: trUser,
-    password: trPassword,
+const options = buildOptions({
+	trUrl: {
+		type: 'string',
+		alias: ['trUrl', 'U'],
+		default: 'http://testrail.cadreon.com/testrail'
+    },
+    trUser: {
+		type: 'string',
+		alias: ['trUser', 'u'],
+		default: ''
+    },
+	trPassword: {
+		type: 'string',
+		alias: ['trPassword', 'p'],
+		default: ''
+	},
+	trCmd: {
+		type: 'string',
+		alias: ['trCmd', 'C'],
+		default: 'getProjects'
+	},
+	trProjectId: {
+		type: 'number',
+		alias: ['trProjectId', 'P'],
+		default: 63
+    },
+    trSectionId: {
+		type: 'number',
+		alias: ['trSectionId', 'S'],
+		default: 1916442
+    },
+    trSuiteId: {
+		type: 'number',
+		alias: ['trSuiteId', 's'],
+		default: 20657
+    },
+    trRunId: {
+		type: 'number',
+		alias: ['trRunId', 'R'],
+		default: 26073
+    },
+    trUserId: {
+		type: 'number',
+		alias: ['trUserId', 'uid'],
+		default: 1
+    },
+    trUserEmail: {
+		type: 'string',
+		alias: ['trUserEmail', 'E'],
+		default: ''
+    },
+    trFilter: {
+		type: 'string',
+		alias: ['trFilter', 'f'],
+		default: ''
+    },
+	// Special option for positional arguments (`_` in minimist)
+	arguments: 'string'
 });
 
-switch (trCmd) {
+const args = minimist(process.argv.slice(2), options);
+
+var testrail = new Testrail({
+    host: args.trUrl,
+    user: args.trUser,
+    password: args.trPassword,
+});
+
+switch (args.trCmd) {
     case 'getProjects':
         testrail.getProjects(/*FILTERS=*/{}, function (err, response, projects) {
-            console.log(trFilter)
-            console.log(projects.filter(project => eval(trFilter)));
+            if (args.trFilter) {
+                console.log(args.trFilter)
+                console.log(projects.filter(project => eval(args.trFilter)));    
+            } else {
+                console.log(projects);    
+            }
+            // console.log(args.trUser);
+            // console.log(args.trUrl);
             // console.log(err);
             // console.log(response);
         });
         break;
     case 'getProject':
-        testrail.getProject(/*PROJECT_ID=*/trProjectId, function (err, response, project) {
+        testrail.getProject(/*PROJECT_ID=*/args.trProjectId, function (err, response, project) {
             console.log(project);
             // console.log(err);
             // console.log(response);
         });
         break;
     case 'getRuns':
-        testrail.getRuns(/*PROJECT_ID=*/trProjectId, /*FILTERS=*/{}, function (err, response, runs) {
-            console.log(runs.filter(run => eval(trFilter)));
+        testrail.getRuns(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/{}, function (err, response, runs) {
+            if (args.trFilter) {
+                console.log(args.trFilter)
+                console.log(runs.filter(run => eval(args.trFilter)));    
+            } else {
+                console.log(runs);    
+            }
         });
         break;
     case 'getRun':
-        testrail.getRun(/*RUN_ID=*/trRunId, function (err, response, run) {
+        testrail.getRun(/*RUN_ID=*/args.trRunId, function (err, response, run) {
             console.log(run);
         });
         break;
     case 'getSections':
-        testrail.getSections(/*PROJECT_ID=*/trProjectId, /*FILTERS=*/{}, function (err, response, sections) {
-            console.log(sections.filter(section => eval(trFilter)));
+        testrail.getSections(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/{}, function (err, response, sections) {
+            if (args.trFilter) {
+                console.log(args.trFilter)
+                console.log(sections.filter(section => eval(args.trFilter)));    
+            } else {
+                console.log(sections);    
+            }
         });
         break;
     case 'getSection':
-        testrail.getSection(/*SECTION_ID=*/trSectionId, function (err, response, section) {
+        testrail.getSection(/*SECTION_ID=*/args.trSectionId, function (err, response, section) {
             console.log(section);
         });
         break;
     case 'getSuites':
-        testrail.getSuites(/*PROJECT_ID=*/trProjectId, function (err, response, suites) {
-            console.log(suites.filter(suite => eval(trFilter)));
+        testrail.getSuites(/*PROJECT_ID=*/args.trProjectId, function (err, response, suites) {
+            if (args.trFilter) {
+                console.log(args.trFilter)
+                console.log(suites.filter(suite => eval(args.trFilter)));    
+            } else {
+                console.log(suites);    
+            }
         });
         break;
     case 'getSuite':
-        testrail.getSuite(/*SUITE_ID=*/trSuiteId, function (err, response, suite) {
+        testrail.getSuite(/*SUITE_ID=*/args.trSuiteId, function (err, response, suite) {
             console.log(suite);
         });
         break;
