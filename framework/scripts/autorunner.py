@@ -187,7 +187,7 @@ def run_chimp(index,
         assert False, 'Can not process on {}'.format(platform)        
         
     print('RUNNING #{}: {}'.format(index, run_file))
-    print(cmd)
+    # print(cmd)
 
     time.sleep(1)
     os.system(cmd)
@@ -613,7 +613,8 @@ class ChimpAutoRun:
         # generate cucumber report json file
         query = Query()
         cucumber_report_json = []
-        DB.purge_table('_default')
+        if '_default' in DB.tables():
+            DB.purge_table('_default')
         for table in DB.tables():
             group = DB.table(table)
             results = group.search((query.status == 'runned') | (query.status == 'passed'))
