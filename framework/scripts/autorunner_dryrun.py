@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Type python autorunner.py --help for more information
+Type python autorunner_dryrun.py --help for more information
 '''
 import argparse
 import json
@@ -174,7 +174,8 @@ class ChimpDryRun():
                     for scenario in feature['elements']:
                         out_json = self.case_info.copy()
                         out_json['uri'] = feature['uri']
-                        out_json['feature'] = feature['name']
+                        file_name = path.splitext(path.basename(feature['uri']))[0]
+                        out_json['feature'] = file_name + '-' +feature['name']
                         out_json['scenario'] = scenario['name']
                         out_json['line'] = scenario['line']
                         self.out_array.append(out_json)
