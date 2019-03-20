@@ -21,6 +21,7 @@
     "http-server": "~0.11.0",
     "java": "^0.11.0",
     "json-diff": "^0.5.4",
+    "jsonfile": "^5.0.0",
     "minimist": "^1.2.0",
     "minimist-options": "^4.0.1",
     "moment": "^2.24.0",
