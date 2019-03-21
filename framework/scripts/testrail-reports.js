@@ -1,14 +1,5 @@
 #!/usr/bin/env node
 
-// framework/scripts/testrail-reports.js \
-// --trUser=user_email --trPassword=user_password \
-// --trCmd=getProjects\
-// --trFilter="project.suite_mode==1 && project.name=='QA Playground'"
-
-// framework/scripts/testrail-reports.js \
-// --trUser=user_email --trPassword=user_password \
-// --trCmd=getProject --trProjectId=63
-
 const buildOptions = require('minimist-options');
 const minimist = require('minimist');
 const Testrail = require('testrail-api');
@@ -68,6 +59,9 @@ const options = buildOptions({
 		alias: ['trUserEmail', 'E'],
 		default: ''
     },
+    trCaseId: {
+		type: 'number',
+    },
     trFilter: {
 		type: 'string',
 		alias: ['trFilter', 'f'],
@@ -88,20 +82,12 @@ var testrail = new Testrail({
     password: args.trPassword,
 });
 
-// async function getProjectName_byId(projectId) {
-//     try {
-//         const name = await testrail.getProject(projectId)
-//         .then(response => {
-//             return response.body.name;
-//         }).catch(err => {
-//             console.error('testrail:', err);
-//         })
-//         return name;
-//     } catch (e) {
-//     }
-// }
-
 switch (args.trCmd) {
+    case 'getCaseById':
+        testrail.getCase(/*CASE_ID=*/args.trCaseId, function (err, response, testcase) {
+            console.log(testcase);
+        });
+        break;
     case 'getProjects':
         testrail.getProjects(/*FILTERS=*/{}, function (err, response, projects) {
             if (args.trFilter) {
@@ -206,4 +192,5 @@ switch (args.trCmd) {
             });
         });
         break;
+    
 }
