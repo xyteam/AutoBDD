@@ -11,8 +11,11 @@
 
 const buildOptions = require('minimist-options');
 const minimist = require('minimist');
-const fs = require('fs');
 const Testrail = require('testrail-api');
+const testrail_lib = require('../libs/testrail_libs');
+const jsonfile = require('jsonfile');
+const trUser = process.env.cbReportUser;
+const trKey = process.env.cbReportKey;
 
 const options = buildOptions({
 	trUrl: {
@@ -23,12 +26,12 @@ const options = buildOptions({
     trUser: {
 		type: 'string',
 		alias: ['trUser', 'u'],
-		default: ''
+		default: trUser
     },
 	trPassword: {
 		type: 'string',
 		alias: ['trPassword', 'p'],
-		default: ''
+		default: trKey
 	},
 	trCmd: {
 		type: 'string',
@@ -42,18 +45,18 @@ const options = buildOptions({
     },
     trSectionId: {
 		type: 'number',
-		alias: ['trSectionId', 'S'],
-		default: 1916442
+        alias: ['trSectionId', 'S'],
     },
     trSuiteId: {
 		type: 'number',
 		alias: ['trSuiteId', 's'],
-		default: 20657
+    },
+    trSuiteName: {
+		type: 'string',
     },
     trRunId: {
 		type: 'number',
 		alias: ['trRunId', 'R'],
-		default: 26073
     },
     trUserId: {
 		type: 'number',
@@ -70,6 +73,9 @@ const options = buildOptions({
 		alias: ['trFilter', 'f'],
 		default: ''
     },
+    cbJsonPath: {
+        type: 'string'
+    },
 	// Special option for positional arguments (`_` in minimist)
 	arguments: 'string'
 });
@@ -82,6 +88,19 @@ var testrail = new Testrail({
     password: args.trPassword,
 });
 
+// async function getProjectName_byId(projectId) {
+//     try {
+//         const name = await testrail.getProject(projectId)
+//         .then(response => {
+//             return response.body.name;
+//         }).catch(err => {
+//             console.error('testrail:', err);
+//         })
+//         return name;
+//     } catch (e) {
+//     }
+// }
+
 switch (args.trCmd) {
     case 'getProjects':
         testrail.getProjects(/*FILTERS=*/{}, function (err, response, projects) {
@@ -92,7 +111,7 @@ switch (args.trCmd) {
                 console.log(projects);    
             }
             // console.log(args.trUser);
-            // console.log(args.trUrl);
+            // console.log(args.trPassword);
             // console.log(err);
             // console.log(response);
         });
@@ -120,7 +139,7 @@ switch (args.trCmd) {
         });
         break;
     case 'getSections':
-        testrail.getSections(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/{}, function (err, response, sections) {
+        testrail.getSections(/*PROJECT_ID=*/args.trProjectId, /*SUITE_ID=*/args.trSuiteId, function (err, response, sections) {
             if (args.trFilter) {
                 console.log(args.trFilter)
                 console.log(sections.filter(section => eval(args.trFilter)));    
@@ -155,13 +174,36 @@ switch (args.trCmd) {
         });
         break;
     case 'getUser':
-        testrail.getUser(/*USER_ID=*/trUserId, function (err, response, user) {
+        testrail.getUser(/*USER_ID=*/args.trUserId, function (err, response, user) {
             console.log(user);
         });
         break;
     case 'getUserByEmail':
-        testrail.getUserByEmail(/*EMAIL=*/trUserEmail, function (err, response, user) {
+        testrail.getUserByEmail(/*EMAIL=*/args.trUserEmail, function (err, response, user) {
             console.log(user);
+        });
+        break;
+    case 'addSuiteByName':
+        var mySuite = {
+            name: args.trSuiteName,
+            description: args.trSuiteDesc
+        };
+        testrail_lib.getProjectName_byId(args.trProjectId).then(projectName => {
+            mySuite.description = 'For ' + projectName + ' project'; 
+            testrail.addSuite(/*PROJECT_ID=*/args.trProjectId, /*CONTENT=*/mySuite).then(response => {
+                console.log(response.body);
+            });
+        });
+        break;
+    case 'addFeature':
+        testrail_lib.getSuiteId_byName(args.trProjectId, args.trSuiteName).then(suiteId => {
+            var myFeature = {
+                name: args.featureName,
+                suite_id: suiteId
+            };    
+            testrail.addSection(/*PROJECT_ID=*/args.trProjectId, /*CONTENT=*/myFeature).then(response => {
+                console.log(response.body);
+            });
         });
         break;
 }
