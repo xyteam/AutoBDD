@@ -59,6 +59,9 @@ const options = buildOptions({
 		alias: ['trUserEmail', 'E'],
 		default: ''
     },
+    trMilestoneId: {
+		type: 'number',
+    },
     trCaseId: {
 		type: 'number',
     },
@@ -109,6 +112,26 @@ switch (args.trCmd) {
             // console.log(response);
         });
         break;
+    case 'getMilestones':
+        testrail.getMilestones(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/{}, function (err, response, milestones) {
+            if (args.trFilter) {
+                console.log(args.trFilter)
+                console.log(milestones.filter(milestone => eval(args.trFilter)));    
+            } else {
+                console.log(milestones);    
+            }
+        });      
+        break;
+    case 'getMilestone':
+        testrail.getMilestone(/*MILESTONE_ID=*/args.trMilestoneId, function (err, response, milestone) {
+            console.log(milestone);
+        });
+        break;
+    case 'deleteMilestone':
+        testrail.deleteMilestone(/*MILESTONE_ID=*/args.trMilestoneId, function (err, response, body) {
+            console.log(body);
+        });
+        break;    
     case 'getRuns':
         testrail.getRuns(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/{}, function (err, response, runs) {
             if (args.trFilter) {
