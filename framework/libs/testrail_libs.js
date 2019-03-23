@@ -1,9 +1,9 @@
 
 const Testrail = require('testrail-api');
 const testrail = new Testrail({
-  host: process.env.cbReportUrl || 'http://testrail.cadreon.com/testrail',
-  user: process.env.cbReportUser,
-  password: process.env.cbReportKey,
+  host: process.env.trApiUrl,
+  user: process.env.trApiUser,
+  password: process.env.trApiKey,
 });
 
 module.exports = {
