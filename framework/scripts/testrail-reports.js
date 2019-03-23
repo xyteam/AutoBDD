@@ -1,88 +1,78 @@
 #!/usr/bin/env node
 
 const buildOptions = require('minimist-options');
+const JSON5 = require('json5');
 const minimist = require('minimist');
 const Testrail = require('testrail-api');
 const testrail_lib = require('../libs/testrail_libs');
 const jsonfile = require('jsonfile');
-const trUser = process.env.cbReportUser;
-const trKey = process.env.cbReportKey;
 
 const options = buildOptions({
-	trUrl: {
+    // Special Parameters
+    apiUrl: {
 		type: 'string',
-		alias: ['trUrl', 'U'],
-		default: 'http://testrail.cadreon.com/testrail'
+		default: process.env.trApiUrl
     },
-    trUser: {
+    apiUser: {
 		type: 'string',
-		alias: ['trUser', 'u'],
-		default: trUser
+		default: process.env.trApiUser
     },
-	trPassword: {
+    apiPassword: {
 		type: 'string',
-		alias: ['trPassword', 'p'],
-		default: trKey
-	},
-	trCmd: {
-		type: 'string',
-		alias: ['trCmd', 'C'],
-		default: 'getProjects'
-	},
-	trProjectId: {
-		type: 'number',
-		alias: ['trProjectId', 'P'],
-		default: 63
+		default: process.env.trApiKey
     },
-    trSectionId: {
-		type: 'number',
-        alias: ['trSectionId', 'S'],
-    },
-    trSuiteId: {
-		type: 'number',
-		alias: ['trSuiteId', 's'],
-    },
-    trSuiteName: {
-		type: 'string',
-    },
-    trRunId: {
-		type: 'number',
-		alias: ['trRunId', 'R'],
-    },
-    trUserId: {
-		type: 'number',
-		alias: ['trUserId', 'uid'],
-		default: 1
-    },
-    trUserEmail: {
-		type: 'string',
-		alias: ['trUserEmail', 'E'],
-		default: ''
-    },
-    trMilestoneId: {
-		type: 'number',
-    },
-    trCaseId: {
-		type: 'number',
-    },
-    trFilter: {
-		type: 'string',
-		alias: ['trFilter', 'f'],
-		default: ''
-    },
+    // Cucumber Parameters
     cbJsonPath: {
         type: 'string'
+    },
+    // API parameters
+    trCaseId: {
+		type: 'number'
+    },
+	trCmd: {
+		type: 'string',
+		default: 'getProjects'
+    },
+    trFilter: {
+        type: 'string',
+        default: ''
+    },
+    trMilestoneId: {
+		type: 'number'
+    },
+	trProjectId: {
+		type: 'number',
+		default: 63 // QA Playground
+    },
+    trRunId: {
+		type: 'number'
+    },
+    trSectionId: {
+		type: 'number'
+    },
+    trSuiteId: {
+		type: 'number'
+    },
+    trSuiteName: {
+		type: 'string'
+    },
+    trUserEmail: {
+		type: 'string'
+    },
+    trUserId: {
+		type: 'number'
     },
 	// Special option for positional arguments (`_` in minimist)
 	arguments: 'string'
 });
 
 const args = minimist(process.argv.slice(2), options);
+const trFilter = JSON5.parse('{' + args.trFilter + '}');
 
 var testrail = new Testrail({
-    host: args.trUrl,
-    user: args.trUser,
-    password: args.trPassword,
+    host: args.apiUrl,
+    user: args.apiUser,
+    password: args.apiPassword,
 });
 
 switch (args.trCmd) {
@@ -91,35 +81,24 @@ switch (args.trCmd) {
             console.log(testcase);
         });
         break;
+    case 'getCases':
+        testrail.getCases(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/trFilter, function (err, response, cases) {
+            console.log(cases);
+        });
+        break;
     case 'getProjects':
-        testrail.getProjects(/*FILTERS=*/{}, function (err, response, projects) {
-            if (args.trFilter) {
-                console.log(args.trFilter)
-                console.log(projects.filter(project => eval(args.trFilter)));    
-            } else {
-                console.log(projects);    
-            }
-            // console.log(args.trUser);
-            // console.log(args.trPassword);
-            // console.log(err);
-            // console.log(response);
+        testrail.getProjects(/*FILTERS=*/trFilter, function (err, response, projects) {
+            console.log(projects);
         });
         break;
     case 'getProject':
         testrail.getProject(/*PROJECT_ID=*/args.trProjectId, function (err, response, project) {
             console.log(project);
-            // console.log(err);
-            // console.log(response);
         });
         break;
     case 'getMilestones':
-        testrail.getMilestones(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/{}, function (err, response, milestones) {
-            if (args.trFilter) {
-                console.log(args.trFilter)
-                console.log(milestones.filter(milestone => eval(args.trFilter)));    
-            } else {
-                console.log(milestones);    
-            }
+        testrail.getMilestones(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/trFilter, function (err, response, milestones) {
+            console.log(milestones);
         });      
         break;
     case 'getMilestone':
@@ -133,13 +112,8 @@ switch (args.trCmd) {
         });
         break;    
     case 'getRuns':
-        testrail.getRuns(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/{}, function (err, response, runs) {
-            if (args.trFilter) {
-                console.log(args.trFilter)
-                console.log(runs.filter(run => eval(args.trFilter)));    
-            } else {
-                console.log(runs);    
-            }
+        testrail.getRuns(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/trFilter, function (err, response, runs) {
+            console.log(runs)
         });
         break;
     case 'getRun':
@@ -148,41 +122,35 @@ switch (args.trCmd) {
         });
         break;
     case 'getSections':
+    case 'getFeatures':
         testrail.getSections(/*PROJECT_ID=*/args.trProjectId, /*SUITE_ID=*/args.trSuiteId, function (err, response, sections) {
-            if (args.trFilter) {
-                console.log(args.trFilter)
-                console.log(sections.filter(section => eval(args.trFilter)));    
-            } else {
-                console.log(sections);    
-            }
+            console.log(sections)
         });
         break;
     case 'getSection':
+    case 'getFeature':
         testrail.getSection(/*SECTION_ID=*/args.trSectionId, function (err, response, section) {
             console.log(section);
         });
         break;
     case 'getSuites':
+    case 'getModules':
         testrail.getSuites(/*PROJECT_ID=*/args.trProjectId, function (err, response, suites) {
-            if (args.trFilter) {
-                console.log(args.trFilter)
-                console.log(suites.filter(suite => eval(args.trFilter)));    
-            } else {
-                console.log(suites);    
-            }
+            console.log(suites);    
         });
         break;
     case 'getSuite':
+    case 'getModule':
         testrail.getSuite(/*SUITE_ID=*/args.trSuiteId, function (err, response, suite) {
             console.log(suite);
         });
         break;
     case 'getUsers':
-        testrail.getUsers(/*FILTERS=*/{}, function (err, response, users) {
+        testrail.getUsers(/*FILTERS=*/trFilter, function (err, response, users) {
             console.log(users);
         });
         break;
-    case 'getUser':
+    case 'getUserById':
         testrail.getUser(/*USER_ID=*/args.trUserId, function (err, response, user) {
             console.log(user);
         });
@@ -192,7 +160,8 @@ switch (args.trCmd) {
             console.log(user);
         });
         break;
-    case 'addSuiteByName':
+    case 'addSuite':
+    case 'addModule':
         var mySuite = {
             name: args.trSuiteName,
             description: args.trSuiteDesc
@@ -204,7 +173,16 @@ switch (args.trCmd) {
             });
         });
         break;
+    case 'addSection':
     case 'addFeature':
+    if (!args.trProjectId) {
+            console.log('trProjectId is required');
+            break;
+        }
+        if (!args.trSuiteName) {
+            console.log('trSuiteName is required');
+            break;
+        }
         testrail_lib.getSuiteId_byName(args.trProjectId, args.trSuiteName).then(suiteId => {
             var myFeature = {
                 name: args.featureName,
@@ -215,5 +193,27 @@ switch (args.trCmd) {
             });
         });
         break;
-    
+    case 'cbAddCases':
+        if (!args.trProjectId) {
+            console.log('trProjectId is required');
+            break;
+        }
+        if (!args.trSuiteName) {
+            console.log('trSuiteName is required');
+            break;
+        }
+        const cbJson = jsonfile.readFileSync(args.cbJsonPath);
+        testrail_lib.getSuiteId_byName(args.trProjectId, args.trSuiteName).then(suiteId => {
+            cbJson.forEach(feature => {
+                var myFeature = {
+                    name: 'Feature: ' + feature.name,
+                    suite_id: suiteId,
+                    description: feature.description
+                };    
+                testrail.addSection(/*PROJECT_ID=*/args.trProjectId, /*CONTENT=*/myFeature).then(response => {
+                    console.log(response.body);
+                });
+            })
+        })
+        break;
 }
