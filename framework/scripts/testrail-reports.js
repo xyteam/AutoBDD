@@ -6,6 +6,7 @@ const minimist = require('minimist');
 const Testrail = require('testrail-api');
 const testrail_lib = require('../libs/testrail_libs');
 const jsonfile = require('jsonfile');
+const _ = require ('underscore');
 
 const options = buildOptions({
     // Special Parameters
@@ -215,5 +216,43 @@ switch (args.trCmd) {
                 });
             })
         })
+        break;
+    case 'updateTestCase':
+        if (!args.trProjectId) {
+            console.log('trProjectId is required');
+            break;
+        }
+        if (!args.cbJsonPath) {
+            console.log('JSON Path is required');
+            break;
+        }
+        
+        var testInJson = [];
+        const cbJsonUpdate = jsonfile.readFileSync (args.cbJsonPath);
+        cbJsonUpdate.forEach(feature => {
+            feature.elements.filter ( s => (s.type === 'scenario')).forEach ( s => {
+                testInJson.push ( s.name );
+            })
+        })
+
+        testrail.getCases(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/trFilter, function (err, response, cases) {
+            cases.forEach (trCase => {
+                //if testcase in TR found in cbJsonUpdate
+                if ( _.contains(testInJson, trCase.title)){
+                    console.log ( "\n >> Updating test case : " + trCase.id + '-' + trCase.title)
+                    var targetFeature = testrail_lib.getFeature_ByScenario ( trCase.title , cbJsonUpdate );
+                    var bgSteps = testrail_lib.extractSteps ( targetFeature , "background" );
+                    var testSteps = testrail_lib.extractSteps (targetFeature , "scenario" , trCase.title );
+                    var updatedContent = {
+                        custom_preconds:  bgSteps,
+                        custom_bdd_scenario: testSteps
+                    }
+                    console.log ( updatedContent );
+                    // testrail.updateCase(/*CASE_ID=*/trCase.id, /*CONTENT=*/updatedContent, function (err, response, testcase) {
+                    //     console.log(testcase);
+                    // });
+                }
+            })
+        });
         break;
 }
