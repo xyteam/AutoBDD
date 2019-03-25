@@ -71,7 +71,7 @@ module.exports = {
                 }
               });
           } else {
-              console.log ("Unable to find type of \"" + type + "\" in provided feature file");
+              //console.log ("Unable to find type of \"" + type + "\" in provided feature file");
           }
       } else {
           console.log ("Provided feature is empty");
