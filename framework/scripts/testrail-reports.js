@@ -314,7 +314,6 @@ switch (args.trCmd) {
             });            
         })
         break;
-
     case 'updateTestCase':
         if (!args.trProjectId) {
             console.log('trProjectId is required');
