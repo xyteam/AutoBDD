@@ -176,7 +176,7 @@ switch (args.trCmd) {
         break;
     case 'addSection':
     case 'addFeature':
-    if (!args.trProjectId) {
+        if (!args.trProjectId) {
             console.log('trProjectId is required');
             break;
         }
@@ -203,6 +203,7 @@ switch (args.trCmd) {
             console.log('trSuiteName is required');
             break;
         }
+
         const cbJson = jsonfile.readFileSync(args.cbJsonPath);
         testrail_lib.getSuiteId_byName(args.trProjectId, args.trSuiteName).then(suiteId => {
             cbJson.forEach(feature => {
@@ -211,10 +212,106 @@ switch (args.trCmd) {
                     suite_id: suiteId,
                     description: feature.description
                 };    
-                testrail.addSection(/*PROJECT_ID=*/args.trProjectId, /*CONTENT=*/myFeature).then(response => {
-                    console.log(response.body);
+                testrail.addSection(/*PROJECT_ID=*/args.trProjectId, /*CONTENT=*/myFeature).then(  secResponse => {  
+                    console.dir ( secResponse.body.name );
+                    feature.elements.forEach ( scenario => {                       
+                        var myTestCase = {
+                            title : scenario.name + ":" + scenario.line,
+                            suite_id: suiteId,
+                            custom_automation: 1, //1- to be automated
+                            custom_preconds: testrail_lib.extractSteps (feature , "background") || "Test has no background",
+                            custom_bdd_scenario: testrail_lib.extractSteps ( feature , "scenario", scenario.name)
+                        }
+                        testrail.addCase(/*SECTION_ID=*/secResponse.body.id, /*CONTENT=*/myTestCase, function (err, response, testcase) {
+                                console.log (( err ? err : "Test \"" + testcase.title + "\" added to \"" + secResponse.body.name + "\""));
+                        });                        
+                    });                    
                 });
             })
+        });
+        break;
+
+    case 'cbAddCases_Check' :
+        //do not add sections/cases if already exist. (pending for getSectionId_byName fix)
+        if (!args.trProjectId) {
+            console.log('trProjectId is required');
+            break;
+        }
+        if (!args.trSuiteName) {
+            console.log('trSuiteName is required');
+            break;
+        }
+
+        const cbJson2 = jsonfile.readFileSync(args.cbJsonPath);
+        var sectionList = [];
+        var caseList = [];
+
+        testrail_lib.getSuiteId_byName(args.trProjectId, args.trSuiteName).then(suiteId => {            
+            testrail.getSections(/*PROJECT_ID=*/args.trProjectId, /*SUITE_ID=*/suiteId, function (err, response, sections) {
+                sections.forEach ( s => { 
+                    sectionList.push (s.name);
+                })
+                cbJson2.forEach(feature => {
+                    //if section already exist -> proceed to check if case exist
+                    if ( _.contains (sectionList , 'Feature: ' + feature.name)) {
+                        console.log ( "Feature: " + feature.name + " section already EXISTS!")
+                        testrail_lib.getSectionId_byName ( args.trProjectId, 'Feature: ' + feature.name).then ( secId =>{
+                            console.log ( ">>> GET THE ID : " + secId );
+                            testrail.getCases(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/{suite_id:suiteId, section_id:secId}, function (err, response, cases) {
+                                cases.forEach ( tcase => {
+                                    caseList.push (tcase.title)
+                                })
+                            });
+                            features.elements.forEach ( scenario => {
+                                if ( _.contains (caseList , scenario.name)) {
+                                    console.log ( "Update test case => " + scenario.name);
+                                }
+                                else {
+                                    console.log ( "Add test case => " + scenario.name );
+                                }
+                            })
+                        })
+                    }
+                    //if section does not exist yet -> add section and add case; 
+                    else { 
+                        console.log ( "Feature: " + feature.name + " NOT exist!")
+                        var myFeature = {
+                            name: 'Feature: ' + feature.name,
+                            suite_id: suiteId,
+                            description: feature.description
+                        };    
+                        testrail.addSection(/*PROJECT_ID=*/args.trProjectId, /*CONTENT=*/myFeature).then(  secResponse => {  
+                            console.dir ( " > Add section = " + secResponse.body.name );
+                            feature.elements.forEach ( scenario => {                       
+                                var myTestCase = {
+                                    title : scenario.name + ":" + scenario.line,
+                                    suite_id: suiteId,
+                                    custom_automation: 1, //1- to be automated
+                                    custom_preconds: testrail_lib.extractSteps (feature , "background") || "Test has no background",
+                                    custom_bdd_scenario: testrail_lib.extractSteps ( feature , "scenario", scenario.name)
+                                }
+                                testrail.addCase(/*SECTION_ID=*/secResponse.body.id, /*CONTENT=*/myTestCase, function (err, response, testcase) {
+                                        console.log (( err ? err : "Test \"" + testcase.title + "\" added to \"" + secResponse.body.name + "\""));
+                                });                        
+                            });                    
+                        });    
+                    }                    
+                })
+            });                
+        });
+        
+        break;  
+
+    case 'DeleteSections':
+        //use for testing only
+        testrail_lib.getSuiteId_byName ( 63, args.trSuiteName ).then ( suiteid => {
+            console.log ( "FOUND SUITE : " + suiteid)
+            testrail.getSections(/*PROJECT_ID=*/ 63, /*suite-id*/ suiteid , function (err, response, sections) {
+                sections.forEach ( sec => {
+                    console.log ( "Deleting section => " + sec.name )
+                    testrail.deleteSection ( sec.id );
+                })
+            });            
         })
         break;
     case 'updateTestCase':
