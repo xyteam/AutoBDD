@@ -212,13 +212,14 @@ switch (args.trCmd) {
                     suite_id: suiteId,
                     description: feature.description
                 };
-                testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/args.trForceAdd).then(sectionId => {  
-                    feature.elements.forEach(scenario => {
-                        testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd).then(myCaseId => {
-                            console.log(myCaseId);
+                testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/args.trForceAdd).then(sectionId => (async () => {  
+                    for (var index = 0; index < feature.elements.length; index++) {
+                        scenario = feature.elements[index];
+                        await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd).then(myCaseId => {
+                            console.log('trCaseId: ' + myCaseId);
                         });
-                    });                    
-                });
+                    };                    
+                })()); // convert callback into async func to use await inside (async () => {})()
             })
         });
         break;
