@@ -216,8 +216,8 @@ switch (args.trCmd) {
                 };
                 testrail_lib.getSectionId_byNames(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/true).then(sectionId => {  
                     feature.elements.forEach(scenario => {
-                        testrail_lib.addCase_byScenario(args.trProjectId, suiteId, sectionId, scenario).then(myCase => {
-                            console.log(myCase.name);
+                        testrail_lib.getCaseId_byScenarios(args.trProjectId, mySuiteName, myFeature.name, scenario, /*forceAdd*/true).then(myCaseId => {
+                            console.log(myCaseId);
                         });
                     });                    
                 });
