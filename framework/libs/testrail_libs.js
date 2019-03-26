@@ -79,17 +79,34 @@ module.exports = {
   },
 
   addCase_byScenario: async function(projectId, suiteName, sectionName, scenario) {
-    this.getSectionId_byNames(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {
+    var myCase = await this.getSectionId_byNames(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {
       var myTestCase = {
         title : scenario.keyword + ': ' + scenario.name,
-        section_id: sectionId,
         custom_automation: 1, //1- to be automated
-        custom_bdd_scenario: testrail_lib.constructScenario(scenario),
+        custom_bdd_scenario: this.constructScenario(scenario),
       }
-      testrail.addCase(/*SECTION_ID=*/sectionId, /*CONTENT=*/myTestCase).then(response => {
+      return testrail.addCase(/*SECTION_ID=*/sectionId, /*CONTENT=*/myTestCase).then(response => {
         return response.body;
       });                        
     });
+    return myCase;
+  },
+
+  getCaseId_byScenarios: async function(projectId, suiteName, sectionName, scenario, forceAdd) {
+    const suite_id = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
+    const section_id = await this.getSectionId_byNames(projectId, suiteName, sectionName, forceAdd);
+    const myCaseFilter = {suite_id, section_id};
+    var myCase = await testrail.getCases(projectId, myCaseFilter).then(response => {
+        const myCases = response.body;
+        const myCase = myCases.filter(s => (s.title == scenario.keyword + ': ' + scenario.name));
+        return myCase[0];
+    }).catch(err => {
+        console.error('testrail:', err);
+    })
+    if (myCase == undefined && forceAdd == true) {
+      myCase = await this.addCase_byScenario(projectId, suiteName, sectionName, scenario);
+    }
+    return myCase.id;
   },
 
   constructScenario: function (scenario) {
