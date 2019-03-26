@@ -94,7 +94,7 @@ module.exports = {
     return myCase;
   },
 
-  getCaseId_byScenarios: async function(projectId, suiteName, sectionName, feature, scenario, forceAdd) {
+  getCaseId_byScenario: async function(projectId, suiteName, sectionName, feature, scenario, forceAdd) {
     if ( scenario.type != 'background') {
       const suite_id = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
       const section_id = await this.getSectionId_byName(projectId, suiteName, sectionName, forceAdd);
