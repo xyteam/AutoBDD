@@ -190,14 +190,8 @@ switch (args.trCmd) {
             console.log('trSuiteName is required');
             break;
         }
-        testrail_lib.getSuiteId_byName(args.trProjectId, args.trSuiteName).then(suiteId => {
-            var myFeature = {
-                name: args.featureName,
-                suite_id: suiteId
-            };    
-            testrail.addSection(/*PROJECT_ID=*/args.trProjectId, /*CONTENT=*/myFeature).then(response => {
-                console.log(response.body);
-            });
+        testrail_lib.addSection_byName(args.trProjectId, args.trSuiteName, args.trSuiteName).then(mySection => {
+            console.log(mySection.name);
         });
         break;
     case 'cbAddCases':
