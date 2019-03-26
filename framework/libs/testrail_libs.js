@@ -41,10 +41,11 @@ module.exports = {
         const suite = suites.filter(s => s.name == suiteName);
         return suite[0];
     }).catch(err => {
-        console.error('testrail:', err);
+        console.error('SUITE testrail:', err);
     })
     // console.dir(mySuite);
     if (mySuite == undefined && forceAdd == true) {
+      console.log ( " > Create suite : " + suiteName )
       mySuite = await this.addSuite_byName(projectId, suiteName);
     }
     return mySuite.id;
@@ -63,27 +64,28 @@ module.exports = {
     return mySection;
   },
 
-  getSectionId_byNames: async function(projectId, suiteName, sectionName, forceAdd) {
-    const mySutieId = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
-    var mySection = await testrail.getSections(projectId, mySutieId).then(response => {
+  getSectionId_byName: async function(projectId, suiteName, sectionName, forceAdd) {
+    const mySuiteId = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
+    var mySection = await testrail.getSections(projectId, mySuiteId).then(response => {
         const sections = response.body;
         const section = sections.filter(s => (s.name == sectionName));
         return section[0];
     }).catch(err => {
-        console.error('testrail:', err);
+        console.error('SECTION testrail:', err);
     })
     if (mySection == undefined && forceAdd == true) {
+      console.log ( " > Create section : " + sectionName )
       mySection = await this.addSection_byName(projectId, suiteName, sectionName);
     }
     return mySection.id;
   },
 
-  addCase_byScenario: async function(projectId, suiteName, sectionName, scenario) {
-    var myCase = await this.getSectionId_byNames(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {
+  addCase_byScenario: async function(projectId, suiteName, sectionName, feature, scenario ) {
+    var myCase = await this.getSectionId_byName(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {      
       var myTestCase = {
         title : scenario.keyword + ': ' + scenario.name,
         custom_automation: 1, //1- to be automated
-        custom_bdd_scenario: this.constructScenario(scenario),
+        custom_bdd_scenario: this.constructScenario(feature, scenario),
       }
       return testrail.addCase(/*SECTION_ID=*/sectionId, /*CONTENT=*/myTestCase).then(response => {
         return response.body;
@@ -92,30 +94,59 @@ module.exports = {
     return myCase;
   },
 
-  getCaseId_byScenarios: async function(projectId, suiteName, sectionName, scenario, forceAdd) {
-    const suite_id = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
-    const section_id = await this.getSectionId_byNames(projectId, suiteName, sectionName, forceAdd);
-    const myCaseFilter = {suite_id, section_id};
-    var myCase = await testrail.getCases(projectId, myCaseFilter).then(response => {
-        const myCases = response.body;
-        const myCase = myCases.filter(s => (s.title == scenario.keyword + ': ' + scenario.name));
-        return myCase[0];
-    }).catch(err => {
-        console.error('testrail:', err);
-    })
-    if (myCase == undefined && forceAdd == true) {
-      myCase = await this.addCase_byScenario(projectId, suiteName, sectionName, scenario);
+  getCaseId_byScenarios: async function(projectId, suiteName, sectionName, feature, scenario, forceAdd) {
+    if ( scenario.type != 'background') {
+      const suite_id = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
+      const section_id = await this.getSectionId_byName(projectId, suiteName, sectionName, forceAdd);
+      const myCaseFilter = {suite_id, section_id};
+      var myCase = await testrail.getCases(projectId, myCaseFilter).then(response => {
+          const myCases = response.body;
+          const myCase = myCases.filter(s => (s.title == scenario.keyword + ': ' + scenario.name));
+          return myCase[0];
+      }).catch(err => {
+          console.error('CASE testrail:', err);
+      })
+      if (myCase == undefined && forceAdd == true) {
+        console.log ( " > Create test case : " + scenario.name )
+        myCase = await this.addCase_byScenario(projectId, suiteName, sectionName, feature, scenario);
+      }
+      return myCase.id;
+    } else {
+      return 0;
     }
-    return myCase.id;
   },
 
-  constructScenario: function (scenario) {
+  constructScenario: function (feature, scenario) {
     var caseSummary = '**' + scenario.keyword + ': ' + scenario.name + '**';
     caseSummary += '\r\n\r\n';
-    scenario.steps.forEach(step => {
-      caseSummary += step.keyword + ' ' + step.name + '\r\n'
-    })
+    caseSummary += this.constructBackground (feature);
+    caseSummary += this.constructGenericStep (scenario);
     return caseSummary;
+  },
+
+  constructBackground: function ( feature ) {
+    var bgScenario = feature.elements.filter ( s => s.type === 'background' )[0]
+    var bgSummary = "";
+    if (bgScenario !== undefined) {
+      bgSummary += this.constructGenericStep ( bgScenario );
+    }
+    return bgSummary;
+  },
+
+  constructGenericStep: function ( scenario ) {
+    var genericSteps = "";
+    scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach(step => {
+      genericSteps += step.keyword + ' ' + step.name + '\r\n';
+      if ( _.has ( step, "rows" )) {
+        step.rows.forEach ( row => {
+          row.cells.forEach ( cell => {
+            genericSteps += '|' + cell;
+          });
+          genericSteps += '|\r\n';
+        });
+      }
+    })
+    return genericSteps;
   },
 
   extractSteps: function (feature , type , scenarioName = ""){
