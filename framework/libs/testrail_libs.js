@@ -8,10 +8,9 @@ const testrail = new Testrail({
 });
 
 module.exports = {
-  getProjectName_byId: async function (projectId) {
+  getProjectName_byId: async function(projectId) {
     try {
-        const myProject = await testrail.getProject(projectId)
-        .then(response => {
+        const myProject = await testrail.getProject(projectId).then(response => {
             return response.body;
         }).catch(err => {
             console.error('testrail:', err);
@@ -21,34 +20,85 @@ module.exports = {
     }
   },
 
-  getSuiteId_byName: async function (projectId, suiteName) {
-    try {
-        const mySuite = await testrail.getSuites(projectId)
-        .then(response => {
-            const suites = response.body;
-            const suite = suites.filter(s => s.name == suiteName);
-            return suite[0];
-        }).catch(err => {
-            console.error('testrail:', err);
-        })
-        return mySuite.id;
-    } catch (e) {
-    }
+  addSuite_byName: async function(projectId, suiteName) {
+    var myPreparedSuite = {
+      name: suiteName,
+      description: ''
+    };
+    var myAddedSuite;
+    var projectName = await this.getProjectName_byId(projectId);
+    myPreparedSuite.description = 'For ' + projectName + ' project';
+    // console.log(myPreparedSuite);
+    myAddedSuite = await testrail.addSuite(/*PROJECT_ID=*/projectId, /*CONTENT=*/myPreparedSuite).then(response => {
+        return response.body;
+    });
+    return myAddedSuite;
   },
 
-  getSectionId_byName: async function (projectId, sectionName) {
-    try {
-        const mySection = await testrail.getSuites(projectId)
-        .then(response => {
-            const sections = response.body;
-            const section = sections.filter(s => s.name == sectionName);
-            return section[0];
-        }).catch(err => {
-            console.error('testrail:', err);
-        })
-        return mySection.id;
-    } catch (e) {
+  getSuiteId_byName: async function(projectId, suiteName, forceAdd) {
+    var mySuite = await testrail.getSuites(projectId).then(response => {
+        const suites = response.body;
+        const suite = suites.filter(s => s.name == suiteName);
+        return suite[0];
+    }).catch(err => {
+        console.error('testrail:', err);
+    })
+    // console.dir(mySuite);
+    if (mySuite == undefined && forceAdd == true) {
+      mySuite = await this.addSuite_byName(projectId, suiteName);
     }
+    return mySuite.id;
+  },
+
+  addSection_byName: async function(projectId, suiteName, sectionName) {
+    var mySection = await this.getSuiteId_byName(projectId, suiteName, /*forceAdd*/true).then(suiteId => {
+      var myFeature = {
+        name: sectionName,
+        suite_id: suiteId
+      };
+      return testrail.addSection(/*PROJECT_ID=*/projectId, /*CONTENT=*/myFeature).then(response => {
+        return response.body;
+      });
+    });
+    return mySection;
+  },
+
+  getSectionId_byNames: async function(projectId, suiteName, sectionName, forceAdd) {
+    const mySutieId = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
+    var mySection = await testrail.getSections(projectId, mySutieId).then(response => {
+        const sections = response.body;
+        const section = sections.filter(s => (s.name == sectionName));
+        return section[0];
+    }).catch(err => {
+        console.error('testrail:', err);
+    })
+    if (mySection == undefined && forceAdd == true) {
+      mySection = await this.addSection_byName(projectId, suiteName, sectionName);
+    }
+    return mySection.id;
+  },
+
+  addCase_byScenario: async function(projectId, suiteName, sectionName, scenario) {
+    this.getSectionId_byNames(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {
+      var myTestCase = {
+        title : scenario.keyword + ': ' + scenario.name,
+        section_id: sectionId,
+        custom_automation: 1, //1- to be automated
+        custom_bdd_scenario: testrail_lib.constructScenario(scenario),
+      }
+      testrail.addCase(/*SECTION_ID=*/sectionId, /*CONTENT=*/myTestCase).then(response => {
+        return response.body;
+      });                        
+    });
+  },
+
+  constructScenario: function (scenario) {
+    var caseSummary = '**' + scenario.keyword + ': ' + scenario.name + '**';
+    caseSummary += '\r\n\r\n';
+    scenario.steps.forEach(step => {
+      caseSummary += step.keyword + ' ' + step.name + '\r\n'
+    })
+    return caseSummary;
   },
 
   extractSteps: function (feature , type , scenarioName = ""){
