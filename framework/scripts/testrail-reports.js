@@ -63,6 +63,10 @@ const options = buildOptions({
     trUserId: {
 		type: 'number'
     },
+    trForceAdd: {
+        type: 'boolean',
+        default: true
+    },
 	// Special option for positional arguments (`_` in minimist)
 	arguments: 'string'
 });
@@ -207,16 +211,16 @@ switch (args.trCmd) {
         }
         const cbJson = jsonfile.readFileSync(args.cbJsonPath);
         const mySuiteName = args.cbJsonPath.substring(args.cbJsonPath.lastIndexOf('/')+1, args.cbJsonPath.lastIndexOf('.'));
-        testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, /*forceAdd*/true).then(suiteId => {
+        testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, /*forceAdd*/args.trForceAdd).then(suiteId => {
             cbJson.forEach(feature => {
                 var myFeature = {
                     name: feature.keyword + ': ' + feature.name,
                     suite_id: suiteId,
                     description: feature.description
                 };
-                testrail_lib.getSectionId_byNames(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/true).then(sectionId => {  
+                testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/args.trForceAdd).then(sectionId => {  
                     feature.elements.forEach(scenario => {
-                        testrail_lib.getCaseId_byScenarios(args.trProjectId, mySuiteName, myFeature.name, scenario, /*forceAdd*/true).then(myCaseId => {
+                        testrail_lib.getCaseId_byScenarios(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd).then(myCaseId => {
                             console.log(myCaseId);
                         });
                     });                    
@@ -224,78 +228,6 @@ switch (args.trCmd) {
             })
         });
         break;
-
-    case 'cbAddCases_Check' :
-        //do not add sections/cases if already exist. (pending for getSectionId_byName fix)
-        if (!args.trProjectId) {
-            console.log('trProjectId is required');
-            break;
-        }
-        if (!args.trSuiteName) {
-            console.log('trSuiteName is required');
-            break;
-        }
-
-        const cbJson2 = jsonfile.readFileSync(args.cbJsonPath);
-        var sectionList = [];
-        var caseList = [];
-
-        testrail_lib.getSuiteId_byName(args.trProjectId, args.trSuiteName).then(suiteId => {            
-            testrail.getSections(/*PROJECT_ID=*/args.trProjectId, /*SUITE_ID=*/suiteId, function (err, response, sections) {
-                sections.forEach ( s => { 
-                    sectionList.push (s.name);
-                })
-                cbJson2.forEach(feature => {
-                    //if section already exist -> proceed to check if case exist
-                    if ( _.contains (sectionList , 'Feature: ' + feature.name)) {
-                        console.log ( "Feature: " + feature.name + " section already EXISTS!")
-                        testrail_lib.getSectionId_byName ( args.trProjectId, 'Feature: ' + feature.name).then ( secId =>{
-                            console.log ( ">>> GET THE ID : " + secId );
-                            testrail.getCases(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/{suite_id:suiteId, section_id:secId}, function (err, response, cases) {
-                                cases.forEach ( tcase => {
-                                    caseList.push (tcase.title)
-                                })
-                            });
-                            features.elements.forEach ( scenario => {
-                                if ( _.contains (caseList , scenario.name)) {
-                                    console.log ( "Update test case => " + scenario.name);
-                                }
-                                else {
-                                    console.log ( "Add test case => " + scenario.name );
-                                }
-                            })
-                        })
-                    }
-                    //if section does not exist yet -> add section and add case; 
-                    else { 
-                        console.log ( "Feature: " + feature.name + " NOT exist!")
-                        var myFeature = {
-                            name: 'Feature: ' + feature.name,
-                            suite_id: suiteId,
-                            description: feature.description
-                        };    
-                        testrail.addSection(/*PROJECT_ID=*/args.trProjectId, /*CONTENT=*/myFeature).then(  secResponse => {  
-                            console.log ( " > Add section = " + secResponse.body.name );
-                            feature.elements.forEach ( scenario => {                       
-                                var myTestCase = {
-                                    title : scenario.name + ":" + scenario.line,
-                                    suite_id: suiteId,
-                                    custom_automation: 1, //1- to be automated
-                                    custom_preconds: testrail_lib.extractSteps (feature , "background"),
-                                    custom_bdd_scenario: testrail_lib.extractSteps ( feature , "scenario", scenario.name)
-                                }
-                                testrail.addCase(/*SECTION_ID=*/secResponse.body.id, /*CONTENT=*/myTestCase, function (err, response, testcase) {
-                                        console.log (( err ? err : "Test \"" + testcase.title + "\" added to \"" + secResponse.body.name + "\""));
-                                });                        
-                            });                    
-                        });    
-                    }                    
-                })
-            });                
-        });
-        
-        break;  
-
     case 'DeleteSections':
         //use for testing only
         testrail_lib.getSuiteId_byName ( 63, args.trSuiteName ).then ( suiteid => {
