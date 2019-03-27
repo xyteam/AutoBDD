@@ -308,8 +308,8 @@ def parse_arguments():
     parser.add_argument(
         "--runlevel", "--RUNLEVEL",
         dest="RUNLEVEL",
-        default="Scenario",
-        help="Run automation by 'Feature' or by 'Scenario' level. defalue value: Scenario")
+        default="Feature",
+        help="Run automation by 'Feature' or by 'Scenario' level. defalue value: Feature")
 
     parser.add_argument(
         "--rerun",
@@ -657,7 +657,7 @@ class ChimpAutoRun:
         else:
             pool_number = min(int(self.thread_count), int(self.parallel))
         print('POOL NUMBER: {}'.format(pool_number))
-        print('TOTAL SCENARIOS: {}'.format(self.scenarios_count))
+        print('TOTAL {}(s): {}'.format(self.runlevel.upper(), self.scenarios_count))
 
         pool = Pool(pool_number)
         for index in range(1, self.scenarios_count + 1):
