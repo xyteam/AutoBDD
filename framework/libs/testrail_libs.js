@@ -226,7 +226,7 @@ module.exports = {
   },
 
   //========= TEST CASE (SCENARIO) HANDLING ===========
-  addCase_byScenario: async function(projectId, suiteName, sectionName, feature, scenario ) {
+  addCase_byScenario: async function(projectId, suiteName, sectionName, feature, scenario) {
     var myCase = await this.getSectionId_byName(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {      
       var myTestCase = {
         title : scenario.keyword + ': ' + scenario.name,
@@ -240,7 +240,19 @@ module.exports = {
     return myCase;
   },
 
-  getCaseId_byScenario: async function(projectId, suiteName, sectionName, feature, scenario, forceAdd) {
+  updateCase_byScenario: async function(caseId, feature, scenario) {
+    var myTestCase = {
+      title : scenario.keyword + ': ' + scenario.name,
+      custom_automation: 1, //1- to be automated
+      custom_bdd_scenario: this.constructScenario(feature, scenario),
+    }
+    myCase = await testrail.updateCase(/*CASE_ID=*/caseId, /*CONTENT=*/myTestCase).then(response => {
+      return response.body;
+    });                        
+    return myCase;
+  },
+
+  getCaseId_byScenario: async function(projectId, suiteName, sectionName, feature, scenario, forceAdd, forceUpdate) {
     if ( scenario.type != 'background') {
       const suite_id = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
       const section_id = await this.getSectionId_byName(projectId, suiteName, sectionName, forceAdd);
@@ -256,8 +268,9 @@ module.exports = {
         console.log ( " > Create test case : " + scenario.name )
         myCase = await this.addCase_byScenario(projectId, suiteName, sectionName, feature, scenario);
       }
-      else {
-        console.log ( " > Test case " + scenario.name + " found!")
+      if (myCase && forceUpdate == true) {
+        console.log ( " > Update test case : " + scenario.name )
+        myCase = await this.updateCase_byScenario(myCase.id, feature, scenario);
       }
       return myCase.id;
     } else {
