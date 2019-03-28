@@ -260,14 +260,17 @@ switch (args.trCmd) {
                 console.log ( testRunId );
 
                 //below is WIP
+                cbTestJson.forEach (feature => {
+                    var myFeature = {
+                        name: feature.keyword + ': ' + feature.name,
+                    };
+                    feature.elements.forEach ( scenario => {
+                        testrail_lib.addTestResult( testRunId, args.trProjectId, args.trSuiteName, myFeature.name, feature ,  scenario , false).then ( resp => {
+                            console.log ( resp);
+                        })
+                    })
+                })
 
-                // cbTestJson.forEach (feature => {
-                //     feature.elements.forEach ( scenario => {
-                //         testrail_lib.getTestResult ( scenario ).then ( resultid => {
-                //             console.log ( resultid);
-                //         })
-                //     })
-                // })
             })
         });
         break;
