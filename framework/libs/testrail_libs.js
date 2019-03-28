@@ -1,4 +1,3 @@
-
 const Testrail = require('testrail-api');
 const _ = require('underscore');
 const testrail = new Testrail({
@@ -20,6 +19,152 @@ module.exports = {
     }
   },
 
+  //========= MILESTONE HANDLING ===========
+  addMilestone_byName: async function(projectId, milestoneName) {
+    var myPreparedMilestone = {
+      name: milestoneName,
+      description: ''
+    };
+    var myAddedMilestone;
+    var projectName = await this.getProjectName_byId(projectId);
+    myPreparedMilestone.description = 'Milestone For ' + projectName + ' project';
+    myAddedMilestone = await testrail.addMilestone(/*PROJECT_ID=*/projectId, /*CONTENT=*/myPreparedMilestone).then(response => {
+        return response.body;
+    });
+    return myAddedMilestone;
+  },
+
+  getMilestones_byProjectId: async function(projectId, sprintId, forceAdd) {
+    var milestoneName = this.getGeneratedMilestoneName(sprintId);
+    console.log ( "> Generated milestone name : " + milestoneName)
+    var myMilestone = await testrail.getMilestones(projectId).then(response => {
+        const milestones = response.body;
+        const milestone = milestones.filter(m => m.name == milestoneName);
+        return milestone[0];
+    }).catch(err => {
+        console.error('MILESTONE testrail:', err);
+    })
+    if (myMilestone == undefined && forceAdd == true) {
+      console.log ( " > Create Milestone : " + milestoneName )
+      myMilestone = await this.addMilestone_byName(projectId, milestoneName);
+    }
+    return myMilestone.id;
+  },
+
+  getGeneratedMilestoneName: function (sprintId){
+    if (sprintId == 0) {
+      return "Sprint " + this.getCurrentSprintID() + " - Automated Regression"
+    }
+    return "Sprint " + sprintId + " - Automated Regression"
+  },
+
+  //========= TEST RUNS HANDLING ===========
+  addTestRun_byName: async function(projectId, milestoneId, suiteId, testRunName) {
+    var myPreparedTestRun = {
+      name: testRunName,
+      milestone_id: milestoneId,
+      suite_id : suiteId,
+      include_all: true, 
+      description: ''
+    };
+    console.dir ( myPreparedTestRun );
+    var myAddedTestRun;
+    var projectName = await this.getProjectName_byId(projectId);
+    myPreparedTestRun.description = 'Test Run For ' + projectName + ' project';
+    myAddedTestRun = await testrail.addRun(/*PROJECT_ID=*/projectId, /*CONTENT=*/myPreparedTestRun).then(response => {        
+        return response.body;
+    });
+    return myAddedTestRun;
+  },
+
+  getTestRuns_byMilestoneId: async function(projectId,  milestoneId , sprintId, suiteName, forceAdd) {
+    var suiteId = await this.getSuiteId_byName ( projectId , suiteName , false );
+    var testRunName = this.getGeneratedTestRunName(sprintId , suiteName);
+    console.log ( "> Generated testrun name : " + testRunName)
+    var myTestRun = await testrail.getRuns(projectId).then ( response => {
+        const testRuns = response.body;
+        const testRun = testRuns.filter(r => (r.name == testRunName && r.milestone_id == milestoneId));
+        return testRun[0];
+    }).catch(err => {
+        console.error('MILESTONE testrail:', err);
+    })
+    if (myTestRun == undefined && forceAdd == true) {
+      console.log ( " > Create Test Run : " + testRunName )
+      myTestRun = await this.addTestRun_byName(projectId, milestoneId, suiteId, testRunName);
+    }
+    return myTestRun.id;
+  },
+
+  getGeneratedTestRunName: function (sprintId , suiteName){
+    var currentDate = new Date().toJSON().slice(0,10).replace(/-/g,'/');
+    if (sprintId == 0) {
+      return "Sprint " + this.getCurrentSprintID() + " - " + suiteName + " Automated Regression " + currentDate
+    }
+    return "Sprint " + sprintId + " - " + suiteName + " Automated Regression " + currentDate
+  },
+
+  //========= TEST RESULTS HANDLING (WIP) ===========
+  //WIP
+  addXXXX: async function(projectId, suiteName, sectionName, feature, scenario ) {
+    var myCase = await this.getSectionId_byName(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {      
+      var myTestCase = {
+        title : scenario.keyword + ': ' + scenario.name,
+        custom_automation: 1, //1- to be automated
+        custom_bdd_scenario: this.constructScenario(feature, scenario),
+      }
+      return testrail.addCase(/*SECTION_ID=*/sectionId, /*CONTENT=*/myTestCase).then(response => {
+        return response.body;
+      });                        
+    });
+    return myCase;
+  },
+
+  //WIP
+  getTestResult: async function(projectId, suiteName, sectionName, feature, scenario, forceAdd) {
+    var caseId = await this.getCaseId_byScenario ( projectId , suiteName , sectionName , feature , scenario , false );
+    
+    if ( scenario.type != 'background') {
+      const suite_id = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
+      const section_id = await this.getSectionId_byName(projectId, suiteName, sectionName, forceAdd);
+      const myCaseFilter = {suite_id, section_id};
+      var myCase = await testrail.getCases(projectId, myCaseFilter).then(response => {
+          const myCases = response.body;
+          const myCase = myCases.filter(s => (s.title == scenario.keyword + ': ' + scenario.name));
+          return myCase[0];
+      }).catch(err => {
+          console.error('CASE testrail:', err);
+      })
+      if (myCase == undefined && forceAdd == true) {
+        console.log ( " > Create test case : " + scenario.name )
+        myCase = await this.addCase_byScenario(projectId, suiteName, sectionName, feature, scenario);
+      }
+      return myCase.id;
+    } else {
+      return 0;
+    }
+  },
+
+  //WIP
+  constructResultSummary: function (feature, caseId) {
+    var resultSummary = [];
+    var result = {}
+    var resultComment = "";
+    var resultElapsed = 0;
+    feature.elements.forEach (scenario =>{
+      //var caseId = await this.getCaseId_byScenario ( projectId , suiteName , sectionName , feature , scenario , false );
+      scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach(step => {
+        resultComment += step.keyword + " " + step.name + " ==> " + step.status.toUpperCase() + "\r\n";
+        resultElapsed += step.duration;
+      });
+      result.comment = resultComment;
+      result.elapsed = (resultElapsed > 0) ? resultElapsed + "s" : null ; //null for undefined steps
+    })
+    
+   
+    
+  },
+
+  //========= TEST SUITES (MODULES) HANDLING ===========
   addSuite_byName: async function(projectId, suiteName) {
     var myPreparedSuite = {
       name: suiteName,
@@ -43,14 +188,14 @@ module.exports = {
     }).catch(err => {
         console.error('SUITE testrail:', err);
     })
-    // console.dir(mySuite);
     if (mySuite == undefined && forceAdd == true) {
       console.log ( " > Create suite : " + suiteName )
       mySuite = await this.addSuite_byName(projectId, suiteName);
-    }
+    }   
     return mySuite.id;
   },
 
+  //========= TEST SECTIONS (FEATURES) HANDLING ===========
   addSection_byName: async function(projectId, suiteName, sectionName) {
     var mySection = await this.getSuiteId_byName(projectId, suiteName, /*forceAdd*/true).then(suiteId => {
       var myFeature = {
@@ -80,6 +225,7 @@ module.exports = {
     return mySection.id;
   },
 
+  //========= TEST CASE (SCENARIO) HANDLING ===========
   addCase_byScenario: async function(projectId, suiteName, sectionName, feature, scenario ) {
     var myCase = await this.getSectionId_byName(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {      
       var myTestCase = {
@@ -109,6 +255,9 @@ module.exports = {
       if (myCase == undefined && forceAdd == true) {
         console.log ( " > Create test case : " + scenario.name )
         myCase = await this.addCase_byScenario(projectId, suiteName, sectionName, feature, scenario);
+      }
+      else {
+        console.log ( " > Test case " + scenario.name + " found!")
       }
       return myCase.id;
     } else {
