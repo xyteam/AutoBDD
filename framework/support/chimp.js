@@ -30,6 +30,9 @@ if (process.env.LOCALSELPORT) {
         case "CH":
           module.exports = require(frameworkPath + "/framework/configs/chimp_Linux_CH.js");
         break;
+        case "FF":
+        module.exports = require(frameworkPath + "/framework/configs/chimp_Linux_FF.js");
+        break;
       }
     break;
     default:

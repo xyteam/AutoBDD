@@ -2,6 +2,7 @@
 
 const screen_session = require('./screen_session');
 const encodeUrl = require('encodeurl');
+const defaultTimeout = 15*1000;
 
 module.exports = {
   resetAll: function(session) {
@@ -22,7 +23,7 @@ module.exports = {
   openUrl: function(session, url) {
     var handle = setInterval(function() {
       session.refresh();
-    }, 15*1000);
+    }, defaultTimeout);
     session.url(url);
     clearInterval(handle);
   },
@@ -30,7 +31,7 @@ module.exports = {
   openUrlInNewTab: function(session, url) {
     var handle = setInterval(function() {
       session.refresh();
-    }, 15*1000);
+    }, defaultTimeout);
     session.newWindow(url);
     session.pause(1000);
     if (process.env.BROWSER == 'IE') {
@@ -54,7 +55,28 @@ module.exports = {
   },
 
   displayMessage: function(session, displayMsg) {
-    session.url('data: text/plain;charset=utf-8, ' + encodeUrl(displayMsg, {charset: 'utf-8'}));
+    session.url('data:text/plain;charset=utf-8,' + encodeUrl(displayMsg, {charset: 'utf-8'}));
     session.pause(1000);
+  },
+
+  // wait until DOM content is loaded or timeout
+  waitDOMContentLoaded: function(session, timeout) {
+    var timeout = timeout || defaultTimeout;
+    session.windowHandle().addEventListener('DOMContentLoaded', (event) => {
+      return;
+    });
+    session.pause(timeout)
+    return;
+  },
+
+  // wait until Image content is loaded or timeout
+  waitImageContentLoaded: function(session, timeout) {
+    var timeout = timeout || defaultTimeout;
+    session.windowHandle().addEventListener('onload', (event) => {
+      return;
+    });
+    session.pause(timeout)
+    return;
   }
+  
 }
