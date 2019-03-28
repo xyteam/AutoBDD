@@ -65,8 +65,13 @@ const options = buildOptions({
     },
     trForceAdd: {
         type: 'boolean',
-        default: true
+        default: false
     },
+    trForceUpdate: {
+        type: 'boolean',
+        default: false
+    },
+
 	// Special option for positional arguments (`_` in minimist)
 	arguments: 'string'
 });
@@ -205,17 +210,17 @@ switch (args.trCmd) {
         }
         const cbJson = jsonfile.readFileSync(args.cbJsonPath);
         const mySuiteName = args.cbJsonPath.substring(args.cbJsonPath.lastIndexOf('/')+1, args.cbJsonPath.lastIndexOf('.'));
-        testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, /*forceAdd*/args.trForceAdd).then(suiteId => {
+        testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(suiteId => {
             cbJson.forEach(feature => {
                 var myFeature = {
                     name: feature.keyword + ': ' + feature.name,
                     suite_id: suiteId,
                     description: feature.description
                 };
-                testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/args.trForceAdd).then(sectionId => (async () => {  
+                testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(sectionId => (async () => {  
                     for (var index = 0; index < feature.elements.length; index++) {
                         scenario = feature.elements[index];
-                        await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd).then(myCaseId => {
+                        await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(myCaseId => {
                             console.log('trCaseId: ' + myCaseId);
                         });
                     };                    
