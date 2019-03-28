@@ -104,65 +104,38 @@ module.exports = {
   },
 
   //========= TEST RESULTS HANDLING (WIP) ===========
-  //WIP
-  addXXXX: async function(projectId, suiteName, sectionName, feature, scenario ) {
-    var myCase = await this.getSectionId_byName(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {      
-      var myTestCase = {
-        title : scenario.keyword + ': ' + scenario.name,
-        custom_automation: 1, //1- to be automated
-        custom_bdd_scenario: this.constructScenario(feature, scenario),
-      }
-      return testrail.addCase(/*SECTION_ID=*/sectionId, /*CONTENT=*/myTestCase).then(response => {
+    //WIP
+    addTestResult: async function( testRunId, projectId, suiteName, sectionName, feature, scenario, forceAdd) {    
+      var caseId = await this.getCaseId_byScenario ( projectId , suiteName , sectionName , feature , scenario , forceAdd );
+      var result = this.constructResultSummary ( scenario , caseId );
+      testrail.addResultForCase (testRunId , caseId, result ).then ( response => {
         return response.body;
-      });                        
-    });
-    return myCase;
-  },
-
-  //WIP
-  getTestResult: async function(projectId, suiteName, sectionName, feature, scenario, forceAdd) {
-    var caseId = await this.getCaseId_byScenario ( projectId , suiteName , sectionName , feature , scenario , false );
-    
-    if ( scenario.type != 'background') {
-      const suite_id = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
-      const section_id = await this.getSectionId_byName(projectId, suiteName, sectionName, forceAdd);
-      const myCaseFilter = {suite_id, section_id};
-      var myCase = await testrail.getCases(projectId, myCaseFilter).then(response => {
-          const myCases = response.body;
-          const myCase = myCases.filter(s => (s.title == scenario.keyword + ': ' + scenario.name));
-          return myCase[0];
-      }).catch(err => {
-          console.error('CASE testrail:', err);
       })
-      if (myCase == undefined && forceAdd == true) {
-        console.log ( " > Create test case : " + scenario.name )
-        myCase = await this.addCase_byScenario(projectId, suiteName, sectionName, feature, scenario);
-      }
-      return myCase.id;
-    } else {
-      return 0;
-    }
-  },
-
-  //WIP
-  constructResultSummary: function (feature, caseId) {
-    var resultSummary = [];
-    var result = {}
-    var resultComment = "";
-    var resultElapsed = 0;
-    feature.elements.forEach (scenario =>{
+    },
+  
+    //WIP
+    constructResultSummary: function (scenario, caseId) {
+      var result = {}
+      var status = 1; /*1 - passed, 2 - blocked, 3 - untested , 4 - retest , 5 - failed */
+      var resultComment = "";
+      var resultElapsed = 0;
       //var caseId = await this.getCaseId_byScenario ( projectId , suiteName , sectionName , feature , scenario , false );
       scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach(step => {
-        resultComment += step.keyword + " " + step.name + " ==> " + step.status.toUpperCase() + "\r\n";
-        resultElapsed += step.duration;
+        resultComment += step.keyword + " " + step.name + " ==> " + step.result.status.toUpperCase() + "\r\n";
+        if ( step.result.status != "passed") {
+          status = 5;
+        }
+        if (_.has ( step.result , "error_message")) {
+          resultComment += step.result.error_message + "\r\n";
+        }
+        resultElapsed += step.result.duration;
       });
+      result.case_id = caseId;
       result.comment = resultComment;
+      result.status_id = status;
       result.elapsed = (resultElapsed > 0) ? resultElapsed + "s" : null ; //null for undefined steps
-    })
-    
-   
-    
-  },
+      return result;
+    },
 
   //========= TEST SUITES (MODULES) HANDLING ===========
   addSuite_byName: async function(projectId, suiteName) {
