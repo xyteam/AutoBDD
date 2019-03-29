@@ -270,7 +270,7 @@ module.exports = {
   },
 
   //========= TEST SECTIONS (FEATURES) HANDLING ===========
-  addSection_byName: async function(projectId, suiteName, sectionName, ) {
+  addSection_byName: async function(projectId, suiteName, sectionName ) {
     var mySection = await this.getSuiteId_byName(projectId, suiteName, /*forceAdd*/true).then(suiteId => {
       var myFeature = {
         name: sectionName,
@@ -283,7 +283,7 @@ module.exports = {
     return mySection;
   },
 
-  getSectionId_byName: async function(projectId, suiteName, sectionName,  forceAdd) {
+  getSectionId_byName: async function(projectId, suiteName, sectionName, forceAdd) {
     const mySuiteId = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
     var mySection = await testrail.getSections(projectId, mySuiteId).then(response => {
         const sections = response.body;
