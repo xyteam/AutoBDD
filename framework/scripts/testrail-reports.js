@@ -225,7 +225,19 @@ switch (args.trCmd) {
             console.log(mySection.name);
         });
         break;
+    case 'cbPretestCheck' :
+        const cbJson2 = jsonfile.readFileSync(args.cbJsonPath);
+        testrail_lib.getPretestStatus(cbJson2).then( result => {
+            console.log ("No issue detected in the JSON result. All good!")
+        }).catch ( error  => {
+            console.error ("[Scenario Naming Error] Duplicated scenario name detected (normally caused by non-unique scenario outline naming). duplicated list : ")
+          console.dir ( error );
+        });
+        break;
     case 'cbAddCases':
+    /*Input: 
+    [Required: trProjectId, cbJsonPath]
+    [Optional: trForceAdd(false), trForceUpdate(false)]*/
         if (!args.trProjectId) {
             console.log('trProjectId is required');
             break;
@@ -233,51 +245,69 @@ switch (args.trCmd) {
         if (!args.cbJsonPath) {
             console.log('cbJsonPath is required');
             break;
-        }
+        }        
         const cbJson = jsonfile.readFileSync(args.cbJsonPath);
-        const mySuiteName = args.cbJsonPath.substring(args.cbJsonPath.lastIndexOf('/')+1, args.cbJsonPath.lastIndexOf('.'));
-        testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(suiteId => {
-            cbJson.forEach(feature => {
-                var myFeature = {
-                    name: feature.keyword + ': ' + feature.uri.substring(feature.uri.lastIndexOf('/')+1, feature.uri.length) + ' || ' + feature.name ,
-                    suite_id: suiteId,
-                    description: feature.description              
-                };
-                testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(sectionId => (async () => {  
-                    for (var index = 0; index < feature.elements.length; index++) {
-                        scenario = feature.elements[index];
-                        await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(myCaseId => {                            
-                            if ( myCaseId != 0 ) console.log('trCaseId: ' + myCaseId)   
-                        });
-                    };                    
-                })()); // convert callback into async func to use await inside (async () => {})()
-            })
+        testrail_lib.getSuiteName_byResultJson (cbJson).then ( mySuiteName => {    
+            testrail_lib.getPretestStatus(cbJson).then( result => {
+                testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(suiteId => {
+                    cbJson.forEach(feature => {
+                        var myFeature = {
+                            name: feature.keyword + ': ' + feature.uri.substring(feature.uri.lastIndexOf('/')+1, feature.uri.length) + ' || ' + feature.name ,
+                            suite_id: suiteId,
+                            description: feature.description              
+                        };
+                        testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(sectionId => (async () => {  
+                            for (var index = 0; index < feature.elements.length; index++) {
+                                scenario = feature.elements[index];
+                                await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(myCaseId => {                            
+                                    if ( myCaseId != 0 ) console.log('trCaseId: ' + myCaseId)   
+                                });
+                            };                    
+                        })()); // convert callback into async func to use await inside (async () => {})()
+                    })
+                });
+            }).catch ( error  => {
+                console.error ("[Scenario Naming Error] Duplicated scenario name detected (normally caused by non-unique scenario outline naming), Please fix to proceed.\n > Duplicated list : ")
+                console.dir ( error );
+            }); 
+        }).catch (suiteNameError => {
+            console.error (suiteNameError);
         });
+                              
         break;
     case 'cbUpdateResults' :
-    //input :
-    /*trProjectId, trSprintId, trSuiteName, cbJsonPath, trForceAdd, trForceUpdate, trTestTarget*/
-        var cbTestJson = jsonfile.readFileSync(args.cbJsonPath);
-        
-        testrail_lib.getMilestones_byProjectId(args.trProjectId, args.trSprintId , args.trForceAdd).then(milestoneId => {
-            testrail_lib.getCaseDicts_byFeature ( args.trProjectId, args.trSuiteName , cbTestJson ).then ( caseDicts => {
-                testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , args.trSuiteName , caseDicts , args.trForceAdd, args.trForceUpdate).then ( testRunId => {
-                    testrail_lib.addTestResult ( testRunId , cbTestJson, caseDicts ,args.trTestTarget).then ( result => {
-                        console.log ( "Result added/updated successfully" );
-                    }).catch (testresultErr => {
-                        console.error ( testresultErr );
-                    });                
-                }).catch ( testrunErr => {
-                    console.error ( testrunErr );
-                })
-            })        
-        }).catch ( milestoneErr => {
-            console.error ( milestoneErr );
-        });
+    /*Input: 
+    [Required: trProjectId, cbJsonPath]
+    [Optional: trSprintId (auto), trForceAdd(false), trForceUpdate(false), trTestTarget(QA)]*/
+        var cbTestJson = jsonfile.readFileSync(args.cbJsonPath);    
+        testrail_lib.getSuiteName_byResultJson (cbTestJson).then ( mySuiteName => {
+            testrail_lib.getPretestStatus(cbTestJson).then( result => {
+                testrail_lib.getMilestones_byProjectId(args.trProjectId, args.trSprintId , args.trForceAdd).then(milestoneId => {
+                    testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbTestJson ).then ( caseDicts => {
+                        testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , mySuiteName , caseDicts , args.trForceAdd, args.trForceUpdate).then ( testRunId => {
+                            testrail_lib.addTestResult ( testRunId , cbTestJson, caseDicts ,args.trTestTarget).then ( result => {
+                                console.log ( "Result added/updated successfully" );
+                            }).catch (testresultErr => {
+                                console.error ( testresultErr );
+                            });                
+                        }).catch ( testrunErr => {
+                            console.error ( testrunErr );
+                        })
+                    })        
+                }).catch ( milestoneErr => {
+                    console.error ( milestoneErr );
+                });  
+            }).catch ( error  => {
+                console.error ("[Scenario Naming Error] Duplicated scenario name detected (normally caused by non-unique scenario outline naming), Please fix to proceed.\n > Duplicated list : ")
+                console.dir ( error );
+            });           
+        }).catch (suiteNameError => {
+            console.error (suiteNameError);
+        }); 
         break;
-    case 'DeleteSections':
+    case 'xDeleteSections':
         //use for testing only
-        testrail_lib.getSuiteId_byName ( 63, args.trSuiteName ).then ( suiteid => {
+        testrail_lib.getSuiteId_byName ( 63, args.trSuiteName , false ).then ( suiteid => {
             console.log ( "FOUND SUITE : " + suiteid)
             testrail.getSections(/*PROJECT_ID=*/ 63, /*suite-id*/ suiteid , function (err, response, sections) {
                 sections.forEach ( sec => {
@@ -286,5 +316,16 @@ switch (args.trCmd) {
                 })
             });            
         })
+    break;
+    case 'xDeleteSuites':
+        //use for testing only
+        testrail_lib.getSuiteId_byName ( 63, args.trSuiteName , false ).then ( suiteid => {
+            console.log ( "FOUND SUITE : " + suiteid)
+            console.log ( "Deleting suite => " + suiteid )
+            testrail.deleteSuite ( suiteid );
+            });            
+        break;
+    default:
+        console.error ( "Unknown command \"" + args.trCmd + "\" provided to trCmd parameter. ");
         break;
 }
