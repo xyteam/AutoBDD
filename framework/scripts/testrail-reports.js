@@ -82,6 +82,9 @@ const options = buildOptions({
         type: 'string',
         default: "QA"
     },
+    trTestrunId: {
+        type: 'number'        
+    },
 
 	// Special option for positional arguments (`_` in minimist)
 	arguments: 'string'
@@ -183,7 +186,7 @@ switch (args.trCmd) {
         });
         break;
     case 'getSuiteByName':
-    case 'getModuleByName':
+    case 'getModuleByName':    
         testrail_lib.getSuiteId_byName(args.trProjectId, args.trSuiteName).then(suiteId => {
             testrail.getSuite(/*SUITE_ID=*/suiteId, function (err, response, suite) {
                 console.log(suite);
@@ -226,13 +229,17 @@ switch (args.trCmd) {
         });
         break;
     case 'cbPretestCheck' :
-        const cbJson2 = jsonfile.readFileSync(args.cbJsonPath);
-        testrail_lib.getPretestStatus(cbJson2).then( result => {
+        if (!args.cbJsonPath) {
+            console.log('cbJsonPath is required');
+            break;
+        }   
+        const cbJsonPretest = jsonfile.readFileSync(args.cbJsonPath);
+        testrail_lib.getPretestStatus(cbJsonPretest)
+        .then( result => {
             console.log ("No issue detected in the JSON result. All good!")
-        }).catch ( error  => {
-            console.error ("[Scenario Naming Error] Duplicated scenario name detected (normally caused by non-unique scenario outline naming). duplicated list : ")
-          console.dir ( error );
-        });
+        }).catch ( preTestError  => {                
+            console.error ( preTestError );
+        }); 
         break;
     case 'cbAddCases':
     /*Input: 
@@ -247,64 +254,118 @@ switch (args.trCmd) {
             break;
         }        
         const cbJson = jsonfile.readFileSync(args.cbJsonPath);
-        testrail_lib.getSuiteName_byResultJson (cbJson).then ( mySuiteName => {    
-            testrail_lib.getPretestStatus(cbJson).then( result => {
-                testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(suiteId => {
+        testrail_lib.getSuiteName_byResultJson (cbJson)
+        .then ( mySuiteName => {
+            // testrail_lib.getPretestStatus(cbJson)
+            // .then( pretestResult => {                
+                testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+                .then(suiteId => {
                     cbJson.forEach(feature => {
                         var myFeature = {
-                            name: feature.keyword + ': ' + feature.uri.substring(feature.uri.lastIndexOf('/')+1, feature.uri.length) + ' || ' + feature.name ,
+                            //name: feature.keyword + ': ' + feature.uri.substring(feature.uri.lastIndexOf('/')+1, feature.uri.length) + ' || ' + feature.name ,
+                            name: testrail_lib.getGeneratedSectionName (feature),
                             suite_id: suiteId,
-                            description: feature.description              
+                            description: feature.description           
                         };
-                        testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(sectionId => (async () => {  
+                        testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+                        .then(sectionId => (async () => {  
                             for (var index = 0; index < feature.elements.length; index++) {
                                 scenario = feature.elements[index];
-                                await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate).then(myCaseId => {                            
-                                    if ( myCaseId != 0 ) console.log('trCaseId: ' + myCaseId)   
+                                await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+                                .then(myCaseId => {
+                                    if ( myCaseId != 0 ) console.log('trCaseId: ' + myCaseId);
+                                }).catch (getCaseError => {
+                                    console.error (getCaseError);
                                 });
                             };                    
-                        })()); // convert callback into async func to use await inside (async () => {})()
-                    })
+                        })()).catch (getSectionError => {
+                            console.error (getSectionError);
+                        }); // convert callback into async func to use await inside (async () => {})()
+                    });
+                }).catch (getSuiteError => {
+                    console.error (getSuiteError);
                 });
-            }).catch ( error  => {
-                console.error ("[Scenario Naming Error] Duplicated scenario name detected (normally caused by non-unique scenario outline naming), Please fix to proceed.\n > Duplicated list : ")
-                console.dir ( error );
-            }); 
-        }).catch (suiteNameError => {
+            // }).catch ( preTestError  => {                
+            //     console.error ( preTestError );
+            // }); 
+        }).catch (suiteNameError => { 
             console.error (suiteNameError);
-        });
-                              
+        });                            
         break;
-    case 'cbUpdateResults' :
+
+    case 'cbAddTestrun' :
     /*Input: 
     [Required: trProjectId, cbJsonPath]
     [Optional: trSprintId (auto), trForceAdd(false), trForceUpdate(false), trTestTarget(QA)]*/
-        var cbTestJson = jsonfile.readFileSync(args.cbJsonPath);    
-        testrail_lib.getSuiteName_byResultJson (cbTestJson).then ( mySuiteName => {
-            testrail_lib.getPretestStatus(cbTestJson).then( result => {
-                testrail_lib.getMilestones_byProjectId(args.trProjectId, args.trSprintId , args.trForceAdd).then(milestoneId => {
-                    testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbTestJson ).then ( caseDicts => {
-                        testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , mySuiteName , caseDicts , args.trForceAdd, args.trForceUpdate).then ( testRunId => {
-                            testrail_lib.addTestResult ( testRunId , cbTestJson, caseDicts ,args.trTestTarget).then ( result => {
-                                console.log ( "Result added/updated successfully" );
-                            }).catch (testresultErr => {
-                                console.error ( testresultErr );
-                            });                
-                        }).catch ( testrunErr => {
-                            console.error ( testrunErr );
+        if (!args.trProjectId) {
+            console.log('trProjectId is required');
+            break;
+        }
+        if (!args.cbJsonPath) {
+            console.log('cbJsonPath is required');
+            break;
+        }  
+        const cbJsonTestrun = jsonfile.readFileSync(args.cbJsonPath);    
+        testrail_lib.getSuiteName_byResultJson (cbJsonTestrun)
+        .then ( mySuiteName => {
+            // testrail_lib.getPretestStatus(cbJsonTestrun)
+            // .then( pretestResult => {
+                testrail_lib.getMilestones_byProjectId(args.trProjectId, args.trSprintId , args.trForceAdd)
+                .then(milestoneId => {
+                    testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbJsonTestrun )
+                    .then ( caseDicts => {
+                        testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , mySuiteName , caseDicts , args.trForceAdd, args.trForceUpdate)
+                        .then ( testRunId => {
+                            console.log ( "> " + testRunId);
+                            // testrail_lib.addTestResult ( testRunId , cbJsonTestrun, caseDicts ,args.trTestTarget)
+                            // .then ( result => {
+                            //     console.log ( "Result added/updated successfully" );
+                            // }).catch (testresultError => {
+                            //     console.error ( testresultError );
+                            // });                
+                        }).catch ( testrunError => {
+                            console.error ( testrunError );
                         })
-                    })        
-                }).catch ( milestoneErr => {
-                    console.error ( milestoneErr );
+                    }).catch ( caseDictError => {
+                        console.error (caseDictError );
+                    });   
+                }).catch ( milestoneError => {
+                    console.error ( milestoneError );
                 });  
-            }).catch ( error  => {
-                console.error ("[Scenario Naming Error] Duplicated scenario name detected (normally caused by non-unique scenario outline naming), Please fix to proceed.\n > Duplicated list : ")
-                console.dir ( error );
-            });           
+            // }).catch ( preTestError  => {                
+            //     console.error ( preTestError );
+            // });      
         }).catch (suiteNameError => {
             console.error (suiteNameError);
         }); 
         break;
+
+    case 'cbUpdateResults' :
+    /*Input: 
+    [Required: trProjectId, cbJsonPath]
+    [Optional: trSprintId (auto), trForceAdd(false), trForceUpdate(false), trTestTarget(QA)]*/
+        if (!args.trProjectId) {
+            console.log('trProjectId is required');
+            break;
+        }
+        if (!args.cbJsonPath) {
+            console.log('cbJsonPath is required');
+            break;
+        }  
+        const cbJsonUpdate = jsonfile.readFileSync(args.cbJsonPath);   
+        
+         testrail_lib.getSuiteName_byResultJson (cbJsonUpdate)
+         .then ( mySuiteName => {
+            testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbJsonUpdate )
+            .then ( caseDicts => {
+                testrail_lib.addTestResult ( args.trTestrunId, cbJsonUpdate, caseDicts, args.trTestTarget)
+                // .then (result => {
+                //     console.log ( "OK!!");
+                // })
+            })
+        })
+        break;
+
     case 'xDeleteSections':
         //use for testing only
         testrail_lib.getSuiteId_byName ( 63, args.trSuiteName , false ).then ( suiteid => {
@@ -316,7 +377,8 @@ switch (args.trCmd) {
                 })
             });            
         })
-    break;
+        break;
+
     case 'xDeleteSuites':
         //use for testing only
         testrail_lib.getSuiteId_byName ( 63, args.trSuiteName , false ).then ( suiteid => {
@@ -324,6 +386,10 @@ switch (args.trCmd) {
             console.log ( "Deleting suite => " + suiteid )
             testrail.deleteSuite ( suiteid );
             });            
+        break;
+
+    case 'test':
+        console.log ( testrail_lib.getMilestoneDuedate_bySprintId (args.trSprintId));
         break;
     default:
         console.error ( "Unknown command \"" + args.trCmd + "\" provided to trCmd parameter. ");
