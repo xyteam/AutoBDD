@@ -80,6 +80,7 @@ module.exports = {
                   `  > Possible resolution: Please supply "--trForceAdd true" to add the missing suite\n`;
         throw err;    
     }
+
     return mySuite.id;
   },
 
@@ -172,7 +173,9 @@ module.exports = {
         custom_automation: 1, //1- to be automated
         custom_bdd_scenario: this.constructScenario(feature, scenario),
       };
+      console.log ( " LENGTH : " + myTestCase.custom_bdd_scenario.length);
       return testrail.addCase(/*SECTION_ID=*/sectionId, /*CONTENT=*/myTestCase).then(response => {
+        //console.log ( response );
         return response.body;
       });                        
     });
@@ -182,7 +185,7 @@ module.exports = {
   updateCase_byScenario: async function (caseId, feature, scenario) {
     var myTestCase = {
       title : this.getGeneratedCaseName(scenario),
-      custom_automation: 1, //1- to be automated
+      //custom_automation: 1, //1- to be automated
       custom_bdd_scenario: this.constructScenario(feature, scenario),
     };
     myCase = await testrail.updateCase(/*CASE_ID=*/caseId, /*CONTENT=*/myTestCase).then(response => {
@@ -359,20 +362,75 @@ module.exports = {
 
   //=============== TEST RESULTS HANDLING ==============
 
-  addTestResult: async function (testRunId,  cbJson,  caseDicts , testTarget) {   
-    this.constructResultsSummary ( cbJson , caseDicts , testTarget ).then ( results => {
-      console.log ( " > "  + results.length);
+  addTestResultInBulk: async function (testRunId,  cbJson,  caseDicts , testTarget, jenkinsPath) {   
+    this.constructResultsSummary ( cbJson , caseDicts , testTarget , jenkinsPath).then ( results => {
+      console.log ( " > Test result count : "  + results.length);
       testrail.addResultsForCases (testRunId , results).then ( response => {
         return response;
       }).catch ( err => {
-        console.log ( err );
-        //console.error ( err );
+        console.error ( err );
       });
-    });
-    
+    });    
   },
 
-  constructResultsSummary: async function (cbJson, caseDicts, testTarget) {     
+  //@obsolete
+  xaddTestResult: function( testRunId, projectId, suiteName, sectionName, feature, scenario, forceAdd, testTarget) {
+     this.getCaseId_byScenario ( projectId , suiteName , sectionName , feature , scenario , forceAdd ).then( cid => { 
+       if ( cid != 0 ) {
+        var result = this.constructResultSummary ( cid, scenario , testTarget  );
+        testrail.addResultForCase (testRunId , cid, result ).then ( response => {
+          return response.body;
+        }).catch(err => {
+          console.log (  err );
+        })
+       }      
+     
+    }).catch( err => {
+      console.log ( err );
+    });
+  },
+
+
+  constructResultSummary: function (caseId, scenario , testTarget) {
+    var targetStatus = 0; /*1 - passed on QA, 2 - blocked, 3 - untested , 4 - retest , 5 - failed , 10 - passed on support , 11 - passed on stg , 12 - passed on prod*/      
+    switch (testTarget.toLowerCase()) {
+      case "qa": targetStatus = 1; break;
+      case "support": targetStatus = 10; break;
+      case "staging":
+      case "stg" : targetStatus = 11; break;
+      case "production":
+      case "prod": targetStatus = 12; break;
+      default : targetStatus = 1; break;
+    }
+    var result = {}
+    var status = targetStatus;
+    var resultComment = "";
+    var resultElapsed = 0;
+
+    scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach (step => {
+      resultComment += "- **" + step.result.status.toUpperCase() + "** :: " + step.keyword + " " + step.name + "\r\n";
+      if ( step.result.status != "passed") {
+        status = 5;
+      }
+      if ( _.has (step.result , "error_message")) {
+        resultComment += "\r\n**Error Message :**";
+        resultComment += "\r\n" + step.result.error_message + "\r\n\r\n";
+      }
+      resultElapsed += step.result.duration;
+    });
+    //result.case_id = caseId;
+    result.comment = resultComment;
+    result.status_id = status;
+    if ( result.status_id == targetStatus ) {
+      //todo - to be optimized
+      testrail.updateCase ( caseId , {custom_automation: 2});
+    }
+    result.elapsed = (Math.round(resultElapsed/1e9) > 0) ? (Math.round(resultElapsed/1e9)) + "s" : null ; //null for undefined steps
+    return result;
+
+  },
+
+  constructResultsSummary: async function (cbJson, caseDicts, testTarget , jenkinsPath) {     
     var targetStatus = 0; /*1 - passed on QA, 2 - blocked, 3 - untested , 4 - retest , 5 - failed , 10 - passed on support , 11 - passed on stg , 12 - passed on prod*/      
     switch (testTarget.toLowerCase()) {
       case "qa": targetStatus = 1; break;
@@ -390,20 +448,21 @@ module.exports = {
     var resultElapsed = 0;
     cbJson.forEach (feature => {
       feature.elements.forEach(scenario => {
-        scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach(step => {              
-          resultComment += "- **" + step.result.status.toUpperCase() + "** :: " + step.keyword + " " + step.name + "\r\n";
-          if ( step.result.status != "passed") {
+        scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach(step => {          
+          if ( step.result.status != "passed" && step.result.status != "skipped") {
+            resultComment += "- **" + step.result.status.toUpperCase() + "** :: " + step.keyword + " " + step.name + "\r\n";
             status = 5;
           }
           if (_.has ( step.result , "error_message") ) {
-            resultComment += "\r\n**Error Message :**";
-            resultComment += "\r\n" + step.result.error_message + "\r\n\r\n";
+            resultComment += "\r\n**Error Reference :**";
+            resultComment += "\r\n" + step.result.error_message.substring ( 0, step.result.error_message.indexOf("\n")) + "\r\n\r\n";
+            resultComment += (jenkinsPath) ? "||:For more detais, please go [Jenkins Link](" + jenkinsPath +").\r\n" : "||:Details error are not available as the test are triggered locally!\r\n";
           }
           resultElapsed += step.result.duration;
         }); 
 
-        if ( scenario.type != 'background'){   
-          result.case_id = _.find( caseDicts , d => {return d.cname == this.getGeneratedCaseName(scenario)}).cid;
+        if ( scenario.type != 'background'){      
+          result.case_id = _.find( caseDicts , d => {return d.cname == this.getGeneratedCaseName(scenario)}).cid;       
           result.comment = resultComment;          
           result.status_id = status;
           if ( result.status_id == targetStatus ) {
@@ -445,14 +504,18 @@ module.exports = {
     var genericSteps = "";
     scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach(step => {
       genericSteps += step.keyword + ' ' + step.name + '\r\n';
-      if ( _.has ( step, "rows" )) {
-        step.rows.forEach ( row => { 
-          genericSteps += '|';
-          row.cells.forEach ( cell => {            
-            genericSteps += '|' + cell;
-          });
-          genericSteps += '\r\n';
-        });
+      // if ( _.has ( step, "rows" )) {
+      //   step.rows.forEach ( row => { 
+      //     genericSteps += '|';
+      //     row.cells.forEach ( cell => {            
+      //       genericSteps += '|' + cell ;
+      //     });
+      //     genericSteps += '|\r\n';
+      //   });
+      // }
+      if ( _.has (step , "doc_string")) {        
+        console.log (" >> YES! DOCSTRING");
+        genericSteps += step.doc_string.value + "\r\n";
       }
     })
     return genericSteps;

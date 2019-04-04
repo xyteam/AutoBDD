@@ -85,6 +85,9 @@ const options = buildOptions({
     trTestrunId: {
         type: 'number'        
     },
+    trJenkinsPath : {
+        type: 'string'
+    },
 
 	// Special option for positional arguments (`_` in minimist)
 	arguments: 'string'
@@ -293,7 +296,7 @@ switch (args.trCmd) {
         });                            
         break;
 
-    case 'cbAddTestrun' :
+    case 'cbUpdateResults' :
     /*Input: 
     [Required: trProjectId, cbJsonPath]
     [Optional: trSprintId (auto), trForceAdd(false), trForceUpdate(false), trTestTarget(QA)]*/
@@ -308,8 +311,8 @@ switch (args.trCmd) {
         const cbJsonTestrun = jsonfile.readFileSync(args.cbJsonPath);    
         testrail_lib.getSuiteName_byResultJson (cbJsonTestrun)
         .then ( mySuiteName => {
-            // testrail_lib.getPretestStatus(cbJsonTestrun)
-            // .then( pretestResult => {
+            //  testrail_lib.getPretestStatus(cbJsonTestrun)
+            //  .then( pretestResult => {
                 testrail_lib.getMilestones_byProjectId(args.trProjectId, args.trSprintId , args.trForceAdd)
                 .then(milestoneId => {
                     testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbJsonTestrun )
@@ -317,12 +320,30 @@ switch (args.trCmd) {
                         testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , mySuiteName , caseDicts , args.trForceAdd, args.trForceUpdate)
                         .then ( testRunId => {
                             console.log ( "> " + testRunId);
+
+                            testrail_lib.addTestResultInBulk ( testRunId, cbJsonTestrun, caseDicts, args.trTestTarget, args.trJenkinsPath)
+
+                            // cbJsonTestrun.forEach (feature => {
+                            //     var myFeature = {
+                            //         name: testrail_lib.getGeneratedSectionName(feature)
+                            //     };                            
+                            //     feature.elements.forEach ( scenario => { 
+                            //          testrail_lib.addTestResult ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false, args.trTestTarget)//.then( resp => {
+                            //            // console.log ( resp );
+                            //         //})
+                            //     })
+                            //     // feature.elements.forEach ( scenario => (async () => {
+                            //     //     await testrail_lib.addTestResult ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false).then( resp => {
+                            //     //        // console.log ( resp );
+                            //     //     })
+                            //     // })())
+                            // })
                             // testrail_lib.addTestResult ( testRunId , cbJsonTestrun, caseDicts ,args.trTestTarget)
                             // .then ( result => {
                             //     console.log ( "Result added/updated successfully" );
                             // }).catch (testresultError => {
                             //     console.error ( testresultError );
-                            // });                
+                            // });
                         }).catch ( testrunError => {
                             console.error ( testrunError );
                         })
@@ -332,15 +353,16 @@ switch (args.trCmd) {
                 }).catch ( milestoneError => {
                     console.error ( milestoneError );
                 });  
-            // }).catch ( preTestError  => {                
-            //     console.error ( preTestError );
-            // });      
+            //  }).catch ( preTestError  => {                
+            //      console.error ( preTestError );
+            //  });      
         }).catch (suiteNameError => {
             console.error (suiteNameError);
         }); 
+
         break;
 
-    case 'cbUpdateResults' :
+    case 'cbUpdateResultsBulk' :
     /*Input: 
     [Required: trProjectId, cbJsonPath]
     [Optional: trSprintId (auto), trForceAdd(false), trForceUpdate(false), trTestTarget(QA)]*/
@@ -358,7 +380,7 @@ switch (args.trCmd) {
          .then ( mySuiteName => {
             testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbJsonUpdate )
             .then ( caseDicts => {
-                testrail_lib.addTestResult ( args.trTestrunId, cbJsonUpdate, caseDicts, args.trTestTarget)
+                testrail_lib.addTestResultInBulk ( args.trTestrunId, cbJsonUpdate, caseDicts, args.trTestTarget)
                 // .then (result => {
                 //     console.log ( "OK!!");
                 // })
@@ -386,10 +408,6 @@ switch (args.trCmd) {
             console.log ( "Deleting suite => " + suiteid )
             testrail.deleteSuite ( suiteid );
             });            
-        break;
-
-    case 'test':
-        console.log ( testrail_lib.getMilestoneDuedate_bySprintId (args.trSprintId));
         break;
     default:
         console.error ( "Unknown command \"" + args.trCmd + "\" provided to trCmd parameter. ");
