@@ -243,7 +243,7 @@ module.exports = {
 
   //=============== TEST RUNS HANDLING =================
 
-  getTestRuns_byMilestoneId: async function (projectId, milestoneId, sprintId, suiteName, caseDicts, forceAdd, forceUpdate) {
+  getTestRuns_byMilestoneId: async function (projectId, milestoneId, sprintId, suiteName, caseDicts, jenkinsPath, forceAdd, forceUpdate) {
     var isValid = true;
     var suiteId = await this.getSuiteId_byName ( projectId , suiteName , false );
     var testRunName = this.getGeneratedTestRunName(sprintId , suiteName , 0);
@@ -261,11 +261,11 @@ module.exports = {
     if (isValid) {
       if (myTestRun && forceUpdate == true ) {
         console.log ("> Update Test Run : " + testRunName );
-        myTestRun = await this.updateTestRun_byName (myTestRun.id, caseDicts);
+        myTestRun = await this.updateTestRun_byName (myTestRun.id, caseDicts, jenkinsPath);
       }
       if (myTestRun == undefined && forceAdd == true) {
         console.log ( "> Create Test Run : " + testRunName );
-        myTestRun = await this.addTestRun_byName(projectId, milestoneId, suiteId, testRunName, caseDicts);
+        myTestRun = await this.addTestRun_byName(projectId, milestoneId, suiteId, testRunName, caseDicts, jenkinsPath);
       } else if (myTestRun == undefined && forceAdd == false) {
         let err = `\n[TestRun-Handling-Error] Test run "${testRunName}" does not exist and NO request to add it.\n` +
                   `  > Possible resolution: Please supply "--trForceAdd true" to add the missing test run\n`;
@@ -280,7 +280,7 @@ module.exports = {
     }    
   },
 
-  addTestRun_byName: async function (projectId, milestoneId, suiteId, testRunName, caseDicts) {
+  addTestRun_byName: async function (projectId, milestoneId, suiteId, testRunName, caseDicts , jenkinsPath) {
     var caseIds = [];
     caseDicts.forEach ( caseDict => {
       caseIds.push ( caseDict.cid );
@@ -295,14 +295,14 @@ module.exports = {
     };
     var myAddedTestRun;
     var projectName = await this.getProjectName_byId(projectId);
-    myPreparedTestRun.description = 'Test Run For ' + projectName + ' project';
+    myPreparedTestRun.description = (jenkinsPath) ? "Latest test run is triggered from Jenkins job. Job details : " + jenkinsPath : "Latest test run is triggered locally (without Jenkins)"
     myAddedTestRun = await testrail.addRun(/*PROJECT_ID=*/projectId, /*CONTENT=*/myPreparedTestRun).then(response => {        
         return response.body;
     });
     return myAddedTestRun;
   },
 
-  updateTestRun_byName: async function (testRunId, caseDicts) {
+  updateTestRun_byName: async function (testRunId, caseDicts, jenkinsPath) {
     var caseIds = [];
     caseDicts.forEach ( caseDict => {
       caseIds.push ( caseDict.cid );
@@ -315,10 +315,10 @@ module.exports = {
       return data;
     })
     var finalcaseids = currentCaseIds.concat (caseIds);
-    var updatedTestRun = {
+    var updatedTestRun = {      
       "case_ids" : finalcaseids
     }
-
+    updatedTestRun.description = (jenkinsPath) ? "Latest test run is triggered from Jenkins job. Job details : " + jenkinsPath : "Latest test run is triggered locally (without Jenkins)"
     myTestRun = testrail.updateRun(/*RUN_ID=*/testRunId, /*CONTENT=*/updatedTestRun).then ( response => {
       return response.body;
     })

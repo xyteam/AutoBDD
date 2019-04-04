@@ -317,7 +317,7 @@ switch (args.trCmd) {
                 .then(milestoneId => {
                     testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbJsonTestrun )
                     .then ( caseDicts => {
-                        testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , mySuiteName , caseDicts , args.trForceAdd, args.trForceUpdate)
+                        testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , mySuiteName , caseDicts , args.trJenkinsPath, args.trForceAdd, args.trForceUpdate)
                         .then ( testRunId => {
                             console.log ( "> " + testRunId);
 
