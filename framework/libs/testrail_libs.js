@@ -525,7 +525,7 @@ module.exports = {
   //===================== UTILITIES ====================
 
   getConstructCucumberReportPath : function (feature) {
-    const CUKE_APPEND = 'report-feature_'; 
+    const CUKE_APPEND = 'cucumber-html-reports/report-feature_'; 
     var cukePath = CUKE_APPEND + feature.uri.replace(/\//g,'-') + ".html";
     return cukePath;
     
