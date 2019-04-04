@@ -390,7 +390,7 @@ module.exports = {
     });
   },
 
-
+  //@obsolete
   constructResultSummary: function (caseId, scenario , testTarget) {
     var targetStatus = 0; /*1 - passed on QA, 2 - blocked, 3 - untested , 4 - retest , 5 - failed , 10 - passed on support , 11 - passed on stg , 12 - passed on prod*/      
     switch (testTarget.toLowerCase()) {
@@ -456,7 +456,7 @@ module.exports = {
           if (_.has ( step.result , "error_message") ) {
             resultComment += "\r\n**Error Reference :**";
             resultComment += "\r\n" + step.result.error_message.substring ( 0, step.result.error_message.indexOf("\n")) + "\r\n\r\n";
-            resultComment += (jenkinsPath) ? "||:For more detais, please go [Jenkins Link](" + jenkinsPath +").\r\n" : "||:Details error are not available as the test are triggered locally!\r\n";
+            resultComment += (jenkinsPath) ? "||:For more detais, please go [Jenkins Link](" + jenkinsPath + this.getConstructCucumberReportPath (feature) + ").\r\n" : "||:Details error are not available as the test are triggered locally!\r\n";
           }
           resultElapsed += step.result.duration;
         }); 
@@ -524,6 +524,13 @@ module.exports = {
 
   //===================== UTILITIES ====================
 
+  getConstructCucumberReportPath : function (feature) {
+    const CUKE_APPEND = 'report-feature_'; 
+    var cukePath = CUKE_APPEND + feature.uri.replace(/\//g,'-') + ".html";
+    return cukePath;
+    
+    // /usr/local/jenkins/workspace/QA-Datalake2/admin-service/src/test/resources/features/api/SFTP-S3/SFTP-SpectraOX-S3.feature
+  },
   getCurrentSprintID : function () {
     //get current sprint number, used to handle milestone/runs naming.
     const TZ = "+8";
