@@ -319,31 +319,8 @@ switch (args.trCmd) {
                     .then ( caseDicts => {
                         testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , mySuiteName , caseDicts , args.trJenkinsPath, args.trForceAdd, args.trForceUpdate)
                         .then ( testRunId => {
-                            console.log ( "> " + testRunId);
-
-                            testrail_lib.addTestResultInBulk ( testRunId, cbJsonTestrun, caseDicts, args.trTestTarget, args.trJenkinsPath)
-
-                            // cbJsonTestrun.forEach (feature => {
-                            //     var myFeature = {
-                            //         name: testrail_lib.getGeneratedSectionName(feature)
-                            //     };                            
-                            //     feature.elements.forEach ( scenario => { 
-                            //          testrail_lib.addTestResult ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false, args.trTestTarget)//.then( resp => {
-                            //            // console.log ( resp );
-                            //         //})
-                            //     })
-                            //     // feature.elements.forEach ( scenario => (async () => {
-                            //     //     await testrail_lib.addTestResult ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false).then( resp => {
-                            //     //        // console.log ( resp );
-                            //     //     })
-                            //     // })())
-                            // })
-                            // testrail_lib.addTestResult ( testRunId , cbJsonTestrun, caseDicts ,args.trTestTarget)
-                            // .then ( result => {
-                            //     console.log ( "Result added/updated successfully" );
-                            // }).catch (testresultError => {
-                            //     console.error ( testresultError );
-                            // });
+                            console.log ( "> Test Run ID : " + testRunId);
+                            testrail_lib.addTestResultInBulk ( testRunId, cbJsonTestrun, caseDicts, args.trTestTarget, args.trJenkinsPath)                        
                         }).catch ( testrunError => {
                             console.error ( testrunError );
                         })
@@ -362,6 +339,7 @@ switch (args.trCmd) {
 
         break;
 
+    //@obsolete
     case 'cbUpdateResultsBulk' :
     /*Input: 
     [Required: trProjectId, cbJsonPath]
@@ -380,6 +358,27 @@ switch (args.trCmd) {
          .then ( mySuiteName => {
             testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbJsonUpdate )
             .then ( caseDicts => {
+            // cbJsonTestrun.forEach (feature => {
+                    //     var myFeature = {
+                    //         name: testrail_lib.getGeneratedSectionName(feature)
+                    //     };                            
+                    //     feature.elements.forEach ( scenario => { 
+                    //          testrail_lib.addTestResult ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false, args.trTestTarget)//.then( resp => {
+                    //            // console.log ( resp );
+                    //         //})
+                    //     })
+                    //     // feature.elements.forEach ( scenario => (async () => {
+                    //     //     await testrail_lib.addTestResult ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false).then( resp => {
+                    //     //        // console.log ( resp );
+                    //     //     })
+                    //     // })())
+                    // })
+                    // testrail_lib.addTestResult ( testRunId , cbJsonTestrun, caseDicts ,args.trTestTarget)
+                    // .then ( result => {
+                    //     console.log ( "Result added/updated successfully" );
+                    // }).catch (testresultError => {
+                    //     console.error ( testresultError );
+                    // });
                 testrail_lib.addTestResultInBulk ( args.trTestrunId, cbJsonUpdate, caseDicts, args.trTestTarget)
                 // .then (result => {
                 //     console.log ( "OK!!");
