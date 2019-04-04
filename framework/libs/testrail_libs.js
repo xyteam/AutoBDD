@@ -526,7 +526,7 @@ module.exports = {
 
   getConstructCucumberReportPath : function (feature) {
     const CUKE_APPEND = 'cucumber-html-reports/report-feature_'; 
-    var cukePath = CUKE_APPEND + feature.uri.replace(/\//g,'-') + ".html";
+    var cukePath = CUKE_APPEND + feature.uri.replace(/\//g,'-').replace(/\./g,'-') + ".html";    
     return cukePath;
     
     // /usr/local/jenkins/workspace/QA-Datalake2/admin-service/src/test/resources/features/api/SFTP-S3/SFTP-SpectraOX-S3.feature
