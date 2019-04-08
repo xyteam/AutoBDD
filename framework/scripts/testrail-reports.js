@@ -105,6 +105,7 @@ var testrail = new Testrail({
 switch (args.trCmd) {
     case 'getCase':
     case 'getCaseById':
+    console.log ( "get case")
         testrail.getCase(/*CASE_ID=*/args.trCaseId, function (err, response, testcase) {
             console.log(testcase);
         });
@@ -270,13 +271,13 @@ switch (args.trCmd) {
                             suite_id: suiteId,
                             description: feature.description           
                         };
-                        testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+                        testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, myFeature, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
                         .then(sectionId => (async () => {  
                             for (var index = 0; index < feature.elements.length; index++) {
                                 scenario = feature.elements[index];
                                 await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
                                 .then(myCaseId => {
-                                    if ( myCaseId != 0 ) console.log('trCaseId: ' + myCaseId);
+                                    if ( myCaseId != 0 ) console.log('   > trCaseId: ' + myCaseId);
                                 }).catch (getCaseError => {
                                     console.error (getCaseError);
                                 });
@@ -299,7 +300,7 @@ switch (args.trCmd) {
     case 'cbUpdateResults' :
     /*Input: 
     [Required: trProjectId, cbJsonPath]
-    [Optional: trSprintId (auto), trForceAdd(false), trForceUpdate(false), trTestTarget(QA)]*/
+    [Optional: trSprintId (auto), trForceAdd(false), trForceUpdate(false), trTestTarget(QA), trJenkinsPath]*/
         if (!args.trProjectId) {
             console.log('trProjectId is required');
             break;
@@ -336,11 +337,10 @@ switch (args.trCmd) {
         }).catch (suiteNameError => {
             console.error (suiteNameError);
         }); 
-
         break;
 
-    //@obsolete
-    case 'cbUpdateResultsBulk' :
+    //@samplecode
+    case 'xUpdateResultIndividually' :
     /*Input: 
     [Required: trProjectId, cbJsonPath]
     [Optional: trSprintId (auto), trForceAdd(false), trForceUpdate(false), trTestTarget(QA)]*/
@@ -387,6 +387,7 @@ switch (args.trCmd) {
         })
         break;
 
+    //@samplecode
     case 'xDeleteSections':
         //use for testing only
         testrail_lib.getSuiteId_byName ( 63, args.trSuiteName , false ).then ( suiteid => {
@@ -400,6 +401,7 @@ switch (args.trCmd) {
         })
         break;
 
+    //@samplecode
     case 'xDeleteSuites':
         //use for testing only
         testrail_lib.getSuiteId_byName ( 63, args.trSuiteName , false ).then ( suiteid => {
@@ -410,44 +412,5 @@ switch (args.trCmd) {
         break;
     default:
         console.error ( "Unknown command \"" + args.trCmd + "\" provided to trCmd parameter. ");
-        break;
-
-    case 'updateTestCase':
-        if (!args.trProjectId) {
-            console.log('trProjectId is required');
-            break;
-        }
-        if (!args.cbJsonPath) {
-            console.log('JSON Path is required');
-            break;
-        }
-        
-        var testInJson = [];
-        const cbJsonUpdate = jsonfile.readFileSync (args.cbJsonPath);
-        cbJsonUpdate.forEach(feature => {
-            feature.elements.filter ( s => (s.type === 'scenario')).forEach ( s => {
-                testInJson.push ( s.name );
-            })
-        })
-
-        testrail.getCases(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/trFilter, function (err, response, cases) {
-            cases.forEach (trCase => {
-                //if testcase in TR found in cbJsonUpdate
-                if ( _.contains(testInJson, trCase.title)){
-                    console.log ( "\n >> Updating test case : " + trCase.id + '-' + trCase.title)
-                    var targetFeature = testrail_lib.getFeature_ByScenario ( trCase.title , cbJsonUpdate );
-                    var bgSteps = testrail_lib.extractSteps ( targetFeature , "background" );
-                    var testSteps = testrail_lib.extractSteps (targetFeature , "scenario" , trCase.title );
-                    var updatedContent = {
-                        custom_preconds:  bgSteps,
-                        custom_bdd_scenario: testSteps
-                    }
-                    console.log ( updatedContent );
-                    // testrail.updateCase(/*CASE_ID=*/trCase.id, /*CONTENT=*/updatedContent, function (err, response, testcase) {
-                    //     console.log(testcase);
-                    // });
-                }
-            })
-        });
         break;
 }

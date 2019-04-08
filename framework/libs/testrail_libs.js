@@ -1,7 +1,7 @@
 const Testrail = require('testrail-api');
 const _ = require('underscore');
 const l = require('lodash');
-const fs = require ('fs');
+
 const testrail = new Testrail({
   host: process.env.trApiUrl,
   user: process.env.trApiUser,
@@ -100,7 +100,7 @@ module.exports = {
 
   //======== TEST SECTIONS (FEATURES) HANDLING =========
 
-  getSectionId_byName: async function (projectId, suiteName, sectionName, forceAdd, forceUpdate) {
+  getSectionId_byName: async function (projectId, suiteName, sectionName, featureData , forceAdd, forceUpdate) {
     const mySuiteId = await this.getSuiteId_byName(projectId, suiteName, forceAdd);
     var mySection = await testrail.getSections(projectId, mySuiteId).then(response => {
         const sections = response.body;
@@ -111,7 +111,7 @@ module.exports = {
     });
     if (mySection == undefined && forceAdd == true) {
         console.log ( " > Create section : " + sectionName );
-        mySection = await this.addSection_byName(projectId, suiteName, sectionName);
+        mySection = await this.addSection_byName(projectId, suiteName, sectionName, featureData);
     } else if (mySection == undefined && forceAdd == false) {
         let err = `\n[Section-Handling-Error] Test section "${sectionName}" under suite "${suiteName}" does not exist and no request to add it.\n` +
                   `  > Possible resolution: Please supply "--trForceAdd true" to add the missing section\n`;
@@ -120,11 +120,12 @@ module.exports = {
     return mySection.id;
   },
 
-  addSection_byName: async function (projectId, suiteName, sectionName) {
+  addSection_byName: async function (projectId, suiteName, sectionName, featureData) {
     var mySection = await this.getSuiteId_byName(projectId, suiteName, /*forceAdd*/true).then(suiteId => {
         var myFeature = {
             name: sectionName,
-            suite_id: suiteId
+            suite_id: suiteId,
+            description: featureData.description
         };
         return testrail.addSection(/*PROJECT_ID=*/projectId, /*CONTENT=*/myFeature).then(response => {
             return response.body;
@@ -159,13 +160,45 @@ module.exports = {
         let err = `\n[TestCase-Handling-Error] Test case "${scenario.name}" does not exist and NO request to add it.\n` +
                   `  > Possible resolution: Please supply "--trForceAdd true" to add the missing test case\n`;
         throw err;            
-      }           
+      }      
+      if (myCase.refs == null) {
+        this.syncCasesFromMaster (projectId, 'Master', myCase.title, myCase.id);
+      }
       return myCase.id;
     } else {
       return 0;
     }
   },
   
+  syncCasesFromMaster : async function (projectId, suiteName, caseName, caseId) {
+    
+    //console.log ( "*" + caseName.replace('Scenario: ' , '' ).replace(/\[\d{8}\] /, ''));
+    this.getSuiteId_byName(projectId, suiteName, false).then ( masterSuiteId => (async() => {
+      var masterCase = await testrail.getCases(projectId, {suite_id : masterSuiteId}).then(response => {
+        const myCases = response.body;
+        const myCase = myCases.filter(s => (s.title == caseName.replace('Scenario: ','').replace('Scenario Outline: ' , '')));
+        return myCase[0];
+      }).catch(err => {
+          console.error('Testrail getCases Error :', err);
+      });
+      if (masterCase) {
+        console.log ( "   > Test case id " + masterCase.id + " found in Master. Synced with master.");
+        var myTestCase = {
+          //title : this.getGeneratedCaseName(scenario),
+          //custom_automation: 1, //1- to be automated
+          //custom_bdd_scenario: this.constructScenario(feature, scenario),
+          milestone_id: masterCase.milestone_id,
+          refs: masterCase.refs
+        };
+        await testrail.updateCase ( caseId , myTestCase );
+      }
+      else {
+        console.log ( "   > Test case " + caseName + " does not exist in Master. Sync terminated.");
+      }
+    })()).catch ( err => {
+      console.error ( "Master suite not found. no sync will happen!");
+    })                
+  },
   addCase_byScenario: async function (projectId, suiteName, sectionName, feature, scenario) {
     var myCase = await this.getSectionId_byName(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {      
       var myTestCase = {
@@ -173,7 +206,7 @@ module.exports = {
         custom_automation: 1, //1- to be automated
         custom_bdd_scenario: this.constructScenario(feature, scenario),
       };
-      console.log ( " LENGTH : " + myTestCase.custom_bdd_scenario.length);
+      console.log ( "   > Test case length : " + myTestCase.custom_bdd_scenario.length);
       return testrail.addCase(/*SECTION_ID=*/sectionId, /*CONTENT=*/myTestCase).then(response => {
         //console.log ( response );
         return response.body;
@@ -514,7 +547,6 @@ module.exports = {
       //   });
       // }
       if ( _.has (step , "doc_string")) {        
-        console.log (" >> YES! DOCSTRING");
         genericSteps += step.doc_string.value + "\r\n";
       }
     })
@@ -570,9 +602,9 @@ module.exports = {
     const CUKE_APPEND = 'cucumber-html-reports/report-feature_'; 
     var cukePath = CUKE_APPEND + feature.uri.replace(/\//g,'-').replace(/\./g,'-').replace(/\s/g, '-') + ".html";    
     return cukePath;
-    
-    // /usr/local/jenkins/workspace/QA-Datalake2/admin-service/src/test/resources/features/api/SFTP-S3/SFTP-SpectraOX-S3.feature
+
   },
+
   getCurrentSprintID : function () {
     //get current sprint number, used to handle milestone/runs naming.
     const TZ = "+8";
