@@ -1,7 +1,7 @@
 const Testrail = require('testrail-api');
 const _ = require('underscore');
 const l = require('lodash');
-const fs = require ('fs');
+
 const testrail = new Testrail({
   host: process.env.trApiUrl,
   user: process.env.trApiUser,
@@ -160,8 +160,7 @@ module.exports = {
         let err = `\n[TestCase-Handling-Error] Test case "${scenario.name}" does not exist and NO request to add it.\n` +
                   `  > Possible resolution: Please supply "--trForceAdd true" to add the missing test case\n`;
         throw err;            
-      }
-      console.log ( myCase.refs)
+      }      
       if (myCase.refs == null) {
         this.syncCasesFromMaster (projectId, 'Master', myCase.title, myCase.id);
       }
@@ -183,7 +182,7 @@ module.exports = {
           console.error('Testrail getCases Error :', err);
       });
       if (masterCase) {
-        console.log ( "   > Test case found in Master. Synced with master.");
+        console.log ( "   > Test case id " + masterCase.id + " found in Master. Synced with master.");
         var myTestCase = {
           //title : this.getGeneratedCaseName(scenario),
           //custom_automation: 1, //1- to be automated
@@ -194,15 +193,11 @@ module.exports = {
         await testrail.updateCase ( caseId , myTestCase );
       }
       else {
-        console.log ( " > Test case " + caseName + " does not exist in Master. Sync terminated.");
+        console.log ( "   > Test case " + caseName + " does not exist in Master. Sync terminated.");
       }
     })()).catch ( err => {
       console.error ( "Master suite not found. no sync will happen!");
-    })
-   
-      
-   
-    
+    })                
   },
   addCase_byScenario: async function (projectId, suiteName, sectionName, feature, scenario) {
     var myCase = await this.getSectionId_byName(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {      

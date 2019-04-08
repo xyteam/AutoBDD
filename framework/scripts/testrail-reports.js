@@ -337,23 +337,10 @@ switch (args.trCmd) {
         }).catch (suiteNameError => {
             console.error (suiteNameError);
         }); 
-
         break;
 
-    case 'cbSyncReference' :
-        const ORIGINAL_SUITENAME = 'Master';
-        testrail.getCases(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/{}, function (err, response, cases) {
-            console.log(cases);
-        });
-        break;
-
-        testrail_lib.getSuiteId_byName(args.trProjectId, ORIGINAL_SUITENAME , false).then (suiteId => {
-            testrail_lib.get
-        });
-
-        break;
-    //@obsolete
-    case 'cbUpdateResultsBulk' :
+    //@samplecode
+    case 'xUpdateResultIndividually' :
     /*Input: 
     [Required: trProjectId, cbJsonPath]
     [Optional: trSprintId (auto), trForceAdd(false), trForceUpdate(false), trTestTarget(QA)]*/
@@ -400,6 +387,7 @@ switch (args.trCmd) {
         })
         break;
 
+    //@samplecode
     case 'xDeleteSections':
         //use for testing only
         testrail_lib.getSuiteId_byName ( 63, args.trSuiteName , false ).then ( suiteid => {
@@ -413,6 +401,7 @@ switch (args.trCmd) {
         })
         break;
 
+    //@samplecode
     case 'xDeleteSuites':
         //use for testing only
         testrail_lib.getSuiteId_byName ( 63, args.trSuiteName , false ).then ( suiteid => {
@@ -424,5 +413,4 @@ switch (args.trCmd) {
     default:
         console.error ( "Unknown command \"" + args.trCmd + "\" provided to trCmd parameter. ");
         break;
-
 }
