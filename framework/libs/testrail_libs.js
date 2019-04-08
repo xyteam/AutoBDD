@@ -161,7 +161,9 @@ module.exports = {
                   `  > Possible resolution: Please supply "--trForceAdd true" to add the missing test case\n`;
         throw err;            
       }
-      this.syncCasesFromMaster (projectId, 'Master', myCase.title, myCase.id);
+      if (myCase.refs == "") {
+        this.syncCasesFromMaster (projectId, 'Master', myCase.title, myCase.id);
+      }
       return myCase.id;
     } else {
       return 0;
