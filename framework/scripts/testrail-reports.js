@@ -277,7 +277,7 @@ switch (args.trCmd) {
                                 scenario = feature.elements[index];
                                 await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
                                 .then(myCaseId => {
-                                    if ( myCaseId != 0 ) console.log('trCaseId: ' + myCaseId);
+                                    if ( myCaseId != 0 ) console.log('   > trCaseId: ' + myCaseId);
                                 }).catch (getCaseError => {
                                     console.error (getCaseError);
                                 });
