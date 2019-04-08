@@ -161,7 +161,8 @@ module.exports = {
                   `  > Possible resolution: Please supply "--trForceAdd true" to add the missing test case\n`;
         throw err;            
       }
-      if (myCase.refs == "") {
+      console.log ( myCase.refs)
+      if (myCase.refs == null) {
         this.syncCasesFromMaster (projectId, 'Master', myCase.title, myCase.id);
       }
       return myCase.id;
