@@ -161,7 +161,6 @@ module.exports = {
                   `  > Possible resolution: Please supply "--trForceAdd true" to add the missing test case\n`;
         throw err;            
       }
-      console.log ( myCase.title );
       this.syncCasesFromMaster (projectId, 'Master', myCase.title, myCase.id);
       return myCase.id;
     } else {
@@ -181,7 +180,7 @@ module.exports = {
           console.error('Testrail getCases Error :', err);
       });
       if (masterCase) {
-        console.log ( " > Test case " + masterCase.title + " found in Master. synching in progress...");
+        console.log ( "   > Test case found in Master. Synced with master.");
         var myTestCase = {
           //title : this.getGeneratedCaseName(scenario),
           //custom_automation: 1, //1- to be automated
@@ -209,7 +208,7 @@ module.exports = {
         custom_automation: 1, //1- to be automated
         custom_bdd_scenario: this.constructScenario(feature, scenario),
       };
-      console.log ( " LENGTH : " + myTestCase.custom_bdd_scenario.length);
+      console.log ( "   > Test case length : " + myTestCase.custom_bdd_scenario.length);
       return testrail.addCase(/*SECTION_ID=*/sectionId, /*CONTENT=*/myTestCase).then(response => {
         //console.log ( response );
         return response.body;
@@ -550,7 +549,6 @@ module.exports = {
       //   });
       // }
       if ( _.has (step , "doc_string")) {        
-        console.log (" >> YES! DOCSTRING");
         genericSteps += step.doc_string.value + "\r\n";
       }
     })
