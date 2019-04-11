@@ -406,25 +406,7 @@ module.exports = {
     });    
   },
 
-  //@obsolete
-  xaddTestResult: function( testRunId, projectId, suiteName, sectionName, feature, scenario, forceAdd, testTarget) {
-     this.getCaseId_byScenario ( projectId , suiteName , sectionName , feature , scenario , forceAdd ).then( cid => { 
-       if ( cid != 0 ) {
-        var result = this.constructResultSummary ( cid, scenario , testTarget  );
-        testrail.addResultForCase (testRunId , cid, result ).then ( response => {
-          return response.body;
-        }).catch(err => {
-          console.log (  err );
-        })
-       }      
-     
-    }).catch( err => {
-      console.log ( err );
-    });
-  },
-
-  //@obsolete
-  constructResultSummary: function (caseId, scenario , testTarget) {
+  addTestResultIndividually: async function (testRunId, cbJson, caseDicts, testTarget , jenkinsPath) {     
     var targetStatus = 0; /*1 - passed on QA, 2 - blocked, 3 - untested , 4 - retest , 5 - failed , 10 - passed on support , 11 - passed on stg , 12 - passed on prod*/      
     switch (testTarget.toLowerCase()) {
       case "qa": targetStatus = 1; break;
@@ -435,32 +417,53 @@ module.exports = {
       case "prod": targetStatus = 12; break;
       default : targetStatus = 1; break;
     }
-    var result = {}
+    var counter = 0 ;
+    var result = {};
     var status = targetStatus;
     var resultComment = "";
     var resultElapsed = 0;
+    var cid = 0 ;
+    cbJson.forEach (feature => {
+      feature.elements.forEach(scenario => {
+        scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach(step => {          
+          if ( step.result.status != "passed" && step.result.status != "skipped") {
+            resultComment += "- **" + step.result.status.toUpperCase() + "** :: " + step.keyword + " " + step.name + "\r\n";
+            status = 5;
+          }
+          if (_.has ( step.result , "error_message") ) {
+            resultComment += "\r\n**Error Reference :**";
+            resultComment += "\r\n" + step.result.error_message.substring ( 0, step.result.error_message.indexOf("\n")) + "\r\n\r\n";
+            resultComment += (jenkinsPath) ? "||:For more detais, please go [Jenkins Link](" + jenkinsPath + this.getConstructCucumberReportPath (feature) + ").\r\n" : "||:Details error are not available as the test are triggered locally!\r\n";
+          }
+          resultElapsed += step.result.duration;
+        }); 
 
-    scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach (step => {
-      resultComment += "- **" + step.result.status.toUpperCase() + "** :: " + step.keyword + " " + step.name + "\r\n";
-      if ( step.result.status != "passed") {
-        status = 5;
-      }
-      if ( _.has (step.result , "error_message")) {
-        resultComment += "\r\n**Error Message :**";
-        resultComment += "\r\n" + step.result.error_message + "\r\n\r\n";
-      }
-      resultElapsed += step.result.duration;
+        if ( scenario.type != 'background') {
+          counter++;
+          cid = _.find( caseDicts , d => {return d.cname == this.getGeneratedCaseName(scenario)}).cid;       
+          result.comment = resultComment;          
+          result.status_id = status;
+          if ( result.status_id == targetStatus ) {
+            //todo - to be optimized
+            testrail.updateCase ( cid , {custom_automation: 2});
+          }
+          result.elapsed = (Math.round(resultElapsed/1e9) > 0) ? (Math.round(resultElapsed/1e9)) + "s" : null ; //null for undefined steps
+
+          console.log ( " > #" + counter + " adding result for test case " + cid );
+          testrail.addResultForCase (testRunId , cid, result ).then ( response => {
+            return response.body;
+          }).catch(err => {
+            console.log (  " > add result error : " + err );
+          })
+
+          result = {};       
+          resultComment = "";
+          resultElapsed = 0 ;
+          status = targetStatus;
+          cid = 0 ;
+        }
+      });
     });
-    //result.case_id = caseId;
-    result.comment = resultComment;
-    result.status_id = status;
-    if ( result.status_id == targetStatus ) {
-      //todo - to be optimized
-      testrail.updateCase ( caseId , {custom_automation: 2});
-    }
-    result.elapsed = (Math.round(resultElapsed/1e9) > 0) ? (Math.round(resultElapsed/1e9)) + "s" : null ; //null for undefined steps
-    return result;
-
   },
 
   constructResultsSummary: async function (cbJson, caseDicts, testTarget , jenkinsPath) {     
@@ -537,6 +540,7 @@ module.exports = {
     var genericSteps = "";
     scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach(step => {
       genericSteps += step.keyword + ' ' + step.name + '\r\n';
+      //todo - enabled below code, once testrail able to handle large data.
       // if ( _.has ( step, "rows" )) {
       //   step.rows.forEach ( row => { 
       //     genericSteps += '|';

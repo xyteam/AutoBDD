@@ -88,6 +88,10 @@ const options = buildOptions({
     trJenkinsPath : {
         type: 'string'
     },
+    trUpdateInBulk: {
+        type: 'boolean',
+        default: true
+    },
 
 	// Special option for positional arguments (`_` in minimist)
 	arguments: 'string'
@@ -319,9 +323,13 @@ switch (args.trCmd) {
                     testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbJsonTestrun )
                     .then ( caseDicts => {
                         testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , mySuiteName , caseDicts , args.trJenkinsPath, args.trForceAdd, args.trForceUpdate)
-                        .then ( testRunId => {
+                        .then ( testRunId => {                
                             console.log ( "> Test Run ID : " + testRunId);
-                            testrail_lib.addTestResultInBulk ( testRunId, cbJsonTestrun, caseDicts, args.trTestTarget, args.trJenkinsPath)                        
+                            if ( args.trUpdateInBulk ) {
+                                testrail_lib.addTestResultInBulk ( testRunId, cbJsonTestrun, caseDicts, args.trTestTarget, args.trJenkinsPath) 
+                            } else {
+                                testrail_lib.addTestResultIndividually ( testRunId, cbJsonTestrun, caseDicts, args.trTestTarget, args.trJenkinsPath) 
+                            }                                                   
                         }).catch ( testrunError => {
                             console.error ( testrunError );
                         })
@@ -352,20 +360,20 @@ switch (args.trCmd) {
             console.log('cbJsonPath is required');
             break;
         }  
-        const cbJsonUpdate = jsonfile.readFileSync(args.cbJsonPath);   
+        const cbJsonUpdateInd = jsonfile.readFileSync(args.cbJsonPath);   
         
-         testrail_lib.getSuiteName_byResultJson (cbJsonUpdate)
-         .then ( mySuiteName => {
-            testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbJsonUpdate )
+        testrail_lib.getSuiteName_byResultJson (cbJsonUpdateInd)
+        .then ( mySuiteName => {
+            testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbJsonUpdateInd )
             .then ( caseDicts => {
-            // cbJsonTestrun.forEach (feature => {
-                    //     var myFeature = {
-                    //         name: testrail_lib.getGeneratedSectionName(feature)
-                    //     };                            
-                    //     feature.elements.forEach ( scenario => { 
-                    //          testrail_lib.addTestResult ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false, args.trTestTarget)//.then( resp => {
-                    //            // console.log ( resp );
-                    //         //})
+                cbJsonTestrun.forEach (feature => {
+                    var myFeature = {
+                        name: testrail_lib.getGeneratedSectionName(feature)
+                    };                            
+                    feature.elements.forEach ( scenario => { 
+                        testrail_lib.addTestResultIndividually ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false, args.trTestTarget)//.then( resp => {
+                        console.log ( resp );
+                    })
                     //     })
                     //     // feature.elements.forEach ( scenario => (async () => {
                     //     //     await testrail_lib.addTestResult ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false).then( resp => {
@@ -382,7 +390,7 @@ switch (args.trCmd) {
                 testrail_lib.addTestResultInBulk ( args.trTestrunId, cbJsonUpdate, caseDicts, args.trTestTarget)
                 // .then (result => {
                 //     console.log ( "OK!!");
-                // })
+                })
             })
         })
         break;
