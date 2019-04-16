@@ -14,12 +14,12 @@ module.exports = {
 
   getGeneratedSectionName: function (feature) {
     let sectionName = feature.keyword + ': ' + feature.uri.substring(feature.uri.lastIndexOf('/')+1, feature.uri.length) + ' || ' + feature.name;
-    return sectionName;
+    return sectionName.trim();
   },
 
   getGeneratedCaseName: function (scenario) {
     let caseName = scenario.keyword + ': ' + scenario.name;
-    return caseName;
+    return caseName.trim();
   },
 
   getGeneratedMilestoneName: function (sprintId ) {
@@ -603,8 +603,11 @@ module.exports = {
   //===================== UTILITIES ====================
 
   getConstructCucumberReportPath : function (feature) {
-    const CUKE_APPEND = 'cucumber-html-reports/report-feature_'; 
-    var cukePath = CUKE_APPEND + feature.uri.replace(/\//g,'-').replace(/\./g,'-').replace(/\s/g, '-') + ".html";    
+    //below path only works on older cucumber (4.1.0)
+    //const CUKE_APPEND = 'cucumber-html-reports/report-feature_'; 
+    //var cukePath = CUKE_APPEND + feature.uri.replace(/\//g,'-').replace(/\./g,'-').replace(/\s/g, '-') + ".html";    
+
+    var cukePath = 'cucumber-html-reports/overview-failures.html'
     return cukePath;
 
   },
