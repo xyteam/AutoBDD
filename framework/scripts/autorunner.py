@@ -41,30 +41,35 @@ def definepath (case, isMaven, features_path, report_dir):
 
     module_path = '/'.join(uri_array[0:modulepath_length])
     module = uri_array[module_index].split('.')[0]
-    report_file = report_dir + '/' + case['uri'].replace('/', '_')
+
+    report_dir = path.join(report_dir, path.dirname(path.dirname(case['uri'])))
+    if not path.exists(report_dir):
+        os.makedirs(report_dir)
+    report_file = path.join(report_dir, path.basename(case['uri']))
+    
     run_file = '/'.join(uri_array[runfile_length:])
     if int(case['line']) != 0:
         report_file += "_" + str(case['line'])
         run_file += ":" + str(case['line'])
-    
+
     #Handle space in feature_file
     run_file = run_file.replace(' ', '\ ')
     report_file = report_file.replace(' ','\ ')
 
     return module_path, module, run_file, report_file
 
-def run_chimp(index, 
-              host, 
-              platform, 
-              browser, 
-              report_dir, 
-              movie, 
+def run_chimp(index,
+              host,
+              platform,
+              browser,
+              report_dir,
+              movie,
               screenshot,
-              debugmode, 
-              display_size, 
-              chimp_profile, 
+              debugmode,
+              display_size,
+              chimp_profile,
               total,
-              project_type, 
+              project_type,
               features_path,
               isMaven):
     ''' Run '''
@@ -83,14 +88,12 @@ def run_chimp(index,
             case = results[0]
             id   = results[0].doc_id
             break
-    
+
     if not id: return
     group.update ({'status': 'running'}, doc_ids=[id])
 
-    module_path, module, run_file, report_file = definepath (case, 
-                                                             isMaven, 
-                                                             features_path,                                                      
-                                                             report_dir)
+    module_path, module, run_file, report_file = definepath(
+        case, isMaven, features_path, report_dir)
     if platform == 'Linux':
         time.sleep(random.uniform(0, 1))
 
@@ -111,7 +114,7 @@ def run_chimp(index,
                 ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + path.join (features_path, run_file) + \
                 ' --plugin pretty --add-plugin json:' + report_file + '.subjson\"' + \
                 ' 2>&1 > ' + report_file + '.run'
-            
+
         else: #isChimpy on Linux
             print (" > Running Chimpy command")
             cmd = 'cd ' + module_path + ';' + \
@@ -184,8 +187,8 @@ def run_chimp(index,
                     time.sleep(random.uniform(1, 2))
                     break
     else:
-        assert False, 'Can not process on {}'.format(platform)        
-        
+        assert False, 'Can not process on {}'.format(platform)
+
     print('RUNNING #{}: {}'.format(index, run_file))
     # print(cmd)
 
@@ -500,7 +503,7 @@ class ChimpAutoRun:
                 if "pom.xml" in fname:
                     result = True
                     break
-            # for root, directories, filenames in os.walk (self.project_full_path):       
+            # for root, directories, filenames in os.walk (self.project_full_path):
             #     for filename in filenames:
             #         print ("   > FILE : {}".format(path.join(root,filename)))
             #         if "pom.xml" in filename:
@@ -553,7 +556,7 @@ class ChimpAutoRun:
                 self.scenarios_count = len(DB.tables())
             else:
                 #print ( "Scenario number in tinydb --> {}".format(self.scenarios_count))
-                for case in runcases:      
+                for case in runcases:
                     case['run_file'] = None
                     table = DB.table(case['feature'])
                     table.insert(case)
@@ -574,7 +577,7 @@ class ChimpAutoRun:
             while 'SSHHOST' not in head:
                 head = fname.readline()
             headarray = head.strip().split()
-            
+
             for item in fname:
                 hostinfo = item.strip().split()
                 if len(hostinfo) > 1:
@@ -666,7 +669,7 @@ class ChimpAutoRun:
                 args=(index, self.host, self.platform, self.browser,
                       self.report_dir, self.movie, self.screenshot,
                       self.debugmode, self.display_size, self.chimp_profile ,
-                      self.scenarios_count, self.projecttype, self.featurespath, 
+                      self.scenarios_count, self.projecttype, self.featurespath,
                       self.isMaven))
         pool.close()
         pool.join()
@@ -678,7 +681,7 @@ class ChimpAutoRun:
 if __name__ == "__main__":
     command_arguments = parse_arguments()
     chimp_run = ChimpAutoRun(command_arguments)
-    
+
     if chimp_run.is_rerun():
         chimp_run.copy_db_file()
     else:
