@@ -32,6 +32,7 @@
     "pdf-parse": "^1.1.1",
     "request": "^2.88.0",
     "robotjs": "^0.5.1",
+    "selenium-standalone": "^6.16.0",
     "stack-generator": "^2.0.3",
     "testrail-api": "git+https://github.com/xyteam/node-testrail-api.git",
     "url-parse": "^1.4.4",
@@ -39,17 +40,16 @@
     "xlsx": "^0.14.1"
   },
   "scripts": {
-    "install-selenium": "selenium-standalone install --config=framework/configs/selenium-standalone_config.js",
     "demo-app": "forever start -s ./node_modules/.bin/http-server ./demo-app -s -p 8082",
     "start": "npm run demo-app",
     "stop": "forever stopall",
     "download-sikuliapi": "./framework/libs/downloadSikulixApiJar.js",
-    "test-init": "npm run download-sikuliapi && cd ./test-projects/webtest-example/test-init && DISPLAY=:0 chimpy",
-    "test-webpage": "cd ./test-projects/webtest-example/test-webpage && DISPLAY=:0 chimpy",
-    "test-download": "cd ./test-projects/webtest-example/test-download && DISPLAY=:0 chimpy",
-    "test-postman": "cd ./test-projects/webtest-example/test-postman && DISPLAY=:0 chimpy",
-    "test-java": "cd ./test-projects/webtest-example/test-java && DISPLAY=:0 chimpy",
-    "test-demoapp": "cd ./test-projects/webtest-example/test-demoapp && DISPLAY=:0 chimpy",
+    "test-init": "npm run download-sikuliapi && cd ./test-projects/webtest-example/test-init && chimpy",
+    "test-webpage": "cd ./test-projects/webtest-example/test-webpage && chimpy",
+    "test-download": "cd ./test-projects/webtest-example/test-download && chimpy",
+    "test-postman": "cd ./test-projects/webtest-example/test-postman && chimpy",
+    "test-java": "cd ./test-projects/webtest-example/test-java && chimpy",
+    "test-demoapp": "cd ./test-projects/webtest-example/test-demoapp && chimpy",
     "test": "npm run test-webpage; npm run test-download; npm run test-postman; npm run test-java; npm run test-demoapp"
   },
   "repository": {

@@ -16,16 +16,21 @@ $ . .autoPathrc
 
 ##### Setup target test apps for the demo
 ```
-$ npm run install-selenium
 $ npm start
 ```
 
-##### Run the demo
+##### Run the demo on DISPLAY=:0
 ```
-$ npm run test-init
-$ npm test
+$ DISPLAY=:0 npm run test-init
+$ DISPLAY=:0 npm test
 ```
 and monitor the test run in the vagrant guest GUI console
+
+##### Run the demo test on XVFB woth the framework built in xvfb-auto alias command:
+```
+$ xvfb-auto npm run test-init
+$ xvfb-auto npm test
+```
 
 ##### Run Single Test with Screenshot and Movie:
 ```
