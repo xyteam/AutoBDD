@@ -645,15 +645,15 @@ module.exports = {
     var strModule = "";
     if ( cbJson.length > 0 ) {
       let featureURI = cbJson[0].uri;
-      if ( featureURI.indexOf(targetJS) > 0 ) { //js-file
+      if (featureURI.lastIndexOf(targetJava) > 0 ){ //java-file                
+        let strProjModule = featureURI.substring(0, featureURI.lastIndexOf(targetJava));
+        strModule = strProjModule.substring ( strProjModule.lastIndexOf('/') + 1 );
+        console.log ( "Detected suite name (Java-test) : " + strModule );      
+      } else if ( featureURI.indexOf(targetJS) > 0 ) { //js-file
         let strProjModuleFeature = featureURI.slice ( featureURI.indexOf(targetJS) + targetJS.length);
         let strModuleFeature = strProjModuleFeature.slice(strProjModuleFeature.indexOf('/')+1);
         strModule = strModuleFeature.substring (0, strModuleFeature.indexOf('/'));
         console.log ( "Detected suite name (JS-test) : " + strModule);
-      } else if (featureURI.lastIndexOf(targetJava) > 0 ){ //java-file                
-        let strProjModule = featureURI.substring(0, featureURI.lastIndexOf(targetJava));
-        strModule = strProjModule.substring ( strProjModule.lastIndexOf('/') + 1 );
-        console.log ( "Detected suite name (Java-test) : " + strModule );
       } else {
           let err = `\n[Suite-Name-Error] Json file has invalid format : ${featureURI.substring (0, featureURI.lastIndexOf('/') + 1)} \n` +
                     `  > Possible resolution: Ensure your project is following proper folder structure as per the convention\n`;
@@ -666,6 +666,31 @@ module.exports = {
       throw err;
     }
   },  
+  getSuiteName_byFeature:  function ( feature ) {
+
+    //JS test structure -> .../test-projects/<your-project-name>/<your-module-name>/features/...
+    const targetJS = "test-projects/";
+    //Java test structure -> .../<your-project-name>/<your-module-name>/src/test/...
+    const targetJava = "/src/test/";
+
+    var strModule = "";
+      let featureURI = feature.uri;
+      if (featureURI.lastIndexOf(targetJava) > 0 ){ //java-file                
+        let strProjModule = featureURI.substring(0, featureURI.lastIndexOf(targetJava));
+        strModule = strProjModule.substring ( strProjModule.lastIndexOf('/') + 1 );
+        console.log ( "Detected suite name (Java-test) : " + strModule );      
+      } else if ( featureURI.indexOf(targetJS) > 0 ) { //js-file
+        let strProjModuleFeature = featureURI.slice ( featureURI.indexOf(targetJS) + targetJS.length);
+        let strModuleFeature = strProjModuleFeature.slice(strProjModuleFeature.indexOf('/')+1);
+        strModule = strModuleFeature.substring (0, strModuleFeature.indexOf('/'));
+        console.log ( "Detected suite name (JS-test) : " + strModule);
+      } else {
+          let err = `\n[Suite-Name-Error] Json file has invalid format : ${featureURI.substring (0, featureURI.lastIndexOf('/') + 1)} \n` +
+                    `  > Possible resolution: Ensure your project is following proper folder structure as per the convention\n`;
+          throw err;
+      }
+      return strModule;  
+  }, 
 
   getProjectName_byId: async function (projectId) {
     try {
