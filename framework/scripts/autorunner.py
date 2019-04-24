@@ -197,7 +197,7 @@ def run_chimp(index,
         assert False, 'Can not process on {}'.format(platform)
 
     print('RUNNING #{}: {}'.format(index, run_file))
-    print(cmd)
+    # print(cmd)
 
     time.sleep(1)
     os.system(cmd)
