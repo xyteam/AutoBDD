@@ -249,7 +249,7 @@ switch (args.trCmd) {
             console.error ( preTestError );
         }); 
         break;
-    case 'cbAddCases':
+    case 'cbAddCases_original':
     /*Input: 
     [Required: trProjectId, cbJsonPath]
     [Optional: trForceAdd(false), trForceUpdate(false)]*/
@@ -261,14 +261,14 @@ switch (args.trCmd) {
             console.log('cbJsonPath is required');
             break;
         }        
-        const cbJson = jsonfile.readFileSync(args.cbJsonPath);
-        testrail_lib.getSuiteName_byResultJson (cbJson)
+        const cbJson1 = jsonfile.readFileSync(args.cbJsonPath);
+        testrail_lib.getSuiteName_byResultJson (cbJson1)
         .then ( mySuiteName => {
             // testrail_lib.getPretestStatus(cbJson)
             // .then( pretestResult => {                
                 testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
                 .then(suiteId => {
-                    cbJson.forEach(feature => {
+                    cbJson1.forEach(feature => {
                         var myFeature = {
                             //name: feature.keyword + ': ' + feature.uri.substring(feature.uri.lastIndexOf('/')+1, feature.uri.length) + ' || ' + feature.name ,
                             name: testrail_lib.getGeneratedSectionName (feature),
@@ -299,6 +299,72 @@ switch (args.trCmd) {
         }).catch (suiteNameError => { 
             console.error (suiteNameError);
         });                            
+        break;
+    
+    case 'cbAddSuites':
+        if (!args.trProjectId) {
+            console.log('trProjectId is required');
+            break;
+        }
+        if (!args.cbJsonPath) {
+            console.log('cbJsonPath is required');
+            break;
+        }        
+        const cbJsonSuites = jsonfile.readFileSync(args.cbJsonPath);
+
+        var suiteNames = [];
+        cbJsonSuites.forEach(feature => {
+            var mySuiteName = testrail_lib.getSuiteName_byFeature(feature)
+            if (!_.contains(suiteNames, mySuiteName)){
+                suiteNames.push(mySuiteName);
+            } 
+        });
+        suiteNames.forEach( suiteName => {
+            testrail_lib.getSuiteId_byName( args.trProjectId, suiteName , args.trForceAdd , args.trForceUpdate);
+        })
+    break;
+    
+    case 'cbAddCases':
+    /*Input: 
+    [Required: trProjectId, cbJsonPath]
+    [Optional: trForceAdd(false), trForceUpdate(false)]*/
+        if (!args.trProjectId) {
+            console.log('trProjectId is required');
+            break;
+        }
+        if (!args.cbJsonPath) {
+            console.log('cbJsonPath is required');
+            break;
+        }        
+        const cbJson = jsonfile.readFileSync(args.cbJsonPath);
+ 
+        cbJson.forEach(feature => {
+            var mySuiteName = testrail_lib.getSuiteName_byFeature(feature)
+            testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+            .then(suiteId => {
+                var myFeature = {
+                    name: testrail_lib.getGeneratedSectionName (feature),
+                    suite_id: suiteId,
+                    description: feature.description           
+                };
+                testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, myFeature, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+                .then(sectionId => (async () => {  
+                    for (var index = 0; index < feature.elements.length; index++) {
+                        scenario = feature.elements[index];
+                        await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+                        .then(myCaseId => {
+                            if ( myCaseId != 0 ) console.log('   > trCaseId: ' + myCaseId);
+                        }).catch (getCaseError => {
+                            console.error (getCaseError);
+                        });
+                    };                    
+                })()).catch (getSectionError => {
+                    console.error (getSectionError);
+                }); // convert callback into async func to use await inside (async () => {})()
+            }).catch (getSuiteError => {
+                console.error (getSuiteError);
+            });
+        })                       
         break;
 
     case 'cbUpdateResults' :
