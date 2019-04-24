@@ -21,6 +21,7 @@ import shlex
 
 DB = None
 
+
 def definepath (case, isMaven, features_path, report_dir):
     # uri_array = case['uri'].split('/')
     # module_path = '/'.join(uri_array[0:-2])
@@ -42,7 +43,8 @@ def definepath (case, isMaven, features_path, report_dir):
     module_path = '/'.join(uri_array[0:modulepath_length])
     module = uri_array[module_index].split('.')[0]
 
-    report_dir = path.join(report_dir, path.dirname(path.dirname(case['uri'])))
+    relative_report_dir = path.dirname(path.dirname(case['uri']))
+    report_dir = path.join(report_dir, relative_report_dir)
     if not path.exists(report_dir):
         os.makedirs(report_dir)
     report_file = path.join(report_dir, path.basename(case['uri']))
@@ -56,7 +58,8 @@ def definepath (case, isMaven, features_path, report_dir):
     run_file = run_file.replace(' ', '\ ')
     report_file = report_file.replace(' ','\ ')
 
-    return module_path, module, run_file, report_file
+    return module_path, module, run_file, report_file, relative_report_dir
+
 
 def run_chimp(index,
               host,
@@ -92,7 +95,7 @@ def run_chimp(index,
     if not id: return
     group.update ({'status': 'running'}, doc_ids=[id])
 
-    module_path, module, run_file, report_file = definepath(
+    module_path, module, run_file, report_file, relative_report_dir = definepath(
         case, isMaven, features_path, report_dir)
     if platform == 'Linux':
         time.sleep(random.uniform(0, 1))
@@ -101,7 +104,8 @@ def run_chimp(index,
         if isMaven: #isMaven on Linux
             print (" > Running Maven command")
             cmd = 'cd ' + module_path + ';' + \
-                ' REPORTDIR=' + report_dir + \
+                ' REPORTDIR=' + report_dir + '/' + relative_report_dir + \
+                ' RELATIVEREPORTDIR=' + relative_report_dir + \
                 ' MOVIE=' + movie + \
                 ' SCREENSHOT=' + screenshot + \
                 ' BROWSER=' + browser + \
@@ -118,7 +122,8 @@ def run_chimp(index,
         else: #isChimpy on Linux
             print (" > Running Chimpy command")
             cmd = 'cd ' + module_path + ';' + \
-                ' REPORTDIR=' + report_dir + \
+                ' REPORTDIR=' + report_dir + '/' + relative_report_dir + \
+                ' RELATIVEREPORTDIR=' + relative_report_dir + \
                 ' MOVIE=' + movie + \
                 ' SCREENSHOT=' + screenshot + \
                 ' BROWSER=' + browser + \
@@ -143,7 +148,8 @@ def run_chimp(index,
                 if not os.path.exists(lock_file):
                     open(lock_file, 'a').close()
                     cmd = 'cd ' + module_path + ';' + \
-                        ' REPORTDIR=' + report_dir + \
+                        ' REPORTDIR=' + report_dir + '/' + relative_report_dir + \
+                        ' RELATIVEREPORTDIR=' + relative_report_dir + \
                         ' MOVIE=' + movie + \
                         ' SCREENSHOT=' + screenshot + \
                         ' DEBUGMODE=' + debugmode + \
@@ -170,7 +176,8 @@ def run_chimp(index,
                 if not os.path.exists(lock_file):
                     open(lock_file, 'a').close()
                     cmd = 'cd ' + module_path + ';' + \
-                        ' REPORTDIR=' + report_dir + \
+                        ' REPORTDIR=' + report_dir + '/' + relative_report_dir + \
+                        ' RELATIVEREPORTDIR=' + relative_report_dir + \
                         ' MOVIE=' + movie + \
                         ' SCREENSHOT=' + screenshot + \
                         ' DEBUGMODE=' + debugmode + \

@@ -16,6 +16,7 @@ const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const myMOVIE = process.env.MOVIE;
 const mySCREENSHOT = process.env.SCREENSHOT;
 const myREPORTDIR = process.env.REPORTDIR;
+const myRELATIVEREPORTDIR = process.env.RELATIVEREPORTDIR;
 const myMODULE = process.env.ThisModule;
 
 // framework essential
@@ -237,8 +238,8 @@ module.exports = {
     const scenario_base = this.getScenarioNameBase(scenarioName);
     const scenario_mp4 = scenario_base + '.mp4';
     const scenario_png = scenario_base + '.png';
-    const image_tag = '<img src="' + scenarioResult + '_' + encodeURIComponent(scenario_png) + '"style="max-width: 100%; height: auto;" alt="' + scenarioResult + '_' + scenario_png + '">';
-    const video_tag = '<video src="' + scenarioResult + '_' + encodeURIComponent(scenario_mp4) + '"style="max-width: 100%; height: auto;" controls poster="' + scenarioResult + '_' + scenario_png + '"/>Your browser does not support the video tag.</video>'; 
+    const image_tag = '<img src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_png) + '"style="max-width: 100%; height: auto;" alt="' + scenarioResult + '_' + scenario_png + '">';
+    const video_tag = '<video src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_mp4) + '"style="max-width: 100%; height: auto;" controls poster="' + scenarioResult + '_' + scenario_png + '"/>Your browser does not support the video tag.</video>'; 
     return [image_tag, video_tag];
   }
 }

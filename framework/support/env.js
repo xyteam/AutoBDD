@@ -5,6 +5,7 @@ process.env.DISPLAYSIZE = process.env.DISPLAYSIZE || '1920x1200';
 process.env.FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 process.env.StepTimeoutInMS = process.env.StepTimeoutInMS || 60000;
 process.env.REPORTDIR = process.env.REPORTDIR || '.';
+process.env.RELATIVEREPORTDIR = process.env.RELATIVEREPORTDIR || '.';
 process.env.MODULEPATH = process.env.MODULEPATH || '';
 process.env.DownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
 process.env.imageSimilarity = process.env.imageSimilarity || 0.8;
