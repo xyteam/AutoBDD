@@ -16,6 +16,7 @@ const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const myMOVIE = process.env.MOVIE;
 const mySCREENSHOT = process.env.SCREENSHOT;
 const myREPORTDIR = process.env.REPORTDIR;
+const myRELATIVEREPORTDIR = process.env.RELATIVEREPORTDIR;
 const myMODULE = process.env.ThisModule;
 
 // framework essential
