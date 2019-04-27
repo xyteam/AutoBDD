@@ -55,7 +55,7 @@ def parse_arguments():
         "--MODULELIST",
         nargs='+',
         dest="MODULELIST",
-        default=[],
+        default=['All'],
         required=True,
         help="Spece separated list of modules to run.")
 
@@ -123,7 +123,7 @@ class ChimpDryRun():
         else:
             self.FrameworkPath = environ['FrameworkPath']
 
-        self.modulelist = modulelist
+        self.modulelist = ['All'] if 'All' in modulelist else modulelist
         self.tags = []
         if tags:
             self.tags = ['--tags', tags]
@@ -154,9 +154,12 @@ class ChimpDryRun():
             dry_run_path = path.join(self.out_path, module + '.subjson')
             print('Dry run output:' + dry_run_path)
 
-            finalfeaturepath = path.join(self.project_full_path, module)
-            if self.isMaven:
-                finalfeaturepath = path.join (self.project_full_path, module, self.featurespath)
+            if 'All' == module:
+                finalfeaturepath = '**/*.feature'
+            else:
+                finalfeaturepath = path.join(self.project_full_path, module)
+                if self.isMaven:
+                    finalfeaturepath = path.join (self.project_full_path, module, self.featurespath)
 
             results = subprocess.Popen(
                 [

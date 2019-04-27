@@ -47,7 +47,7 @@ def definepath (case, isMaven, project_base, project_name, report_dir_base):
 
     if not path.exists(report_dir_full):
         os.makedirs(report_dir_full)
-    run_feature = case['uri']
+    run_feature = '/'.join(uri_array[uri_array.index('features'):])
     run_report = path.join(report_dir_full, re.sub('[^A-Za-z0-9\-\.]+', '_', feature_path))
     if int(case['line']) != 0:
         run_report += "_" + str(case['line'])
@@ -336,7 +336,7 @@ def parse_arguments():
         "--MODULELIST",
         nargs='+',
         dest="MODULELIST",
-        default=[],
+        default=['All'],
         help="Spece separated list of modules to run.")
 
     parser.add_argument(
