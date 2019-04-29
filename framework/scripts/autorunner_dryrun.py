@@ -4,7 +4,6 @@ Type python autorunner_dryrun.py --help for more information
 '''
 import argparse
 import json
-import glob
 import os
 import os.path as path
 import re
@@ -122,9 +121,8 @@ class ChimpDryRun():
             self.FrameworkPath = path.join(environ['HOME'], 'Projects',
                                            'AutoBDD')
         else:
-            self.FrameworkPath = environ['FrameworkPath']
+            self.FrameworkPath = environ['FrameworkPath'] 
 
-        self.modulelist = ['All'] if 'All' in modulelist else modulelist
         self.tags = []
         if tags:
             self.tags = ['--tags', tags]
@@ -132,6 +130,11 @@ class ChimpDryRun():
         self.project = project
         self.project_full_path = path.join(self.FrameworkPath,
                                            self.projectbase, self.project)
+
+        self.modulelist = modulelist
+        if 'All' in modulelist:
+            self.modulelist = filter(lambda x: path.isdir(path.join(self.project_full_path, x)), os.listdir(self.project_full_path))
+
         self.platform = platform
         self.isMaven = isMaven
         self.featurespath = featurespath
@@ -151,14 +154,12 @@ class ChimpDryRun():
 
     def get_dry_run_results(self):
         assert path.exists(self.project_full_path)
-        dry_run_path = path.join(self.out_path, 'run_feature.subjson')
+
+        dry_run_path = path.join(self.out_path, 'dryrun_feature.subjson')
         finalfeaturepath = []
 
-        if 'All' in self.modulelist:
-            finalfeaturepath.append('**/*.feature')
-        else:
-            for module in self.modulelist:
-                finalfeaturepath.append(module + '/**/*.feature')
+        for module in self.modulelist:
+            finalfeaturepath.append(module + '/**/*.feature')
 
         results = subprocess.Popen(
             [
@@ -177,45 +178,12 @@ class ChimpDryRun():
             for feature in data:
                 for scenario in feature['elements']:
                     out_json = self.case_info.copy()
-                    out_json['uri'] = feature['uri']
+                    out_json['uri'] = path.join(self.project_full_path, feature['uri'])
                     file_name = path.splitext(path.basename(feature['uri']))[0]
                     out_json['feature'] = file_name + '-' +feature['name']
                     out_json['scenario'] = scenario['name']
                     out_json['line'] = scenario['line']
                     self.out_array.append(out_json)
-                    
-        for module in self.modulelist:
-            dry_run_path = path.join(self.out_path, module + '.subjson')
-            print('Dry run output:' + dry_run_path)
-
-            if 'All' == module:
-                finalfeaturepath = '**/*.feature'
-            else:
-                finalfeaturepath = path.join(self.project_full_path, module)
-                if self.isMaven:
-                    finalfeaturepath = path.join (self.project_full_path, module, self.featurespath)
-
-            results = subprocess.Popen(
-                [
-                    'cucumber-js', '--dry-run', '-f', 'json:' + dry_run_path,
-                    finalfeaturepath
-                ] + self.tags,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT)
-
-            results.communicate()
-
-            with open(dry_run_path, 'r') as fname:
-                data = json.load(fname)
-                for feature in data:
-                    for scenario in feature['elements']:
-                        out_json = self.case_info.copy()
-                        out_json['uri'] = feature['uri']
-                        file_name = path.splitext(path.basename(feature['uri']))[0]
-                        out_json['feature'] = file_name + '-' +feature['name']
-                        out_json['scenario'] = scenario['name']
-                        out_json['line'] = scenario['line']
-                        self.out_array.append(out_json)
 
         out_path = path.join(self.out_path, '.runcase.subjson')
         print('Run case path: ' + out_path)
