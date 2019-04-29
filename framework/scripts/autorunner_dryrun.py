@@ -150,38 +150,36 @@ class ChimpDryRun():
 
     def get_dry_run_results(self):
         assert path.exists(self.project_full_path)
-        for module in self.modulelist:
-            dry_run_path = path.join(self.out_path, module + '.subjson')
-            print('Dry run output:' + dry_run_path)
 
-            if 'All' == module:
-                finalfeaturepath = '**/*.feature'
-            else:
-                finalfeaturepath = path.join(self.project_full_path, module)
-                if self.isMaven:
-                    finalfeaturepath = path.join (self.project_full_path, module, self.featurespath)
+        dry_run_path = path.join(self.out_path, 'run_feature.subjson')
 
-            results = subprocess.Popen(
-                [
-                    'cucumber-js', '--dry-run', '-f', 'json:' + dry_run_path,
-                    finalfeaturepath
-                ] + self.tags,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT)
+        if 'All' in self.modulelist:
+            finalfeaturepath = r'**/*.feature'
+        else:
+            finalfeaturepath = r'(' + '|'.join(self.modulelist) + ')/**/*.feature'
 
-            results.communicate()
+        results = subprocess.Popen(
+            [
+                'cucumber-js', '--dry-run', '-f', 'json:' + dry_run_path,
+                finalfeaturepath
+            ] + self.tags,
+            cwd=self.project_full_path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT)
 
-            with open(dry_run_path, 'r') as fname:
-                data = json.load(fname)
-                for feature in data:
-                    for scenario in feature['elements']:
-                        out_json = self.case_info.copy()
-                        out_json['uri'] = feature['uri']
-                        file_name = path.splitext(path.basename(feature['uri']))[0]
-                        out_json['feature'] = file_name + '-' +feature['name']
-                        out_json['scenario'] = scenario['name']
-                        out_json['line'] = scenario['line']
-                        self.out_array.append(out_json)
+        results.communicate()
+
+        with open(dry_run_path, 'r') as fname:
+            data = json.load(fname)
+            for feature in data:
+                for scenario in feature['elements']:
+                    out_json = self.case_info.copy()
+                    out_json['uri'] = feature['uri']
+                    file_name = path.splitext(path.basename(feature['uri']))[0]
+                    out_json['feature'] = file_name + '-' +feature['name']
+                    out_json['scenario'] = scenario['name']
+                    out_json['line'] = scenario['line']
+                    self.out_array.append(out_json)
 
         out_path = path.join(self.out_path, '.runcase.subjson')
         print('Run case path: ' + out_path)
