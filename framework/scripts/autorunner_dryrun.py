@@ -4,6 +4,7 @@ Type python autorunner_dryrun.py --help for more information
 '''
 import argparse
 import json
+import glob
 import os
 import os.path as path
 import re
@@ -150,6 +151,39 @@ class ChimpDryRun():
 
     def get_dry_run_results(self):
         assert path.exists(self.project_full_path)
+        dry_run_path = path.join(self.out_path, 'run_feature.subjson')
+        finalfeaturepath = []
+
+        if 'All' in self.modulelist:
+            finalfeaturepath.append('**/*.feature')
+        else:
+            for module in self.modulelist:
+                finalfeaturepath.append(module + '/**/*.feature')
+
+        results = subprocess.Popen(
+            [
+                'cucumber-js', '--dry-run', '-f', 'json:' + dry_run_path,
+            ]
+            + finalfeaturepath
+            + self.tags,
+            cwd=self.project_full_path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT)
+
+        results.communicate()
+
+        with open(dry_run_path, 'r') as fname:
+            data = json.load(fname)
+            for feature in data:
+                for scenario in feature['elements']:
+                    out_json = self.case_info.copy()
+                    out_json['uri'] = feature['uri']
+                    file_name = path.splitext(path.basename(feature['uri']))[0]
+                    out_json['feature'] = file_name + '-' +feature['name']
+                    out_json['scenario'] = scenario['name']
+                    out_json['line'] = scenario['line']
+                    self.out_array.append(out_json)
+                    
         for module in self.modulelist:
             dry_run_path = path.join(self.out_path, module + '.subjson')
             print('Dry run output:' + dry_run_path)
