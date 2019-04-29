@@ -134,6 +134,8 @@ class ChimpDryRun():
         self.modulelist = modulelist
         if 'All' in modulelist:
             self.modulelist = filter(lambda x: path.isdir(path.join(self.project_full_path, x)), os.listdir(self.project_full_path))
+            if 'target' in self.modulelist: self.modulelist.remove('target')            # remove target
+            if 'build' in self.modulelist: self.modulelist.remove('build')            # remove target
 
         self.platform = platform
         self.isMaven = isMaven

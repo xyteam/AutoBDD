@@ -22,20 +22,21 @@ import shlex
 DB = None
 
 def definepath (case, isMaven, project_base, project_name, report_dir_base):
+    run_feature = case['uri']                       # preserve run_feature path
     uri_array = case['uri'].split('/')
     del uri_array[:uri_array.index(project_base)]   # remove any path before project_base
     uri_array.remove(project_base)                  # remove project_base form array
     uri_array.remove(project_name)                  # remove project_name from array
 
-    # clear extra path typically for Java projects
-    if 'src' in uri_array: uri_array.remove('src')              # remove src
-    if 'main' in uri_array: uri_array.remove('main')            # remove main
-    if 'test' in uri_array: uri_array.remove('test')            # remove test
-    if 'resourdes' in uri_array: uri_array.remove('resources')  # remove resources
-
     # use /features/ as the divider between module_path and feature_path
     module_path_array = uri_array[:uri_array.index('features')]
     feature_path_array = uri_array[uri_array.index('features'):]
+
+    # clear extra path typically for Java projects
+    if 'src' in module_path_array: module_path_array.remove('src')              # remove src
+    if 'main' in module_path_array: module_path_array.remove('main')            # remove main
+    if 'test' in module_path_array: module_path_array.remove('test')            # remove test
+    if 'resources' in module_path_array: module_path_array.remove('resources')  # remove resources
 
     module_path = '/'.join(module_path_array)   # relative path to module
     module_name = module_path_array[0]          # module_name is the first level of module path
@@ -47,7 +48,7 @@ def definepath (case, isMaven, project_base, project_name, report_dir_base):
 
     if not path.exists(report_dir_full):
         os.makedirs(report_dir_full)
-    run_feature = '/'.join(uri_array[uri_array.index('features'):])
+    
     run_report = path.join(report_dir_full, re.sub('[^A-Za-z0-9\-\.]+', '_', feature_path))
     if int(case['line']) != 0:
         run_report += "_" + str(case['line'])
@@ -74,7 +75,6 @@ def run_chimp(index,
               chimp_profile,
               total,
               project_type,
-              features_path,
               isMaven):
     ''' Run '''
     time.sleep(random.uniform(0,2))
@@ -384,15 +384,6 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "--featurespath",
-        "--FEATURESPATH",
-        dest="FEATUREPATH",
-        default="src/test/resources/",
-        help=
-        "Path to features directory from module_name. Default value: src/test/resources/"
-    )
-
-    parser.add_argument(
         '--version', '-v', action='version', version='%(prog)s V1.0')
 
     if sys.argv[1].startswith('+'):
@@ -447,7 +438,6 @@ class ChimpAutoRun:
         self.projectbase = arguments.PROJECTBASE
         self.project = arguments.PROJECT
         self.projecttype = arguments.PROJECTTYPE
-        self.featurespath = arguments.FEATUREPATH
         self.reportbase = arguments.REPORTBASE if arguments.REPORTBASE else path.join(
             self.FrameworkPath, 'test-reports')
         self.reportpath = arguments.REPORTPATH if arguments.REPORTPATH else '_'.join(
@@ -532,7 +522,7 @@ class ChimpAutoRun:
             from autorunner_dryrun import ChimpDryRun
             dry_run = ChimpDryRun(self.projectbase, self.project,
                                   self.modulelist, self.platform, self.browser, self.isMaven,
-                                  self.tags, self.featurespath, self.report_dir_base)
+                                  self.tags, self.report_dir_base)
             self.runcase = dry_run.get_dry_run_results()
 
     def is_rerun(self):
@@ -682,7 +672,7 @@ class ChimpAutoRun:
                       self.projectbase, self.project, self.report_dir_base,
                       self.movie, self.screenshot,
                       self.debugmode, self.display_size, self.chimp_profile ,
-                      self.scenarios_count, self.projecttype, self.featurespath,
+                      self.scenarios_count, self.projecttype,
                       self.isMaven))
         pool.close()
         pool.join()
