@@ -4,6 +4,7 @@ Type python autorunner_dryrun.py --help for more information
 '''
 import argparse
 import json
+import glob
 import os
 import os.path as path
 import re
@@ -152,17 +153,20 @@ class ChimpDryRun():
         assert path.exists(self.project_full_path)
 
         dry_run_path = path.join(self.out_path, 'run_feature.subjson')
+        finalfeaturepath = []
 
         if 'All' in self.modulelist:
-            finalfeaturepath = r'**/*.feature'
+            finalfeaturepath.append('**/*.feature')
         else:
-            finalfeaturepath = r'(' + '|'.join(self.modulelist) + ')/**/*.feature'
+            for module in self.modulelist:
+                finalfeaturepath.append(module + '/**/*.feature')
 
         results = subprocess.Popen(
             [
                 'cucumber-js', '--dry-run', '-f', 'json:' + dry_run_path,
-                finalfeaturepath
-            ] + self.tags,
+            ]
+            + finalfeaturepath
+            + self.tags,
             cwd=self.project_full_path,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT)
