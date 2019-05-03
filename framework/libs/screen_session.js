@@ -136,22 +136,22 @@ module.exports = {
     return returnVal;
   },
 
-  screenHoverImage: function(imagePath, imageSimilarity) {
+  screenHoverImage: function(imagePath, imageSimilarity, imageWaitTime) {
     var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'hover');
     return returnVal;
   },
 
-  screenClickImage: function(imagePath, imageSimilarity) {
+  screenClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
     var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'single');
     return returnVal;
   },
 
-  screenDoubleClickImage: function(imagePath, imageSimilarity) {
+  screenDoubleClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
     var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'double');
     return returnVal;
   },
 
-  screenRightClickImage: function(imagePath, imageSimilarity) {
+  screenRightClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
     var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'right');
     return returnVal;
   },
