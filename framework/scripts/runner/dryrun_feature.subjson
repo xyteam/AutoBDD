@@ -1,0 +1,361 @@
+[
+  {
+    "description": "  As a QA Engineer\n  I want to initialize my automation test environment",
+    "keyword": "Feature",
+    "name": "test init",
+    "line": 1,
+    "id": "test-init",
+    "tags": [],
+    "uri": "test-init/features/test_init.feature",
+    "elements": [
+      {
+        "id": "test-init;download-drivers",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "download drivers",
+        "tags": [],
+        "type": "scenario",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I open the site \"/\"",
+            "result": {
+              "status": "undefined"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "description": "  As a vArmour QA Engineer\n  I want to invistaget the functionality of the PA login page",
+    "keyword": "Feature",
+    "name": "Login Page",
+    "line": 1,
+    "id": "login-page",
+    "tags": [],
+    "uri": "test-demo/features/login_page.feature",
+    "elements": [
+      {
+        "id": "login-page;login-page---check-key-elements",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Login page - check key elements",
+        "tags": [],
+        "type": "scenario",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 7,
+            "name": "I open the url \"/\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 8,
+            "name": "I expect that the path is \"/Login\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "I expect that the title is \"vArmour Management System - Login\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 10,
+            "name": "I should see the \"vArmour_logo\" image on the screen",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "I expect that element \"//div[@class='signinbox']\" contains the text \"Login\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "I expect that the attribute \"placeholder\" from element \"//input[@name='username']\" is \"Username\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "I expect that the attribute \"placeholder\" from element \"//input[@name='password']\" is \"Password\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 14,
+            "name": "I expect that the attribute \"autocomplete\" from element \"//input[@name='password']\" is \"off\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "I expect that the attribute \"value\" from element \"//input[@type='submit']\" is \"Sign in\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "I expect that the css attribute \"color\" from element \"#background\" is \"rgba(67,67,67,1)\"",
+            "result": {
+              "status": "undefined"
+            }
+          }
+        ]
+      },
+      {
+        "id": "login-page;login-page---sign-in-and-sign-out",
+        "keyword": "Scenario",
+        "line": 18,
+        "name": "Login page - sign in and sign out",
+        "tags": [],
+        "type": "scenario",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 19,
+            "name": "I open the url \"/\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 20,
+            "name": "I set \"varmour\" to the inputfield \"//input[@name='username']\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "I set \"vArmour\" to the inputfield \"//input[@name='password']\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 22,
+            "name": "I add \"123\" to the inputfield \"//input[@name='password']\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 23,
+            "name": "I click on the element \"//input[@type='submit']\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 24,
+            "name": "I wait on element \"//div[@class='usermenu icon-profile']\" for 10000ms to be visible",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 25,
+            "name": "I expect that the path is \"/ChassisListView\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 26,
+            "name": "I expect that the title is \"vArmour Management System\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 27,
+            "name": "I click on the element \"//div[@class='usermenu icon-profile']\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 28,
+            "name": "I expect that element \"//p[@class='user']\" contains the text \"varmour\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 29,
+            "name": "I expect that element \"a=Log out\" is visible",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 30,
+            "name": "I click on the element \"a=Log out\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 31,
+            "name": "I expect that the path is \"/Login\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 32,
+            "name": "I expect that the title is \"vArmour Management System - Login\"",
+            "result": {
+              "status": "undefined"
+            }
+          }
+        ]
+      },
+      {
+        "id": "login-page;login-page---sign-in-with-incorrect-credential",
+        "keyword": "Scenario",
+        "line": 34,
+        "name": "Login page - sign in with incorrect credential",
+        "tags": [],
+        "type": "scenario",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 35,
+            "name": "I open the url \"/\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 36,
+            "name": "I set \"varmour\" to the inputfield \"//input[@name='username']\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 37,
+            "name": "I set \"vArmour\" to the inputfield \"//input[@name='password']\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 38,
+            "name": "I add \"1234\" to the inputfield \"//input[@name='password']\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 39,
+            "name": "I click on the element \"//input[@type='submit']\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 40,
+            "name": "I wait on element \"//div[@class='error']\" for 10000ms to be visible",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 41,
+            "name": "I expect that element \"//div[@class='error']\" contains the text \"Authentication failed\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 42,
+            "name": "I expect that the css attribute \"color\" from element \"//div[@class='error']\" is \"rgba(255,102,0,1)\"",
+            "result": {
+              "status": "undefined"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

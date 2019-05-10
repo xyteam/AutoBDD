@@ -59,6 +59,13 @@ module.exports = {
     session.pause(1000);
   },
 
+  showErrorLog: function(session) {
+    var anyRegexWords = 'failed|rejected|unhandled|unauthorized|error|invalid';
+    var msgRegex = RegExp(anyRegexWords);
+    var targetLog = session.log('browser').value.filter(log => msgRegex.test(log.message.toLowerCase()) == true);
+    console.log(targetLog);
+  },
+  
   // wait until DOM content is loaded or timeout
   waitDOMContentLoaded: function(session, timeout) {
     var timeout = timeout || defaultTimeout;
