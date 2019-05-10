@@ -1,6 +1,7 @@
 const frameworkPath = process.env.FrameworkPath;
 const framework_libs = require(frameworkPath + '/framework/libs/framework_libs');
 const screen_session = require(frameworkPath + '/framework/libs/screen_session');
+const browser_session = require(frameworkPath + '/framework/libs/browser_session');
 
 const frameworkHooks = {
   BeforeFeature: function(feature, callback) {
@@ -49,6 +50,9 @@ const frameworkHooks = {
 
   AfterStep: function(step, callback) {
     var stepName = step.getName();
+    if (process.env.BROWSERLOG == 1) {
+      browser_session.showErrorLog(browser);
+    }
     callback();
   },
 
