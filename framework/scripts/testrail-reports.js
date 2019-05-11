@@ -46,7 +46,6 @@ const options = buildOptions({
     },
 	trProjectId: {
 		type: 'number',
-		default: 63 // QA Playground
     },
     trRunId: {
 		type: 'number'
@@ -85,7 +84,7 @@ const options = buildOptions({
     trTestrunId: {
         type: 'number'        
     },
-    trJenkinsPath : {
+    trJenkinsPath: {
         type: 'string'
     },
     trUpdateInBulk: {
@@ -99,6 +98,7 @@ const options = buildOptions({
 
 const args = minimist(process.argv.slice(2), options);
 const trFilter = JSON5.parse('{' + args.trFilter + '}');
+const cbJson = (args.cbJsonPath) ? jsonfile.readFileSync(args.cbJsonPath) : null;
 
 var testrail = new Testrail({
     host: args.apiUrl,
@@ -122,6 +122,7 @@ switch (args.trCmd) {
     case 'getProjects':
         testrail.getProjects(/*FILTERS=*/trFilter, function (err, response, projects) {
             console.log(projects);
+            // console.log(response);
         });
         break;
     case 'getProject':
@@ -241,7 +242,6 @@ switch (args.trCmd) {
             console.log('cbJsonPath is required');
             break;
         }   
-        const cbJsonPretest = jsonfile.readFileSync(args.cbJsonPath);
         testrail_lib.getPretestStatus(cbJsonPretest)
         .then( result => {
             console.log ("No issue detected in the JSON result. All good!")
@@ -249,7 +249,7 @@ switch (args.trCmd) {
             console.error ( preTestError );
         }); 
         break;
-    case 'cbAddCases_original':
+    case 'cbAddCases':
     /*Input: 
     [Required: trProjectId, cbJsonPath]
     [Optional: trForceAdd(false), trForceUpdate(false)]*/
@@ -260,45 +260,33 @@ switch (args.trCmd) {
         if (!args.cbJsonPath) {
             console.log('cbJsonPath is required');
             break;
-        }        
-        const cbJson1 = jsonfile.readFileSync(args.cbJsonPath);
-        testrail_lib.getSuiteName_byResultJson (cbJson1)
-        .then ( mySuiteName => {
-            // testrail_lib.getPretestStatus(cbJson)
-            // .then( pretestResult => {                
-                testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
-                .then(suiteId => {
-                    cbJson1.forEach(feature => {
-                        var myFeature = {
-                            //name: feature.keyword + ': ' + feature.uri.substring(feature.uri.lastIndexOf('/')+1, feature.uri.length) + ' || ' + feature.name ,
-                            name: testrail_lib.getGeneratedSectionName (feature),
-                            suite_id: suiteId,
-                            description: feature.description           
-                        };
-                        testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, myFeature, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
-                        .then(sectionId => (async () => {  
-                            for (var index = 0; index < feature.elements.length; index++) {
-                                scenario = feature.elements[index];
-                                await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
-                                .then(myCaseId => {
-                                    if ( myCaseId != 0 ) console.log('   > trCaseId: ' + myCaseId);
-                                }).catch (getCaseError => {
-                                    console.error (getCaseError);
-                                });
-                            };                    
-                        })()).catch (getSectionError => {
-                            console.error (getSectionError);
-                        }); // convert callback into async func to use await inside (async () => {})()
+        }
+        // Add case by cbJson result file
+        var processedSuiteName = [];
+        cbJson.forEach(async (feature) => {
+            var suiteName = await testrail_lib.getSuiteName_byFeature(feature);
+            var suiteId = await testrail_lib.getSuiteId_byName(args.trProjectId, suiteName, args.trForceAdd);
+            var myFeature = {
+                //name: feature.keyword + ': ' + feature.uri.substring(feature.uri.lastIndexOf('/')+1, feature.uri.length) + ' || ' + feature.name ,
+                name: testrail_lib.getGeneratedSectionName (feature),
+                suite_id: suiteId,
+                description: feature.description           
+            };
+            testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, suiteName, myFeature.name, myFeature, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+            .then(sectionId => (async () => {  
+                for (var index = 0; index < feature.elements.length; index++) {
+                    scenario = feature.elements[index];
+                    await testrail_lib.getCaseId_byScenario(args.trProjectId, suiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+                    .then(myCaseId => {
+                        if ( myCaseId != 0 ) console.log('   > trCaseId: ' + myCaseId);
+                    }).catch (getCaseError => {
+                        console.error (getCaseError);
                     });
-                }).catch (getSuiteError => {
-                    console.error (getSuiteError);
-                });
-            // }).catch ( preTestError  => {                
-            //     console.error ( preTestError );
-            // }); 
-        }).catch (suiteNameError => { 
-            console.error (suiteNameError);
-        });                            
+                };                    
+            })()).catch (getSectionError => {
+                console.error (getSectionError);
+            }); 
+        });
         break;
     
     case 'cbAddSuites':
@@ -324,49 +312,6 @@ switch (args.trCmd) {
         })
     break;
     
-    case 'cbAddCases':
-    /*Input: 
-    [Required: trProjectId, cbJsonPath]
-    [Optional: trForceAdd(false), trForceUpdate(false)]*/
-        if (!args.trProjectId) {
-            console.log('trProjectId is required');
-            break;
-        }
-        if (!args.cbJsonPath) {
-            console.log('cbJsonPath is required');
-            break;
-        }        
-        const cbJson = jsonfile.readFileSync(args.cbJsonPath);
- 
-        cbJson.forEach(feature => {
-            var mySuiteName = testrail_lib.getSuiteName_byFeature(feature)
-            testrail_lib.getSuiteId_byName(args.trProjectId, mySuiteName, args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
-            .then(suiteId => {
-                var myFeature = {
-                    name: testrail_lib.getGeneratedSectionName (feature),
-                    suite_id: suiteId,
-                    description: feature.description           
-                };
-                testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, mySuiteName, myFeature.name, myFeature, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
-                .then(sectionId => (async () => {  
-                    for (var index = 0; index < feature.elements.length; index++) {
-                        scenario = feature.elements[index];
-                        await testrail_lib.getCaseId_byScenario(args.trProjectId, mySuiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
-                        .then(myCaseId => {
-                            if ( myCaseId != 0 ) console.log('   > trCaseId: ' + myCaseId);
-                        }).catch (getCaseError => {
-                            console.error (getCaseError);
-                        });
-                    };                    
-                })()).catch (getSectionError => {
-                    console.error (getSectionError);
-                }); // convert callback into async func to use await inside (async () => {})()
-            }).catch (getSuiteError => {
-                console.error (getSuiteError);
-            });
-        })                       
-        break;
-
     case 'cbUpdateResults' :
     /*Input: 
     [Required: trProjectId, cbJsonPath]
@@ -379,38 +324,30 @@ switch (args.trCmd) {
             console.log('cbJsonPath is required');
             break;
         }  
-        const cbJsonTestrun = jsonfile.readFileSync(args.cbJsonPath);    
-        testrail_lib.getSuiteName_byResultJson (cbJsonTestrun)
-        .then ( mySuiteName => {
-            //  testrail_lib.getPretestStatus(cbJsonTestrun)
-            //  .then( pretestResult => {
-                testrail_lib.getMilestones_byProjectId(args.trProjectId, args.trSprintId , args.trForceAdd)
-                .then(milestoneId => {
-                    testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbJsonTestrun )
-                    .then ( caseDicts => {
-                        testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , mySuiteName , caseDicts , args.trJenkinsPath, args.trForceAdd, args.trForceUpdate)
-                        .then ( testRunId => {                
-                            console.log ( "> Test Run ID : " + testRunId);
-                            if ( args.trUpdateInBulk ) {
-                                testrail_lib.addTestResultInBulk ( testRunId, cbJsonTestrun, caseDicts, args.trTestTarget, args.trJenkinsPath) 
-                            } else {
-                                testrail_lib.addTestResultIndividually ( testRunId, cbJsonTestrun, caseDicts, args.trTestTarget, args.trJenkinsPath) 
-                            }                                                   
-                        }).catch ( testrunError => {
-                            console.error ( testrunError );
-                        })
-                    }).catch ( caseDictError => {
-                        console.error (caseDictError );
-                    });   
-                }).catch ( milestoneError => {
-                    console.error ( milestoneError );
-                });  
-            //  }).catch ( preTestError  => {                
-            //      console.error ( preTestError );
-            //  });      
-        }).catch (suiteNameError => {
-            console.error (suiteNameError);
-        }); 
+        const cbJsonTestrun = jsonfile.readFileSync(args.cbJsonPath);
+        testrail_lib.getSuiteNames_byResultJson(cbJsonTestrun).forEach(mySuiteName => {
+            testrail_lib.getMilestone_byProjectId(args.trProjectId, args.trSprintId , args.trForceAdd)
+            .then(milestoneId => {
+                testrail_lib.getCaseDicts_bySuiteName ( args.trProjectId, mySuiteName, cbJsonTestrun )
+                .then ( caseDicts => {
+                    testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , mySuiteName , caseDicts , args.trJenkinsPath, args.trForceAdd, args.trForceUpdate)
+                    .then ( testRunId => {                
+                        console.log ( "> Test Run ID : " + testRunId);
+                        if ( args.trUpdateInBulk ) {
+                            testrail_lib.addTestResultInBulk( testRunId, cbJsonTestrun, caseDicts, args.trTestTarget, args.trJenkinsPath) 
+                        } else {
+                            testrail_lib.addTestResultIndividually( testRunId, cbJsonTestrun, caseDicts, args.trTestTarget, args.trJenkinsPath) 
+                        }                                                   
+                    }).catch ( testrunError => {
+                        console.error ( testrunError );
+                    })
+                }).catch ( caseDictError => {
+                    console.error (caseDictError );
+                });   
+            }).catch ( milestoneError => {
+                console.error ( milestoneError );
+            });  
+        });
         break;
 
     //@samplecode
@@ -428,11 +365,10 @@ switch (args.trCmd) {
         }  
         const cbJsonUpdateInd = jsonfile.readFileSync(args.cbJsonPath);   
         
-        testrail_lib.getSuiteName_byResultJson (cbJsonUpdateInd)
-        .then ( mySuiteName => {
-            testrail_lib.getCaseDicts_byFeature ( args.trProjectId, mySuiteName, cbJsonUpdateInd )
+        testrail_lib.getSuiteNames_byResultJson(cbJsonUpdateInd).forEach(mySuiteName => {
+            testrail_lib.getCaseDicts_bySuiteName ( args.trProjectId, mySuiteName, cbJsonUpdateInd )
             .then ( caseDicts => {
-                cbJsonTestrun.forEach (feature => {
+                cbJsonTestrun.forEach(feature => {
                     var myFeature = {
                         name: testrail_lib.getGeneratedSectionName(feature)
                     };                            
@@ -440,22 +376,7 @@ switch (args.trCmd) {
                         testrail_lib.addTestResultIndividually ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false, args.trTestTarget)//.then( resp => {
                         console.log ( resp );
                     })
-                    //     })
-                    //     // feature.elements.forEach ( scenario => (async () => {
-                    //     //     await testrail_lib.addTestResult ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false).then( resp => {
-                    //     //        // console.log ( resp );
-                    //     //     })
-                    //     // })())
-                    // })
-                    // testrail_lib.addTestResult ( testRunId , cbJsonTestrun, caseDicts ,args.trTestTarget)
-                    // .then ( result => {
-                    //     console.log ( "Result added/updated successfully" );
-                    // }).catch (testresultError => {
-                    //     console.error ( testresultError );
-                    // });
                 testrail_lib.addTestResultInBulk ( args.trTestrunId, cbJsonUpdate, caseDicts, args.trTestTarget)
-                // .then (result => {
-                //     console.log ( "OK!!");
                 })
             })
         })
@@ -464,9 +385,9 @@ switch (args.trCmd) {
     //@samplecode
     case 'xDeleteSections':
         //use for testing only
-        testrail_lib.getSuiteId_byName ( 63, args.trSuiteName , false ).then ( suiteid => {
+        testrail_lib.getSuiteId_byName (args.trProjectId, args.trSuiteName , false ).then ( suiteid => {
             console.log ( "FOUND SUITE : " + suiteid)
-            testrail.getSections(/*PROJECT_ID=*/ 63, /*suite-id*/ suiteid , function (err, response, sections) {
+            testrail.getSections(/*PROJECT_ID=*/args.trProjectId, /*suite-id*/ suiteid , function (err, response, sections) {
                 sections.forEach ( sec => {
                     console.log ( "Deleting section => " + sec.name )
                     testrail.deleteSection ( sec.id );
@@ -478,7 +399,7 @@ switch (args.trCmd) {
     //@samplecode
     case 'xDeleteSuites':
         //use for testing only
-        testrail_lib.getSuiteId_byName ( 63, args.trSuiteName , false ).then ( suiteid => {
+        testrail_lib.getSuiteId_byName (args.trProjectId, args.trSuiteName , false ).then ( suiteid => {
             console.log ( "FOUND SUITE : " + suiteid)
             console.log ( "Deleting suite => " + suiteid )
             testrail.deleteSuite ( suiteid );

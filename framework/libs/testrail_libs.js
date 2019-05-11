@@ -13,7 +13,7 @@ module.exports = {
   //================== NAME GENERATOR ==================
 
   getGeneratedSectionName: function (feature) {
-    let sectionName = feature.keyword + ': ' + feature.uri.substring(feature.uri.lastIndexOf('/')+1, feature.uri.length) + ' || ' + feature.name;
+    let sectionName = feature.keyword + ': ' + feature.name;
     return sectionName.trim();
   },
 
@@ -80,7 +80,6 @@ module.exports = {
                   `  > Possible resolution: Please supply "--trForceAdd true" to add the missing suite\n`;
         throw err;    
     }
-
     return mySuite.id;
   },
 
@@ -170,11 +169,11 @@ module.exports = {
     }
   },
   
-  syncCasesFromMaster : async function (projectId, suiteName, caseName, caseId) {
+  syncCasesFromMaster: async function (projectId, suiteName, caseName, caseId) {
     
     //console.log ( "*" + caseName.replace('Scenario: ' , '' ).replace(/\[\d{8}\] /, ''));
     this.getSuiteId_byName(projectId, suiteName, false).then ( masterSuiteId => (async() => {
-      var masterCase = await testrail.getCases(projectId, {suite_id : masterSuiteId}).then(response => {
+      var masterCase = await testrail.getCases(projectId, {suite_id: masterSuiteId}).then(response => {
         const myCases = response.body;
         const myCase = myCases.filter(s => (s.title == caseName.replace('Scenario: ','').replace('Scenario Outline: ' , '')));
         return myCase[0];
@@ -184,9 +183,8 @@ module.exports = {
       if (masterCase) {
         console.log ( "   > Test case id " + masterCase.id + " found in Master. Synced with master.");
         var myTestCase = {
-          //title : this.getGeneratedCaseName(scenario),
-          //custom_automation: 1, //1- to be automated
-          //custom_bdd_scenario: this.constructScenario(feature, scenario),
+          //title: this.getGeneratedCaseName(scenario),
+          //custom_summary: this.constructScenario(feature, scenario),
           milestone_id: masterCase.milestone_id,
           refs: masterCase.refs
         };
@@ -202,11 +200,10 @@ module.exports = {
   addCase_byScenario: async function (projectId, suiteName, sectionName, feature, scenario) {
     var myCase = await this.getSectionId_byName(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {      
       var myTestCase = {
-        title : this.getGeneratedCaseName(scenario),
-        custom_automation: 1, //1- to be automated
-        custom_bdd_scenario: this.constructScenario(feature, scenario),
+        title: this.getGeneratedCaseName(scenario),
+        custom_summary: this.constructScenario(feature, scenario),
       };
-      console.log ( "   > Test case length : " + myTestCase.custom_bdd_scenario.length);
+      console.log ( "   > Test case length : " + myTestCase.custom_summary.length);
       return testrail.addCase(/*SECTION_ID=*/sectionId, /*CONTENT=*/myTestCase).then(response => {
         //console.log ( response );
         return response.body;
@@ -217,9 +214,8 @@ module.exports = {
 
   updateCase_byScenario: async function (caseId, feature, scenario) {
     var myTestCase = {
-      title : this.getGeneratedCaseName(scenario),
-      //custom_automation: 1, //1- to be automated
-      custom_bdd_scenario: this.constructScenario(feature, scenario),
+      title: this.getGeneratedCaseName(scenario),
+      custom_summary: this.constructScenario(feature, scenario),
     };
     myCase = await testrail.updateCase(/*CASE_ID=*/caseId, /*CONTENT=*/myTestCase).then(response => {
       return response.body;
@@ -229,7 +225,7 @@ module.exports = {
 
   //=============== MILESTONE HANDLING =================
 
-  getMilestones_byProjectId: async function (projectId, sprintId, forceAdd) {
+  getMilestone_byProjectId: async function (projectId, sprintId, forceAdd) {
     var isValid = true;
     var milestoneName = this.getGeneratedMilestoneName(sprintId);
     var myMilestone = await testrail.getMilestones(projectId).then(response => {
@@ -321,7 +317,7 @@ module.exports = {
     var myPreparedTestRun = {
       name: testRunName,
       milestone_id: milestoneId,
-      suite_id : suiteId,
+      suite_id: suiteId,
       include_all: false, 
       case_ids: caseIds,
       description: ''
@@ -349,7 +345,7 @@ module.exports = {
     })
     var finalcaseids = currentCaseIds.concat (caseIds);
     var updatedTestRun = {      
-      "case_ids" : finalcaseids
+      "case_ids": finalcaseids
     }
     updatedTestRun.description = (jenkinsPath) ? "Latest test run is triggered from Jenkins job. Job details : " + jenkinsPath : "Latest test run is triggered locally (without Jenkins)"
     myTestRun = testrail.updateRun(/*RUN_ID=*/testRunId, /*CONTENT=*/updatedTestRun).then ( response => {
@@ -359,43 +355,45 @@ module.exports = {
   },
 
   closeTestRun_byName: async function (projectId, milestoneId, testRunName) {
-    var targetTestRun = await testrail.getRuns(/*PROJECT_ID=*/projectId, /*FILTERS=*/{milestone_id : milestoneId}).then(response => {
+    var targetTestRun = await testrail.getRuns(/*PROJECT_ID=*/projectId, /*FILTERS=*/{milestone_id: milestoneId}).then(response => {
       var prevTestRun = response.body.filter (r => r.name == testRunName && !r.is_completed);
       return prevTestRun[0];
-    });
+    }).catch( err => { console.log(err)});
 
     if (targetTestRun) {     
       testrail.closeRun(/*RUN_ID=*/targetTestRun.id, function (err, response, run) {
         console.log ("> Auto Close Test Run \"" + run.name + "\"");
       });
-    }
-    else{
+    } else {
       console.log ("> [Skip-TestRun-Close] Unable to close Test run \"" + testRunName + "\", Either it's already closed or non-exist!");
     }    
   },
 
-  getCaseDicts_byFeature: async function (projectId, suiteName, cbJson) {
+  getCaseDicts_bySuiteName: async function (projectId, suiteName, cbJson) {
     const suite_id = await this.getSuiteId_byName(projectId, suiteName, false);
     const myCaseFilter = {suite_id};
-    var caseDict = [];
-    await testrail.getCases ( projectId , myCaseFilter).then (response => {
+    var caseDicts = [];
+    await testrail.getCases(projectId , myCaseFilter).then (response => {
       var myCases = response.body;     
-      cbJson.forEach( feature => {   
-        feature.elements.filter ( s=> s.type != 'background').forEach (scenario => {
-          var myCase = myCases.filter (c => (c.title == this.getGeneratedCaseName(scenario) ));
-          caseDict.push ( { "cid" : myCase[0].id , "cname" : myCase[0].title})
-        });
+      cbJson.forEach( feature => {
+        if (feature.uri.indexOf('/' + suiteName + '/') >= 0) {
+          feature.elements.filter ( s=> s.type != 'background').forEach (scenario => {
+            var myCase = myCases.filter (c => (c.title == this.getGeneratedCaseName(scenario) ));
+            caseDicts.push ( { "cid": myCase[0].id , "cname": myCase[0].title})
+          });  
+        }
       });
     }).catch ( err => {
       console.error ( "Case Dictionary error " + err);
     })
-    //console.dir ( caseDict );
-    return caseDict;
+    console.dir ( suiteName );
+    console.dir ( caseDicts );
+    return caseDicts;
   },
 
   //=============== TEST RESULTS HANDLING ==============
 
-  addTestResultInBulk: async function (testRunId,  cbJson,  caseDicts , testTarget, jenkinsPath) {   
+  addTestResultInBulk: async function (testRunId,  cbJson,  caseDicts , testTarget, jenkinsPath) {
     this.constructResultsSummary ( cbJson , caseDicts , testTarget , jenkinsPath).then ( results => {
       console.log ( " > Test result count : "  + results.length);
       testrail.addResultsForCases (testRunId , results).then ( response => {
@@ -406,16 +404,17 @@ module.exports = {
     });    
   },
 
-  addTestResultIndividually: async function (testRunId, cbJson, caseDicts, testTarget , jenkinsPath) {     
+  addTestResultIndividually: async function(testRunId, cbJson, caseDicts, testTarget , jenkinsPath) {
+    console.log(JSON.stringify(caseDicts));
     var targetStatus = 0; /*1 - passed on QA, 2 - blocked, 3 - untested , 4 - retest , 5 - failed , 10 - passed on support , 11 - passed on stg , 12 - passed on prod*/      
     switch (testTarget.toLowerCase()) {
       case "qa": targetStatus = 1; break;
       case "support": targetStatus = 10; break;
       case "staging":
-      case "stg" : targetStatus = 11; break;
+      case "stg": targetStatus = 11; break;
       case "production":
       case "prod": targetStatus = 12; break;
-      default : targetStatus = 1; break;
+      default: targetStatus = 1; break;
     }
     var counter = 0 ;
     var result = {};
@@ -425,8 +424,8 @@ module.exports = {
     var cid = 0 ;
     cbJson.forEach (feature => {
       feature.elements.forEach(scenario => {
-        scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach(step => {          
-          if ( step.result.status != "passed" && step.result.status != "skipped") {
+        scenario.steps.filter(s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach(step => {          
+          if (step.result.status != "passed" && step.result.status != "skipped") {
             resultComment += "- **" + step.result.status.toUpperCase() + "** :: " + step.keyword + " " + step.name + "\r\n";
             status = 5;
           }
@@ -438,29 +437,32 @@ module.exports = {
           resultElapsed += step.result.duration;
         }); 
 
-        if ( scenario.type != 'background') {
-          counter++;
-          cid = _.find( caseDicts , d => {return d.cname == this.getGeneratedCaseName(scenario)}).cid;       
-          result.comment = resultComment;          
-          result.status_id = status;
-          if ( result.status_id == targetStatus ) {
-            //todo - to be optimized
-            testrail.updateCase ( cid , {custom_automation: 2});
+        if (scenario.type != 'background') {
+          var matchedCase = _.find(caseDicts, d => {return d.cname == this.getGeneratedCaseName(scenario)});
+          if (matchedCase) {
+            cid = matchedCase.cid;
+            counter++;  
+            result.comment = resultComment;          
+            result.status_id = status;
+            if ( result.status_id == targetStatus ) {
+              //todo - to be optimized
+              testrail.updateCase ( cid , {custom_automated: true});
+            }
+            result.elapsed = (Math.round(resultElapsed/1e9) > 0) ? (Math.round(resultElapsed/1e9)) + "s" : null ; //null for undefined steps
+  
+            console.log ( " > #" + counter + " adding result for test case " + cid );
+            testrail.addResultForCase (testRunId , cid, result ).then ( response => {
+              return response.body;
+            }).catch(err => {
+              console.log (  " > add result error : " + err );
+            })
+  
+            result = {};       
+            resultComment = "";
+            resultElapsed = 0 ;
+            status = targetStatus;
+            cid = 0 ;  
           }
-          result.elapsed = (Math.round(resultElapsed/1e9) > 0) ? (Math.round(resultElapsed/1e9)) + "s" : null ; //null for undefined steps
-
-          console.log ( " > #" + counter + " adding result for test case " + cid );
-          testrail.addResultForCase (testRunId , cid, result ).then ( response => {
-            return response.body;
-          }).catch(err => {
-            console.log (  " > add result error : " + err );
-          })
-
-          result = {};       
-          resultComment = "";
-          resultElapsed = 0 ;
-          status = targetStatus;
-          cid = 0 ;
         }
       });
     });
@@ -472,17 +474,18 @@ module.exports = {
       case "qa": targetStatus = 1; break;
       case "support": targetStatus = 10; break;
       case "staging":
-      case "stg" : targetStatus = 11; break;
+      case "stg": targetStatus = 11; break;
       case "production":
       case "prod": targetStatus = 12; break;
-      default : targetStatus = 1; break;
+      default: targetStatus = 1; break;
     }
     var results = [];
     var result = {};
     var status = targetStatus;
     var resultComment = "";
     var resultElapsed = 0;
-    cbJson.forEach (feature => {
+    
+    cbJson.forEach(feature => {
       feature.elements.forEach(scenario => {
         scenario.steps.filter ( s => _.contains (["given","when","then","but","and"], s.keyword.trim().toLowerCase())).forEach(step => {          
           if ( step.result.status != "passed" && step.result.status != "skipped") {
@@ -495,25 +498,28 @@ module.exports = {
             resultComment += (jenkinsPath) ? "||:For more detais, please go [Jenkins Link](" + jenkinsPath + this.getConstructCucumberReportPath (feature) + ").\r\n" : "||:Details error are not available as the test are triggered locally!\r\n";
           }
           resultElapsed += step.result.duration;
-        }); 
+        }); // end scenario.steps block
 
-        if ( scenario.type != 'background'){      
-          result.case_id = _.find( caseDicts , d => {return d.cname == this.getGeneratedCaseName(scenario)}).cid;       
-          result.comment = resultComment;          
-          result.status_id = status;
-          if ( result.status_id == targetStatus ) {
-            //todo - to be optimized
-            testrail.updateCase ( result.case_id , {custom_automation: 2});
+        if (scenario.type != 'background') {
+          var matchedCase = _.find(caseDicts, d => {return d.cname == this.getGeneratedCaseName(scenario)});
+          if (matchedCase) {
+            result.case_id = matchedCase.cid;
+            result.comment = resultComment;          
+            result.status_id = status;
+            if (result.status_id == targetStatus) {
+              //todo - to be optimized
+              testrail.updateCase (result.case_id , {custom_automated: true});
+            }
+            result.elapsed = (Math.round(resultElapsed/1e9) > 0) ? (Math.round(resultElapsed/1e9)) + "s" : null ; //null for undefined steps
+            results.push ( result );
+            result = {};       
+            resultComment = "";
+            resultElapsed = 0 ;
+            status = targetStatus;
           }
-          result.elapsed = (Math.round(resultElapsed/1e9) > 0) ? (Math.round(resultElapsed/1e9)) + "s" : null ; //null for undefined steps
-          results.push ( result );
-          result = {};       
-          resultComment = "";
-          resultElapsed = 0 ;
-          status = targetStatus;
         }
-      });
-    });
+      }); //end feature.elements (scenario) block
+    }); //sbJson.forEach block
     return results;
   },
 
@@ -602,7 +608,7 @@ module.exports = {
 
   //===================== UTILITIES ====================
 
-  getConstructCucumberReportPath : function (feature) {
+  getConstructCucumberReportPath: function (feature) {
     //below path only works on older cucumber (4.1.0)
     //const CUKE_APPEND = 'cucumber-html-reports/report-feature_'; 
     //var cukePath = CUKE_APPEND + feature.uri.replace(/\//g,'-').replace(/\./g,'-').replace(/\s/g, '-') + ".html";    
@@ -612,11 +618,11 @@ module.exports = {
 
   },
 
-  getCurrentSprintID : function () {
+  getCurrentSprintID: function () {
     //get current sprint number, used to handle milestone/runs naming.
     const TZ = "+8";
     const MS_TO_DAY = 86400000; //milliseconds to day
-    const START_SPRINT = 100;
+    const START_SPRINT = 1;
     const SPRINT_LENGTH = 14;
     const START_DATE = "March 04, 2019 00:00:00";
     var epochDate = date => Date.parse ( new Date ( date.getTime() + (date.getTimezoneOffset() * 60000) + (3600000 * TZ)))
@@ -625,9 +631,9 @@ module.exports = {
     return ( Math.floor(((curDate - startDate)/MS_TO_DAY/SPRINT_LENGTH) + START_SPRINT ));
   },
 
-  getMilestoneDuedate_bySprintId : function (milestoneName) {
+  getMilestoneDuedate_bySprintId: function (milestoneName) {
     const END_DATE_SPRINT100 = "March 15, 2019 00:00:00";
-    const ANCHOR_SPRINTID = 100;
+    const ANCHOR_SPRINTID = 1;
     const SPRINT_LENGTH = 14;
     var dueDate = new Date(END_DATE_SPRINT100);
     let sprintID = milestoneName.match (/\d+/);
@@ -635,37 +641,24 @@ module.exports = {
     return Math.floor(dueDate/1000);
   },
 
-  getSuiteName_byResultJson: async function ( cbJson ) {
+  getSuiteNames_byResultJson: function (cbJson) {
+    // Common
+    const projectBase = process.env.ProjectBase || '/test-projects/';
+    // JS test structure -> .../test-projects/<your-project-name>/<your-module-name>/features/...
+    const targetJS = '/features/';
+    // Java test structure -> .../<your-project-name>/<your-module-name>/src/test/...
+    const targetJava = '/src/test/';
 
-    //JS test structure -> .../test-projects/<your-project-name>/<your-module-name>/features/...
-    const targetJS = "test-projects/";
-    //Java test structure -> .../<your-project-name>/<your-module-name>/src/test/...
-    const targetJava = "/src/test/";
-
-    var strModule = "";
     if ( cbJson.length > 0 ) {
-      let featureURI = cbJson[0].uri;
-      if (featureURI.lastIndexOf(targetJava) > 0 ){ //java-file                
-        let strProjModule = featureURI.substring(0, featureURI.lastIndexOf(targetJava));
-        strModule = strProjModule.substring ( strProjModule.lastIndexOf('/') + 1 );
-        console.log ( "Detected suite name (Java-test) : " + strModule );      
-      } else if ( featureURI.indexOf(targetJS) > 0 ) { //js-file
-        let strProjModuleFeature = featureURI.slice ( featureURI.indexOf(targetJS) + targetJS.length);
-        let strModuleFeature = strProjModuleFeature.slice(strProjModuleFeature.indexOf('/')+1);
-        strModule = strModuleFeature.substring (0, strModuleFeature.indexOf('/'));
-        console.log ( "Detected suite name (JS-test) : " + strModule);
-      } else {
-          let err = `\n[Suite-Name-Error] Json file has invalid format : ${featureURI.substring (0, featureURI.lastIndexOf('/') + 1)} \n` +
-                    `  > Possible resolution: Ensure your project is following proper folder structure as per the convention\n`;
-          throw err;
-      }
-      return strModule;
+      var suiteNamesArray = cbJson.map(feature => feature.uri.substring(feature.uri.indexOf(projectBase) + projectBase.length));
+      suiteNamesArray = suiteNamesArray.map(item => (item.indexOf(targetJS) < 0) ? item : item.substring(0, item.lastIndexOf(targetJS)));
+      suiteNamesArray = suiteNamesArray.map(item => (item.indexOf(targetJava) < 0) ? item : item.substring(0, item.lastIndexOf(targetJava)));
+      suiteNamesArray = suiteNamesArray.map(item => item.substring(item.indexOf('/') + 1));
+      var suiteNames = new Set(suiteNamesArray);
+      return suiteNames;
     }
-    else {
-      let err = "\n[Suite-Name-Error] No features found from the supplied Json file!\n";
-      throw err;
-    }
-  },  
+  },
+
   getSuiteName_byFeature:  function ( feature ) {
 
     //JS test structure -> .../test-projects/<your-project-name>/<your-module-name>/features/...
@@ -703,17 +696,4 @@ module.exports = {
     } catch (e) {
     }
   },  
-
-  getFeature_ByScenario: function (scenarioName , jsonData) {
-    //to get single feature object that contains the given scenarioName (assume unique scenario)
-    var targetFeature = {};
-    jsonData.forEach ( feature => {
-        feature.elements.forEach ( scenario => {
-            if ( scenario.name === scenarioName ) {        
-              targetFeature = feature;                                
-            }
-        })
-    })
-    return targetFeature;    
-  },
 }
