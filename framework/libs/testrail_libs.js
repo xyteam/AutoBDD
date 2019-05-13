@@ -143,7 +143,7 @@ module.exports = {
       var myCase = await testrail.getCases(projectId, myCaseFilter).then(response => {
           const myCases = response.body;
           const myCase = myCases.filter(s => (s.title == this.getGeneratedCaseName(scenario)));
-          return myCase[0];
+          return myCase[0]; // return to myCase
       }).catch(err => {
           console.error('Testrail getCases Error :', err);
       });
@@ -159,18 +159,22 @@ module.exports = {
         let err = `\n[TestCase-Handling-Error] Test case "${scenario.name}" does not exist and NO request to add it.\n` +
                   `  > Possible resolution: Please supply "--trForceAdd true" to add the missing test case\n`;
         throw err;            
-      }      
-      if (myCase.refs == null) {
-        this.syncCasesFromMaster (projectId, 'Master', myCase.title, myCase.id);
       }
+      // TODO: See syncCasesFromMaster comment; To be deleted.
+      // if (myCase.refs == null) {
+      //   this.syncCasesFromMaster (projectId, 'Master', myCase.title, myCase.id);
+      // }
       return myCase.id;
     } else {
       return 0;
     }
   },
   
+  // TODO: to be deleted
+  // Purpose of syncCasesFromMaster is when a module-suite testcase matches one in the-Master suite it will create a reference to it.
+  // This is not needed in most situation. It is only needed when a testrail project is converted from a single-suite (Master) to a multi-suite project,
+  // and you are slowly moving testcases from Master suite to target suite, and wants to preserve past test history reference in the mean time.
   syncCasesFromMaster: async function (projectId, suiteName, caseName, caseId) {
-    
     //console.log ( "*" + caseName.replace('Scenario: ' , '' ).replace(/\[\d{8}\] /, ''));
     this.getSuiteId_byName(projectId, suiteName, false).then ( masterSuiteId => (async() => {
       var masterCase = await testrail.getCases(projectId, {suite_id: masterSuiteId}).then(response => {
@@ -197,6 +201,7 @@ module.exports = {
       console.error ( "Master suite not found. no sync will happen!");
     })                
   },
+
   addCase_byScenario: async function (projectId, suiteName, sectionName, feature, scenario) {
     var myCase = await this.getSectionId_byName(projectId, suiteName, sectionName, /*forceAdd*/true).then(sectionId => {      
       var myTestCase = {
