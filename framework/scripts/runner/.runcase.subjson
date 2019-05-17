@@ -1,0 +1,46 @@
+[
+    {
+        "status": "notrun", 
+        "scenario": "download drivers", 
+        "uri": "/home/vagrant/Run/AutoBDD/test-projects/vArmour-PA-test/test-init/features/test_init.feature", 
+        "feature": "test_init-test init", 
+        "platform": "Linux", 
+        "HOST": "default", 
+        "SSHPORT": "default", 
+        "line": 6, 
+        "browser": "CH"
+    }, 
+    {
+        "status": "notrun", 
+        "scenario": "Login page - check key elements", 
+        "uri": "/home/vagrant/Run/AutoBDD/test-projects/vArmour-PA-test/test-demo/features/login_page.feature", 
+        "feature": "login_page-Login Page", 
+        "platform": "Linux", 
+        "HOST": "default", 
+        "SSHPORT": "default", 
+        "line": 6, 
+        "browser": "CH"
+    }, 
+    {
+        "status": "notrun", 
+        "scenario": "Login page - sign in and sign out", 
+        "uri": "/home/vagrant/Run/AutoBDD/test-projects/vArmour-PA-test/test-demo/features/login_page.feature", 
+        "feature": "login_page-Login Page", 
+        "platform": "Linux", 
+        "HOST": "default", 
+        "SSHPORT": "default", 
+        "line": 18, 
+        "browser": "CH"
+    }, 
+    {
+        "status": "notrun", 
+        "scenario": "Login page - sign in with incorrect credential", 
+        "uri": "/home/vagrant/Run/AutoBDD/test-projects/vArmour-PA-test/test-demo/features/login_page.feature", 
+        "feature": "login_page-Login Page", 
+        "platform": "Linux", 
+        "HOST": "default", 
+        "SSHPORT": "default", 
+        "line": 34, 
+        "browser": "CH"
+    }
+]
