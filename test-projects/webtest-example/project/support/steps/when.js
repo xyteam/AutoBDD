@@ -13,6 +13,7 @@ import selectOption from '../../functions/action/selectOption';
 import selectOptionByIndex from '../../functions/action/selectOptionByIndex';
 import setCookie from '../../functions/action/setCookie';
 import setInputField from '../../functions/action/setInputField';
+import setInputFieldWithEnvVars from '../../functions/action/setInputFieldWithEnvVars';
 import setPromptText from '../../functions/action/setPromptText';
 import submitForm from '../../functions/action/submitForm';
 
@@ -25,6 +26,11 @@ module.exports = function() {
     this.When(
         /^I (add|set) "([^"]*)?" to the inputfield "([^"]*)?"$/,
         setInputField
+    );
+
+    this.When(
+        /^I (add|set) env var "([^"]*)?" to the inputfield "([^"]*)?"$/,
+        setInputFieldWithEnvVars
     );
 
     this.When(
