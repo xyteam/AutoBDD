@@ -24,8 +24,33 @@ if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0') {
   process.env.XVFB = process.env.XVFB || 'XVFB';
 }
 
+// auto-detect CH version
+if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0') {
+  if (!process.env.chromeVersion) {
+    process.env.chromeVersion = execSync('google-chrome --version').toString('utf8').trim();
+    console.log(process.env.chromeVersion);
+  }
+  if (!process.env.chromeDriverVersion) {
+    switch (true) {
+      case / 7[012]\./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '2.46'
+        break;
+      case / 73\./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '73.0.3683.68'
+        break;
+      case / 74\./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '74.0.3729.6'
+        break;
+      case / 75./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '75.0.3770.8'
+        break;
+    }
+    console.log('Chrome Driver ' + process.env.chromeDriverVersion)  
+  }
+}
+
 // auto-correct platform
-if (process.env.BROWSER == 'IE' && process.env.PLATFORM == 'Linux') {
+if (process.env.BROWSER == 'IE' && process.env.BROWSER == 'Linux') {
   process.env.PLATFORM = 'Win10';
 }
 
