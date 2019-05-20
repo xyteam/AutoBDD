@@ -22,7 +22,6 @@ services:
      - ~/.nvm:/home/${MYUSER}/.nvm
    network_mode: "host"
    command: /bin/bash -c "cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; cd ~/Run/AutoBDD; npm rebuild; . .autoPathrc.sh; pip install tinydb; ./framework/scripts/autorunner.py --parallel --movie 1 --platform Linux --browser CH --modulelist test-webpage --project webtest-example"
-
   
   test_download:
    build:
@@ -38,7 +37,6 @@ services:
      - ~/.nvm:/home/${MYUSER}/.nvm
    network_mode: "host"
    command: /bin/bash -c "cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; cd ~/Run/AutoBDD; npm rebuild; . .autoPathrc.sh; pip install tinydb; ./framework/scripts/autorunner.py --parallel 2 --movie 1 --platform Linux --browser CH --modulelist test-download --project webtest-example"
-
 
   test_postman:
    build:
@@ -86,4 +84,16 @@ services:
    network_mode: "host"
    command: /bin/bash -c "cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; cd ~/Run/AutoBDD; npm rebuild; . .autoPathrc.sh; pip install tinydb; ./framework/scripts/autorunner.py @tempotest.config"
 
-
+  l1804:
+   build:
+     context: .
+     shm_size: '512M'
+   image: xyplatform:lubuntu1804
+   user: ${MYUSER:?User is not defined. Please run with sudo MYUSER=u$(id -u) docker-compose <up|down|run>}
+   volumes:
+     - ~/.m2:/home/${MYUSER}/.m2
+     - ~/Run:/home/${MYUSER}/Run
+     - ~/.bashrc:/home/${MYUSER}/.bashrc
+     - ~/.nvm:/home/${MYUSER}/.nvm
+   network_mode: "host"
+   command: /bin/bash -c "xrandr --fb 1920x1200; x11vnc -localhost -create -geometry 1920x1200"
