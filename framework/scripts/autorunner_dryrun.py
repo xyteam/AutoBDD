@@ -113,10 +113,9 @@ class ChimpDryRun():
                  modulelist,
                  platform,
                  browser,
-                 isMaven,
                  tags=None,                 
-                 featurespath="src/test/resources",
                  output=None):
+
         if 'FrameworkPath' not in environ:
             self.FrameworkPath = path.join(environ['HOME'], 'Projects',
                                            'AutoBDD')
@@ -128,8 +127,7 @@ class ChimpDryRun():
             self.tags = ['--tags', tags]
         self.projectbase = projectbase
         self.project = project
-        self.project_full_path = path.join(self.FrameworkPath,
-                                           self.projectbase, self.project)
+        self.project_full_path = path.join(self.FrameworkPath, self.projectbase, self.project)
 
         self.modulelist = modulelist
         if 'All' in modulelist:
@@ -138,18 +136,9 @@ class ChimpDryRun():
             if 'build' in self.modulelist: self.modulelist.remove('build')            # remove target
 
         self.platform = platform
-        self.isMaven = isMaven
-        self.featurespath = featurespath
         self.browser = browser
         self.out_array = []
-
         self.out_path = output
-        if not self.out_path:
-            self.out_path = path.join(self.FrameworkPath, 'framework',
-                                      'scripts', 'runner')
-            if not path.exists(self.out_path):
-                os.makedirs(self.out_path)
-
         self.case_info = CASE_INFO
         self.case_info['platform'] = self.platform
         self.case_info['browser'] = self.browser
@@ -161,7 +150,7 @@ class ChimpDryRun():
         finalfeaturepath = []
 
         for module in self.modulelist:
-            finalfeaturepath.append(module + '/**/*.feature')
+            finalfeaturepath.append(self.project_full_path + '/' + module + '/**/*.feature')
 
         results = subprocess.Popen(
             [
@@ -169,7 +158,7 @@ class ChimpDryRun():
             ]
             + finalfeaturepath
             + self.tags,
-            cwd=self.project_full_path,
+            cwd=self.FrameworkPath,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT)
 
@@ -180,7 +169,8 @@ class ChimpDryRun():
             for feature in data:
                 for scenario in feature['elements']:
                     out_json = self.case_info.copy()
-                    out_json['uri'] = path.join(self.project_full_path, feature['uri'])
+                    feature_path = feature['uri'][feature['uri'].rfind(self.project) + len(self.project) + 1:]      # feature path without project_base and project_name 
+                    out_json['uri'] = path.join(self.project_full_path, feature_path)
                     file_name = path.splitext(path.basename(feature['uri']))[0]
                     out_json['feature'] = file_name + '-' +feature['name']
                     out_json['scenario'] = scenario['name']
