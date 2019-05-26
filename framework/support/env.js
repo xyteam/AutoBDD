@@ -20,12 +20,12 @@ if (process.env.PLATFORM == 'Linux') {
 }
 
 // auto-detect XVFB
-if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0') {
+if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0' && process.env.DISPLAY != ':1') {
   process.env.XVFB = process.env.XVFB || 'XVFB';
 }
 
 // auto-detect CH version
-if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0') {
+if (process.env.PLATFORM == 'Linux') {
   if (!process.env.chromeVersion) {
     process.env.chromeVersion = execSync('google-chrome --version').toString('utf8').trim();
     console.log(process.env.chromeVersion);
@@ -50,7 +50,7 @@ if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0') {
 }
 
 // auto-correct platform
-if (process.env.BROWSER == 'IE' && process.env.BROWSER == 'Linux') {
+if (process.env.BROWSER == 'IE' && process.env.PLATFORM == 'Linux') {
   process.env.PLATFORM = 'Win10';
 }
 
@@ -75,4 +75,5 @@ if (process.env.DebugAll == 1) {
   process.env.DebugTestProject = 1;
   process.env.DebugSelenium = 1;
   process.env.DebugCucumber = 1;
+  process.env.DebugBrowser = 1;
 }
