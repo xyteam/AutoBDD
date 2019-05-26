@@ -12,7 +12,7 @@ import json
 import argparse
 import shutil
 import re
-from multiprocessing import Pool
+import multiprocessing
 import os.path as path
 from os import environ
 from datetime import datetime
@@ -254,9 +254,9 @@ def parse_arguments():
         "--parallel",
         "--PARALLEL",
         dest="PARALLEL",
-        default='MAX',
+        default='CPU',
         help=
-        "chimp parallel run number, all available host will be used when set to MAX. Default value: MAX"
+        "chimp parallel run number, all available host will be used when set to MAX. Default value: CPU count"
     )
 
     parser.add_argument(
@@ -649,12 +649,16 @@ class ChimpAutoRun:
         if self.parallel == 'MAX':
             # using all available rdp host in config file
             pool_number = int(self.thread_count)
+        elif self.parallel == 'CPU':
+            # using cpu count
+            pool_number = multiprocessing.cpu_count()
+
         else:
             pool_number = min(int(self.thread_count), int(self.parallel))
         print('POOL NUMBER: {}'.format(pool_number))
         print('TOTAL {}(s): {}'.format(self.runlevel.upper(), self.scenarios_count))
 
-        pool = Pool(pool_number)
+        pool = multiprocessing.Pool(pool_number)
         for index in range(1, self.scenarios_count + 1):
             pool.apply_async(
                 run_chimp,
