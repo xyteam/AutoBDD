@@ -1,6 +1,7 @@
 # controls what test-projects to be included in the framework
 test-projects/*
 !test-projects/*-example/
+test-projects/javatest-example/**/target/
 test-reports/*
 !test-reports/*-example/
 
