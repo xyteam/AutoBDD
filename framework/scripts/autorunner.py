@@ -12,7 +12,7 @@ import json
 import argparse
 import shutil
 import re
-from multiprocessing import Pool
+import multiprocessing
 import os.path as path
 from os import environ
 from datetime import datetime
@@ -22,11 +22,9 @@ import shlex
 DB = None
 
 def definepath (case, isMaven, project_base, project_name, report_dir_base):
-    run_feature = case['uri']                       # preserve run_feature path
     uri_array = case['uri'].split('/')
-    del uri_array[:uri_array.index(project_base)]   # remove any path before project_base
-    uri_array.remove(project_base)                  # remove project_base form array
-    uri_array.remove(project_name)                  # remove project_name from array
+    del uri_array[:len(uri_array) - uri_array[::-1].index(project_name)]   # remove any path before project_name inclusive
+    run_feature = '/'.join(uri_array)
 
     # use /features/ as the divider between module_path and feature_path
     module_path_array = uri_array[:uri_array.index('features')]
@@ -119,7 +117,7 @@ def run_chimp(index,
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
                 ' xvfb-run --auto-servernum --server-args=\"-screen 0 ' + display_size + 'x16\"' + \
-                ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + run_feature + \
+                ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + feature_path + \
                 ' --plugin pretty --add-plugin json:' + run_report + '.subjson\"' + \
                 ' 2>&1 > ' + run_report + '.run'
 
@@ -137,7 +135,7 @@ def run_chimp(index,
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
                 ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
-                ' chimpy ' + chimp_profile + ' ' + run_feature + \
+                ' chimpy ' + chimp_profile + ' ' + feature_path + \
                 ' --format=json:' + run_report + '.subjson' \
                 ' 2>&1 > ' + run_report + '.run'
     elif platform == 'Win7' or platform == 'Win10':
@@ -164,7 +162,7 @@ def run_chimp(index,
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
-                        ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + run_feature + \
+                        ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + feature_path + \
                         ' --plugin pretty --add-plugin json:' + run_report + '.subjson\"' + \
                         ' 2>&1 > ' + run_report + '.run'
                     time.sleep(random.uniform(1, 2))
@@ -192,7 +190,7 @@ def run_chimp(index,
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
-                        ' chimpy ' + chimp_profile + ' ' + run_feature + \
+                        ' chimpy ' + chimp_profile + ' ' + feature_path + \
                         ' --format=json:' + run_report + '.subjson' + \
                         ' 2>&1 > ' + run_report + '.run'
                     time.sleep(random.uniform(1, 2))
@@ -256,9 +254,9 @@ def parse_arguments():
         "--parallel",
         "--PARALLEL",
         dest="PARALLEL",
-        default='MAX',
+        default='CPU',
         help=
-        "chimp parallel run number, all available host will be used when set to MAX. Default value: MAX"
+        "chimp parallel run number, all available host will be used when set to MAX. Default value: CPU count"
     )
 
     parser.add_argument(
@@ -416,7 +414,7 @@ class ChimpAutoRun:
             initialize local variables
         '''
         if 'TZ' not in environ:
-            os.environ['TZ'] = 'America/Los_Angeles'
+            os.environ['TZ'] = 'UTC'
         time.tzset()
 
         if 'FrameworkPath' not in environ:
@@ -426,8 +424,7 @@ class ChimpAutoRun:
             self.FrameworkPath = environ['FrameworkPath']
 
         self.reportonly = arguments.REPORTONLY
-        self.rumtime_stamp = arguments.TIMESTAMP if arguments.TIMESTAMP else time.strftime(
-            "%Y%m%d_%H%M%S%Z", time.gmtime())
+        self.rumtime_stamp = arguments.TIMESTAMP if arguments.TIMESTAMP else time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
         self.parallel = arguments.PARALLEL
         self.screenshot = arguments.SCREENSHOT
         self.movie = arguments.MOVIE
@@ -435,7 +432,7 @@ class ChimpAutoRun:
         self.browser = arguments.BROWSER
         self.runlevel = arguments.RUNLEVEL
         self.debugmode = arguments.DEBUGMODE
-        self.projectbase = arguments.PROJECTBASE
+        self.projectbase = arguments.PROJECTBASE if arguments.PROJECTBASE else 'test-projects'
         self.project = arguments.PROJECT
         self.projecttype = arguments.PROJECTTYPE
         self.reportbase = arguments.REPORTBASE if arguments.REPORTBASE else path.join(
@@ -453,8 +450,8 @@ class ChimpAutoRun:
         self.display = ':99'
         self.display_size = '1920x1200'
 
-        self.project_full_path = path.join(self.FrameworkPath,
-                                           self.projectbase, self.project)
+        self.project_full_path = path.join(self.FrameworkPath, self.projectbase, self.project)
+        self.report_full_path = path.join(self.reportbase, self.reportpath)
         self.isMaven = self.isMavenProject (arguments.PROJECTTYPE)
 
         # Each runable module should have a chimp.js
@@ -505,13 +502,6 @@ class ChimpAutoRun:
                 if "pom.xml" in fname:
                     result = True
                     break
-            # for root, directories, filenames in os.walk (self.project_full_path):
-            #     for filename in filenames:
-            #         print ("   > FILE : {}".format(path.join(root,filename)))
-            #         if "pom.xml" in filename:
-            #             print (" ** found POM at : {}".format(path.join(root,filename)))
-            #             result = True
-            #             break
         print ( "*** is Maven = {}".format (result))
         return result
 
@@ -521,8 +511,8 @@ class ChimpAutoRun:
         else:
             from autorunner_dryrun import ChimpDryRun
             dry_run = ChimpDryRun(self.projectbase, self.project,
-                                  self.modulelist, self.platform, self.browser, self.isMaven,
-                                  self.tags, self.report_dir_base)
+                                  self.modulelist, self.platform, self.browser,
+                                  self.tags, self.report_full_path)
             self.runcase = dry_run.get_dry_run_results()
 
     def is_rerun(self):
@@ -659,12 +649,16 @@ class ChimpAutoRun:
         if self.parallel == 'MAX':
             # using all available rdp host in config file
             pool_number = int(self.thread_count)
+        elif self.parallel == 'CPU':
+            # using cpu count
+            pool_number = multiprocessing.cpu_count()
+
         else:
             pool_number = min(int(self.thread_count), int(self.parallel))
         print('POOL NUMBER: {}'.format(pool_number))
         print('TOTAL {}(s): {}'.format(self.runlevel.upper(), self.scenarios_count))
 
-        pool = Pool(pool_number)
+        pool = multiprocessing.Pool(pool_number)
         for index in range(1, self.scenarios_count + 1):
             pool.apply_async(
                 run_chimp,
