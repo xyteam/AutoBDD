@@ -20,7 +20,7 @@ if (process.env.PLATFORM == 'Linux') {
 }
 
 // auto-detect XVFB
-if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0' && process.env.DISPLAY != ':1') {
+if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0') {
   process.env.XVFB = process.env.XVFB || 'XVFB';
 }
 
