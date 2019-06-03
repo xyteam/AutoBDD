@@ -436,7 +436,7 @@ class ChimpAutoRun:
         self.project = arguments.PROJECT
         self.projecttype = arguments.PROJECTTYPE
         self.reportbase = arguments.REPORTBASE if arguments.REPORTBASE else path.join(
-            self.FrameworkPath, 'test-reports')
+            self.FrameworkPath, self.projectbase, self.project, 'test-reports')
         self.reportpath = arguments.REPORTPATH if arguments.REPORTPATH else '_'.join(
             (self.project, self.rumtime_stamp))
 
