@@ -343,7 +343,7 @@ def parse_arguments():
         dest="REPORTBASE",
         default=None,
         help=
-        "The full path base directory for all reports into. Default: None, report will be archived in framework/test-reports"
+        "The full path base directory for all reports into. Default: None, report will be archived in bdd_reports under your BDD project"
     )
 
     parser.add_argument(
@@ -436,7 +436,7 @@ class ChimpAutoRun:
         self.project = arguments.PROJECT
         self.projecttype = arguments.PROJECTTYPE
         self.reportbase = arguments.REPORTBASE if arguments.REPORTBASE else path.join(
-            self.FrameworkPath, self.projectbase, self.project, 'test-reports')
+            self.FrameworkPath, self.projectbase, self.project, 'bdd_reports')
         self.reportpath = arguments.REPORTPATH if arguments.REPORTPATH else '_'.join(
             (self.project, self.rumtime_stamp))
 
