@@ -4,6 +4,7 @@
   "description": "BDD Automaiton",
   "main": "index.js",
   "dependencies": {
+    "bottleneck": "^2.19.1",
     "child_process": "^1.0.2",
     "chimpy": "^0.54.0",
     "cryptiles": ">=4.1.2",
