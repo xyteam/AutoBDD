@@ -1,4 +1,5 @@
 import checkIfElementExists from '../common/checkIfElementExists';
+import waitForVisible from '../action/waitForVisible';
 
 /**
  * Perform an click action on the given element
@@ -20,6 +21,7 @@ module.exports = (action, type, element) => {
     const method = (action === 'click') ? 'click' : 'doubleClick';
 
     checkIfElementExists(elem);
-
+    browser.scroll(elem);
+    waitForVisible(elem);
     browser[method](elem);
 };
