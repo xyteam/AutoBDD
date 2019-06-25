@@ -58,7 +58,7 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
     * Local Jenkins CI
     * Jira/TestRail/TestLink
 
-#### To use the framework as test runner
+#### To use the framework as BDD test runner
 
   * To download and display help message
     * docker run xyteam/autobdd-run:1.0.0
