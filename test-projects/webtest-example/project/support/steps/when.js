@@ -2,6 +2,7 @@ import clearInputField from '../../functions/action/clearInputField';
 import clickElement from '../../functions/action/clickElement';
 import closeLastOpenedWindow from '../../functions/action/closeLastOpenedWindow';
 import deleteCookie from '../../functions/action/deleteCookie';
+import debugBrowser from '../../functions/action/debugBrowser';
 import dragElement from '../../functions/action/dragElement';
 import focusLastOpenedWindow from '../../functions/action/focusLastOpenedWindow';
 import handleModal from '../../functions/action/handleModal';
@@ -18,6 +19,11 @@ import setPromptText from '../../functions/action/setPromptText';
 import submitForm from '../../functions/action/submitForm';
 
 module.exports = function() {
+    this.When(
+        /^I debug browser$/, {timeout: 3600*1000},
+        debugBrowser
+    );
+
     this.When(
         /^I (click|doubleclick) on the (link|button|element) "([^"]*)?"$/,
         clickElement

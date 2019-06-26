@@ -1,0 +1,32 @@
+# docker-compose run autobdd-run "--project ${BDD_PROJECT}"
+# 
+version: '3'
+services:
+  autobdd-dev:
+    image: "xyteam/autobdd-dev:1.0.0"
+    container_name: autobdd-dev
+    shm_size: 1G
+    privileged: true
+    ports:
+      - "6080:80"
+      - "5901:5900"
+      - "2222:22"
+    volumes:
+      - ~/.ssh:/home/${USER}/.ssh:rw
+      - ~/.m2:/home/${USER}/.m2:rw
+      - ~/Projects/${BDD_PROJECT}:/home/${USER}/Projects/AutoBDD/test-projects/${BDD_PROJECT}:rw
+    environment:
+      USER: ${USER}
+      RESOLUTION: 1920x1200
+
+  autobdd-run:
+    image: "autobdd-run:1.0.0"
+    container_name: autobdd-run
+    shm_size: 1G
+    privileged: true
+    volumes:
+      - ~/.m2:/home/${USER}/.m2:rw
+      - ~/Projects/${BDD_PROJECT}:/home/${USER}/Projects/AutoBDD/test-projects/${BDD_PROJECT}
+    environment:
+      USER: ${USER}
+    entrypoint: "/bin/bash /startup.sh"

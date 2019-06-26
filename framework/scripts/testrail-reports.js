@@ -4,10 +4,11 @@ const buildOptions = require('minimist-options');
 const JSON5 = require('json5');
 const minimist = require('minimist');
 const Testrail = require('testrail-api');
-const testrail_lib = require('../libs/testrail_libs');
 const jsonfile = require('jsonfile');
+const Bottleneck = require('bottleneck');
+const testrail_lib = require('../libs/testrail_libs');
 const _ = require ('underscore');
-
+  
 const options = buildOptions({
     // Special Parameters
     apiUrl: {
@@ -91,6 +92,10 @@ const options = buildOptions({
         type: 'boolean',
         default: true
     },
+    trThrottle: {
+        type: 'number', // ms delay per request, 0 for no delay
+        default: 333    // 333 ms delay = 3 per second (180 per minute)
+    },
 
 	// Special option for positional arguments (`_` in minimist)
 	arguments: 'string'
@@ -99,6 +104,13 @@ const options = buildOptions({
 const args = minimist(process.argv.slice(2), options);
 const trFilter = JSON5.parse('{' + args.trFilter + '}');
 const cbJson = (args.cbJsonPath) ? jsonfile.readFileSync(args.cbJsonPath) : null;
+
+// prepare to throttle API request
+// testrail API limites 180 requeset per minutes
+const limiter = new Bottleneck({
+    maxConcurrent: 1,
+    minTime: parseInt(args.trThrottle)
+});
 
 var testrail = new Testrail({
     host: args.apiUrl,
@@ -273,8 +285,9 @@ switch (args.trCmd) {
                             suite_id: suiteId,
                             description: feature.description           
                         };
-                        testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, suiteName, myFeature.name, myFeature, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
-                        .then(sectionId => (async () => {  
+                        // throttle per feature API request
+                        limiter.schedule(() => testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, suiteName, myFeature.name, myFeature, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+                        .then(sectionId => (async () => {
                             for (var index = 0; index < feature.elements.length; index++) {
                                 scenario = feature.elements[index];
                                 await testrail_lib.getCaseId_byScenario(args.trProjectId, suiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
@@ -283,10 +296,10 @@ switch (args.trCmd) {
                                 }).catch (getCaseError => {
                                     console.error (getCaseError);
                                 });
-                            };                    
+                            };
                         })()).catch (getSectionError => {
                             console.error (getSectionError);
-                        });     
+                        })); // end throttle per feature API request block
                     }
                 });
             })
@@ -313,9 +326,11 @@ switch (args.trCmd) {
                     .then ( testRunId => {                
                         console.log ( "> Test Run ID : " + testRunId);
                         if ( args.trUpdateInBulk ) {
-                            testrail_lib.addTestResultInBulk( testRunId, cbJson, caseDicts, args.trTestTarget, args.trJenkinsPath) 
+                            // throttle API request
+                            limiter.schedule(() => testrail_lib.addTestResultInBulk( testRunId, cbJson, caseDicts, args.trTestTarget, args.trJenkinsPath))
                         } else {
-                            testrail_lib.addTestResultIndividually( testRunId, cbJson, caseDicts, args.trTestTarget, args.trJenkinsPath) 
+                            // throttle API request
+                            limiter.schedule(() => testrail_lib.addTestResultIndividually( testRunId, cbJson, caseDicts, args.trTestTarget, args.trJenkinsPath))
                         }                                                   
                     }).catch ( testrunError => {
                         console.error ( testrunError );
