@@ -21,7 +21,7 @@ module.exports = (action, type, element) => {
     const method = (action === 'click') ? 'click' : 'doubleClick';
 
     checkIfElementExists(elem);
-    browser.scroll(elem);
+    browser.scroll(elem, 0, -200);
     waitForVisible(elem);
     browser[method](elem);
 };
