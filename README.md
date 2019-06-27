@@ -63,12 +63,12 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
   * To download and display help message
     * docker run xyteam/autobdd-run:1.0.0
   * To run built-in demo
-    * cd ~/Projects/AutoBDD/scripts && docker-compose run autobdd-run "--project webtest-example --module test-webpage test-download test-postman"
+    * cd ~/Projects/AutoBDD/framework/scripts && docker-compose run autobdd-run "--project webtest-example --module test-webpage test-download test-postman"
     * check report in  ~/Projects/AutoBDD/webtest-example/bdd_reports/ folder
   * To run your own BDD project
     * cp -r  ~/Projects/AutoBDD/webtest-example ~/Projects/my_awesome_bdd_project     # copy example project as your own
     * export BDD_PROJECT=my_awesome_bdd_project
-    * cd ~/Projects/AutoBDD/scripts && docker-compose run autobdd-run "--project ${BDD_PROJECT} --module All"
+    * cd ~/Projects/AutoBDD/framework/scripts && docker-compose run autobdd-run "--project ${BDD_PROJECT} --module All"
     * test report will be inside ~/Projects/my_awesome_bdd_project/bdd_reports/ folder
 
 #### To use the framework as BDD test development env
@@ -80,7 +80,7 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
     * cd ~/Projects && git clone my_awesome_bdd_project # git clone your project into ~/Projects/ folder
   * Spin up autobdd-dev docker container
     * export BDD_PROJECT=my_awesome_bdd_project
-    * cd ~/Projects/AutoBDD/scripts && docker-compose run -d autobdd-dev
+    * cd ~/Projects/AutoBDD/framework/scripts && docker-compose run -d autobdd-dev
   * Access autobdd-dev docker container
     * GUI: vnc://localhost:5901
     * Shell via ssh:
@@ -94,7 +94,8 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
     * cd test-projects/my_awesome_bdd_project/
     * cd to a test sub-module (folder) and run chimpy
   * To debug in webdriverio repl
-    autobdd-dev comes with a built in wdio repl debugger where you can interact with your test target via browser GUI and wdio repl UI.
+
+    autobdd-dev comes with a wdio repl debugger where you can interact with your test target via browser GUI and wdio repl UI.
     * cd ~/Projects/AutoBDD && export DISPLAY=:1 chromeDriverVersion=75.0.3770.8 && .autoPathrc.sh
     * selenium-standalone install --config=framework/configs/selenium-standalone_config.js
     * nohup selenium-standalone start --config=framework/configs/selenium-standalone_config.js &
