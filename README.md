@@ -100,7 +100,7 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
     * selenium-standalone install --config=framework/configs/selenium-standalone_config.js
     * nohup selenium-standalone start --config=framework/configs/selenium-standalone_config.js &
     * node_modules/webdriverio/bin/wdio repl chrome
-    * in repl shell, type browser. then tab will expose all webdriverio API (v4)
+    * in repl shell, type browser. (dot) and then the tab key will expose all webdriverio API (v4)
 
 #### Contribute
   There are still a lot of room to be improved in this project. Please contact me if you want to become an contributor.
