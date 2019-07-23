@@ -1,21 +1,12 @@
 # docker build \
-#   --tag autobdd-dev:1.0.0 \
-#   --build-arg AutoBDD_Ver=1.0.0 \
+#   --tag autobdd-dev:1.1.0 \
+#   --build-arg AutoBDD_Ver=1.1.0 \
 #   --file autobdd-dev.dockerfile \
 #   ${PWD}
 #
-# docker run -d --rm=true --privileged \
-#   -p 6080:80 \
-#   -p 5901:5900 \
-#   -p 2222:22 \
-#   -e USER=${USER} \
-#   -e RESOLUTION=1920x1200 \
-#   -v ~/.ssh:/home/${USER}/.ssh:rw \
-#   -v ~/.m2:/home/${USER}/.m2:rw \
-#   -v ~/Projects/${BDD_PROJECT}:/home/${USER}/Projects/AutoBDD/test-projects/${BDD_PROJECT} \
-#   --shm-size 1024M \
-#   --name autobdd-dev \
-#   autobdd-dev:1.0.0
+# development env:
+# docker-compose -d up autobdd-dev
+# docker-compose -d down autobdd-dev
 
 FROM dorowu/ubuntu-desktop-lxde-vnc:latest
 USER root
@@ -97,8 +88,8 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
     apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
     google-chrome-stable
 
-# install nodejs 
-RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && \
+# install nodejs 10.x
+RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
     apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
     apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
     nodejs
