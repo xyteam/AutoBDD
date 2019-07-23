@@ -1,7 +1,9 @@
+# docker-compose run autobdd-run "--project ${BDD_PROJECT}"
+# 
 version: '3'
 services:
   autobdd-dev:
-    image: "xyteam/autobdd-dev:1.0.0"
+    image: "xyteam/autobdd-dev:1.1.0"
     container_name: autobdd-dev
     shm_size: 1G
     privileged: true
@@ -15,11 +17,13 @@ services:
       - ~/Projects:/home/${USER}/Projects:rw
     environment:
       USER: ${USER}
+      PASSWORD: ${PASSWORD}
+      VNC_PASSWORD: ${VNC_PASSWORD}
+      HTTP_PASSWORD: ${HTTP_PASSWORD}
       RESOLUTION: 1920x1200
-      VMC_PASSWORD: ${VMC_PASSWORD}
 
   autobdd-run:
-    image: "xyteam/autobdd-run:1.0.0"
+    image: "xyteam/autobdd-run:1.1.0"
     container_name: autobdd-run
     shm_size: 1G
     privileged: true
@@ -28,7 +32,4 @@ services:
       - ~/Projects/${BDD_PROJECT}:/home/${USER}/Projects/AutoBDD/test-projects/${BDD_PROJECT}
     environment:
       USER: ${USER}
-      APPUSERNAME: ${APPUSERNAME}
-      APPPASSWORD: ${APPPASSWORD}
-      BaseURL: ${BaseURL}
     entrypoint: "/bin/bash /startup.sh"
