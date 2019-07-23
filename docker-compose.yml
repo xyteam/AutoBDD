@@ -1,99 +1,34 @@
-# To run all tests(detached) 	: sudo MYUSER=u$(id -u) docker-compose up -d --rm
-# To run specific test		    : sudo MYUSER=u$(id -u) docker-compose run -d --rm <service_name>
-# To clean up all tests		    : sudo MYUSER=u$(id -u) docker-compose down
-# available <service_name>:
-    # * test_webpage
-    # * test_download
-    # * test_postman
-    # * javatest_example 
-version: '3.5'
+version: '3'
 services:
-  test_webpage:
-   build:
-     context: .
-     shm_size: '256M'
-   image: xyplatform:lubuntu1804
-   user: ${MYUSER:?User is not defined. Please run with sudo MYUSER=u$(id -u) docker-compose <up|down|run>}
-   volumes:
-     - ~/.m2:/home/${MYUSER}/.m2
-     - ~/Run:/home/${MYUSER}/Run
-     - ~/.bashrc:/home/${MYUSER}/.bashrc
-     - ~/.pki:/home/${MYUSER}/.pki
-     - ~/.nvm:/home/${MYUSER}/.nvm
-   network_mode: "host"
-   command: /bin/bash -c "cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; cd ~/Run/AutoBDD; npm rebuild; . .autoPathrc.sh; pip install tinydb; ./framework/scripts/autorunner.py --parallel --movie 1 --platform Linux --browser CH --modulelist test-webpage --project webtest-example"
-  
-  test_download:
-   build:
-     context: .
-     shm_size: '256M'
-   image: xyplatform:lubuntu1804
-   user: ${MYUSER:?User is not defined. Please run with sudo MYUSER=u$(id -u) docker-compose <up|down|run>}
-   volumes:
-     - ~/.m2:/home/${MYUSER}/.m2
-     - ~/Run:/home/${MYUSER}/Run
-     - ~/.bashrc:/home/${MYUSER}/.bashrc
-     - ~/.pki:/home/${MYUSER}/.pki
-     - ~/.nvm:/home/${MYUSER}/.nvm
-   network_mode: "host"
-   command: /bin/bash -c "cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; cd ~/Run/AutoBDD; npm rebuild; . .autoPathrc.sh; pip install tinydb; ./framework/scripts/autorunner.py --parallel 2 --movie 1 --platform Linux --browser CH --modulelist test-download --project webtest-example"
+  autobdd-dev:
+    image: "xyteam/autobdd-dev:1.0.0"
+    container_name: autobdd-dev
+    shm_size: 1G
+    privileged: true
+    ports:
+      - "6080:80"
+      - "5901:5900"
+      - "2222:22"
+    volumes:
+      - ~/.ssh:/home/${USER}/.ssh:rw
+      - ~/.m2:/home/${USER}/.m2:rw
+      - ~/Projects:/home/${USER}/Projects:rw
+    environment:
+      USER: ${USER}
+      RESOLUTION: 1920x1200
+      VMC_PASSWORD: ${VMC_PASSWORD}
 
-  test_postman:
-   build:
-     context: .
-     shm_size: '256M'
-   image: xyplatform:lubuntu1804
-   user: ${MYUSER:?User is not defined. Please run with sudo MYUSER=u$(id -u) docker-compose <up|down|run>}
-   volumes:
-     - ~/.m2:/home/${MYUSER}/.m2
-     - ~/Run:/home/${MYUSER}/Run
-     - ~/.bashrc:/home/${MYUSER}/.bashrc
-     - ~/.pki:/home/${MYUSER}/.pki
-     - ~/.nvm:/home/${MYUSER}/.nvm
-   network_mode: "host"
-   command: /bin/bash -c "cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; cd ~/Run/AutoBDD; npm rebuild; . .autoPathrc.sh; pip install tinydb; ./framework/scripts/autorunner.py --parallel 2 --movie 1 --platform Linux --browser CH --modulelist test-postman --project webtest-example"
-   
-  javatest_example:
-   build:
-     context: .
-     shm_size: '256M'
-   image: xyplatform:lubuntu1804
-   user: ${MYUSER:?User is not defined. Please run with sudo MYUSER=u$(id -u) docker-compose <up|down|run>}
-   volumes:
-     - ~/.m2:/home/${MYUSER}/.m2
-     - ~/Run:/home/${MYUSER}/Run
-     - ~/.bashrc:/home/${MYUSER}/.bashrc
-     - ~/.pki:/home/${MYUSER}/.pki
-     - ~/.nvm:/home/${MYUSER}/.nvm
-   network_mode: "host"
-   command: /bin/bash -c "cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; cd ~/Run/AutoBDD; npm rebuild; . .autoPathrc.sh; pip install tinydb; ./framework/scripts/autorunner.py --parallel 2 --movie 1 --platform Linux --browser CH --modulelist ui --project javatest-example"
-   
-#experimental
-  tempo_ui:
-   build:
-     context: .
-     shm_size: '256M'
-   image: xyplatform:lubuntu1804
-   user: ${MYUSER:?User is not defined. Please run with sudo MYUSER=u$(id -u) docker-compose <up|down|run>}
-   volumes:
-     - ~/.m2:/home/${MYUSER}/.m2
-     - ~/Run:/home/${MYUSER}/Run
-     - ~/.bashrc:/home/${MYUSER}/.bashrc
-     - ~/.pki:/home/${MYUSER}/.pki
-     - ~/.nvm:/home/${MYUSER}/.nvm
-   network_mode: "host"
-   command: /bin/bash -c "cd; . .bashrc; . .nvm/nvm.sh; . .nvm/bash_completion; nvm use v8; cd ~/Run/AutoBDD; npm rebuild; . .autoPathrc.sh; pip install tinydb; ./framework/scripts/autorunner.py @tempotest.config"
-
-  l1804:
-   build:
-     context: .
-     shm_size: '512M'
-   image: xyplatform:lubuntu1804
-   user: ${MYUSER:?User is not defined. Please run with sudo MYUSER=u$(id -u) docker-compose <up|down|run>}
-   volumes:
-     - ~/.m2:/home/${MYUSER}/.m2
-     - ~/Run:/home/${MYUSER}/Run
-     - ~/.bashrc:/home/${MYUSER}/.bashrc
-     - ~/.nvm:/home/${MYUSER}/.nvm
-   network_mode: "host"
-   command: /bin/bash -c "xrandr --fb 1920x1200; x11vnc -localhost -create -geometry 1920x1200"
+  autobdd-run:
+    image: "xyteam/autobdd-run:1.0.0"
+    container_name: autobdd-run
+    shm_size: 1G
+    privileged: true
+    volumes:
+      - ~/.m2:/home/${USER}/.m2:rw
+      - ~/Projects/${BDD_PROJECT}:/home/${USER}/Projects/AutoBDD/test-projects/${BDD_PROJECT}
+    environment:
+      USER: ${USER}
+      APPUSERNAME: ${APPUSERNAME}
+      APPPASSWORD: ${APPPASSWORD}
+      BaseURL: ${BaseURL}
+    entrypoint: "/bin/bash /startup.sh"

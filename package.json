@@ -1,12 +1,12 @@
 {
   "name": "AutoBDD",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "BDD Automaiton",
   "main": "index.js",
   "dependencies": {
-    "bottleneck": "^2.19.1",
+    "bottleneck": "^2.19.4",
     "child_process": "^1.0.2",
-    "chimpy": "^0.54.0",
+    "chimpy": "git+https://github.com/xwvArmour/chimpy.git",
     "cryptiles": ">=4.1.2",
     "cucumber": "^5.1.0",
     "cucumber-html-reporter": "^4.0.5",
@@ -14,19 +14,19 @@
     "deep-extend": ">=0.5.1",
     "encodeurl": "^1.0.2",
     "error-stack-parser": "^2.0.2",
-    "forever": "~0.15.3",
-    "glob": "^7.1.3",
-    "graphql-cli": "^3.0.11",
-    "hapi": "^17.8.4",
-    "hoek": "^6.1.2",
+    "forever": "^1.0.0",
+    "glob": "^7.1.4",
+    "graphql-cli": "^3.0.12",
+    "hapi": "^17.8.5",
+    "hoek": "^6.1.3",
     "http-server": "~0.11.0",
-    "java": "^0.11.0",
+    "java": "^0.11.1",
     "json-diff": "^0.5.4",
     "jsonfile": "^5.0.0",
     "minimist": "^1.2.0",
     "minimist-options": "^4.0.1",
     "moment": "^2.24.0",
-    "newman": "^4.4.0",
+    "newman": "^4.5.1",
     "node-cmd": "^3.0.0",
     "npm-path": "^2.0.4",
     "path": "^0.12.7",
@@ -36,9 +36,9 @@
     "selenium-standalone": "^6.16.0",
     "stack-generator": "^2.0.3",
     "testrail-api": "git+https://github.com/xyteam/node-testrail-api.git",
-    "url-parse": "^1.4.4",
+    "url-parse": "^1.4.7",
     "words-to-numbers": "^1.5.1",
-    "xlsx": "^0.14.1"
+    "xlsx": "^0.14.4"
   },
   "scripts": {
     "demo-app": "forever start -s ./node_modules/.bin/http-server ./demo-app -s -p 8082",
@@ -62,5 +62,6 @@
     "cucumber"
   ],
   "author": "xyteam",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {}
 }
