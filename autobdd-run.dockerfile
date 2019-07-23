@@ -1,12 +1,12 @@
 # docker build \
 #   --tag autobdd-dev:1.1.0 \
 #   --build-arg AutoBDD_Ver=1.1.0 \
-#   --file autobdd-dev.dockerfile \
+#   --file autobdd-run.dockerfile \
 #   ${PWD}
 #
-# development env:
-# docker-compose -d up autobdd-dev
-# docker-compose -d down autobdd-dev
+# run test:
+# docker-compose run -d autobdd-run "--project=$BDD_PROJECT --parallel=1"
+# docker-compose logs -f autobdd-run
 
 FROM ubuntu:18.04
 USER root
