@@ -1,12 +1,13 @@
 {
   "name": "AutoBDD",
   "version": "1.1.0",
-  "description": "BDD Automaiton",
+  "description": "BDD Automation",
   "main": "index.js",
   "dependencies": {
+    "chimpy": "git+https://github.com/xwvArmour/chimpy.git",
+    "@babel/preset-env": "^7.5.5",
     "bottleneck": "^2.19.4",
     "child_process": "^1.0.2",
-    "chimpy": "git+https://github.com/xwvArmour/chimpy.git",
     "cryptiles": ">=4.1.2",
     "cucumber": "^5.1.0",
     "cucumber-html-reporter": "^4.0.5",
