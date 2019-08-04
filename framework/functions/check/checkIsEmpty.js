@@ -1,4 +1,4 @@
-const checkContainsAnyText = require('./checkContainsAnyText');
+import checkContainsAnyText from './checkContainsAnyText';
 
 module.exports = (elementType, element, falseCase) => {
     let newFalseCase = true;

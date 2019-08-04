@@ -1,5 +1,5 @@
-const checkIfElementExists = require('../common/checkIfElementExists');
-const waitForVisible = require('../action/waitForVisible');
+import checkIfElementExists from '../common/checkIfElementExists';
+import waitForVisible from '../action/waitForVisible';
 
 /**
  * Perform an click action on the given element

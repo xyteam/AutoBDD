@@ -1,4 +1,4 @@
-const checkIfElementExists = require('../common/checkIfElementExists');
+import checkIfElementExists from '../common/checkIfElementExists';
 
 /**
  * Set the value of the given input field to a new value or add a value to the
