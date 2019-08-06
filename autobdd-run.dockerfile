@@ -81,22 +81,21 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
 # update ca certs
     update-ca-certificates
 
+# install nodejs 8.x
+RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && \
+    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
+    apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+    nodejs
+
 # instal google-chrome
 RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
     echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
     wget -qO- --no-check-certificate https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
     apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    google-chrome-stable
-# create managed_policies.json for google-chrome 76+
-RUN mkdir -p /etc/opt/chrome/policies/managed && \
+    google-chrome-stable && \
+    mkdir -p /etc/opt/chrome/policies/managed && \
     echo "{\"CommandLineFlagSecurityWarningsEnabled\": false}" > /etc/opt/chrome/policies/managed/managed_policies.json
-
-# install nodejs 10.x
-RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
-    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
-    apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    nodejs
 
 # run finishing set up
 RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java; \
