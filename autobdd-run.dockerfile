@@ -1,5 +1,5 @@
 # docker build \
-#   --tag autobdd-dev:1.1.0 \
+#   --tag autobdd-run:1.1.0 \
 #   --build-arg AutoBDD_Ver=1.1.0 \
 #   --file autobdd-run.dockerfile \
 #   ${PWD}
@@ -8,11 +8,13 @@
 # docker-compose run -d autobdd-run "--project=$BDD_PROJECT --parallel=1"
 # docker-compose logs -f autobdd-run
 
-FROM ubuntu:18.04
+FROM ubuntu:18.04 as system
 USER root
 ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
 ARG AutoBDD_Ver
+
+RUN sed -i 's#http://archive.ubuntu.com/#http://tw.archive.ubuntu.com/#' /etc/apt/sources.list;
 
 # apt install essential tools for apt install/upgrade
 RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; \
@@ -41,11 +43,11 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     libnspr4 \
     libnss3 \
     libopencv-dev \
- +  libpng++-dev \
+    libpng++-dev \
     libpython2.7-stdlib \
     libpython3-stdlib \
     libxss1 \
-+   libxtst-dev \
+    libxtst-dev \
     locales \
     lsof \
     lubuntu-core \
