@@ -68,10 +68,15 @@ module.exports = {
         args: [
                 "--disable-infobars",
                 "--no-first-run",
+                "--bypass-app-banner-engagement-checks",
+                "--disable-gpu",
                 "--no-sandbox",
+                "--start-maximized ",
                 "--window-size=" + myDISPLAYSIZE.replace('x',','),
                 "--user-data-dir=/tmp/chrome_profile_" + process.env.DISPLAY.substr(1),
-                "--bypass-app-banner-engagement-checks",
+                "--incognito",
+                // "--excludeSwitches",
+                // "--enable-automation",
                 myBrowserProxySetting
               ],
         prefs: {
