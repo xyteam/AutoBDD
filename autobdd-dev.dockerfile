@@ -87,6 +87,9 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
     apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
     apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
     google-chrome-stable
+# create managed_policies.json for google-chrome 76+
+RUN mkdir -p /etc/opt/chrome/policies/managed && \
+    echo "{\"CommandLineFlagSecurityWarningsEnabled\": false}" > /etc/opt/chrome/policies/managed/managed_policies.json
 
 # install nodejs 10.x
 RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
