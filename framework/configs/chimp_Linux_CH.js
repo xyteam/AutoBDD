@@ -72,7 +72,7 @@ module.exports = {
                 "--disable-gpu",
                 "--no-sandbox",
                 "--start-maximized ",
-                // "--window-size=" + myDISPLAYSIZE.replace('x',','),
+                "--window-size=" + myDISPLAYSIZE.replace('x',','),
                 "--user-data-dir=/tmp/chrome_profile_" + process.env.DISPLAY.substr(1),
                 "--incognito",
                 // "--excludeSwitches",
