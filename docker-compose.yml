@@ -27,7 +27,7 @@ services:
     entrypoint: "/startup.sh"
 
   autobdd-run:
-    image: "xyteam/autobdd-run:1.0.0"
+    image: "xyteam/autobdd-run:1.0.1"
     container_name: autobdd-run
     build:
       context: .
