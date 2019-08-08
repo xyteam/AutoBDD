@@ -49,8 +49,9 @@
     "url": "git@github.com:xyteam/AutoBDD.git"
   },
   "keywords": [
-    "chimpy",
-    "cucumber"
+    "AutoBDD",
+    "cucumber",
+    "E2E"
   ],
   "author": "xyteam",
   "license": "ISC",

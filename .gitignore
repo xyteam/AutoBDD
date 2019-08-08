@@ -1,9 +1,6 @@
 # controls what test-projects to be included in the framework
 test-projects/*
-!test-projects/*-example/
-test-projects/javatest-example/**/target/
-test-reports/*
-!test-reports/*-example/
+!test-projects/simplest-test/
 
 # files to ignore
 *.run
@@ -19,9 +16,7 @@ sikulixapi*.jar
 
 # dirs to ignore
 node_modules/
-report-archive/
 tmp/
-reports/
 .DS_Store
 .screenshots/
 .vscode/
