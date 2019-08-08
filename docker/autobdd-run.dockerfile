@@ -1,6 +1,6 @@
 # docker build \
-#   --tag autobdd-run:1.1.0 \
-#   --build-arg AutoBDD_Ver=1.1.0 \
+#   --tag autobdd-run:1.0.1 \
+#   --build-arg AutoBDD_Ver=1.0.1 \
 #   --file autobdd-run.dockerfile \
 #   ${PWD}
 #
@@ -8,7 +8,7 @@
 # docker-compose run -d autobdd-run "--project=$BDD_PROJECT --parallel=1"
 # docker-compose logs -f autobdd-run
 
-FROM ubuntu:18.04 as system
+FROM ubuntu:18.04
 USER root
 ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
@@ -111,24 +111,9 @@ RUN pip install tinydb; \
     mv AutoBDD-${AutoBDD_Ver} AutoBDD; \
     /bin/bash -c "cd /${USER}/Projects/AutoBDD && npm install && . .autoPathrc.sh && xvfb-run -a npm run test-init"
 
-# upon launch set .bashrc for the running user and let running user take over the Projects folder
-RUN echo "#!/bin/bash\n" > startup.sh && \
-    echo "USER=\${USER:-root}" >> /startup.sh && \
-    echo "HOME=/root" >> /startup.sh && \
-    echo "if [ \"\$USER\" != \"root\" ]; then" >> /startup.sh && \
-    echo "  echo \"* enable custom user: \$USER\"" >> /startup.sh && \
-    echo "  useradd --create-home --shell /bin/bash --user-group --groups adm,sudo \$USER" >> /startup.sh && \
-    echo "  if [ -z \"\$PASSWORD\" ]; then" >> /startup.sh && \
-    echo "    echo \"  set default password to \\\"ubuntu\\\"\"" >> /startup.sh && \
-    echo "    PASSWORD=ubuntu" >> /startup.sh && \
-    echo "  fi" >> /startup.sh && \
-    echo "  HOME=/home/\$USER" >> /startup.sh && \
-    echo "  echo \"\$USER:\$PASSWORD\" | chpasswd" >> /startup.sh && \
-    echo "fi" >> /startup.sh && \
-    echo "cat /root/.bashrc >> \$HOME/.bash_profile && chown \$USER:\$USER \$HOME/.bash_profile" >> /startup.sh && \
-    echo "cd /root && tar cf - ./Projects | (cd \$HOME && tar xf -) && chown -R \$USER:\$USER \$HOME" >> /startup.sh && \
-    echo "sudo -E su \$USER -m -c \"cd \$HOME/Projects/AutoBDD && . .autoPathrc.sh && ./framework/scripts/autorunner.py \$@\"" >> startup.sh
+# insert entry point
+COPY ./autobdd-run.startup.sh /startup.sh
 RUN chmod +x /startup.sh
 
-ENTRYPOINT ["/bin/bash", "/startup.sh"]
+ENTRYPOINT ["/startup.sh"]
 CMD ["--help"]

@@ -1,6 +1,5 @@
 # docker build \
-#   --tag autobdd-dev:1.1.0 \
-#   --build-arg AutoBDD_Ver=1.1.0 \
+#   --tag autobdd-dev:1.0.1 \
 #   --file autobdd-dev.dockerfile \
 #   ${PWD}
 #
@@ -8,120 +7,43 @@
 # docker-compose -d up autobdd-dev
 # docker-compose -d down autobdd-dev
 
-FROM dorowu/ubuntu-desktop-lxde-vnc:latest
+FROM xyteam/autobdd-run:1.0.1
 USER root
 ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
-ARG AutoBDD_Ver
 
-# apt install essential tools for apt install/upgrade
-RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; \
-    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; \
-    apt full-upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; \ 
-    apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-		apt-utils curl wget software-properties-common sudo tzdata; \
-# Set the timezone.
-    sudo dpkg-reconfigure -f noninteractive tzdata; \
-# install standard linux tools needed for automation framework
-    apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    autofs \
-    binutils \
-    build-essential \
-    dirmngr \
-    ffmpeg \
-    fonts-liberation \
-    git \
-    gpg-agent \
-    imagemagick \
-    java-common \
-    less \
-    libappindicator3-1 \
-    libatk-bridge2.0-0 \
-    libgtk-3-0 \
-    libnspr4 \
-    libnss3 \
-    libopencv-dev \
-    libpng++-dev \
-    libpython2.7-stdlib \
-    libpython3-stdlib \
-    libxss1 \
-    libxtst-dev \
-    locales \
-    lsof \
-    lubuntu-core \
-    maven \
-    net-tools \
-    ntpdate \
-    openjdk-8-jdk \
-    python2.7-dev \
-    python2.7-minimal \
-    python3-dev \
-    python3-minimal \
-    python3-pip \
-    python-pip \
-    rdesktop \
-    rsync \
+# install Linux packages on top of autobdd-run
+RUN apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+    alsa-utils \
+    arc-theme \
+    chromium-browser \
+    firefox \
+    gnome-themes-standard \
+    lxde \
+    mesa-utils \
     openssh-server \
-    tdsodbc \
-    tesseract-ocr \
-    tree \
-    unixodbc \
-    unixodbc-dev \
-    unzip \
-    wmctrl \
-    xclip \
-    xdg-utils \
-    xdotool \
-    xvfb \
-    zlib1g-dev; \
-# final autoremove
-    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" && \
-    apt --purge autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; \
-# update ca certs
-    update-ca-certificates
+    supervisor \
+    ttf-wqy-zenhei \
+    vim-tiny \
+    x11vnc \
+    zenity \
+    && apt autoclean -y \
+    && apt autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 
-# instal google-chrome
-RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
-    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
-    wget -qO- --no-check-certificate https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
-    apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    google-chrome-stable
-# create managed_policies.json for google-chrome 76+
-RUN mkdir -p /etc/opt/chrome/policies/managed && \
-    echo "{\"CommandLineFlagSecurityWarningsEnabled\": false}" > /etc/opt/chrome/policies/managed/managed_policies.json
+# tini for subreap
+ARG TINI_VERSION=v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /bin/tini
+RUN chmod +x /bin/tini
 
-# install nodejs 10.x
-RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
-    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
-    apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    nodejs
+COPY autobdd-dev.root /
+RUN chmod +x /startup.sh
 
-# run finishing set up
-RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java; \
-    ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
-    /usr/sbin/locale-gen "en_US.UTF-8"; echo LANG="en_US.UTF-8" > /etc/locale.conf; \
-    mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix
-
-# download AutoBDD
-# install tinydb used for autorunner framework
-RUN pip install tinydb; \
-    mkdir -p /${USER}/Projects && cd /${USER}/Projects && \
-    curl -Lo- https://github.com/xyteam/AutoBDD/archive/${AutoBDD_Ver}.tar.gz | gzip -cd | tar xf - && \
-    mv AutoBDD-${AutoBDD_Ver} AutoBDD; \
-    /bin/bash -c "cd /${USER}/Projects/AutoBDD && npm install && . .autoPathrc.sh && xvfb-run -a npm run test-init"
-
-# create convenient alias for AutoBDD
-RUN echo "alias spr='rsync --human-readable --progress --update --archive --exclude .git/ --exclude node_modules/ --exclude xyPlatform/ \${HOME}/Projects/ \${HOME}/Run'" > /${USER}/.bashrc && \
-    echo "alias srp='rsync --human-readable --progress --update --archive --exclude node_modules/ --exclude target/ --exclude logs/ \${HOME}/Run/ \${HOME}/Projects'" >> /${USER}/.bashrc && \
-    echo "alias xvfb-auto='xvfb-run --auto-servernum --server-args=\"-screen 0 1920x1200x16\"'" >> /${USER}/.bashrc && \
-    chmod +x /${USER}/.bashrc
-# configure to start sshd
-# upon launch set .bashrc for the running user and let running user take over the Projects folder
-RUN mkdir -p /var/run/sshd && echo "\n\n[program:sshd]\npriority=10\ncommand=/usr/sbin/sshd -d\nstopsignal=KILL\n\n" >> /etc/supervisor/conf.d/supervisord.conf; \
-    sed -i "/^exec \/bin\/tini .*/i cat /root/.bashrc >> \$HOME/.bash_profile && chown \$USER:\$USER \$HOME/.bash_profile\n" /startup.sh && \
-    sed -i "/^exec \/bin\/tini .*/i cd /root && tar cf - ./Projects | (cd \$HOME && tar xf -) && chown -R \$USER:\$USER \$HOME/Projects\n" /startup.sh
+WORKDIR /root
+ENV HOME=/home/ubuntu \
+    SHELL=/bin/bash
+HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://127.0.0.1:6079/api/health
+ENTRYPOINT ["/startup.sh"]
 
 EXPOSE 5900
 EXPOSE 22
-EXPOSE 80

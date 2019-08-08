@@ -3,7 +3,7 @@
 version: '3.5'
 services:
   autobdd-dev:
-    image: "xyteam/autobdd-dev:1.0.0"
+    image: "xyteam/autobdd-dev:1.0.1"
     container_name: autobdd-dev
     build:
       context: .
@@ -15,14 +15,12 @@ services:
       - ~/.m2:/home/${USER}/.m2:rw
       - ~/Projects:/home/${USER}/Projects:rw
     ports:
-      - "6801:6801"
       - "5901:5900"
       - "2222:22"
     environment:
       USER: ${USER}
       PASSWORD: ${PASSWORD}
       VNC_PASSWORD: ${VNC_PASSWORD}
-      HTTP_PASSWORD: ${HTTP_PASSWORD}
       RESOLUTION: 1920x1200
     entrypoint: "/startup.sh"
 
