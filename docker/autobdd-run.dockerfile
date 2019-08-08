@@ -1,6 +1,6 @@
 # docker build \
-#   --tag autobdd-dev:1.1.0 \
-#   --build-arg AutoBDD_Ver=1.1.0 \
+#   --tag autobdd-run:1.0.1 \
+#   --build-arg AutoBDD_Ver=1.0.1 \
 #   --file autobdd-run.dockerfile \
 #   ${PWD}
 #
@@ -13,6 +13,8 @@ USER root
 ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
 ARG AutoBDD_Ver
+
+RUN sed -i 's#http://archive.ubuntu.com/#http://tw.archive.ubuntu.com/#' /etc/apt/sources.list;
 
 # apt install essential tools for apt install/upgrade
 RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; \
@@ -41,11 +43,11 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     libnspr4 \
     libnss3 \
     libopencv-dev \
- +  libpng++-dev \
+    libpng++-dev \
     libpython2.7-stdlib \
     libpython3-stdlib \
     libxss1 \
-+   libxtst-dev \
+    libxtst-dev \
     locales \
     lsof \
     lubuntu-core \
@@ -79,19 +81,21 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
 # update ca certs
     update-ca-certificates
 
+# install nodejs 8.x
+RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && \
+    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
+    apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+    nodejs
+
 # instal google-chrome
 RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
     echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
     wget -qO- --no-check-certificate https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
     apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    google-chrome-stable
-
-# install nodejs 10.x
-RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
-    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
-    apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    nodejs
+    google-chrome-stable && \
+    mkdir -p /etc/opt/chrome/policies/managed && \
+    echo "{\"CommandLineFlagSecurityWarningsEnabled\": false}" > /etc/opt/chrome/policies/managed/managed_policies.json
 
 # run finishing set up
 RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java; \
@@ -107,24 +111,9 @@ RUN pip install tinydb; \
     mv AutoBDD-${AutoBDD_Ver} AutoBDD; \
     /bin/bash -c "cd /${USER}/Projects/AutoBDD && npm install && . .autoPathrc.sh && xvfb-run -a npm run test-init"
 
-# upon launch set .bashrc for the running user and let running user take over the Projects folder
-RUN echo "#!/bin/bash\n" > startup.sh && \
-    echo "USER=\${USER:-root}" >> /startup.sh && \
-    echo "HOME=/root" >> /startup.sh && \
-    echo "if [ \"\$USER\" != \"root\" ]; then" >> /startup.sh && \
-    echo "  echo \"* enable custom user: \$USER\"" >> /startup.sh && \
-    echo "  useradd --create-home --shell /bin/bash --user-group --groups adm,sudo \$USER" >> /startup.sh && \
-    echo "  if [ -z \"\$PASSWORD\" ]; then" >> /startup.sh && \
-    echo "    echo \"  set default password to \\\"ubuntu\\\"\"" >> /startup.sh && \
-    echo "    PASSWORD=ubuntu" >> /startup.sh && \
-    echo "  fi" >> /startup.sh && \
-    echo "  HOME=/home/\$USER" >> /startup.sh && \
-    echo "  echo \"\$USER:\$PASSWORD\" | chpasswd" >> /startup.sh && \
-    echo "fi" >> /startup.sh && \
-    echo "cat /root/.bashrc >> \$HOME/.bash_profile && chown \$USER:\$USER \$HOME/.bash_profile" >> /startup.sh && \
-    echo "cd /root && tar cf - ./Projects | (cd \$HOME && tar xf -) && chown -R \$USER:\$USER \$HOME" >> /startup.sh && \
-    echo "sudo -E su \$USER -m -c \"cd \$HOME/Projects/AutoBDD && . .autoPathrc.sh && ./framework/scripts/autorunner.py \$@\"" >> startup.sh
+# insert entry point
+COPY ./autobdd-run.startup.sh /startup.sh
 RUN chmod +x /startup.sh
 
-ENTRYPOINT ["/bin/bash", "/startup.sh"]
+ENTRYPOINT ["/startup.sh"]
 CMD ["--help"]

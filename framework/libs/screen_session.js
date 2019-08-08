@@ -212,8 +212,8 @@ module.exports = {
     robot.mouseClick(button, double);
   },
 
-  mouseToggle: function() {
-
+  mouseToggle: function([down], [button]) {
+    robot.mouseToggle([down], [button]);
   },
 
   getMousePos: function() {
