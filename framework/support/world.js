@@ -14,13 +14,7 @@ const frameworkWorld = {
         self.fs_session = require(frameworkPath + '/framework/libs/fs_session');
         self.javacucumber_session = require(frameworkPath + '/framework/libs/javacucumber_session');
         self.screen_session = require(frameworkPath + '/framework/libs/screen_session');
-
         self.texted_elements = require('./webelements/texted_elements');
-  
-        glob.sync('./steps/**/*.js').forEach( function(file) {
-            self.framework_steps += require(path.resolve(file));
-        });
-        
         return self;
     }
 }
