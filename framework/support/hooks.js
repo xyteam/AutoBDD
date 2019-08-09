@@ -4,7 +4,7 @@ const screen_session = require(frameworkPath + '/framework/libs/screen_session')
 const browser_session = require(frameworkPath + '/framework/libs/browser_session');
 
 const frameworkHooks = {
-  BeforeFeature: function(feature, callback) {
+  BeforeFeature: function(feature) {
     // start RDP and sshfs
     if (process.env.SSHHOST && process.env.SSHPORT) {
       // these start functions will prevent double running
@@ -31,33 +31,29 @@ const frameworkHooks = {
         // browser.pause(5000);
       }
     }
-    callback();
   },
 
-  BeforeScenario: function(scenario, callback) {
+  BeforeScenario: function(scenario) {
     var scenarioName = scenario.getName();
     browser.windowHandleMaximize();
     // increase IE browser script execution time
     if (process.env.BROWSER == 'IE') browser.timeouts('script', 60000);
     if (process.env.MOVIE == 1) framework_libs.startRecording(scenarioName);
-    callback();
   },
 
-  BeforeStep: function(step, callback) {
+  BeforeStep: function(step) {
     var stepName = step.getName();
-    callback();
   },
 
-  AfterStep: function(step, callback) {
+  AfterStep: function(step) {
     var stepName = step.getName();
     if (process.env.BROWSERLOG == 1) {
       browser_session.showErrorLog(browser);
     }
-    callback();
   },
 
   // this AfterScenario has scenario info but without result. Use After below if you need result
-  AfterScenario: function(scenario, callback) {
+  AfterScenario: function(scenario) {
     var scenarioName = scenario.getName();
 
     if (process.env.MOVIE == 1) {
@@ -85,10 +81,9 @@ const frameworkHooks = {
     // need to perform these steps before tear down RDP
     screen_session.keyTap('0', 'control');
     browser.pause(1000);
-    callback();
   },
 
-  AfterFeature: function(feature, callback) {
+  AfterFeature: function(feature) {
     if (process.env.SSHHOST && process.env.SSHPORT) {
       try {
         if (process.env.MOVIE == 1 || process.env.SCREENSHOT == 1) framework_libs.stopRdesktop();
@@ -96,7 +91,6 @@ const frameworkHooks = {
         framework_libs.stopSshTunnel();
       } catch(e) {}
     }
-    callback();
   }
 }
 

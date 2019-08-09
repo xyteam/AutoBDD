@@ -64,7 +64,7 @@ module.exports = {
       browserName: 'chrome',
       initialBrowserUrl: "about:blank",
       chromeOptions: {
-        // binary: '/usr/bin/google-chrome',
+        // binary: '/usr/bin/chromium-browser',
         args: [
                 "--disable-infobars",
                 "--no-first-run",
