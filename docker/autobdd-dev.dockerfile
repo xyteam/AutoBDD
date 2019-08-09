@@ -1,5 +1,6 @@
 # docker build \
 #   --tag autobdd-dev:1.0.1 \
+#   --build-arg AutoBDD_Ver=1.0.1 \
 #   --file autobdd-dev.dockerfile \
 #   ${PWD}
 #
@@ -7,7 +8,8 @@
 # docker-compose -d up autobdd-dev
 # docker-compose -d down autobdd-dev
 
-FROM xyteam/autobdd-run:1.0.1
+ARG AutoBDD_Ver
+FROM xyteam/autobdd-run:${AutoBDD_Ver}
 USER root
 ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
