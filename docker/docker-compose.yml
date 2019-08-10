@@ -3,7 +3,7 @@
 version: '3.5'
 services:
   autobdd-dev:
-    image: "xyteam/autobdd-dev:1.0.1"
+    image: "xyteam/autobdd-dev:1.0.2"
     container_name: autobdd-dev
     build:
       context: .
@@ -25,7 +25,7 @@ services:
     entrypoint: "/startup.sh"
 
   autobdd-run:
-    image: "xyteam/autobdd-run:1.0.1"
+    image: "xyteam/autobdd-run:1.0.2"
     container_name: autobdd-run
     build:
       context: .
