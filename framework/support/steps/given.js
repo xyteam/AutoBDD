@@ -22,7 +22,7 @@ const resizeScreenSize = require('../../functions/action/resizeScreenSize');
 
 module.exports = function() {
     this.Given(
-        /^I open (?:the )?(url|file|site|download file) "([^"]*)?"$/,
+        /^I open (?:the )?(file|download file}|path|url) "([^"]*)?"$/,
         openTarget
     );
 
@@ -92,7 +92,7 @@ module.exports = function() {
     );
 
     this.Given(
-        /^the( css)* attribute "([^"]*)?" from element "([^"]*)?" is( not)* "([^"]*)?"$/,
+        /^the( css)* attribute "([^"]*)?" from element "([^"]*)?" (is|contains|matches)( not)* "([^"]*)?"$/,
         checkProperty
     );
 
