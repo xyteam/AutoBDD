@@ -29,7 +29,9 @@ module.exports = {
   runMvnTestScenario: function(javaProject, module, feature, scenario) {
     var javaProjectPath = FrameworkPath + '/test-projects/' + javaProject;
     var javaProjectModulePath = javaProjectPath + '/' + module;
-    var mvn_command = 'cd ' + javaProjectModulePath + '; ';
+    var mvn_command = 'cd ' + FrameworkPath + '; ';
+    mvn_command += '. .autoPathrc.sh; ';
+    mvn_command += 'cd ' + javaProjectModulePath + '; ';
     mvn_command += 'DISPLAY=' + process.env.DISPLAY + ' mvn test ';
     mvn_command += '-Dbrowser=\"chrome\" ';
     mvn_command += '-Dcucumber.options=\"classpath:features/' + feature + '\" ';
