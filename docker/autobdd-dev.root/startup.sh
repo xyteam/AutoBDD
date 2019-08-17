@@ -47,7 +47,13 @@ chown -R $USER:$USER $HOME
 
 # clearup
 PASSWORD=
+
+# set bash_profile
 cat /root/.bashrc >> $HOME/.bash_profile && chown $USER:$USER $HOME/.bash_profile
+cat >> $HOME/.bash_profile << END_bash_profile
+npm config set script-shell /bin/bash
+export DISPLAY=:1
+END_bash_profile
 
 # start supervisord
 exec /bin/tini -- /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
