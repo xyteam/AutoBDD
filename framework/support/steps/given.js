@@ -14,15 +14,21 @@ const checkTitle = require('../../functions/check/checkTitle');
 const checkUrl = require('../../functions/check/checkURL');
 const closeAllButFirstTab = require('../../functions/action/closeAllButFirstTab');
 const compareText = require('../../functions/check/compareText');
+const deleteDownload = require('../../functions/action/deleteDownload');
 const isEnabled = require('../../functions/check/isEnabled');
 const isVisible = require('../../functions/check/isVisible');
-const openWebsite = require('../../functions/action/openWebsite');
+const openTarget = require('../../functions/action/openTarget');
 const resizeScreenSize = require('../../functions/action/resizeScreenSize');
 
 module.exports = function() {
     this.Given(
-        /^I open (?:the )?(url|site) "([^"]*)?"$/,
-        openWebsite
+        /^I open (?:the )?(url|file|site|download file) "([^"]*)?"$/,
+        openTarget
+    );
+
+    this.Given(
+        /^I delete (the only|all) download file(?:s)? with the name "([^"]*)?"$/,
+        deleteDownload
     );
 
     this.Given(

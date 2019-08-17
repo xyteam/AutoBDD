@@ -1,19 +1,15 @@
 'use strict';
 const frameworkPath = process.env.FrameworkPath;
-const projectFullPath = process.env.FrameworkPath + '/test-projects/' + process.env.ThisProject; 
+const projectFullPath = process.env.FrameworkPath + '/test-projects/' + process.env.ThisProject;
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
 const selenium_standalone_config = require(frameworkPath + '/framework/configs/selenium-standalone_config.js');
-const myCombinedStepPath = ['features', projectFullPath + '/global'];
-
-// for Linux chrome
+const myCombinedStepPath = ['support', projectFullPath + '/project/support', frameworkPath + '/framework/support'];
 const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
+// for Linux chrome
 const myChromeProfilePath = process.env.myChromeProfilePath || '/tmp/chrome_profile_' + process.env.DISPLAY.substr(1);
-const myChromePreference_json = '{"download":{"default_directory":"' + myDownloadPathLocal + '","directory_upgrade":true},"savefile":{"default_directory":"' + myDownloadPathLocal + '"}}';
 fs.existsSync(myChromeProfilePath) || fs.mkdirSync(myChromeProfilePath);
-fs.existsSync(myChromeProfilePath + '/Default') || fs.mkdirSync(myChromeProfilePath + '/Default');
-fs.writeFileSync(myChromeProfilePath + '/Default/Preferences', myChromePreference_json);
-const myBrowserProxySetting = (process.env.http_proxy) ? "--proxy-server=" + process.env.http_proxy : "--no-proxy-server";
+// const myBrowserProxySetting = (process.env.http_proxy) ? "--proxy-server=" + process.env.http_proxy : "--no-proxy-server";
 
 module.exports = {
   // - - - - CHIMP - - - -
@@ -25,9 +21,9 @@ module.exports = {
   domainOnly: false,
   e2eTags: '@e2e',
   watchWithPolling: false,
-  server: false,
-  serverPort: 8060,
-  serverHost: 'localhost',
+  // server: false,
+  // serverPort: 8060,
+  // serverHost: 'localhost',
   sync: true,
   offline: true,
   showXolvioMessages: true,
@@ -40,6 +36,8 @@ module.exports = {
   tags: '~@ignore',
   singleSnippetPerFile: true,
   recommendedFilenameSeparator: '_',
+  chai: false,
+  screenshotsOnError: false,
   screenshotsPath: '.screenshots',
   captureAllStepScreenshots: false,
   saveScreenshotsToDisk: true,
@@ -66,41 +64,51 @@ module.exports = {
       chromeOptions: {
         // binary: '/usr/bin/chromium-browser',
         args: [
-                "--disable-infobars",
-                "--no-first-run",
-                "--bypass-app-banner-engagement-checks",
-                "--disable-gpu",
-                "--no-sandbox",
-                "--start-maximized ",
-                "--window-size=" + myDISPLAYSIZE.replace('x',','),
-                "--user-data-dir=/tmp/chrome_profile_" + process.env.DISPLAY.substr(1),
-                "--incognito",
-                // "--excludeSwitches",
-                // "--enable-automation",
-                myBrowserProxySetting
-              ],
+          "--disable-infobars",
+          "--no-first-run",
+          "--bypass-app-banner-engagement-checks",
+          // "--disable-gpu",
+          // "--no-sandbox",
+          "--enable-background-networking",
+          "--start-maximized ",
+          "--window-size=" + myDISPLAYSIZE.replace('x', ','),
+          "--user-data-dir=" + myChromeProfilePath,
+          "--incognito",
+          // "--excludeSwitches",
+          // "--enable-automation",
+          // myBrowserProxySetting
+        ],
         prefs: {
           'credentials_enable_service': false,
           'profile': {
             'password_manager_enabled': false
+          },
+          'download': {
+            'default_directory': myDownloadPathLocal,
+            'directory_upgrade': true
+          },
+          'savefile': {
+            'default_directory': myDownloadPathLocal
           }
         }
       }
     },
     baseUrl: 'chrome:version',
     logLevel: 'silent',
-    coloredLogs: true,
+    deprecationWarnings: false,
+    coloredLogs: false,
     screenshotPath: null,
     waitforTimeout: 500,
     waitforInterval: 250
   },
 
-    // - - - - SESSION-MANAGER  - - - -
-    noSessionReuse: false,
+  // - - - - SESSION-MANAGER  - - - -
+  noSessionReuse: false,
 
-    // - - - - DEBUGGING  - - - -
-    log: 'info',
-    debug: false,
-    debugCucumber: false,
-    debugBrkCucumber: false
+  // - - - - DEBUGGING  - - - -
+  log: 'info',
+  debug: false,
+  debugCucumber: false,
+  debugBrkCucumber: false
 };
+

@@ -8,6 +8,9 @@ process.env.REPORTDIR = process.env.REPORTDIR || '.';
 process.env.RELATIVEREPORTDIR = process.env.RELATIVEREPORTDIR || '.';
 process.env.MODULEPATH = process.env.MODULEPATH || '';
 process.env.DownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
+const fs = require('fs');
+fs.existsSync(process.env.DownloadPathLocal) || fs.mkdirSync(process.env.DownloadPathLocal);
+
 process.env.imageSimilarity = process.env.imageSimilarity || 0.8;
 process.env.imageWaitTime = process.env.imageWaitTime || 1;
 const execSync = require('child_process').execSync;
