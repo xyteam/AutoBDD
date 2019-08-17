@@ -25,7 +25,6 @@ const compareText = require('../../functions/check/compareText');
 const isEnabled = require('../../functions/check/isEnabled');
 const isExisting = require('../../functions/check/isExisting');
 const isVisible = require('../../functions/check/isVisible');
-const waitFor = require('../../functions/action/waitFor');
 const waitForVisible = require('../../functions/action/waitForVisible');
 const checkIfElementExists = require('../../functions/common/checkIfElementExists');
 
@@ -168,16 +167,6 @@ module.exports = function() {
     this.Then(
         /^I expect (?:that )?element "([^"]*)?" is( not)* focused$/,
         checkFocus
-    );
-
-    this.Then(
-        /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to( not)* (be checked|be enabled|be selected|be visible|contain a text|contain a value|exist))*$/,
-        {
-            wrapperOptions: {
-                retry: 3,
-            },
-        },
-        waitFor
     );
 
     this.Then(

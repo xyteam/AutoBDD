@@ -18,6 +18,8 @@ const setInputField = require('../../functions/action/setInputField');
 const setInputFieldWithEnvVars = require('../../functions/action/setInputFieldWithEnvVars');
 const setPromptText = require('../../functions/action/setPromptText');
 const submitForm = require('../../functions/action/submitForm');
+const waitFor = require('../../functions/action/waitFor');
+const waitForDownload = require('../../functions/action/waitForDownload');
 
 module.exports = function() {
     this.When(
@@ -106,6 +108,11 @@ module.exports = function() {
     );
 
     this.When(
+        /^I move to element "([^"]*)?"(?: with an offset of (\d+),(\d+))*$/,
+        moveToElement
+    );
+
+    this.When(
         /^I select (?:the )?(\d+)(st|nd|rd|th) option for element "([^"]*)?"$/,
         selectOptionByIndex
     );
@@ -116,7 +123,23 @@ module.exports = function() {
     );
 
     this.When(
-        /^I move to element "([^"]*)?"(?: with an offset of (\d+),(\d+))*$/,
-        moveToElement
+        /^I wait on download file "([^"]*)?"(?: for (\d+)ms)* to( not)* exist$/,
+        {
+            wrapperOptions: {
+                retry: 3,
+            },
+        },
+        waitForDownload
     );
+
+    this.When(
+        /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to( not)* (be checked|be enabled|be selected|be visible|contain a text|contain a value|exist))*$/,
+        {
+            wrapperOptions: {
+                retry: 3,
+            },
+        },
+        waitFor
+    );
+
 }

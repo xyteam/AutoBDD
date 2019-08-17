@@ -42,18 +42,32 @@ const frameworkHooks = {
   },
 
   BeforeStep: function(step) {
-    var stepName = step.getName();
+    // var stepName = step.getName();
   },
 
   AfterStep: function(step) {
-    var stepName = step.getName();
+    // var stepName = step.getName();
     if (process.env.BROWSERLOG == 1) {
       browser_session.showErrorLog(browser);
     }
   },
 
-  // this AfterScenario has scenario info but without result. Use After below if you need result
   AfterScenario: function(scenario) {
+    // var scenarioName = scenario.getName();
+  },
+
+  AfterFeature: function(feature) {
+    if (process.env.SSHHOST && process.env.SSHPORT) {
+      try {
+        if (process.env.MOVIE == 1 || process.env.SCREENSHOT == 1) framework_libs.stopRdesktop();
+        framework_libs.stopSshFs();
+        framework_libs.stopSshTunnel();
+      } catch(e) {}
+    }
+  },
+
+  // expect scenario.isSuccessful(), should be called with After(scenario)
+  AfterScenarioResult: function(scenario) {
     var scenarioName = scenario.getName();
 
     if (process.env.MOVIE == 1) {
@@ -82,16 +96,6 @@ const frameworkHooks = {
     screen_session.keyTap('0', 'control');
     browser.pause(1000);
   },
-
-  AfterFeature: function(feature) {
-    if (process.env.SSHHOST && process.env.SSHPORT) {
-      try {
-        if (process.env.MOVIE == 1 || process.env.SCREENSHOT == 1) framework_libs.stopRdesktop();
-        framework_libs.stopSshFs();
-        framework_libs.stopSshTunnel();
-      } catch(e) {}
-    }
-  }
 }
 
 module.exports = frameworkHooks;

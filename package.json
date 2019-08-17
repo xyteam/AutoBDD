@@ -1,6 +1,6 @@
 {
   "name": "autobdd",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "BDD Automaiton",
   "main": "index.js",
   "dependencies": {
@@ -31,8 +31,8 @@
     "pdf-parse": "^1.1.1",
     "request": "^2.88.0",
     "robotjs": "^0.5.1",
-    "selenium-standalone": "^6.16.0",
     "stack-generator": "^2.0.3",
+    "stackframe": "^1.0.4",
     "testrail-api": "git+https://github.com/xyteam/node-testrail-api.git",
     "url-parse": "^1.4.4",
     "words-to-numbers": "^1.5.1",
