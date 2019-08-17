@@ -6,39 +6,31 @@ if (process.env.FrameworkPath) {
 }
 
 module.exports = function() {
-  this.Before(function(feature, callback) {
-    if (projectHooks) projectHooks.BeforeFeature(feature, callback);
-    // additional hook code below this line
-    callback();
+  this.BeforeFeature(function(feature) {
+    if (projectHooks) projectHooks.BeforeFeature(feature);
   });
 
-  this.Before(function(scenario, callback) {
-    if (projectHooks) projectHooks.BeforeScenario(scenario, callback);
-    // additional hook code below this line
-    callback();
+  this.BeforeScenario(function(scenario) {
+    if (projectHooks) projectHooks.BeforeScenario(scenario);
   });
 
-  this.Before(function(event, callback) {
-    if (projectHooks) projectHooks.BeforeStep(event, callback);
-    // additional hook code below this line
-    callback();
+  this.BeforeStep(function(step) {
+    if (projectHooks) projectHooks.BeforeStep(step);
   });
 
-  this.After(function(event, callback) {
-    if (projectHooks) projectHooks.AfterStep(event, callback);
-    // additional hook code below this line
-    callback();
+  this.AfterStep(function(step) {
+    if (projectHooks) projectHooks.AfterStep(step);
   });
 
-  this.After(function(scenario, callback) {
-    if (projectHooks) projectHooks.AfterScenario(scenario, callback);
-    // additional hook code below this line
-    callback();
+  this.AfterScenario(function(scenario) {
+    if (projectHooks) projectHooks.AfterScenario(scenario);
   });
 
-  this.After(function(feature, callback) {
-    if (projectHooks) projectHooks.AfterFeature(feature, callback);
-    // additional hook code below this line
-    callback();
+  this.AfterFeature(function(feature) {
+    if (projectHooks) projectHooks.AfterFeature(feature);
+  });
+
+  this.After(function(scenario) {
+    if (projectHooks) projectHooks.AfterScenario(scenario);
   });
 }
