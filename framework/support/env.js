@@ -1,29 +1,28 @@
+const execSync = require('child_process').execSync;
+const fs = require('fs');
+const cmd_get_screensize='xrandr --dryrun | grep "screen connected" | cut -d\+ -f1 | cut -d" " -f3';
 process.env.ThisFramework = 'AutoBDD';
 process.env.PLATFORM = process.env.PLATFORM || 'Linux';
 process.env.BROWSER = process.env.BROWSER || 'CH';
-process.env.DISPLAYSIZE = process.env.DISPLAYSIZE || '1920x1200';
+process.env.DISPLAYSIZE = process.env.DISPLAYSIZE || execSync(cmd_get_screensize).toString('utf8').trim();
 process.env.FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 process.env.StepTimeoutInMS = process.env.StepTimeoutInMS || 60000;
 process.env.REPORTDIR = process.env.REPORTDIR || '.';
 process.env.RELATIVEREPORTDIR = process.env.RELATIVEREPORTDIR || '.';
 process.env.MODULEPATH = process.env.MODULEPATH || '';
 process.env.DownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
-const fs = require('fs');
 fs.existsSync(process.env.DownloadPathLocal) || fs.mkdirSync(process.env.DownloadPathLocal);
 
 process.env.imageSimilarity = process.env.imageSimilarity || 0.8;
 process.env.imageWaitTime = process.env.imageWaitTime || 1;
-const execSync = require('child_process').execSync;
 
 // auto-detect ReleaseString
 if (process.env.PLATFORM == 'Linux') {
-  var ubuntuReleaseBuffer = execSync('lsb_release -rs');
-  var ubuntuReleaseString = ubuntuReleaseBuffer.toString('utf8').trim();
-  process.env.ReleaseString = ubuntuReleaseString;
+  process.env.ReleaseString = execSync('lsb_release -rs').toString('utf8').trim();
 }
 
 // auto-detect XVFB
-if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY != ':0') {
+if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY.match(':\d{2,3}')) {
   process.env.XVFB = process.env.XVFB || 'XVFB';
 }
 
