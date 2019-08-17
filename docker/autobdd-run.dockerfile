@@ -109,7 +109,7 @@ RUN pip install tinydb; \
     mkdir -p /${USER}/Projects && cd /${USER}/Projects && \
     curl -Lo- https://github.com/xyteam/AutoBDD/archive/${AutoBDD_Ver}.tar.gz | gzip -cd | tar xf - && \
     mv AutoBDD-${AutoBDD_Ver} AutoBDD; \
-    /bin/bash -c "cd /${USER}/Projects/AutoBDD && npm install && . .autoPathrc.sh && xvfb-run -a npm test"
+    /bin/bash -c "cd /${USER}/Projects/AutoBDD && npm install && xvfb-run -a npm test"
 
 # insert entry point
 COPY ./autobdd-run.startup.sh /startup.sh

@@ -40,7 +40,7 @@
   },
   "scripts": {
     "download-sikuliapi": "./framework/libs/downloadSikulixApiJar.js",
-    "test-init": "cd ./test-projects/simplest-test/test-init && xvfb-run -a chimpy",
+    "test-init": "/bin/bash -c \". .autoPathrc.sh && cd ./test-projects/simplest-test/test-init && chimpy\"",
     "test": "npm run download-sikuliapi; npm run test-init"
   },
   "repository": {
