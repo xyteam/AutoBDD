@@ -3,11 +3,14 @@
 version: '3.5'
 services:
   autobdd-dev:
-    image: "xyteam/autobdd-dev:1.0.2"
-    container_name: autobdd-dev
     build:
       context: .
-      shm_size: 2G
+      dockerfile: autobdd-dev.dockerfile
+      args:
+        AutoBDD_Ver: 1.0.3
+      image: "xyteam/autobdd-dev:1.0.3"
+    container_name: autobdd-dev
+    shm_size: 1536M
     user: root
     privileged: true
     volumes:
@@ -25,11 +28,14 @@ services:
     entrypoint: "/startup.sh"
 
   autobdd-run:
-    image: "xyteam/autobdd-run:1.0.2"
-    container_name: autobdd-run
     build:
       context: .
-      shm_size: 2G
+      dockerfile: autobdd-run.dockerfile
+      args:
+        AutoBDD_Ver: 1.0.3
+      image: "xyteam/autobdd-run:1.0.3"
+    container_name: autobdd-run
+    shm_size: 1536M
     user: root
     privileged: true
     volumes:

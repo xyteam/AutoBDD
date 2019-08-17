@@ -82,7 +82,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     update-ca-certificates
 
 # install nodejs 8.x
-RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
     apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
     apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
     nodejs
@@ -105,11 +105,14 @@ RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/jav
 
 # download AutoBDD
 # install tinydb used for autorunner framework
-RUN pip install tinydb; \
+RUN pip install tinydb && \
     mkdir -p /${USER}/Projects && cd /${USER}/Projects && \
     curl -Lo- https://github.com/xyteam/AutoBDD/archive/${AutoBDD_Ver}.tar.gz | gzip -cd | tar xf - && \
-    mv AutoBDD-${AutoBDD_Ver} AutoBDD; \
-    /bin/bash -c "cd /${USER}/Projects/AutoBDD && npm install && xvfb-run -a npm test"
+    mv AutoBDD-${AutoBDD_Ver} AutoBDD && \
+    cd /${USER}/Projects/AutoBDD && \
+    npm config set script-shell "/bin/bash" && \
+    npm install && \
+    xvfb-run -a npm test
 
 # insert entry point
 COPY ./autobdd-run.startup.sh /startup.sh
