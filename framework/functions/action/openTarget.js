@@ -11,9 +11,6 @@ module.exports = (targetType, target) => {
      * @targetType {String}
      */
     switch (targetType) {
-        case "site":
-            browser.url(browser.options.baseUrl + '/' + target);
-            break;
         case "download file":
             let downloadDir = getDownloadDir();
             browser.pause(2000);
@@ -22,6 +19,9 @@ module.exports = (targetType, target) => {
             break;
         case "file":
             browser.url('file://' + target);
+            break;
+        case "path":
+            browser.url(browser.options.baseUrl + target);
             break;
         case "url":
         default:
