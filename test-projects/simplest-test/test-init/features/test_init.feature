@@ -4,4 +4,4 @@ Feature: test init
   I want to initialize my automation test environment
 
   Scenario: download drivers
-    Given  I open the site "/"
+    Given  I open the path "/"
