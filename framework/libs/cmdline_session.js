@@ -16,7 +16,7 @@ module.exports = {
     var displayMsg = 'command: \n' + command + '\n\n';
 
     try {
-        result = execSync(command).toString();
+        result = execSync(command, {shell: '/bin/bash'}).toString();
         exitcode = 0;
     } catch(e) {
         result = e.stdout.toString();
