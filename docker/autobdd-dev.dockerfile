@@ -38,14 +38,18 @@ ARG TINI_VERSION=v0.18.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /bin/tini
 RUN chmod +x /bin/tini
 
+# copy preset ubuntu system env
 COPY autobdd-dev.root /
-RUN chmod +x /startup.sh
 
+# insert entry point
+COPY ./autobdd-dev.startup.sh /
+RUN chmod +x /autobdd-dev.startup.sh
+
+# finalize docker setup
 WORKDIR /root
-ENV HOME=/home/ubuntu \
-    SHELL=/bin/bash
+ENV HOME=/root \
+    SHELL=/bin/bash    
 HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://127.0.0.1:6079/api/health
-ENTRYPOINT ["/startup.sh"]
-
+ENTRYPOINT ["/autobdd-dev.startup.sh"]
 EXPOSE 5900
 EXPOSE 22

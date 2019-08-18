@@ -115,8 +115,12 @@ RUN pip install tinydb && \
     xvfb-run -a npm test
 
 # insert entry point
-COPY ./autobdd-run.startup.sh /startup.sh
-RUN chmod +x /startup.sh
+COPY ./autobdd-run.startup.sh /
+RUN chmod +x /autobdd-run.startup.sh
 
-ENTRYPOINT ["/startup.sh"]
+# finalize docker setup
+WORKDIR /root
+ENV HOME=/root \
+    SHELL=/bin/bash
+ENTRYPOINT ["/autobdd-run.startup.sh"]
 CMD ["--help"]

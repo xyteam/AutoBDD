@@ -25,7 +25,7 @@ services:
       PASSWORD: ${PASSWORD}
       VNC_PASSWORD: ${VNC_PASSWORD}
       RESOLUTION: 1920x1200
-    entrypoint: "/startup.sh"
+    entrypoint: "/autobdd-dev.startup.sh"
 
   autobdd-run:
     build:
@@ -43,4 +43,4 @@ services:
       - ${HOME}/Projects/${BDD_PROJECT}:/home/${USER}/Projects/AutoBDD/test-projects/${BDD_PROJECT}
     environment:
       USER: ${USER}
-    entrypoint: "/startup.sh"
+    entrypoint: "/autobdd-run.startup.sh"

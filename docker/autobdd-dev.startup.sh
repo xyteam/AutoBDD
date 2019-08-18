@@ -5,7 +5,7 @@ if [ -n "$VNC_PASSWORD" ]; then
     x11vnc -storepasswd $(cat /.password1) /.password2
     chmod 400 /.password*
     sed -i 's/^command=x11vnc.*/& -rfbauth \/.password2/' /etc/supervisor/conf.d/supervisord.conf
-    export VNC_PASSWORD=
+    unset VNC_PASSWORD
 fi
 
 if [ -n "$X11VNC_ARGS" ]; then
@@ -29,10 +29,11 @@ if [ "$USER" != "root" ]; then
         echo "  set default password to \"ubuntu\""
         PASSWORD=ubuntu
     fi
-    HOME=/home/$USER
+    export HOME=/home/$USER
     echo "$USER:$PASSWORD" | chpasswd
     cp -r /root/{.gtkrc-2.0,.asoundrc} ${HOME}
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
+    unset PASSWORD
 fi
 sed -i "s|%USER%|$USER|" /etc/supervisor/conf.d/supervisord.conf
 sed -i "s|%HOME%|$HOME|" /etc/supervisor/conf.d/supervisord.conf
@@ -44,9 +45,6 @@ mkdir -p /run/sshd
 mkdir -p $HOME/.config/pcmanfm/LXDE/
 ln -sf /usr/local/share/doro-lxde-wallpapers/desktop-items-0.conf $HOME/.config/pcmanfm/LXDE/
 chown -R $USER:$USER $HOME
-
-# clearup
-PASSWORD=
 
 # set bash_profile
 cat /root/.bashrc >> $HOME/.bash_profile && chown $USER:$USER $HOME/.bash_profile
