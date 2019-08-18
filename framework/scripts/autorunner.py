@@ -256,7 +256,7 @@ def parse_arguments():
         dest="PARALLEL",
         default='CPU',
         help=
-        "chimp parallel run number, if CPU is used, without MOVIE count is CPU - 2, with MOVIE count is CPU/2, minimum id 1"
+        "chimp parallel run number, if CPU is used, without MOVIE count is CPU - 1, with MOVIE count is CPU/2, minimum id 1"
     )
 
     parser.add_argument(
@@ -655,12 +655,12 @@ class ChimpAutoRun:
             if self.movie == '1':
                 pool_number = cpu_count / 2
             else:
-                pool_number = cpu_count - 2                
+                pool_number = cpu_count - 1                
             if pool_number < 1:
                 pool_number = 1
         else:
             pool_number = min(int(self.thread_count), int(self.parallel))
-        self.parallel = pool_number
+        self.parallel = str(pool_number)
         print('POOL NUMBER: {}'.format(pool_number))
         print('TOTAL {}(s): {}'.format(self.runlevel.upper(), self.scenarios_count))
 
