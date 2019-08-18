@@ -27,6 +27,8 @@ const isExisting = require('../../functions/check/isExisting');
 const isVisible = require('../../functions/check/isVisible');
 const waitForVisible = require('../../functions/action/waitForVisible');
 const checkIfElementExists = require('../../functions/common/checkIfElementExists');
+const checkIfElementExistsInsideParentElement = require('../../functions/common/checkIfElementExistsInsideParentElement');
+
 
 module.exports = function() {
     this.Then(
@@ -42,6 +44,11 @@ module.exports = function() {
     this.Then(
         /^I expect (?:that )?element "([^"]*)?" does( not)* appear exactly "([^"]*)?" times$/,
         checkIfElementExists
+    );
+
+    this.Then(
+        /^I expect (?:that )?element "([^"]*)?" does( not)* appear inside parent element "([^"]*)?" exactly "([^"]*)?" times$/,
+        checkIfElementExistsInsideParentElement
     );
 
     this.Then(

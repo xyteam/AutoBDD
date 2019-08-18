@@ -1,17 +1,18 @@
 /**
  * Check if the given element exists in the DOM one or more times
  * @param  {String}  targetElement  Element selector
- * @param  {String}  parentElement  Element selector
  * @param  {Boolean} falsCase Check if the element (does not) exists
+ * @param  {String}  parentElement  Element selector
  * @param  {String}  exactly  Check if the element exists exactly this number (as string)
  *                            of times
  */
-module.exports = (targetElement, parentElement, falsCase, exactly) => {
+module.exports = (targetElement, falsCase, parentElement, exactly) => {
+    const parentElementId = browser.element(parentElement).value.ELEMENT;
     /**
      * The number of elements found in the DOM
      * @type {Int}
      */
-    const nrOfElements = browser.elements(targetElement).value;
+    const nrOfElements = browser.elementIdElements(parentElementId, targetElement).value;
 
     if (falsCase === true) {
         expect(nrOfElements.length).toBe(
