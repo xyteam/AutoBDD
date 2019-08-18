@@ -22,7 +22,7 @@ const resizeScreenSize = require('../../functions/action/resizeScreenSize');
 
 module.exports = function() {
     this.Given(
-        /^I open (?:the )?(file|download file}|path|url) "([^"]*)?"$/,
+        /^I open (?:the )?(file|download file|path|url) "([^"]*)?"$/,
         openTarget
     );
 
