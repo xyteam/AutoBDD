@@ -22,7 +22,7 @@ if (process.env.PLATFORM == 'Linux') {
 }
 
 // auto-detect XVFB
-if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY.match(':\d{2,3}')) {
+if (process.env.PLATFORM == 'Linux' && process.env.DISPLAY.match(':\\d{2,}')) {
   process.env.XVFB = process.env.XVFB || 'XVFB';
 }
 
