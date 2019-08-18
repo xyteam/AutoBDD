@@ -422,7 +422,7 @@ class ChimpAutoRun:
                                            'AutoBDD')
         else:
             self.FrameworkPath = environ['FrameworkPath']
-
+        os.chdir(self.FrameworkPath)
         self.reportonly = arguments.REPORTONLY
         self.rumtime_stamp = arguments.TIMESTAMP if arguments.TIMESTAMP else time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
         self.parallel = arguments.PARALLEL
