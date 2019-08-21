@@ -46,7 +46,7 @@ module.exports = {
           scenarioNames.push ( scenario.keyword + " - " + scenario.name );
       })
     })
-    var duplicatedScenario = l.transform(l.countBy(scenarioNames), function(result, count, value) {
+    var duplicatedScenario = testrail.transform(testrail.countBy(scenarioNames), function(result, count, value) {
       if (count > 1 ) result.push(value);
     }, []);
 
