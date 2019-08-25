@@ -40,7 +40,6 @@ services:
     privileged: true
     volumes:
       - ${HOME}/.m2:/home/${USER}/.m2:rw
-      - ${HOME}/Projects/${BDD_PROJECT}:/home/${USER}/Projects/AutoBDD/test-projects/${BDD_PROJECT}
     environment:
       USER: ${USER}
     entrypoint: "/autobdd-run.startup.sh"
