@@ -10,7 +10,7 @@ docker-compose run --rm test-run "--tags @SmokeTest --movie=1"
 ```
 Open the HTML BDD test report in ~/Projects/webtest-example/bdd_reports/
 
-### AutoBDD
+## AutoBDD
 BDD Automation Framework
 
 Powerful, Flexible and Easy-to-Use BDD Automation Framework
@@ -19,26 +19,25 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
 * Flexible - Runs on any local desktop or cloud system, single thread or parallel
 * Easy-To-Use - Executabled docker, single command execution
 
-#### Philosophy
-##### Low Entry Bar
+### Philosophy
+#### Low Entry Barriers
 
   * **Given** any BDD test project
   * **When** you use the AutoBDD framework
   * **Then** you can test anything on screen
-  * **And** you can test anything on network
   * **And** test any local or remote target
-  * **And** code less and achieve more
+  * **And** no coding is needed
 
-##### High Capability
+#### High capabilities
 
   * **And** Your test project can:
     * deploy anywhere
     * run in parallel
     * jenkins ready
-    * integrate with other services
+    * BDD report ready
 
-#### At A Glance
-##### Platform:
+### At A Glance
+#### Platform:
 
   * Linux Base (Ubuntu 1804)
     * local or remote desktops
@@ -49,7 +48,7 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
     * jenkins
     * development tools (nodejs, python, java, etc.)
 
-##### Framework:
+#### Framework:
 
   * Automation Tools
     * Cucumber-JS
@@ -70,11 +69,11 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
     * Local Jenkins CI
     * Jira/TestRail/TestLink
 
-#### Try Out
+### Try Out
 
 **[xyteam/webtest-example](https://github.com/xyteam/webtest-example)**
 
-#### Special Mentions
+### Special Mentions
   * Demo-App application and Precanned Cucumber-JS Steps are taken from **[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)**
   * Image Regognizing library is taken from **[RaiMan/SikuliX1](https://github.com/RaiMan/SikuliX1)**
   * Keyboard and Mouse control library is taken from **[octalmage/robotjs](https://github.com/octalmage/robotjs)**
