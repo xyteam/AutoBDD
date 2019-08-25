@@ -23,10 +23,9 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
 #### Low entry barriers
 
   * **Given** any BDD test project
-  * **When** you use the AutoBDD framework
-  * **Then** you can test anything on screen
-  * **And** test any local or remote target
-  * **And** no coding is needed
+  * **When**  you use the the AutoBDD framework
+  * **Then**  you can test anything on screen
+  * **And**   use over 150 pre-canned BDD test statements
 
 #### High capabilities
 
@@ -34,7 +33,8 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
     * deploy anywhere
     * run in parallel
     * jenkins ready
-    * BDD report ready
+    * produce HTML test report with screenshots and movies
+    * import test results to TestRail
 
 ### At a glance
 #### Platform:
