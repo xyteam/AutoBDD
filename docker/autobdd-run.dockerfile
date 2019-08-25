@@ -70,6 +70,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     unixodbc-dev \
     unzip \
     wmctrl \
+    x11-xserver-utils \
     xclip \
     xdg-utils \
     xdotool \
@@ -101,21 +102,21 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
 RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
     /usr/sbin/locale-gen "en_US.UTF-8"; echo LANG="en_US.UTF-8" > /etc/locale.conf; \
-    mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix
+    mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \
+    mkdir -p /${USER}/Projects
 
-# download AutoBDD
-# install tinydb used for autorunner framework
-RUN pip install tinydb && \
-    mkdir -p /${USER}/Projects && cd /${USER}/Projects && \
-    curl -Lo- https://github.com/xyteam/AutoBDD/archive/${AutoBDD_Ver}.tar.gz | gzip -cd | tar xf - && \
-    mv AutoBDD-${AutoBDD_Ver} AutoBDD && \
-    cd /${USER}/Projects/AutoBDD && \
+# install AutoBDD
+ADD . /${USER}/Projects/AutoBDD
+
+# setup AutoBDD
+RUN cd /${USER}/Projects/AutoBDD && \
+    pip install tinydb && \
     npm config set script-shell "/bin/bash" && \
     npm install && \
     xvfb-run -a npm test
 
 # insert entry point
-COPY ./autobdd-run.startup.sh /
+COPY docker/autobdd-run.startup.sh /
 RUN chmod +x /autobdd-run.startup.sh
 
 # finalize docker setup

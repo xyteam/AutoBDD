@@ -39,10 +39,10 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /bin/
 RUN chmod +x /bin/tini
 
 # copy preset ubuntu system env
-COPY autobdd-dev.root /
+COPY docker/autobdd-dev.root /
 
 # insert entry point
-COPY ./autobdd-dev.startup.sh /
+COPY docker/autobdd-dev.startup.sh /
 RUN chmod +x /autobdd-dev.startup.sh
 
 # finalize docker setup

@@ -4,8 +4,8 @@ version: '3.5'
 services:
   autobdd-dev:
     build:
-      context: .
-      dockerfile: autobdd-dev.dockerfile
+      context: ~/Projects/AutoBDD
+      dockerfile: docker/autobdd-dev.dockerfile
       args:
         AutoBDD_Ver: 1.0.3
     image: "xyteam/autobdd-dev:1.0.3"
@@ -29,8 +29,8 @@ services:
 
   autobdd-run:
     build:
-      context: .
-      dockerfile: autobdd-run.dockerfile
+      context: ~/Projects/AutoBDD
+      dockerfile: docker/autobdd-run.dockerfile
       args:
         AutoBDD_Ver: 1.0.3
     image: "xyteam/autobdd-run:1.0.3"
