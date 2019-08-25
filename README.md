@@ -20,7 +20,7 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
 * Easy-To-Use - Executabled docker, single command execution
 
 ### Philosophy
-#### Low Entry Barriers
+#### Low entry barriers
 
   * **Given** any BDD test project
   * **When** you use the AutoBDD framework
@@ -36,7 +36,7 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
     * jenkins ready
     * BDD report ready
 
-### At A Glance
+### At a glance
 #### Platform:
 
   * Linux Base (Ubuntu 1804)
@@ -69,11 +69,11 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
     * Local Jenkins CI
     * Jira/TestRail/TestLink
 
-### Try Out
+### Try out
 
 **[xyteam/webtest-example](https://github.com/xyteam/webtest-example)**
 
-### Special Mentions
+### Special mentions
   * Demo-App application and Precanned Cucumber-JS Steps are taken from **[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)**
   * Image Regognizing library is taken from **[RaiMan/SikuliX1](https://github.com/RaiMan/SikuliX1)**
   * Keyboard and Mouse control library is taken from **[octalmage/robotjs](https://github.com/octalmage/robotjs)**
