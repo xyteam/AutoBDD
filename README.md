@@ -73,6 +73,13 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
 
 **[xyteam/webtest-example](https://github.com/xyteam/webtest-example)**
 
+### Build AutoBDD
+```
+cd docker
+docker-compose build autobdd-run
+docker-compose build autobdd-dev
+```
+
 ### Special mentions
   * Demo-App application and Precanned Cucumber-JS Steps are taken from **[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)**
   * Image Regognizing library is taken from **[RaiMan/SikuliX1](https://github.com/RaiMan/SikuliX1)**
