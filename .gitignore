@@ -1,0 +1,23 @@
+# controls what test-projects to be included in the framework
+test-projects/*
+!test-projects/simplest-test/
+
+# files to ignore
+*.run
+*.pyc
+Passed_*.mp4
+Failed_*.mp4
+Recording_*.mp4
+Passed_*.png
+Failed_*.png
+npm-debug.log
+sikulixapi*.jar
+.project
+
+# dirs to ignore
+node_modules/
+tmp/
+.DS_Store
+.screenshots/
+.vscode/
+.settings/
