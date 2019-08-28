@@ -1,27 +1,37 @@
 #!/usr/bin/env node
 
-const buildOptions = require('minimist-options');
+const meow = require('meow');
 const JSON5 = require('json5');
-const minimist = require('minimist');
 const Testrail = require('testrail-api');
 const jsonfile = require('jsonfile');
 const Bottleneck = require('bottleneck');
 const testrail_lib = require('../libs/testrail_libs');
 const _ = require ('underscore');
-  
-const options = buildOptions({
+
+//TODO: improve help message
+optionHelp = `
+    Usage
+        $ testrail-reports --optionName=optionValue
+    Options
+        --trApiUrl, testrail API Url, default = process.env.trApiUrl
+        --trApiUrl, testrail API User, default = process.env.trApiUser
+        --trApiUrl, testrail API Key, default = process.env.trApiKey
+        --trCmd, testrail API Command, http://docs.gurock.com/testrail-api2/start, default = getProjects
+`;
+optionFlags = {
     // Special Parameters
-    apiUrl: {
-		type: 'string',
-		default: process.env.trApiUrl
+    trApiUrl: {
+        type: 'string'
     },
-    apiUser: {
-		type: 'string',
-		default: process.env.trApiUser
+    trApiUser: {
+		type: 'string'
     },
-    apiPassword: {
+    trApiKey: {
+		type: 'string'
+    },
+    trCmd: {
 		type: 'string',
-		default: process.env.trApiKey
+		default: 'getProjects'
     },
     // Cucumber Parameters
     cbJsonPath: {
@@ -33,10 +43,6 @@ const options = buildOptions({
     },
     trTestId: {
         type: 'number'
-    },
-	trCmd: {
-		type: 'string',
-		default: 'getProjects'
     },
     trFilter: {
         type: 'string',
@@ -97,37 +103,36 @@ const options = buildOptions({
         default: 333    // 333 ms delay = 3 per second (180 per minute)
     },
 
-	// Special option for positional arguments (`_` in minimist)
+	// Special option for positional arguments
 	arguments: 'string'
-});
-
-const args = minimist(process.argv.slice(2), options);
-const trFilter = JSON5.parse('{' + args.trFilter + '}');
-const cbJson = (args.cbJsonPath) ? jsonfile.readFileSync(args.cbJsonPath) : null;
+}
+const cli = meow(optionHelp, {flags: optionFlags});
+const trFilter = JSON5.parse('{' + cli.flags.trFilter + '}');
+const cbJson = (cli.flags.cbJsonPath) ? jsonfile.readFileSync(cli.flags.cbJsonPath) : null;
 
 // prepare to throttle API request
 // testrail API limites 180 requeset per minutes
 const limiter = new Bottleneck({
     maxConcurrent: 1,
-    minTime: parseInt(args.trThrottle)
+    minTime: parseInt(cli.flags.trThrottle)
 });
 
 var testrail = new Testrail({
-    host: args.apiUrl,
-    user: args.apiUser,
-    password: args.apiPassword,
+    host: cli.flags.trApiUrl || process.env.trApiUrl,
+    user: cli.flags.trApiUser || process.env.trApiUser,
+    password: cli.flags.trApiKey || process.env.trApiKey
 });
 
-switch (args.trCmd) {
+switch (cli.flags.trCmd) {
     case 'getCase':
     case 'getCaseById':
     console.log ( "get case")
-        testrail.getCase(/*CASE_ID=*/args.trCaseId, function (err, response, testcase) {
+        testrail.getCase(/*CASE_ID=*/cli.flags.trCaseId, function (err, response, testcase) {
             console.log(testcase);
         });
         break;
     case 'getCases':
-        testrail.getCases(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/trFilter, function (err, response, cases) {
+        testrail.getCases(/*PROJECT_ID=*/cli.flags.trProjectId, /*FILTERS=*/trFilter, function (err, response, cases) {
             console.log(cases);
         });
         break;
@@ -138,77 +143,77 @@ switch (args.trCmd) {
         });
         break;
     case 'getProject':
-        testrail.getProject(/*PROJECT_ID=*/args.trProjectId, function (err, response, project) {
+        testrail.getProject(/*PROJECT_ID=*/cli.flags.trProjectId, function (err, response, project) {
             console.log(project);
         });
         break;
     case 'getMilestones':
-        testrail.getMilestones(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/trFilter, function (err, response, milestones) {
+        testrail.getMilestones(/*PROJECT_ID=*/cli.flags.trProjectId, /*FILTERS=*/trFilter, function (err, response, milestones) {
             console.log(milestones);
         });      
         break;
     case 'getMilestone':
-        testrail.getMilestone(/*MILESTONE_ID=*/args.trMilestoneId, function (err, response, milestone) {
+        testrail.getMilestone(/*MILESTONE_ID=*/cli.flags.trMilestoneId, function (err, response, milestone) {
             console.log(milestone);
         });
         break;
     case 'deleteMilestone':
-        testrail.deleteMilestone(/*MILESTONE_ID=*/args.trMilestoneId, function (err, response, body) {
+        testrail.deleteMilestone(/*MILESTONE_ID=*/cli.flags.trMilestoneId, function (err, response, body) {
             console.log(body);
         });
         break;    
     case 'getRuns':
-        testrail.getRuns(/*PROJECT_ID=*/args.trProjectId, /*FILTERS=*/trFilter, function (err, response, runs) {
+        testrail.getRuns(/*PROJECT_ID=*/cli.flags.trProjectId, /*FILTERS=*/trFilter, function (err, response, runs) {
             console.log(runs)
         });
         break;
     case 'getRun':
-        testrail.getRun(/*RUN_ID=*/args.trRunId, function (err, response, run) {
+        testrail.getRun(/*RUN_ID=*/cli.flags.trRunId, function (err, response, run) {
             console.log(run);
         });
         break;
     case 'getResultsForRun' :
-        testrail.getResultsForRun(/*RUN_ID=*/args.trRunId, /*FILTERS=*/trFilter, function (err, response, results) {
+        testrail.getResultsForRun(/*RUN_ID=*/cli.flags.trRunId, /*FILTERS=*/trFilter, function (err, response, results) {
             console.log(results);
         });
         break;
     case "getResultsForCase":
-        testrail.getResultsForCase(/*RUN_ID=*/args.trRunId, /*CASE_ID=*/args.trCaseId, /*FILTERS=*/trFilter, function (err, response, results) {
+        testrail.getResultsForCase(/*RUN_ID=*/cli.flags.trRunId, /*CASE_ID=*/cli.flags.trCaseId, /*FILTERS=*/trFilter, function (err, response, results) {
             console.log(results);
         });
         break;
     case "getResults_ByTestId" :
-        testrail.getResults(/*TEST_ID=*/args.trTestId, /*FILTERS=*/args.trFilter, function (err, response, results) {
+        testrail.getResults(/*TEST_ID=*/cli.flags.trTestId, /*FILTERS=*/cli.flags.trFilter, function (err, response, results) {
             console.log(results);
         });
         break;        
     case 'getSections':
     case 'getFeatures':
-        testrail.getSections(/*PROJECT_ID=*/args.trProjectId, /*SUITE_ID=*/args.trSuiteId, function (err, response, sections) {
+        testrail.getSections(/*PROJECT_ID=*/cli.flags.trProjectId, /*SUITE_ID=*/cli.flags.trSuiteId, function (err, response, sections) {
             console.log(sections)
         });
         break;
     case 'getSection':
     case 'getFeature':
-        testrail.getSection(/*SECTION_ID=*/args.trSectionId, function (err, response, section) {
+        testrail.getSection(/*SECTION_ID=*/cli.flags.trSectionId, function (err, response, section) {
             console.log(section);
         });
         break;
     case 'getSuites':
     case 'getModules':
-        testrail.getSuites(/*PROJECT_ID=*/args.trProjectId, function (err, response, suites) {
+        testrail.getSuites(/*PROJECT_ID=*/cli.flags.trProjectId, function (err, response, suites) {
             console.log(suites);    
         });
         break;
     case 'getSuite':
     case 'getModule':
-        testrail.getSuite(/*SUITE_ID=*/args.trSuiteId, function (err, response, suite) {
+        testrail.getSuite(/*SUITE_ID=*/cli.flags.trSuiteId, function (err, response, suite) {
             console.log(suite);
         });
         break;
     case 'getSuiteByName':
     case 'getModuleByName':    
-        testrail_lib.getSuiteId_byName(args.trProjectId, args.trSuiteName).then(suiteId => {
+        testrail_lib.getSuiteId_byName(cli.flags.trProjectId, cli.flags.trSuiteName).then(suiteId => {
             testrail.getSuite(/*SUITE_ID=*/suiteId, function (err, response, suite) {
                 console.log(suite);
             });
@@ -220,37 +225,37 @@ switch (args.trCmd) {
         });
         break;
     case 'getUserById':
-        testrail.getUser(/*USER_ID=*/args.trUserId, function (err, response, user) {
+        testrail.getUser(/*USER_ID=*/cli.flags.trUserId, function (err, response, user) {
             console.log(user);
         });
         break;
     case 'getUserByEmail':
-        testrail.getUserByEmail(/*EMAIL=*/args.trUserEmail, function (err, response, user) {
+        testrail.getUserByEmail(/*EMAIL=*/cli.flags.trUserEmail, function (err, response, user) {
             console.log(user);
         });
         break;
     case 'addSuite':
     case 'addModule':
-        testrail_lib.addSuite_byName(args.trProjectId, args.trSuiteName).then(addedSuite => {
+        testrail_lib.addSuite_byName(cli.flags.trProjectId, cli.flags.trSuiteName).then(addedSuite => {
             console.log(addedSuite);
         })
         break;
     case 'addSection':
     case 'addFeature':
-        if (!args.trProjectId) {
+        if (!cli.flags.trProjectId) {
             console.log('trProjectId is required');
             break;
         }
-        if (!args.trSuiteName) {
+        if (!cli.flags.trSuiteName) {
             console.log('trSuiteName is required');
             break;
         }
-        testrail_lib.addSection_byName(args.trProjectId, args.trSuiteName, args.trSuiteName).then(mySection => {
+        testrail_lib.addSection_byName(cli.flags.trProjectId, cli.flags.trSuiteName, cli.flags.trSuiteName).then(mySection => {
             console.log(mySection.name);
         });
         break;
     case 'cbPretestCheck' :
-        if (!args.cbJsonPath) {
+        if (!cli.flags.cbJsonPath) {
             console.log('cbJsonPath is required');
             break;
         }   
@@ -265,18 +270,18 @@ switch (args.trCmd) {
     /*Input: 
     [Required: trProjectId, cbJsonPath]
     [Optional: trForceAdd(false), trForceUpdate(false)]*/
-        if (!args.trProjectId) {
+        if (!cli.flags.trProjectId) {
             console.log('trProjectId is required');
             break;
         }
-        if (!args.cbJsonPath) {
+        if (!cli.flags.cbJsonPath) {
             console.log('cbJsonPath is required');
             break;
         }
         // Create suite if not exist
         var suiteNames = Array.from(testrail_lib.getSuiteNames_byResultJson(cbJson));
         suiteNames.forEach(suiteName => {
-            testrail_lib.getSuiteId_byName(args.trProjectId, suiteName, args.trForceAdd).then(suiteId => {
+            testrail_lib.getSuiteId_byName(cli.flags.trProjectId, suiteName, cli.flags.trForceAdd).then(suiteId => {
                 // Add case by cbJson result file
                 cbJson.forEach(feature => {
                     if (feature.uri.indexOf('/' + suiteName + '/') >= 0) {
@@ -286,11 +291,11 @@ switch (args.trCmd) {
                             description: feature.description           
                         };
                         // throttle per feature API request
-                        limiter.schedule(() => testrail_lib.getSectionId_byName(/*PROJECT_ID=*/args.trProjectId, suiteName, myFeature.name, myFeature, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+                        limiter.schedule(() => testrail_lib.getSectionId_byName(/*PROJECT_ID=*/cli.flags.trProjectId, suiteName, myFeature.name, myFeature, /*forceAdd*/cli.flags.trForceAdd, /*forceUpdate*/cli.flags.trForceUpdate)
                         .then(sectionId => (async () => {
                             for (var index = 0; index < feature.elements.length; index++) {
                                 scenario = feature.elements[index];
-                                await testrail_lib.getCaseId_byScenario(args.trProjectId, suiteName, myFeature.name, feature, scenario, /*forceAdd*/args.trForceAdd, /*forceUpdate*/args.trForceUpdate)
+                                await testrail_lib.getCaseId_byScenario(cli.flags.trProjectId, suiteName, myFeature.name, feature, scenario, /*forceAdd*/cli.flags.trForceAdd, /*forceUpdate*/cli.flags.trForceUpdate)
                                 .then(myCaseId => {
                                     if ( myCaseId != 0 ) console.log('   > trCaseId: ' + myCaseId);
                                 }).catch (getCaseError => {
@@ -310,27 +315,27 @@ switch (args.trCmd) {
     /*Input: 
     [Required: trProjectId, cbJsonPath]
     [Optional: trSprintId (auto), trForceAdd(false), trForceUpdate(false), trTestTarget(QA), trJenkinsPath]*/
-        if (!args.trProjectId) {
+        if (!cli.flags.trProjectId) {
             console.log('trProjectId is required');
             break;
         }
-        if (!args.cbJsonPath) {
+        if (!cli.flags.cbJsonPath) {
             console.log('cbJsonPath is required');
             break;
         }  
-        testrail_lib.getMilestone_byProjectId(args.trProjectId, args.trSprintId , args.trForceAdd).then(milestoneId => {
+        testrail_lib.getMilestone_byProjectId(cli.flags.trProjectId, cli.flags.trSprintId , cli.flags.trForceAdd).then(milestoneId => {
             testrail_lib.getSuiteNames_byResultJson(cbJson).forEach(mySuiteName => {
-                testrail_lib.getCaseDicts_bySuiteName ( args.trProjectId, mySuiteName, cbJson )
+                testrail_lib.getCaseDicts_bySuiteName ( cli.flags.trProjectId, mySuiteName, cbJson )
                 .then ( caseDicts => {
-                    testrail_lib.getTestRuns_byMilestoneId ( args.trProjectId, milestoneId , args.trSprintId , mySuiteName , caseDicts , args.trJenkinsPath, args.trForceAdd, args.trForceUpdate)
+                    testrail_lib.getTestRuns_byMilestoneId ( cli.flags.trProjectId, milestoneId , cli.flags.trSprintId , mySuiteName , caseDicts , cli.flags.trJenkinsPath, cli.flags.trForceAdd, cli.flags.trForceUpdate)
                     .then ( testRunId => {                
                         console.log ( "> Test Run ID : " + testRunId);
-                        if ( args.trUpdateInBulk ) {
+                        if ( cli.flags.trUpdateInBulk ) {
                             // throttle API request
-                            limiter.schedule(() => testrail_lib.addTestResultInBulk( testRunId, cbJson, caseDicts, args.trTestTarget, args.trJenkinsPath))
+                            limiter.schedule(() => testrail_lib.addTestResultInBulk( testRunId, cbJson, caseDicts, cli.flags.trTestTarget, cli.flags.trJenkinsPath))
                         } else {
                             // throttle API request
-                            limiter.schedule(() => testrail_lib.addTestResultIndividually( testRunId, cbJson, caseDicts, args.trTestTarget, args.trJenkinsPath))
+                            limiter.schedule(() => testrail_lib.addTestResultIndividually( testRunId, cbJson, caseDicts, cli.flags.trTestTarget, cli.flags.trJenkinsPath))
                         }                                                   
                     }).catch ( testrunError => {
                         console.error ( testrunError );
@@ -349,26 +354,26 @@ switch (args.trCmd) {
     /*Input: 
     [Required: trProjectId, cbJsonPath]
     [Optional: trSprintId (auto), trForceAdd(false), trForceUpdate(false), trTestTarget(QA)]*/
-        if (!args.trProjectId) {
+        if (!cli.flags.trProjectId) {
             console.log('trProjectId is required');
             break;
         }
-        if (!args.cbJsonPath) {
+        if (!cli.flags.cbJsonPath) {
             console.log('cbJsonPath is required');
             break;
         }          
         testrail_lib.getSuiteNames_byResultJson(cbJson).forEach(mySuiteName => {
-            testrail_lib.getCaseDicts_bySuiteName ( args.trProjectId, mySuiteName, cbJson )
+            testrail_lib.getCaseDicts_bySuiteName ( cli.flags.trProjectId, mySuiteName, cbJson )
             .then ( caseDicts => {
                 cbJson.forEach(feature => {
                     var myFeature = {
                         name: testrail_lib.getGeneratedSectionName(feature)
                     };                            
                     feature.elements.forEach ( scenario => { 
-                        testrail_lib.addTestResultIndividually ( testRunId, args.trProjectId, mySuiteName, myFeature.name, feature, scenario , false, args.trTestTarget)//.then( resp => {
+                        testrail_lib.addTestResultIndividually ( testRunId, cli.flags.trProjectId, mySuiteName, myFeature.name, feature, scenario , false, cli.flags.trTestTarget)//.then( resp => {
                         console.log ( resp );
                     })
-                testrail_lib.addTestResultInBulk ( args.trTestrunId, cbJsonUpdate, caseDicts, args.trTestTarget)
+                testrail_lib.addTestResultInBulk ( cli.flags.trTestrunId, cbJsonUpdate, caseDicts, cli.flags.trTestTarget)
                 })
             })
         })
@@ -377,9 +382,9 @@ switch (args.trCmd) {
     //@samplecode
     case 'xDeleteSections':
         //use for testing only
-        testrail_lib.getSuiteId_byName (args.trProjectId, args.trSuiteName , false ).then ( suiteid => {
+        testrail_lib.getSuiteId_byName (cli.flags.trProjectId, cli.flags.trSuiteName , false ).then ( suiteid => {
             console.log ( "FOUND SUITE : " + suiteid)
-            testrail.getSections(/*PROJECT_ID=*/args.trProjectId, /*suite-id*/ suiteid , function (err, response, sections) {
+            testrail.getSections(/*PROJECT_ID=*/cli.flags.trProjectId, /*suite-id*/ suiteid , function (err, response, sections) {
                 sections.forEach ( sec => {
                     console.log ( "Deleting section => " + sec.name )
                     testrail.deleteSection ( sec.id );
@@ -391,13 +396,13 @@ switch (args.trCmd) {
     //@samplecode
     case 'xDeleteSuites':
         //use for testing only
-        testrail_lib.getSuiteId_byName (args.trProjectId, args.trSuiteName , false ).then ( suiteid => {
+        testrail_lib.getSuiteId_byName (cli.flags.trProjectId, cli.flags.trSuiteName , false ).then ( suiteid => {
             console.log ( "FOUND SUITE : " + suiteid)
             console.log ( "Deleting suite => " + suiteid )
             testrail.deleteSuite ( suiteid );
             });            
         break;
     default:
-        console.error ( "Unknown command \"" + args.trCmd + "\" provided to trCmd parameter. ");
+        console.error ( "Unknown command \"" + cli.flags.trCmd + "\" provided to trCmd parameter. ");
         break;
 }
