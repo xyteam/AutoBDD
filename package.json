@@ -25,6 +25,7 @@
     "minimist": "^1.2.0",
     "minimist-options": "^4.0.1",
     "moment": "^2.24.0",
+    "multiple-cucumber-html-reporter": "^1.12.1",
     "newman": "^4.5.4",
     "node-cmd": "^3.0.0",
     "npm-path": "^2.0.4",
