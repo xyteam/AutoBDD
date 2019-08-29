@@ -1,6 +1,6 @@
 {
   "name": "autobdd",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "BDD Automaiton",
   "main": "index.js",
   "dependencies": {
