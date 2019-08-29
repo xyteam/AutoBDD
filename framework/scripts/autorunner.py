@@ -589,7 +589,7 @@ class ChimpAutoRun:
         print('Maximum thread count: {}'.format(self.thread_count))
         print('*** \n ')
 
-    def generate_report(self):
+    def generate_reports(self):
         '''
 
         '''
@@ -631,14 +631,32 @@ class ChimpAutoRun:
                 if fname.startswith('Passed_') and fname.endswith('.png'):
                     shutil.copy2(path.join(self.rerun_dir, fname), self.report_dir_base)
 
-        # generate cucumber report
-        cmd_generate_report = path.join(self.FrameworkPath, 'framework', 'scripts', 'generate-reports.js') + ' ' + \
-            ' ' + report_json_path + ' ' + self.project + ' \'Automation Report\' ' +  \
-            ' ' + self.platform + ' ' + self.browser + ' ' + self.parallel + ' ' + self.rumtime_stamp + \
-            ' ' + run_duration + ' ' + str(self.rerun_dir) + ' ' + self.args.replace(' ', '_')
-        print('Generate Report On: {}'.format(report_json_path))
-        print(cmd_generate_report)
-        os.system(cmd_generate_report)
+        # generate cucumber HTML report
+        report_html_path = report_json_path[:report_json_path.rfind('json')] + 'html'
+        cmd_generate_html_report = path.join(self.FrameworkPath, 'framework', 'scripts', 'generate-reports.js') + ' ' + \
+            '--reportJson=' + report_json_path + ' ' + \
+            '--reportName=\'AutoBDD HTML Report\' ' +  \
+            '--reportTitle=' + self.project + ' ' + \
+            '--testPlatform=' + self.platform + ' ' + \
+            '--testPlatformVer=\'Ubuntu 18.04\' ' + \
+            '--testBrowser=' + self.browser + ' ' + \
+            '--testThreads=' + self.parallel + ' ' + \
+            '--testStartTime=' + self.rumtime_stamp + ' ' + \
+            '--testRunDuration=' + run_duration + ' ' + \
+            '--testRerunPath=' + str(self.rerun_dir) + ' ' + \
+            '--testRunArgs=' + self.args.replace(' ', '_')
+        print('Generate HTML Report On: {}'.format(report_html_path))
+        print(cmd_generate_html_report)
+        os.system(cmd_generate_html_report)
+
+        # generate cucumber XML report
+        report_xml_path = report_json_path[:report_json_path.rfind('json')] + 'xml'
+        cmd_generate_xml_report = 'cat ' + report_json_path + \
+                                    ' | cucumber-junit > ' + \
+                                    report_xml_path
+        print('Generate XML Report On: {}'.format(report_xml_path))
+        print(cmd_generate_xml_report)
+        os.system(cmd_generate_xml_report)
 
     def run_in_parallel(self):
         '''
@@ -695,9 +713,9 @@ if __name__ == "__main__":
     if command_arguments.RUNONLY:
         chimp_run.run_in_parallel()
     elif command_arguments.REPORTONLY:
-        chimp_run.generate_report()
+        chimp_run.generate_reports()
     else:
         chimp_run.run_in_parallel()
-        chimp_run.generate_report()
+        chimp_run.generate_reports()
 
     DB.close()
