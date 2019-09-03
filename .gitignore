@@ -13,6 +13,7 @@ Failed_*.png
 npm-debug.log
 sikulixapi*.jar
 .project
+nohup.out
 
 # dirs to ignore
 node_modules/

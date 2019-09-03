@@ -7,8 +7,8 @@ services:
       context: ~/Projects/AutoBDD
       dockerfile: docker/autobdd-dev.dockerfile
       args:
-        AutoBDD_Ver: 1.0.3
-    image: "xyteam/autobdd-dev:1.0.3"
+        AutoBDD_Ver: 1.0.4
+    image: "xyteam/autobdd-dev:1.0.4"
     container_name: autobdd-dev
     shm_size: 1536M
     user: root
@@ -32,8 +32,8 @@ services:
       context: ~/Projects/AutoBDD
       dockerfile: docker/autobdd-run.dockerfile
       args:
-        AutoBDD_Ver: 1.0.3
-    image: "xyteam/autobdd-run:1.0.3"
+        AutoBDD_Ver: 1.0.4
+    image: "xyteam/autobdd-run:1.0.4"
     container_name: autobdd-run
     shm_size: 1536M
     user: root
