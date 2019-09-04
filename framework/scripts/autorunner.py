@@ -358,6 +358,7 @@ def parse_arguments():
     parser.add_argument(
         "--tags",
         "--TAGS",
+        nargs='+',
         dest="TAGS",
         default=None,
         help=
@@ -446,7 +447,7 @@ class ChimpAutoRun:
             self.args = self.tags.replace(' ', '_')
         else:
             self.args = ''
-        self.runcase = arguments.RUNCASE
+        self.dryrun_cases = arguments.RUNCASE
         self.display = ':99'
         self.display_size = '1920x1200'
 
@@ -480,10 +481,7 @@ class ChimpAutoRun:
             if item.endswith(".lock"):
                 os.remove('/tmp/' + item)
 
-        self.marray = {}
-        self.sarray = {}
-        self.features_count = 0
-        self.scenarios_count = 0
+        self.run_count = 0
         self.runarray = []
         self.host = []
         self.thread_count = 0
@@ -506,14 +504,14 @@ class ChimpAutoRun:
         return result
 
     def get_dry_run_out(self):
-        if self.runcase:
-            assert path.exists(self.runcase)
+        if self.dryrun_cases:
+            assert path.exists(self.dryrun_cases)
         else:
             from autorunner_dryrun import ChimpDryRun
             dry_run = ChimpDryRun(self.projectbase, self.project,
                                   self.modulelist, self.platform, self.browser,
                                   self.tags, self.report_full_path)
-            self.runcase = dry_run.get_dry_run_results()
+            self.dryrun_cases = dry_run.get_dry_run_results()
 
     def is_rerun(self):
         return True if self.rerun_dir else False
@@ -533,10 +531,10 @@ class ChimpAutoRun:
                 for item in group:
                     status = get_scenario_status(item['run_feature'])
                     if status is not 'passed':
-                        self.scenarios_count += 1
+                        self.run_count += 1
                     group.update({'status': status}, doc_ids=[item.doc_id])
         else:
-            runcases = json.loads(open(self.runcase).read())
+            runcases = json.loads(open(self.dryrun_cases).read())
             if self.runlevel.strip().lower() == 'feature':
                 for case in runcases:
                     if case['feature'] not in DB.tables():
@@ -545,16 +543,16 @@ class ChimpAutoRun:
                         table = DB.table(case['feature'])
                         table.insert(case)
                 DB.purge_table('_default')
-                self.scenarios_count = len(DB.tables())
+                self.run_count = len(DB.tables())
             else:
-                #print ( "Scenario number in tinydb --> {}".format(self.scenarios_count))
+                #print ( "Scenario number in tinydb --> {}".format(self.run_count))
                 for case in runcases:
                     case['run_feature'] = None
                     table = DB.table(case['feature'])
                     table.insert(case)
                     #print ("Case --> {}\n".format(case))
                 DB.purge_table('_default')
-                self.scenarios_count = len(runcases)
+                self.run_count = len(runcases)
 
     def get_available_host(self):
         '''
@@ -680,17 +678,17 @@ class ChimpAutoRun:
             pool_number = min(int(self.thread_count), int(self.parallel))
         self.parallel = str(pool_number)
         print('POOL NUMBER: {}'.format(pool_number))
-        print('TOTAL {}(s): {}'.format(self.runlevel.upper(), self.scenarios_count))
+        print('TOTAL {}(s): {}'.format(self.runlevel.upper(), self.run_count))
 
         pool = multiprocessing.Pool(pool_number)
-        for index in range(1, self.scenarios_count + 1):
+        for index in range(1, self.run_count + 1):
             pool.apply_async(
                 run_chimp,
                 args=(index, self.host, self.platform, self.browser,
                       self.projectbase, self.project, self.report_dir_base,
                       self.movie, self.screenshot,
                       self.debugmode, self.display_size, self.chimp_profile ,
-                      self.scenarios_count, self.projecttype,
+                      self.run_count, self.projecttype,
                       self.isMaven))
         pool.close()
         pool.join()
