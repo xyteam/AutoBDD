@@ -206,9 +206,9 @@ module.exports = {
       }
   },
   takeScreenshot: function(scenarioName) {
-    const scenario_png = this.getScenarioNameBase(scenarioName) + '.png';
+    const scenario_jpg = this.getScenarioNameBase(scenarioName) + '.jpg';
     const cmd_take_screenshot = 'import -display ' + myDISPLAY + ' -window root '
-        + myREPORTDIR + '/Captured_' + scenario_png;
+        + myREPORTDIR + '/Captured_' + scenario_jpg;
     if (scenarioName) {
       execSync(cmd_take_screenshot);
     } else {
@@ -219,9 +219,9 @@ module.exports = {
   renamePassedFailed: function(scenarioName, scenarioResult) {
     const scenario_base = this.getScenarioNameBase(scenarioName);
     const scenario_mp4 = scenario_base + '.mp4';
-    const scenario_png = scenario_base + '.png';
-    const cmd_rename_screenshot = 'mv ' + myREPORTDIR + '/Captured_' + scenario_png
-                                  + ' ' + myREPORTDIR + '/' + scenarioResult + '_' + scenario_png;
+    const scenario_jpg = scenario_base + '.jpg';
+    const cmd_rename_screenshot = 'mv ' + myREPORTDIR + '/Captured_' + scenario_jpg
+                                  + ' ' + myREPORTDIR + '/' + scenarioResult + '_' + scenario_jpg;
     const cmd_rename_movie = 'mv ' + myREPORTDIR + '/Recording_' + scenario_mp4
                              + ' ' + myREPORTDIR + '/' + scenarioResult + '_' + scenario_mp4;
     if (mySCREENSHOT == 1 || myMOVIE == 1) execSync(cmd_rename_screenshot);
@@ -237,9 +237,9 @@ module.exports = {
   getHtmlReportTags: function(scenarioName, scenarioResult) {
     const scenario_base = this.getScenarioNameBase(scenarioName);
     const scenario_mp4 = scenario_base + '.mp4';
-    const scenario_png = scenario_base + '.png';
-    const image_tag = '<img src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_png) + '"style="max-width: 100%; height: auto;" alt="' + scenarioResult + '_' + scenario_png + '">';
-    const video_tag = '<video src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_mp4) + '"style="max-width: 100%; height: auto;" controls poster="' + scenarioResult + '_' + scenario_png + '"/>Your browser does not support the video tag.</video>'; 
+    const scenario_jpg = scenario_base + '.jpg';
+    const image_tag = '<img src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_jpg) + '"style="max-width: 100%; height: auto;" alt="' + scenarioResult + '_' + scenario_jpg + '">';
+    const video_tag = '<video src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_mp4) + '"style="max-width: 100%; height: auto;" controls poster="' + scenarioResult + '_' + scenario_jpg + '"/>Your browser does not support the video tag.</video>'; 
     return [image_tag, video_tag];
   }
 }
