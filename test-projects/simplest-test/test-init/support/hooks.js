@@ -31,6 +31,6 @@ module.exports = function() {
   });
 
   this.After(function(scenario) {
-    if (projectHooks) projectHooks.AfterScenario(scenario);
+    if (projectHooks) projectHooks.AfterScenarioResult(scenario);
   });
 }

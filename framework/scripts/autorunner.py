@@ -75,7 +75,7 @@ def run_chimp(index,
               project_type,
               isMaven):
     ''' Run '''
-    time.sleep(random.uniform(0,2))
+    time.sleep(random.uniform(1,5))
     #Get matched case from tinydb
     query = Query()
     group = None
@@ -208,6 +208,7 @@ def run_chimp(index,
     print('Update status on: {}'.format(group))
     group.update({'status': 'runned', "run_feature": run_report + '.subjson'}, doc_ids=[id])
     time.sleep(1)
+    DB.storage.flush()
     print('COMPLETED: {} of {}\'\''.format(index, total))
 
 def parse_arguments():
@@ -442,11 +443,7 @@ class ChimpAutoRun:
 
         self.modulelist = arguments.MODULELIST
         self.tags = arguments.TAGS
-        if self.tags:
-            self.args = self.tags.replace(' ', '_')
-        else:
-            self.args = ''
-        self.runcase = arguments.RUNCASE
+        self.dryrun_cases = arguments.RUNCASE
         self.display = ':99'
         self.display_size = '1920x1200'
 
@@ -480,10 +477,7 @@ class ChimpAutoRun:
             if item.endswith(".lock"):
                 os.remove('/tmp/' + item)
 
-        self.marray = {}
-        self.sarray = {}
-        self.features_count = 0
-        self.scenarios_count = 0
+        self.run_count = 0
         self.runarray = []
         self.host = []
         self.thread_count = 0
@@ -506,14 +500,14 @@ class ChimpAutoRun:
         return result
 
     def get_dry_run_out(self):
-        if self.runcase:
-            assert path.exists(self.runcase)
+        if self.dryrun_cases:
+            assert path.exists(self.dryrun_cases)
         else:
             from autorunner_dryrun import ChimpDryRun
             dry_run = ChimpDryRun(self.projectbase, self.project,
                                   self.modulelist, self.platform, self.browser,
                                   self.tags, self.report_full_path)
-            self.runcase = dry_run.get_dry_run_results()
+            self.dryrun_cases = dry_run.get_dry_run_results()
 
     def is_rerun(self):
         return True if self.rerun_dir else False
@@ -533,10 +527,10 @@ class ChimpAutoRun:
                 for item in group:
                     status = get_scenario_status(item['run_feature'])
                     if status is not 'passed':
-                        self.scenarios_count += 1
+                        self.run_count += 1
                     group.update({'status': status}, doc_ids=[item.doc_id])
         else:
-            runcases = json.loads(open(self.runcase).read())
+            runcases = json.loads(open(self.dryrun_cases).read())
             if self.runlevel.strip().lower() == 'feature':
                 for case in runcases:
                     if case['feature'] not in DB.tables():
@@ -544,17 +538,17 @@ class ChimpAutoRun:
                         case['line'] = 0
                         table = DB.table(case['feature'])
                         table.insert(case)
-                DB.purge_table('_default')
-                self.scenarios_count = len(DB.tables())
+                self.run_count = len(DB.tables())
             else:
-                #print ( "Scenario number in tinydb --> {}".format(self.scenarios_count))
+                #print ( "Scenario number in tinydb --> {}".format(self.run_count))
                 for case in runcases:
                     case['run_feature'] = None
                     table = DB.table(case['feature'])
                     table.insert(case)
                     #print ("Case --> {}\n".format(case))
-                DB.purge_table('_default')
-                self.scenarios_count = len(runcases)
+                self.run_count = len(runcases)
+        if '_default' in DB.tables():
+            DB.purge_table('_default')
 
     def get_available_host(self):
         '''
@@ -608,8 +602,6 @@ class ChimpAutoRun:
         # generate cucumber report json file
         query = Query()
         cucumber_report_json = []
-        if '_default' in DB.tables():
-            DB.purge_table('_default')
         for table in DB.tables():
             group = DB.table(table)
             results = group.search((query.status == 'runned') | (query.status == 'passed'))
@@ -644,7 +636,7 @@ class ChimpAutoRun:
             '--testStartTime=' + self.rumtime_stamp + ' ' + \
             '--testRunDuration=' + run_duration + ' ' + \
             '--testRerunPath=' + str(self.rerun_dir) + ' ' + \
-            '--testRunArgs=' + self.args.replace(' ', '_')
+            '--testRunArgs=' + self.tags.replace(' ', '_')
         print('Generate HTML Report On: {}'.format(report_html_path))
         print(cmd_generate_html_report)
         os.system(cmd_generate_html_report)
@@ -680,17 +672,17 @@ class ChimpAutoRun:
             pool_number = min(int(self.thread_count), int(self.parallel))
         self.parallel = str(pool_number)
         print('POOL NUMBER: {}'.format(pool_number))
-        print('TOTAL {}(s): {}'.format(self.runlevel.upper(), self.scenarios_count))
+        print('TOTAL {}(s): {}'.format(self.runlevel.upper(), self.run_count))
 
         pool = multiprocessing.Pool(pool_number)
-        for index in range(1, self.scenarios_count + 1):
+        for index in range(1, self.run_count + 1):
             pool.apply_async(
                 run_chimp,
                 args=(index, self.host, self.platform, self.browser,
                       self.projectbase, self.project, self.report_dir_base,
                       self.movie, self.screenshot,
                       self.debugmode, self.display_size, self.chimp_profile ,
-                      self.scenarios_count, self.projecttype,
+                      self.run_count, self.projecttype,
                       self.isMaven))
         pool.close()
         pool.join()
@@ -717,5 +709,4 @@ if __name__ == "__main__":
     else:
         chimp_run.run_in_parallel()
         chimp_run.generate_reports()
-
     DB.close()
