@@ -18,6 +18,7 @@ from os import environ
 from datetime import datetime
 from tinydb import TinyDB, Query
 import shlex
+from pprint import pprint
 
 DB = None
 
@@ -208,8 +209,8 @@ def run_chimp(index,
     print('Update status on: {}'.format(group))
     group.update({'status': 'runned', "run_feature": run_report + '.subjson'}, doc_ids=[id])
     time.sleep(1)
-    DB.storage.flush()
     print('COMPLETED: {} of {}\'\''.format(index, total))
+    DB.storage.flush()
 
 def parse_arguments():
     '''
@@ -359,6 +360,7 @@ def parse_arguments():
     parser.add_argument(
         "--tags",
         "--TAGS",
+        nargs='+',
         dest="TAGS",
         default=None,
         help=
@@ -390,9 +392,10 @@ def parse_arguments():
     else:
         args = parser.parse_args()
 
-    print('\nInput parameters:')
-    for arg in vars(args):
-        print('{:*>15}: {}'.format(arg, getattr(args, arg)))
+    # print('\nInput parameters:')
+    # for arg in vars(args):
+    #     print('{:*>15}: {}'.format(arg, getattr(args, arg)))
+
     return args
 
 def get_scenario_status(scenario_out):
@@ -424,6 +427,7 @@ class ChimpAutoRun:
         else:
             self.FrameworkPath = environ['FrameworkPath']
         os.chdir(self.FrameworkPath)
+        self.arguments = arguments
         self.reportonly = arguments.REPORTONLY
         self.rumtime_stamp = arguments.TIMESTAMP if arguments.TIMESTAMP else time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
         self.parallel = arguments.PARALLEL
@@ -442,7 +446,7 @@ class ChimpAutoRun:
             (self.project, self.rumtime_stamp))
 
         self.modulelist = arguments.MODULELIST
-        self.tags = arguments.TAGS
+        self.tags = ' '.join(arguments.TAGS) if arguments.TAGS else ''
         self.dryrun_cases = arguments.RUNCASE
         self.display = ':99'
         self.display_size = '1920x1200'
@@ -478,11 +482,12 @@ class ChimpAutoRun:
                 os.remove('/tmp/' + item)
 
         self.run_count = 0
-        self.runarray = []
         self.host = []
         self.thread_count = 0
         self.end_time = time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
         self.get_available_host()
+
+        pprint(vars(self))
 
     def isMavenProject(self, args):
         result = False
@@ -491,12 +496,12 @@ class ChimpAutoRun:
         elif (self.projecttype.lower() == "maven" or self.projecttype.lower() == "mvn"):
             result = True
         else: #auto-detect
-            print ("*** Project Type is set to auto-detect ***")
+            # print ("*** Project Type is set to auto-detect ***")
             for fname in os.listdir (self.project_full_path):
                 if "pom.xml" in fname:
                     result = True
                     break
-        print ( "*** is Maven = {}".format (result))
+        # print ( "*** is Maven = {}".format (result))
         return result
 
     def get_dry_run_out(self):
@@ -577,11 +582,11 @@ class ChimpAutoRun:
         assert len(
             self.
             host) > 0, 'No host is avilable! Check file: chimp_run_host.config'
-        print('\n*** Avaliable Host: ***')
-        for item in self.host:
-            print(item)
-        print('Maximum thread count: {}'.format(self.thread_count))
-        print('*** \n ')
+        # print('\n*** Avaliable Host: ***')
+        # for item in self.host:
+        #     print(item)
+        # print('Maximum thread count: {}'.format(self.thread_count))
+        # print('*** \n ')
 
     def generate_reports(self):
         '''
@@ -636,7 +641,7 @@ class ChimpAutoRun:
             '--testStartTime=' + self.rumtime_stamp + ' ' + \
             '--testRunDuration=' + run_duration + ' ' + \
             '--testRerunPath=' + str(self.rerun_dir) + ' ' + \
-            '--testRunArgs=' + self.tags.replace(' ', '_')
+            '--testRunArgs=\"' + str(self.arguments) + '\"'
         print('Generate HTML Report On: {}'.format(report_html_path))
         print(cmd_generate_html_report)
         os.system(cmd_generate_html_report)
