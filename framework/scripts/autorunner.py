@@ -75,7 +75,7 @@ def run_chimp(index,
               project_type,
               isMaven):
     ''' Run '''
-    time.sleep(random.uniform(0,2))
+    time.sleep(random.uniform(1,5))
     #Get matched case from tinydb
     query = Query()
     group = None
@@ -208,6 +208,7 @@ def run_chimp(index,
     print('Update status on: {}'.format(group))
     group.update({'status': 'runned', "run_feature": run_report + '.subjson'}, doc_ids=[id])
     time.sleep(1)
+    DB.storage.flush()
     print('COMPLETED: {} of {}\'\''.format(index, total))
 
 def parse_arguments():
@@ -358,7 +359,6 @@ def parse_arguments():
     parser.add_argument(
         "--tags",
         "--TAGS",
-        nargs='+',
         dest="TAGS",
         default=None,
         help=
@@ -443,10 +443,6 @@ class ChimpAutoRun:
 
         self.modulelist = arguments.MODULELIST
         self.tags = arguments.TAGS
-        if self.tags:
-            self.args = self.tags.replace(' ', '_')
-        else:
-            self.args = ''
         self.dryrun_cases = arguments.RUNCASE
         self.display = ':99'
         self.display_size = '1920x1200'
@@ -542,7 +538,6 @@ class ChimpAutoRun:
                         case['line'] = 0
                         table = DB.table(case['feature'])
                         table.insert(case)
-                DB.purge_table('_default')
                 self.run_count = len(DB.tables())
             else:
                 #print ( "Scenario number in tinydb --> {}".format(self.run_count))
@@ -551,8 +546,9 @@ class ChimpAutoRun:
                     table = DB.table(case['feature'])
                     table.insert(case)
                     #print ("Case --> {}\n".format(case))
-                DB.purge_table('_default')
                 self.run_count = len(runcases)
+        if '_default' in DB.tables():
+            DB.purge_table('_default')
 
     def get_available_host(self):
         '''
@@ -606,8 +602,6 @@ class ChimpAutoRun:
         # generate cucumber report json file
         query = Query()
         cucumber_report_json = []
-        if '_default' in DB.tables():
-            DB.purge_table('_default')
         for table in DB.tables():
             group = DB.table(table)
             results = group.search((query.status == 'runned') | (query.status == 'passed'))
@@ -642,7 +636,7 @@ class ChimpAutoRun:
             '--testStartTime=' + self.rumtime_stamp + ' ' + \
             '--testRunDuration=' + run_duration + ' ' + \
             '--testRerunPath=' + str(self.rerun_dir) + ' ' + \
-            '--testRunArgs=' + self.args.replace(' ', '_')
+            '--testRunArgs=' + self.tags.replace(' ', '_')
         print('Generate HTML Report On: {}'.format(report_html_path))
         print(cmd_generate_html_report)
         os.system(cmd_generate_html_report)
@@ -715,5 +709,4 @@ if __name__ == "__main__":
     else:
         chimp_run.run_in_parallel()
         chimp_run.generate_reports()
-
     DB.close()
