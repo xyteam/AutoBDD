@@ -61,6 +61,7 @@ def definepath (case, isMaven, project_base, project_name, report_dir_base):
     return module_path, module_name, feature_path, feature_name, run_feature, run_report, report_dir_relative
 
 def run_chimp(index,
+              dblock,
               host,
               platform,
               browser,
@@ -93,7 +94,10 @@ def run_chimp(index,
             break
 
     if not id: return
+
+    dblock.acquire()    
     group.update ({'status': 'running'}, doc_ids=[id])
+    dblock.release()
 
     module_path, module_name, feature_path, feature_name, run_feature, run_report, report_dir_relative = definepath(
         case, isMaven, project_base, project_name, report_dir_base)
@@ -207,10 +211,13 @@ def run_chimp(index,
 
     # update test case status
     print('Update status on: {}'.format(group))
+
+    dblock.acquire()
     group.update({'status': 'runned', "run_feature": run_report + '.subjson'}, doc_ids=[id])
+    dblock.release()
+    
     time.sleep(1)
     print('COMPLETED: {} of {}\'\''.format(index, total))
-    DB.storage.flush()
 
 def parse_arguments():
     '''
@@ -659,7 +666,6 @@ class ChimpAutoRun:
         '''
         run chimp in parallel
         '''
-
         # set sub process pool number
         if self.parallel == 'MAX':
             # using all available rdp host in config file
@@ -680,15 +686,17 @@ class ChimpAutoRun:
         print('TOTAL {}(s): {}'.format(self.runlevel.upper(), self.run_count))
 
         pool = multiprocessing.Pool(pool_number)
+        manager = multiprocessing.Manager()
+        lock = manager.Lock()
         for index in range(1, self.run_count + 1):
             pool.apply_async(
                 run_chimp,
-                args=(index, self.host, self.platform, self.browser,
-                      self.projectbase, self.project, self.report_dir_base,
-                      self.movie, self.screenshot,
-                      self.debugmode, self.display_size, self.chimp_profile ,
-                      self.run_count, self.projecttype,
-                      self.isMaven))
+                args=(index, lock, self.host, self.platform, self.browser,
+                    self.projectbase, self.project, self.report_dir_base,
+                    self.movie, self.screenshot,
+                    self.debugmode, self.display_size, self.chimp_profile ,
+                    self.run_count, self.projecttype,
+                    self.isMaven))                
         pool.close()
         pool.join()
 
