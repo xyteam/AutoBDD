@@ -75,7 +75,8 @@ def run_chimp(index,
               chimp_profile,
               total,
               project_type,
-              isMaven):
+              isMaven,
+              tags):
     ''' Run '''
     time.sleep(random.uniform(1,5))
     #Get matched case from tinydb
@@ -141,6 +142,7 @@ def run_chimp(index,
                 ' PLATFORM=' + platform + \
                 ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                 ' chimpy ' + chimp_profile + ' ' + feature_path + \
+                ' --tags ' + tags + \
                 ' --format=json:' + run_report + '.subjson' \
                 ' 2>&1 > ' + run_report + '.run'
     elif platform == 'Win7' or platform == 'Win10':
@@ -196,6 +198,7 @@ def run_chimp(index,
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                         ' chimpy ' + chimp_profile + ' ' + feature_path + \
+                        ' --tags ' + tags + \
                         ' --format=json:' + run_report + '.subjson' + \
                         ' 2>&1 > ' + run_report + '.run'
                     time.sleep(random.uniform(1, 2))
@@ -696,7 +699,7 @@ class ChimpAutoRun:
                     self.movie, self.screenshot,
                     self.debugmode, self.display_size, self.chimp_profile ,
                     self.run_count, self.projecttype,
-                    self.isMaven))                
+                    self.isMaven, self.tags))
         pool.close()
         pool.join()
 
