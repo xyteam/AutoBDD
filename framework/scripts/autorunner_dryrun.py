@@ -8,6 +8,8 @@ import os
 import os.path as path
 import re
 import subprocess
+import shlex
+import glob
 from os import environ
 
 CASE_INFO = {
@@ -22,90 +24,6 @@ CASE_INFO = {
     "status": "notrun"
 }
 
-
-def parse_arguments():
-    '''
-    parse command line arguments
-    '''
-    descript = "This python scripts can be used to dry run cucumber and save scenarios information to json file. "
-    descript += "Command Example: "
-    descript += " framework/scripts/autorunner_dryrun.py"
-    descript += " --projectbase test-projects --project webtest-example"
-    descript += " --modulelist test-webpage test-download --reportbase ~/Run/reports"
-    descript += " --tags '@test1 or @test2'"
-
-    parser = argparse.ArgumentParser(description=descript)
-
-    parser.add_argument(
-        "--projectbase",
-        "--PROJECTBASE",
-        dest="PROJECTBASE",
-        default="test-projects",
-        help="Base path for all test projects. Default value: test-projects")
-
-    parser.add_argument(
-        "--project",
-        "--PROJECT",
-        dest="PROJECT",
-        default="webtest-example",
-        help="Run chimp on the given project. Default value: webtest-example")
-
-    parser.add_argument(
-        "--modulelist",
-        "--MODULELIST",
-        nargs='+',
-        dest="MODULELIST",
-        default=['All'],
-        required=True,
-        help="Spece separated list of modules to run.")
-
-    parser.add_argument(
-        "--output",
-        "--OUTPUT",
-        dest="OUTPUT",
-        default=None,
-        help=
-        "The full path to generate cucumber-js dryrun report into. Default: None, report will be archived in framework/scripts/runner"
-    )
-
-    parser.add_argument(
-        "--platform",
-        "--PLATFORM",
-        dest="PLATFORM",
-        default="Linux",
-        help=
-        "Run chimp on the given platform. Acceptable values: Linux, Win7, Win10. Default value: Linux"
-    )
-
-    parser.add_argument(
-        "--browser",
-        "--BROWSER",
-        dest="BROWSER",
-        default="CH",
-        help=
-        "Run chimp on the given browser. Acceptable values: CH, IE. Default value: CH"
-    )
-
-    parser.add_argument(
-        "--tags",
-        "--TAGS",
-        dest="TAGS",
-        help=
-        "Only execute the features or scenarios with tags matching the expression (repeatable) (default: "
-        ")")
-
-    parser.add_argument(
-        '--version', '-v', action='version', version='%(prog)s V1.0')
-
-    args = parser.parse_args()
-
-    print('\nInput parameters:')
-    for arg in vars(args):
-        print('{:*>15}: {}'.format(arg, getattr(args, arg)))
-
-    return args
-
-
 class ChimpDryRun():
     def __init__(self,
                  projectbase,
@@ -113,7 +31,7 @@ class ChimpDryRun():
                  modulelist,
                  platform,
                  browser,
-                 tags=None,                 
+                 tagString,                 
                  output=None):
 
         if 'FrameworkPath' not in environ:
@@ -122,9 +40,7 @@ class ChimpDryRun():
         else:
             self.FrameworkPath = environ['FrameworkPath'] 
 
-        self.tags = []
-        if tags:
-            self.tags = ['--tags', tags]
+        self.tagString = tagString if tagString else ''
         self.projectbase = projectbase
         self.project = project
         self.project_full_path = path.join(self.FrameworkPath, self.projectbase, self.project)
@@ -146,25 +62,26 @@ class ChimpDryRun():
     def get_dry_run_results(self):
         assert path.exists(self.project_full_path)
 
-        dry_run_path = path.join(self.out_path, 'dryrun_feature.subjson')
-        finalfeaturepath = []
+        dryRun_json = path.join(self.out_path, 'dryrun_feature.subjson')
 
+        finalfeaturepath = ''
         for module in self.modulelist:
-            finalfeaturepath.append(self.project_full_path + '/' + module + '/**/*.feature')
+            finalfeaturepath += ' '.join(glob.glob(self.project_full_path + '/' + module + '/**/*.feature')) + ' '
+        finalfeaturepath.strip()
 
+        cucumberPath = self.FrameworkPath + '/node_modules/chimpy/node_modules/.bin/cucumber-js'
+        dryRun_cmd = cucumberPath + ' --dry-run --format json:' + dryRun_json + ' ' + finalfeaturepath + ' ' + self.tagString
+        dryRunArgs = shlex.split(dryRun_cmd)
         results = subprocess.Popen(
-            [
-                'cucumber-js', '--dry-run', '-f', 'json:' + dry_run_path,
-            ]
-            + finalfeaturepath
-            + self.tags,
-            cwd=self.FrameworkPath,
+            dryRunArgs,
+            cwd=self.FrameworkPath, 
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT)
+            stderr=subprocess.STDOUT
+            )
 
         results.communicate()
 
-        with open(dry_run_path, 'r') as fname:
+        with open(dryRun_json, 'r') as fname:
             data = json.load(fname)
             for feature in data:
                 for scenario in feature['elements']:
@@ -183,11 +100,3 @@ class ChimpDryRun():
             json.dump(self.out_array, fname, indent=4)
 
         return out_path
-
-
-if __name__ == "__main__":
-    arguments = parse_arguments()
-    dryrun = ChimpDryRun(arguments.PROJECTBASE, arguments.PROJECT,
-                         arguments.MODULELIST, arguments.PLATFORM,
-                         arguments.BROWSER, arguments.TAGS, arguments.OUTPUT)
-    dryrun.get_dry_run_results()

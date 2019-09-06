@@ -23,7 +23,7 @@ optionHelp = `
         --testStartTime, the start timestamp
         --testRunDuration, how long it took to run the entire test
         --testRerunPath, if this is a re-run which report path it re-run against
-        --testRunArgs, the run arguments used for running the test, i.e., --modulelist moduleA module B, --tags @SmokeTest, etc. 
+        --testRunTags, the run arguments used for running the test, i.e., --modulelist moduleA module B, --tags @SmokeTest, etc. 
 `;
 optionFlags = {
     reportType: {
@@ -74,7 +74,7 @@ optionFlags = {
     testRerunPath: {
         type: 'string'
     },
-    testRunArgs: {
+    testRunTags: {
         type: 'string'
     }
 }
@@ -93,7 +93,7 @@ var testThreads = cli.flags.testThreads;
 var testStartTime = cli.flags.testStartTime;
 var testRunDuration = cli.flags.testRunDuration;
 var testRerunPath = cli.flags.testRerunPath;
-var testRunArgs = cli.flags.testRunArgs;
+var testRunTags = cli.flags.testRunTags;
 
 var bootStrapHtmlReporter_options = {
         launchReport: false,
@@ -110,7 +110,7 @@ var bootStrapHtmlReporter_options = {
             "Start Time": testStartTime,
             "Run Duration": testRunDuration,
             "Rerun Path": testRerunPath,
-            "Run Args": testRunArgs
+            "Run Tags": testRunTags
         }
     };
 
@@ -132,7 +132,7 @@ var bootStrapHtmlReporter_options = {
                 {label: 'Run Threads', value: testThreads},
                 {label: 'Start Time', value: testStartTime},
                 {label: 'Run Duration', value: testRunDuration},
-                {label: 'Run Args', value: testRunArgs},
+                {label: 'Run Tags', value: testRunTags},
             ]
         }    
     };

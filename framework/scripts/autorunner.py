@@ -61,6 +61,7 @@ def definepath (case, isMaven, project_base, project_name, report_dir_base):
     return module_path, module_name, feature_path, feature_name, run_feature, run_report, report_dir_relative
 
 def run_chimp(index,
+              dblock,
               host,
               platform,
               browser,
@@ -74,7 +75,8 @@ def run_chimp(index,
               chimp_profile,
               total,
               project_type,
-              isMaven):
+              isMaven,
+              tagString):
     ''' Run '''
     time.sleep(random.uniform(1,5))
     #Get matched case from tinydb
@@ -93,7 +95,10 @@ def run_chimp(index,
             break
 
     if not id: return
+
+    dblock.acquire()    
     group.update ({'status': 'running'}, doc_ids=[id])
+    dblock.release()
 
     module_path, module_name, feature_path, feature_name, run_feature, run_report, report_dir_relative = definepath(
         case, isMaven, project_base, project_name, report_dir_base)
@@ -137,6 +142,7 @@ def run_chimp(index,
                 ' PLATFORM=' + platform + \
                 ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                 ' chimpy ' + chimp_profile + ' ' + feature_path + \
+                ' ' + tagString + \
                 ' --format=json:' + run_report + '.subjson' \
                 ' 2>&1 > ' + run_report + '.run'
     elif platform == 'Win7' or platform == 'Win10':
@@ -192,6 +198,7 @@ def run_chimp(index,
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                         ' chimpy ' + chimp_profile + ' ' + feature_path + \
+                        ' ' + tagString + \
                         ' --format=json:' + run_report + '.subjson' + \
                         ' 2>&1 > ' + run_report + '.run'
                     time.sleep(random.uniform(1, 2))
@@ -207,10 +214,13 @@ def run_chimp(index,
 
     # update test case status
     print('Update status on: {}'.format(group))
+
+    dblock.acquire()
     group.update({'status': 'runned', "run_feature": run_report + '.subjson'}, doc_ids=[id])
+    dblock.release()
+    
     time.sleep(1)
     print('COMPLETED: {} of {}\'\''.format(index, total))
-    DB.storage.flush()
 
 def parse_arguments():
     '''
@@ -427,7 +437,6 @@ class ChimpAutoRun:
         else:
             self.FrameworkPath = environ['FrameworkPath']
         os.chdir(self.FrameworkPath)
-        self.arguments = arguments
         self.reportonly = arguments.REPORTONLY
         self.rumtime_stamp = arguments.TIMESTAMP if arguments.TIMESTAMP else time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
         self.parallel = arguments.PARALLEL
@@ -446,9 +455,8 @@ class ChimpAutoRun:
             (self.project, self.rumtime_stamp))
 
         self.modulelist = arguments.MODULELIST
-        self.tags = ' '.join(arguments.TAGS) if arguments.TAGS else ''
+        self.tagString = '--tags "' + ' '.join(arguments.TAGS) + '"' if arguments.TAGS else None
         self.dryrun_cases = arguments.RUNCASE
-        self.display = ':99'
         self.display_size = '1920x1200'
 
         self.project_full_path = path.join(self.FrameworkPath, self.projectbase, self.project)
@@ -511,7 +519,7 @@ class ChimpAutoRun:
             from autorunner_dryrun import ChimpDryRun
             dry_run = ChimpDryRun(self.projectbase, self.project,
                                   self.modulelist, self.platform, self.browser,
-                                  self.tags, self.report_full_path)
+                                  self.tagString, self.report_full_path)
             self.dryrun_cases = dry_run.get_dry_run_results()
 
     def is_rerun(self):
@@ -552,8 +560,6 @@ class ChimpAutoRun:
                     table.insert(case)
                     #print ("Case --> {}\n".format(case))
                 self.run_count = len(runcases)
-        if '_default' in DB.tables():
-            DB.purge_table('_default')
 
     def get_available_host(self):
         '''
@@ -641,7 +647,7 @@ class ChimpAutoRun:
             '--testStartTime=' + self.rumtime_stamp + ' ' + \
             '--testRunDuration=' + run_duration + ' ' + \
             '--testRerunPath=' + str(self.rerun_dir) + ' ' + \
-            '--testRunArgs=\"' + str(self.arguments) + '\"'
+            '--testRunTags="' + self.tagString + '"'
         print('Generate HTML Report On: {}'.format(report_html_path))
         print(cmd_generate_html_report)
         os.system(cmd_generate_html_report)
@@ -659,7 +665,6 @@ class ChimpAutoRun:
         '''
         run chimp in parallel
         '''
-
         # set sub process pool number
         if self.parallel == 'MAX':
             # using all available rdp host in config file
@@ -680,15 +685,17 @@ class ChimpAutoRun:
         print('TOTAL {}(s): {}'.format(self.runlevel.upper(), self.run_count))
 
         pool = multiprocessing.Pool(pool_number)
+        manager = multiprocessing.Manager()
+        lock = manager.Lock()
         for index in range(1, self.run_count + 1):
             pool.apply_async(
                 run_chimp,
-                args=(index, self.host, self.platform, self.browser,
-                      self.projectbase, self.project, self.report_dir_base,
-                      self.movie, self.screenshot,
-                      self.debugmode, self.display_size, self.chimp_profile ,
-                      self.run_count, self.projecttype,
-                      self.isMaven))
+                args=(index, lock, self.host, self.platform, self.browser,
+                    self.projectbase, self.project, self.report_dir_base,
+                    self.movie, self.screenshot,
+                    self.debugmode, self.display_size, self.chimp_profile ,
+                    self.run_count, self.projecttype,
+                    self.isMaven, self.tagString))
         pool.close()
         pool.join()
 
@@ -705,6 +712,8 @@ if __name__ == "__main__":
     else:
         chimp_run.get_dry_run_out()
     DB = chimp_run.new_tinydb(chimp_run.report_dir_base)
+    if '_default' in DB.tables():
+        DB.purge_table('_default')
     chimp_run.init_tinydb()
 
     if command_arguments.RUNONLY:
