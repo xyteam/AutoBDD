@@ -6,7 +6,7 @@ const cmd = require('node-cmd');
 
 // general and system
 const spaceChar_regex = /\s+/g;
-const specialChar_regex = /[\:\;\,\(\)\/\'\"\.\&\%\-\<\>]/g;
+const invalidFileNameChar_regex = /[\:\;\,\(\)\/\'\"\.\&\%\<\>\-]/g;
 const myHOME = process.env.HOME;
 const myDISPLAY = process.env.DISPLAY;
 
@@ -149,7 +149,7 @@ module.exports = {
   getScenarioNameBase: function(scenarioName) {
     var fileBase = (myPLATFORM + '_' + myBROWSER + '_' + myMODULE + '_' + scenarioName)
                       .replace(spaceChar_regex, '_')
-                      .replace(specialChar_regex, '');
+                      .replace(invalidFileNameChar_regex, '');
     return fileBase;
   },
   recordingRunning: function(scenarioName) {
@@ -171,7 +171,6 @@ module.exports = {
         + ' -filter:v "setpts=0.5*PTS" '
         + myREPORTDIR + '/Recording_' + scenario_mp4
         + ' 2> /dev/null &';
-
     if (scenarioName) {
       if (this.recordingRunning(scenarioName)) this.stopRecording(scenarioName);
       exec(cmd_start_recording);
@@ -182,16 +181,16 @@ module.exports = {
   },
   stopRecording: function(scenarioName) {
     const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
-    const cmd_stop_recording = 'pkill -f "ffmpeg .*'
+    const cmd_stop_recording = 'sleep 1; pkill -f "ffmpeg .*'
         + myREPORTDIR + '/Recording_' + scenario_mp4
         + '"';
     const cmd_wait_recording_end = 'while lsof '
         + myREPORTDIR + '/Recording_' + scenario_mp4
-        + '; do sleep 0.5; done;'
-        + 'sleep 0.5;'
+        + '; do sleep 1; done;'
+        + 'sleep 1;'
         + 'while [ ! -f '
         + myREPORTDIR + '/Recording_' + scenario_mp4
-        + ' ]; do sleep 0.5; done;'
+        + ' ]; do sleep 1; done;'
 
     if (scenarioName) {
       if (this.recordingRunning(scenarioName))
