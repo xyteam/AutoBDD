@@ -583,7 +583,7 @@ class ChimpAutoRun:
             '--testStartTime=' + self.runtime_stamp + ' ' + \
             '--testRunDuration=' + run_duration + ' ' + \
             '--testRerunPath=' + str(self.rerun_dir) + ' ' + \
-            '--testRunARGS="' + self.argstring + '"'
+            '--testRunArgs="' + self.argstring + '"'
         print('Generate HTML Report On: {}'.format(report_html_path))
         print(cmd_generate_html_report)
         os.system(cmd_generate_html_report)
