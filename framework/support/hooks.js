@@ -87,6 +87,7 @@ const frameworkHooks = {
     }
 
     if (process.env.MOVIE == 1) {
+      scenario.attach(image_tag, 'text/html');
       scenario.attach(video_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 1) {
       scenario.attach(image_tag, 'text/html');

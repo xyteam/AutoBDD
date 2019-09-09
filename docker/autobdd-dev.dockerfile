@@ -5,8 +5,8 @@
 #   ${PWD}
 #
 # development env:
-# docker-compose -d up autobdd-dev
-# docker-compose -d down autobdd-dev
+#   docker-compose -d up autobdd-dev
+#   docker-compose down autobdd-dev
 
 ARG AutoBDD_Ver
 FROM xyteam/autobdd-run:${AutoBDD_Ver}
@@ -15,23 +15,26 @@ ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
 
 # install Linux packages on top of autobdd-run
-RUN apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    alsa-utils \
-    arc-theme \
-    chromium-browser \
-    firefox \
-    gnome-themes-standard \
-    lxde \
-    mesa-utils \
-    openssh-server \
-    supervisor \
-    ttf-wqy-zenhei \
-    vim-tiny \
-    x11vnc \
-    zenity \
-    && apt autoclean -y \
-    && apt autoremove -y \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A6DCF7707EBC211F && \
+        apt-add-repository "deb http://ppa.launchpad.net/ubuntu-mozilla-security/ppa/ubuntu bionic main" && \
+        sudo apt-get update && \
+    apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+        alsa-utils \
+        arc-theme \
+        chromium-browser \
+        firefox \
+        gnome-themes-standard \
+        lxde \
+        mesa-utils \
+        openssh-server \
+        supervisor \
+        ttf-wqy-zenhei \
+        vim-tiny \
+        x11vnc \
+        zenity \
+        && apt autoclean -y \
+        && apt autoremove -y \
+        && rm -rf /var/lib/apt/lists/*
 
 # tini for subreap
 ARG TINI_VERSION=v0.18.0

@@ -31,7 +31,7 @@ class ChimpDryRun():
                  modulelist,
                  platform,
                  browser,
-                 tagString,                 
+                 argString,                 
                  output=None):
 
         if 'FrameworkPath' not in environ:
@@ -40,7 +40,7 @@ class ChimpDryRun():
         else:
             self.FrameworkPath = environ['FrameworkPath'] 
 
-        self.tagString = tagString if tagString else ''
+        self.argString = argString if argString else ''
         self.projectbase = projectbase
         self.project = project
         self.project_full_path = path.join(self.FrameworkPath, self.projectbase, self.project)
@@ -70,7 +70,7 @@ class ChimpDryRun():
         finalfeaturepath.strip()
 
         cucumberPath = self.FrameworkPath + '/node_modules/chimpy/node_modules/.bin/cucumber-js'
-        dryRun_cmd = cucumberPath + ' --dry-run --format json:' + dryRun_json + ' ' + finalfeaturepath + ' ' + self.tagString
+        dryRun_cmd = cucumberPath + ' --dry-run --format json:' + dryRun_json + ' ' + finalfeaturepath + ' ' + self.argString
         dryRunArgs = shlex.split(dryRun_cmd)
         results = subprocess.Popen(
             dryRunArgs,

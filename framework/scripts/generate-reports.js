@@ -132,7 +132,7 @@ var bootStrapHtmlReporter_options = {
                 {label: 'Run Threads', value: testThreads},
                 {label: 'Start Time', value: testStartTime},
                 {label: 'Run Duration', value: testRunDuration},
-                {label: 'Run Tags', value: testRunTags},
+                {label: 'Run Args', value: testRunArgs}
             ]
         }    
     };
