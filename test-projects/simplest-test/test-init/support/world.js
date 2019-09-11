@@ -8,6 +8,4 @@ if (process.env.PROJECTRUNPATH) {
 
 var moduleWorld = projectWorld;
 
-console.log(moduleWorld)
-
 module.exports = moduleWorld;
