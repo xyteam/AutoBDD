@@ -1,10 +1,8 @@
-require('../../project/support/env.js');
-// determine module name and path
-var moduleName = __dirname.substring(0, __dirname.lastIndexOf('/support'));
-moduleName = moduleName.substring(moduleName.lastIndexOf('/') + 1);
-process.env.ThisModule = moduleName;
-process.env.ModulePath = process.env.ProjectPath + '/' + process.env.ThisModule;
-// console.log(process.env.ThisModule);
-// console.log(process.env.ModulePath);
-
+const path = require('path');
+const PROJECTBASE = process.env.PROJECTBASE || 'test-projects';
+const PROJECTNAME = process.env.PROJECTNAME || path.resolve().split(PROJECTBASE)[1].split('/')[1]
+var moduleDepth = path.resolve().split(PROJECTNAME)[1].split('/').length
+var relativePathToProject = '../'.repeat(moduleDepth)
+require(relativePathToProject + 'project/support/env.js');
 // define module level Env vars here
+process.env.ThisModule = path.resolve().split(PROJECTNAME)[1].split('/')[1]

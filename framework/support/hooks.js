@@ -1,7 +1,7 @@
-const frameworkPath = process.env.FrameworkPath;
-const framework_libs = require(frameworkPath + '/framework/libs/framework_libs');
-const screen_session = require(frameworkPath + '/framework/libs/screen_session');
-const browser_session = require(frameworkPath + '/framework/libs/browser_session');
+const FrameworkPath = process.env.FrameworkPath;
+const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs');
+const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
+const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 
 const frameworkHooks = {
   BeforeFeature: function(feature) {
@@ -14,10 +14,10 @@ const frameworkHooks = {
         var targetDesktopImage;
         switch (process.env.PLATFORM) {
           case 'Win10':
-            targetDesktopImage = frameworkPath + '/framework/support/images/windows10_startButton.png';
+            targetDesktopImage = FrameworkPath + '/framework/support/images/windows10_startButton.png';
             break;
           case 'Win7':
-            targetDesktopImage = frameworkPath + '/framework/support/images/windows10_startButton.png';
+            targetDesktopImage = FrameworkPath + '/framework/support/images/windows10_startButton.png';
             break;
         }
         try {

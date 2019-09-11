@@ -1,7 +1,7 @@
 // module_world
 var projectWorld;
-if (process.env.ProjectPath) {
-  projectWorld = require(process.env.ProjectPath + '/project/support/world.js').World();  
+if (process.env.PROJECTRUNPATH) {
+  projectWorld = require(process.env.PROJECTRUNPATH + '/project/support/world.js').World();  
 } else {
   projectWorld = null;
 }
