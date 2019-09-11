@@ -6,12 +6,8 @@ if (process.env.PROJECTRUNPATH) {
   projectWorld = null;
 }
 
-function World() {
-  var self = projectWorld;
-  // add module level world items here
-  return self;
-}
+var moduleWorld = projectWorld;
 
-module.exports = function(callback) {
-  this.World = World;
-}
+console.log(moduleWorld)
+
+module.exports = moduleWorld;

@@ -8,17 +8,6 @@ if (process.env.FrameworkPath) {
   frameworkWorld = null;
 }
 
-const projectWorld = {
-    World: function() {
-      var self = frameworkWorld || this;
-
-      // define project_world variables here    
-      glob.sync('./steps/**/*.js').forEach( function(file) {
-        self.project_steps += require(path.resolve(file));
-      });
-    
-      return self;
-    }
-}
+var projectWorld = frameworkWorld;
 
 module.exports = projectWorld;
