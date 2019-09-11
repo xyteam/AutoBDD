@@ -66,7 +66,7 @@ class ChimpDryRun():
 
         finalfeaturepath = ''
         for module in self.modulelist:
-            finalfeaturepath += ' '.join(glob.glob(self.project_full_path + '/' + module + '/**/*.feature')) + ' '
+            finalfeaturepath += ' '.join(glob.glob(self.project_full_path + '/' + module)) + ' '
         finalfeaturepath.strip()
 
         cucumberPath = self.FrameworkPath + '/node_modules/chimpy/node_modules/.bin/cucumber-js'

@@ -79,6 +79,8 @@ def run_test(host,
     if platform == 'Linux':
         if isMaven: #isMaven on Linux
             cmd = 'cd ' + module_full_path + ';' + \
+                ' PROJECTBASE=' + project_base + \
+                ' PROJECTNAME=' + project_name + \
                 ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
                 ' RELATIVEREPORTDIR=' + report_dir_relative + \
                 ' MOVIE=' + movie + \
@@ -93,6 +95,8 @@ def run_test(host,
                 ' 2>&1 > ' + run_report
         else: #isChimpy on Linux
             cmd = 'cd ' + module_full_path + ';' + \
+                ' PROJECTBASE=' + project_base + \
+                ' PROJECTNAME=' + project_name + \
                 ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
                 ' RELATIVEREPORTDIR=' + report_dir_relative + \
                 ' MOVIE=' + movie + \
@@ -121,6 +125,8 @@ def run_test(host,
                     open(lock_file, 'a').close()
                     print (" > Running remote Maven command:")
                     cmd = 'cd ' + module_full_path + ';' + \
+                        ' PROJECTBASE=' + project_base + \
+                        ' PROJECTNAME=' + project_name + \
                         ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
                         ' RELATIVEREPORTDIR=' + report_dir_relative + \
                         ' MOVIE=' + movie + \
@@ -147,6 +153,8 @@ def run_test(host,
                 if not os.path.exists(lock_file):
                     open(lock_file, 'a').close()
                     cmd = 'cd ' + module_full_path + ';' + \
+                        ' PROJECTBASE=' + project_base + \
+                        ' PROJECTNAME=' + project_name + \
                         ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
                         ' RELATIVEREPORTDIR=' + report_dir_relative + \
                         ' MOVIE=' + movie + \
