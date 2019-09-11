@@ -1,8 +1,8 @@
 // fs_session.js provides functions to read and write the Downlaods folder of the target system (local or remote)
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const FrameworkSupportPath = FrameworkPath + '/framework/support';
-const ProjectPath = FrameworkPath + '/test-projects/' + process.env.ThisProject;
-const ProjectSupportPath = ProjectPath + '/project/support'
+const ProjectPath = process.env.PROJECTRUNPATH;
+const ProjectSupportPath = ProjectPath + '/project/support';
 const ModulePath = ProjectPath + '/' + process.env.ThisModule;
 const ModuleSupportPath = ModulePath + '/support';
 const DownloadPathLocal = process.env.DownloadPathLocal;
@@ -17,13 +17,13 @@ module.exports = {
     var testFileFullPath = null;
 
     // Search order: Module, Project, Support, will return null if not found
-    if (testFileFullPath == null && process.env.ThisProject && process.env.ThisModule) {
+    if (testFileFullPath == null && process.env.PROJECTNAME && process.env.ThisModule) {
       testFileExt.some(function(ext) {
         var filePath = ModuleSupportPath + '/testfiles/' + fileName + '.' + ext;
         if (fs.existsSync(filePath)) testFileFullPath = filePath;
       })
     }
-    if (testFileFullPath == null && process.env.ThisProject) {
+    if (testFileFullPath == null && process.env.PROJECTNAME) {
       testFileExt.some(function(ext) {
         var filePath = ProjectSupportPath + '/testfiles/' + fileName + '.' + ext;
         if (fs.existsSync(filePath)) testFileFullPath = filePath;
