@@ -1,7 +1,5 @@
 // framework_world
 const FrameworkPath = process.env.FrameworkPath;
-const glob = require('glob');
-const path = require('path');
 
 const frameworkWorld = {
     World: function() {

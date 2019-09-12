@@ -1,13 +1,12 @@
 // project_world
-const glob = require('glob');
-const path = require('path');
-var frameworkWorld;
-if (process.env.FrameworkPath) {
-  frameworkWorld = require(process.env.FrameworkPath + '/framework/support/world.js').World();  
-} else {
-  frameworkWorld = null;
-}
+const frameworkWorld = (process.env.FrameworkPath) ? require(process.env.FrameworkPath + '/framework/support/world.js').World() : null;
+const projectWorld = {
+  World: function() {
+      var self = frameworkWorld;
+      // add to project world as self.someName = someValue or someFunction here
 
-var projectWorld = frameworkWorld;
+      return self;
+  }
+}
 
 module.exports = projectWorld;
