@@ -107,7 +107,6 @@ def run_test(host,
                 ' PLATFORM=' + platform + \
                 ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                 ' chimpy ' + chimp_profile + ' ' + feature_file + \
-                ' -- ' + \
                 ' --format=json:' + run_result + \
                 ' ' + argstring + \
                 ' 2>&1 > ' + run_report
@@ -167,7 +166,6 @@ def run_test(host,
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
                         ' chimpy ' + chimp_profile + ' ' + feature_file + \
-                        ' -- ' + \
                         ' --format=json:' + run_result + \
                         ' ' + argstring + \
                         ' 2>&1 > ' + run_report

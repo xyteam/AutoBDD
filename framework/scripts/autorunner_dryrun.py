@@ -35,8 +35,7 @@ class ChimpDryRun():
                  output=None):
 
         if 'FrameworkPath' not in environ:
-            self.FrameworkPath = path.join(environ['HOME'], 'Projects',
-                                           'AutoBDD')
+            self.FrameworkPath = path.join(environ['HOME'], 'Projects', 'AutoBDD')
         else:
             self.FrameworkPath = environ['FrameworkPath'] 
 
@@ -48,7 +47,7 @@ class ChimpDryRun():
         self.modulelist = modulelist
         if 'All' in modulelist:
             self.modulelist = filter(lambda x: path.isdir(path.join(self.project_full_path, x)), os.listdir(self.project_full_path))
-            if 'target' in self.modulelist: self.modulelist.remove('target')            # remove target
+            if 'target' in self.modulelist: self.modulelist.remove('target')          # remove target
             if 'build' in self.modulelist: self.modulelist.remove('build')            # remove target
 
         self.platform = platform
@@ -69,9 +68,9 @@ class ChimpDryRun():
             finalfeaturepath += ' '.join(glob.glob(self.project_full_path + '/' + module)) + ' '
         finalfeaturepath.strip()
 
-        cucumberPath = self.FrameworkPath + '/node_modules/chimpy/node_modules/.bin/cucumber-js'
-        dryRun_cmd = cucumberPath + ' --dry-run --format json:' + dryRun_json + ' ' + finalfeaturepath + ' ' + self.argString
+        dryRun_cmd = 'cucumber-js --dry-run --format json:' + dryRun_json + ' ' + finalfeaturepath + ' ' + self.argString
         dryRunArgs = shlex.split(dryRun_cmd)
+        print(dryRun_cmd)
         results = subprocess.Popen(
             dryRunArgs,
             cwd=self.FrameworkPath, 
