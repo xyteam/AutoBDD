@@ -107,7 +107,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:(?:the )?)?url to( not)* contain "([^"]*)?"$/,
+        /^I expect (?:that )?(?:the )?url to( not)* contain "([^"]*)?"$/,
         checkInURLPath
     );
 

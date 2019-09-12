@@ -1,17 +1,13 @@
 // module_world
-var projectWorld;
-if (process.env.ProjectPath) {
-  projectWorld = require(process.env.ProjectPath + '/project/support/world.js').World();  
-} else {
-  projectWorld = null;
+const projectWorld = (process.env.PROJECTRUNPATH) ? require(process.env.PROJECTRUNPATH + '/project/support/world.js').World() : null;
+const moduleWorld = {
+  World: function() {
+      var self = projectWorld;
+      // add to module world as self.someName = someValue or someFunction here
+      return self;
+  }
 }
 
-function World() {
-  var self = projectWorld;
-  // add module level world items here
-  return self;
-}
-
-module.exports = function(callback) {
-  this.World = World;
+module.exports = function() {
+  this.World = moduleWorld.World;
 }

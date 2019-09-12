@@ -1,12 +1,11 @@
+const path = require('path');
+process.env.PROJECTBASE = process.env.PROJECTBASE || 'test-projects';
+process.env.PROJECTNAME = process.env.PROJECTNAME || path.resolve().split(process.env.PROJECTBASE)[1].split('/')[1]
 // if the framework is used
 if (process.env.FrameworkPath) {
+    process.env.PROJECTRUNPATH = process.env.FrameworkPath + '/' + process.env.PROJECTBASE + '/' + process.env.PROJECTNAME
     require(process.env.FrameworkPath + '/framework/support/env.js');
-
-    // determine project name and path
-    var projectName = __dirname.substring(0, __dirname.lastIndexOf('/project/support'));
-    projectName = projectName.substring(projectName.lastIndexOf('/') + 1);
-    process.env.ThisProject = projectName;
-    process.env.ProjectPath = process.env.FrameworkPath + '/test-projects/' + process.env.ThisProject;
-    // console.log(process.env.ThisProject);
-} 
+} else {
+    process.env.PROJECTRUNPATH = path.resolve().split(process.env.PROJECTNAME)[0] + process.env.PROJECTNAME
+}
 // define project level Env vars here

@@ -51,6 +51,8 @@ cat /root/.bashrc >> $HOME/.bash_profile && chown $USER:$USER $HOME/.bash_profil
 cat >> $HOME/.bash_profile << END_bash_profile
 npm config set script-shell /bin/bash
 export DISPLAY=:1
+cd $HOME/Projects/AutoBDD && \
+source .autoPathrc.sh
 END_bash_profile
 
 # start supervisord

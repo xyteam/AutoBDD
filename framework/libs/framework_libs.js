@@ -20,7 +20,7 @@ const myRELATIVEREPORTDIR = process.env.RELATIVEREPORTDIR;
 const myMODULE = process.env.ThisModule;
 
 // framework essential
-const frameworkPath = process.env.FrameworkPath;
+const FrameworkPath = process.env.FrameworkPath;
 const myBROWSER = process.env.BROWSER;
 const mySSHHOST = process.env.SSHHOST;
 const mySSHPORT = process.env.SSHPORT;

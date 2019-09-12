@@ -1,7 +1,6 @@
 const execSync = require('child_process').execSync;
 const fs = require('fs');
 const cmd_get_screensize='xrandr --dryrun | grep "screen connected" | cut -d\+ -f1 | cut -d" " -f3';
-process.env.ThisFramework = 'AutoBDD';
 process.env.PLATFORM = process.env.PLATFORM || 'Linux';
 process.env.BROWSER = process.env.BROWSER || 'CH';
 process.env.DISPLAYSIZE = process.env.DISPLAYSIZE || execSync(cmd_get_screensize).toString('utf8').trim();
@@ -51,6 +50,9 @@ if (process.env.PLATFORM == 'Linux') {
         break;
       case / 77\./.test(process.env.chromeVersion):
         process.env.chromeDriverVersion = '77.0.3865.40';
+        break;
+      case / 78\./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '78.0.3904.11';
         break;
     }
     console.log('Chrome Driver ' + process.env.chromeDriverVersion)  
