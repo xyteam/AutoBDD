@@ -12,6 +12,7 @@ Passed_*.png
 Failed_*.png
 npm-debug.log
 sikulixapi*.jar
+package-lock.json
 .project
 nohup.out
 
