@@ -42,7 +42,8 @@
   "scripts": {
     "download-sikuliapi": "./framework/libs/downloadSikulixApiJar.js",
     "test-init": ". .autoPathrc.sh; cd ./test-projects/simplest-test/test-init; chimpy",
-    "test": "npm run download-sikuliapi; npm run test-init"
+    "test-run": ". .autoPathrc.sh; ./framework/scripts/autorunner.py --project simplest-test",
+    "test": "npm run download-sikuliapi; npm run test-init; npm run test-run"
   },
   "repository": {
     "type": "git",
