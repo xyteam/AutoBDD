@@ -219,6 +219,13 @@ def parse_arguments():
     )
 
     parser.add_argument(
+        "--reruncrashed",
+        "--RERUNCRASHED",
+        dest="RERUNCRASHED",
+        help="Rerun crashed tests"
+    )
+
+    parser.add_argument(
         "--parallel",
         "--PARALLEL",
         dest="PARALLEL",
@@ -292,10 +299,11 @@ def parse_arguments():
         help="Run automation by 'Feature' or by 'Scenario' level. defalue value: Feature")
 
     parser.add_argument(
-        "--rerun",
-        "--RERUN",
-        dest="RERUN",
-        help="Rerun failed scenarios on selected cucumber report")
+        "--rerundir",
+        "--RERUNDIR",
+        dest="RERUNDIR",
+        help="Rerun the RERUNDIR folder for failed and crashed cases"
+    )
 
     parser.add_argument(
         "--modulelist",
@@ -303,7 +311,8 @@ def parse_arguments():
         nargs='+',
         dest="MODULELIST",
         default=['All'],
-        help="Spece separated list of modules to run.")
+        help="Spece separated list of modules to run"
+    )
 
     parser.add_argument(
         "--reportbase",
@@ -409,7 +418,7 @@ class ChimpAutoRun:
 
         self.modulelist = arguments.MODULELIST
         self.argstring = arguments.ARGSTRING
-        self.dryrun_cases = arguments.RUNCASE
+        self.dryrun_file = arguments.RUNCASE
         self.display_size = '1920x1200'
 
         self.project_full_path = path.join(self.FrameworkPath, self.projectbase, self.project)
@@ -430,10 +439,10 @@ class ChimpAutoRun:
         print('\n*** Report Directory: ***\n {}'.format(self.report_dir_base))
 
         self.rerun_dir = None
-        if arguments.RERUN is not None:
+        if arguments.RERUNDIR is not None:
             self.rerun_dir = path.join(
                 path.abspath(path.join(self.report_dir_base, '..')),
-                arguments.RERUN)
+                arguments.RERUNDIR)
             assert path.exists(self.rerun_dir), '{} is not exits'.format(
                 self.rerun_dir)
 
@@ -442,7 +451,6 @@ class ChimpAutoRun:
             if item.endswith(".lock"):
                 os.remove('/tmp/' + item)
 
-        self.run_count = 0
         self.host = []
         self.thread_count = 0
         self.end_time = time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
@@ -466,14 +474,14 @@ class ChimpAutoRun:
         return result
 
     def get_dry_run_out(self):
-        if self.dryrun_cases:
-            assert path.exists(self.dryrun_cases)
+        if self.dryrun_file:
+            assert path.exists(self.dryrun_file)
         else:
             from autorunner_dryrun import ChimpDryRun
             dry_run = ChimpDryRun(self.projectbase, self.project,
                                   self.modulelist, self.platform, self.browser,
                                   self.argstring, self.report_full_path)
-            self.dryrun_cases = dry_run.get_dry_run_results()
+            self.dryrun_file = dry_run.get_dry_run_results()
 
     def copy_db_file(self):
         shutil.copy2(path.join(self.rerun_dir, 'db.subjson'), self.report_dir_base)
@@ -487,16 +495,14 @@ class ChimpAutoRun:
                 group = db.table(table)
                 for item in group:
                     status = get_scenario_status(item['run_feature'])
-                    if status is not 'passed':
-                        self.run_count += 1
                     group.update({'status': status}, doc_ids=[item.doc_id])
         else:
-            runcases = json.loads(open(self.dryrun_cases).read())
+            runcases = json.loads(open(self.dryrun_file).read())
             for case in runcases:
                 if case['feature'] not in db.tables():
                     table = db.table(case['feature'])
                     table.insert(case)
-            self.run_count = len(db.tables())
+
         db.close()
         return tinydb_file
 
@@ -630,22 +636,21 @@ class ChimpAutoRun:
         self.parallel = str(pool_number)
 
         pool = multiprocessing.Pool(pool_number)
-        manager = multiprocessing.Manager()
-        lock = manager.Lock()
 
         print('POOL NUMBER: {}'.format(pool_number))
-        print('TOTAL {}(s): {}'.format(self.runlevel.upper(), self.run_count))
 
         db = TinyDB(dbfile, sort_keys=True, indent=4, separators=(',', ': '))
 
         # each feature is a table, scenarios are entries in a table
         # here we identify any feature contains scenario that is notrun or failed and run the entire feature
         progress = []
+        total_runcount = 0
         for table in db.tables():
             group = db.table(table)
             query = Query()
             case  = None
-            results = group.search((query.status == 'notrun') | (query.status == 'failed'))
+            results = group.search((query.status == 'notrun') | (query.status == 'crashed'))
+            total_runcount += len(results)
             if len(results) > 0:
                 case = results[0]
                 if case.doc_id:
@@ -674,8 +679,10 @@ class ChimpAutoRun:
                     progress.append(r)
                 else:
                     break
+        
+        print("Expected total: {}".format(total_runcount))
         overall = 0
-        while overall < self.run_count:
+        while overall < total_runcount:
             scan = 0
             time.sleep(1)
             for r in progress:
@@ -688,11 +695,13 @@ class ChimpAutoRun:
                         results = group.search(query.status == 'running')
                         for case in results:
                             if done_feature in case['uri']:
-                                group.update({'status': 'done'}, doc_ids=[case.doc_id])
-
+                                if os.path.exists(case['run_result']) and os.path.getsize(case['run_result']) > 0:
+                                    group.update({'status': 'done'}, doc_ids=[case.doc_id])
+                                else:
+                                    group.update({'status': 'crashed'}, doc_ids=[case.doc_id])
             if scan > overall:
                 overall = scan
-                print('Progress: {} of {} done'.format(overall, self.run_count))
+                print('Progress: {} of {} done'.format(overall, total_runcount))
 
         # all parallel jobs are done
         pool.close()
@@ -708,15 +717,20 @@ if __name__ == "__main__":
 
     if chimp_run.rerun_dir:
         chimp_run.copy_db_file()
+        print("\nget case from rerun directory: {}\n".format(chimp_run.rerun_dir))
     else:
         chimp_run.get_dry_run_out()
+        print('get case from dryrun file: ' + chimp_run.dryrun_file)
+        print("\nget case from dryrun file: {}\n".format(chimp_run.dryrun_file))
     
     db_file = chimp_run.init_tinydb(chimp_run.report_dir_base)
 
-    if command_arguments.RUNONLY:
+    if not command_arguments.REPORTONLY:
+        print ('\nRunning test in parallel\n')
         chimp_run.run_in_parallel(db_file)
-    elif command_arguments.REPORTONLY:
-        chimp_run.generate_reports(db_file)
-    else:
-        chimp_run.run_in_parallel(db_file)
+        if command_arguments.RERUNCRASHED:
+            print ('\nRerunning crashed test\n')
+            chimp_run.run_in_parallel(db_file)
+    if not command_arguments.RUNONLY:
+        print ('\nGenerating reports\n')
         chimp_run.generate_reports(db_file)
