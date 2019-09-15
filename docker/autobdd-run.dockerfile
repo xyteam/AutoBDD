@@ -35,7 +35,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     git \
     gpg-agent \
     imagemagick \
-    java-common \
+    # java-common \
     less \
     libappindicator3-1 \
     libatk-bridge2.0-0 \
@@ -54,12 +54,11 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     maven \
     net-tools \
     ntpdate \
-    openjdk-8-jdk \
     python2.7-dev \
     python2.7-minimal \
-    python3-dev \
-    python3-minimal \
-    python3-pip \
+    # python3-dev \
+    # python3-minimal \
+    # python3-pip \
     python-pip \
     rdesktop \
     rsync \
@@ -78,6 +77,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     zlib1g-dev; \
 # final autoremove
     apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" && \
+    apt purge -y openjdk-11-jre-headless && \
     apt --purge autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; \
 # update ca certs
     update-ca-certificates
@@ -99,7 +99,9 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
     echo "{\"CommandLineFlagSecurityWarningsEnabled\": false}" > /etc/opt/chrome/policies/managed/managed_policies.json
 
 # run finishing set up
-RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java; \
+RUN apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+    openjdk-8-jdk; \
+    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
     /usr/sbin/locale-gen "en_US.UTF-8"; echo LANG="en_US.UTF-8" > /etc/locale.conf; \
     mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \
@@ -113,7 +115,8 @@ RUN cd /${USER}/Projects/AutoBDD && \
     pip install tinydb && \
     npm config set script-shell "/bin/bash" && \
     npm install && \
-    xvfb-run -a npm test
+    xvfb-run -a npm test && \
+    rm -rf /tmp/chrome_profile_* /tmp/download_*
 
 # insert entry point
 COPY docker/autobdd-run.startup.sh /
