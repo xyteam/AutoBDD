@@ -222,7 +222,7 @@ def parse_arguments():
         "--reruncrashed",
         "--RERUNCRASHED",
         dest="RERUNCRASHED",
-        help="Rerun crashed tests"
+        help="Number of iterations to re-run crashed tests"
     )
 
     parser.add_argument(
@@ -728,8 +728,9 @@ if __name__ == "__main__":
         print ('\nRunning test in parallel\n')
         chimp_run.run_in_parallel(db_file)
         if command_arguments.RERUNCRASHED:
-            print ('\nRerunning crashed test\n')
-            chimp_run.run_in_parallel(db_file)
-    if not command_arguments.RUNONLY:
-        print ('\nGenerating reports\n')
+            for n in range(0, int(command_arguments.RERUNCRASHED))
+                print ('\nRerunning crashed test iteration: {}\n'.format(command_arguments.RERUNCRASHED))
+                chimp_run.run_in_parallel(db_file)
+    if not command_argumentsNumber of iterations to rR-UNONLY:
+        print ('\nGenerating reNumber of iterations to ro-rts\n')
         chimp_run.generate_reports(db_file)
