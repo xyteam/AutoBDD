@@ -720,7 +720,6 @@ if __name__ == "__main__":
         print("\nget case from rerun directory: {}\n".format(chimp_run.rerun_dir))
     else:
         chimp_run.get_dry_run_out()
-        print('get case from dryrun file: ' + chimp_run.dryrun_file)
         print("\nget case from dryrun file: {}\n".format(chimp_run.dryrun_file))
     
     db_file = chimp_run.init_tinydb(chimp_run.report_dir_base)

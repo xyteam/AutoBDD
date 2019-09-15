@@ -60,7 +60,7 @@ optionFlags = {
     },
     testBrowserVer: {
         type: 'string',
-        default: '76'
+        default: '77'
     },
     testThreads: {
         type: 'string'
