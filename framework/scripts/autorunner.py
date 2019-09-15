@@ -729,7 +729,7 @@ if __name__ == "__main__":
         chimp_run.run_in_parallel(db_file)
         if command_arguments.RERUNCRASHED:
             for n in range(0, int(command_arguments.RERUNCRASHED)):
-                print('\nRerunning crashed test iteration: {}\n'.format(command_arguments.RERUNCRASHED))
+                print('\nRerunning crashed test iteration: {}\n'.format(n))
                 chimp_run.run_in_parallel(db_file)
     if not command_arguments.RUNONLY:
         print('\nGenerating reports\n')
