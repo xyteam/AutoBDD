@@ -68,7 +68,7 @@ class ChimpDryRun():
 
         dryRun_cmd = 'cucumber-js --dry-run --format json:' + dryRun_json + ' ' + finalfeaturepath + ' ' + self.argString
         dryRunArgs = shlex.split(dryRun_cmd)
-        print("\ndryrun command: {}\n".format(dryRun_cmd))
+        print('\ndryrun command: {}\n'.format(dryRun_cmd))
         results = subprocess.Popen(
             dryRunArgs,
             cwd=self.FrameworkPath,
@@ -92,7 +92,7 @@ class ChimpDryRun():
                     self.out_array.append(out_json)
 
         out_path = path.join(self.out_path, '.runcase.subjson')
-        print("\ndryrun file: {}\n".format(out_path))
+        print('\ndryrun file: {}\n'.format(out_path))
         with open(out_path, 'w') as fname:
             json.dump(self.out_array, fname, indent=4)
 

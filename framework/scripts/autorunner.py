@@ -122,7 +122,7 @@ def run_test(host,
                     'SSHPORT'] + '.lock'
                 if not os.path.exists(lock_file):
                     open(lock_file, 'a').close()
-                    print (" > Running remote Maven command:")
+                    print(' > Running remote Maven command:')
                     cmd = 'cd ' + module_full_path + ';' + \
                         ' PROJECTBASE=' + project_base + \
                         ' PROJECTNAME=' + project_name + \
@@ -465,12 +465,12 @@ class ChimpAutoRun:
         elif (self.projecttype.lower() == "maven" or self.projecttype.lower() == "mvn"):
             result = True
         else: #auto-detect
-            # print ("*** Project Type is set to auto-detect ***")
+            # print('*** Project Type is set to auto-detect ***')
             for fname in os.listdir (self.project_full_path):
                 if "pom.xml" in fname:
                     result = True
                     break
-        # print ( "*** is Maven = {}".format (result))
+        # print('*** is Maven = {}'.format (result))
         return result
 
     def get_dry_run_out(self):
@@ -528,7 +528,7 @@ class ChimpAutoRun:
                             'Status'] == 'on':  # and hostdict['Platform'] == self.platform:
                         self.thread_count += int(hostdict['Thread'])
                         self.host.append(hostdict)
-                        print (self.host)
+                        print(self.host)
 
         assert len(
             self.
@@ -680,7 +680,7 @@ class ChimpAutoRun:
                 else:
                     break
         
-        print("Expected total: {}".format(total_runcount))
+        print('Expected total: {}'.format(total_runcount))
         overall = 0
         while overall < total_runcount:
             scan = 0
@@ -717,20 +717,20 @@ if __name__ == "__main__":
 
     if chimp_run.rerun_dir:
         chimp_run.copy_db_file()
-        print("\nget case from rerun directory: {}\n".format(chimp_run.rerun_dir))
+        print('\nget case from rerun directory: {}\n'.format(chimp_run.rerun_dir))
     else:
         chimp_run.get_dry_run_out()
-        print("\nget case from dryrun file: {}\n".format(chimp_run.dryrun_file))
+        print('\nget case from dryrun file: {}\n'.format(chimp_run.dryrun_file))
     
     db_file = chimp_run.init_tinydb(chimp_run.report_dir_base)
 
     if not command_arguments.REPORTONLY:
-        print ('\nRunning test in parallel\n')
+        print('\nRunning test in parallel\n')
         chimp_run.run_in_parallel(db_file)
         if command_arguments.RERUNCRASHED:
-            for n in range(0, int(command_arguments.RERUNCRASHED))
-                print ('\nRerunning crashed test iteration: {}\n'.format(command_arguments.RERUNCRASHED))
+            for n in range(0, int(command_arguments.RERUNCRASHED)):
+                print('\nRerunning crashed test iteration: {}\n'.format(command_arguments.RERUNCRASHED))
                 chimp_run.run_in_parallel(db_file)
-    if not command_argumentsNumber of iterations to rR-UNONLY:
-        print ('\nGenerating reNumber of iterations to ro-rts\n')
+    if not command_arguments.RUNONLY:
+        print('\nGenerating reports\n')
         chimp_run.generate_reports(db_file)
