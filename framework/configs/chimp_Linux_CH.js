@@ -74,8 +74,8 @@ module.exports = {
           "--window-size=" + myDISPLAYSIZE.replace('x', ','),
           "--user-data-dir=" + myChromeProfilePath,
           "--incognito",
-          // "--excludeSwitches",
-          // "--enable-automation",
+          "--excludeSwitches",
+          "--enable-automation",
           // myBrowserProxySetting
         ],
         prefs: {
