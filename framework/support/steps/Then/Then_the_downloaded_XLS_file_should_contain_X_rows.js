@@ -3,8 +3,8 @@ module.exports = function() {
     // get downloaded filename
     var downloadUrl = this.downloadUrl;
     console.log(downloadUrl);
-    var fileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.'));
-    var fileExt = downloadUrl.substring(downloadUrl.lastIndexOf('.') + 1);
+    var fileName = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.')));
+    var fileExt = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('.') + 1));
     var downloadFilePath = this.fs_session.checkDownloadFile(fileName, fileExt);
     var xlsData = this.fs_session.readXlsData(downloadFilePath).filter(row => row.length > 0);
     if (rowCount) {

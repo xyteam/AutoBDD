@@ -1,8 +1,8 @@
 module.exports = function() {
   this.When(/^I download the (XLS|PDF) file by going to URL "([^"]*)"$/, {timeout: process.env.StepTimeoutInMS * 2}, function (fileType, downloadUrl) {
     // delete previous download file
-    var fileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.'));
-    var fileExt = downloadUrl.substring(downloadUrl.lastIndexOf('.') + 1);
+    var fileName = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.')));
+    var fileExt = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('.') + 1));
     this.fs_session.deleteDownloadFile(fileName, fileExt);
 
     // download file from URL
