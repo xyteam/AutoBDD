@@ -2,8 +2,8 @@ module.exports = function() {
   this.When(/^I download the (PDF) file by clicking "([^"]*)"$/, {timeout: process.env.StepTimeoutInMS * 2}, function (fileType, imageName) {
     // delete previous download file
     var downloadUrl = browser.getUrl();
-    var fileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.'));
-    var fileExt = downloadUrl.substring(downloadUrl.lastIndexOf('.') + 1);
+    var fileName = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.')));
+    var fileExt = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('.') + 1));
     this.fs_session.deleteDownloadFile(fileName, fileExt);
 
     // click PDF download icon
