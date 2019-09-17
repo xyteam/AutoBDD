@@ -6,4 +6,4 @@ Feature: test init
   Scenario: download drivers
     When  I open the path "/"
     Then  I expect the url to contain "version" 
-    And   I should see the "GoogleChromeLogo" image on the screen
+    And   I should see the "chromeLogo" image on the screen
