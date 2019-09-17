@@ -371,7 +371,7 @@ def parse_arguments():
     return args
 
 def get_scenario_status(scenario_out):
-    scenario = json.loads(open(scenario_out).read())
+    scenario = json.loads(open(scenario_out).read(), encoding='utf-8')
     for element in scenario[0]['elements']:
         steps = element['steps']
         for step in steps:
@@ -497,7 +497,7 @@ class ChimpAutoRun:
                     status = get_scenario_status(item['run_feature'])
                     group.update({'status': status}, doc_ids=[item.doc_id])
         else:
-            runcases = json.loads(open(self.dryrun_file).read())
+            runcases = json.loads(open(self.dryrun_file).read(), encoding='utf-8')
             for case in runcases:
                 if case['feature'] not in db.tables():
                     table = db.table(case['feature'])
@@ -514,7 +514,7 @@ class ChimpAutoRun:
                                 'chimp_run_host.config')
         assert path.exists(config_file), '{} is not exits'.format(config_file)
 
-        with open(config_file) as fname:
+        with open(config_file, encoding='utf-8') as fname:
             head = fname.readline()
             while 'SSHHOST' not in head:
                 head = fname.readline()
@@ -565,7 +565,7 @@ class ChimpAutoRun:
             results = group.search((query.status == 'done') | (query.status == 'passed'))
             feature_report = None
             for item in results:
-                element = json.loads(open(item['run_result']).read())[0]
+                element = json.loads(open(item['run_result'], encoding='utf-8').read())[0]
                 if not feature_report:
                     feature_report = element
                 else:

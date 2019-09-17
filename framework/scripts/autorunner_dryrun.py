@@ -78,7 +78,7 @@ class ChimpDryRun():
 
         results.communicate()
 
-        with open(dryRun_json, 'r') as fname:
+        with open(dryRun_json, 'r', encoding='utf-8') as fname:
             data = json.load(fname)
             for feature in data:
                 for scenario in feature['elements']:
