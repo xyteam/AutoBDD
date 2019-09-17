@@ -35,7 +35,6 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     git \
     gpg-agent \
     imagemagick \
-    # java-common \
     less \
     libappindicator3-1 \
     libatk-bridge2.0-0 \
@@ -54,11 +53,8 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     maven \
     net-tools \
     ntpdate \
-    python2.7-dev \
-    python2.7-minimal \
-    # python3-dev \
-    # python3-minimal \
-    # python3-pip \
+    python3-dev \
+    python3-pip \
     python-pip \
     rdesktop \
     rsync \
@@ -102,6 +98,7 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
 RUN apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
     openjdk-8-jdk; \
     update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java; \
+    update-alternatives --install /usr/bin/python python $(which $(readlink $(which python3))) 10; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
     /usr/sbin/locale-gen "en_US.UTF-8"; echo LANG="en_US.UTF-8" > /etc/locale.conf; \
     mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \

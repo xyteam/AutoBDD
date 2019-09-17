@@ -628,13 +628,14 @@ class ChimpAutoRun:
             if self.movie == '1':
                 pool_number = cpu_count / 2
             else:
-                pool_number = cpu_count - 1                
+                pool_number = cpu_count
             if pool_number < 1:
                 pool_number = 1
         else:
             pool_number = min(int(self.thread_count), int(self.parallel))
+        
+        pool_number = int(pool_number)
         self.parallel = str(pool_number)
-
         pool = multiprocessing.Pool(pool_number)
 
         print('POOL NUMBER: {}'.format(pool_number))
