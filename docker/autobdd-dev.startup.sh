@@ -56,5 +56,5 @@ source .autoPathrc.sh
 END_bash_profile
 
 # start supervisord
-exec /bin/tini -- /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
+exec /bin/tini -- /usr/local/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
 

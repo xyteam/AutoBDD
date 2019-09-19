@@ -27,14 +27,14 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A6DCF7707EBC211F &&
         lxde \
         mesa-utils \
         openssh-server \
-        supervisor \
         ttf-wqy-zenhei \
         vim-tiny \
         x11vnc \
         zenity \
         && apt autoclean -y \
         && apt autoremove -y \
-        && rm -rf /var/lib/apt/lists/*
+        && rm -rf /var/lib/apt/lists/* \
+        && pip install supervisor
 
 # tini for subreap
 ARG TINI_VERSION=v0.18.0
