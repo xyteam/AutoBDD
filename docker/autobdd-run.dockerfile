@@ -55,7 +55,6 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     ntpdate \
     python3-dev \
     python3-pip \
-    python-pip \
     rdesktop \
     rsync \
     tdsodbc \
@@ -99,6 +98,7 @@ RUN apt install -q -y --allow-unauthenticated --fix-missing --no-install-recomme
     openjdk-8-jdk; \
     update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java; \
     update-alternatives --install /usr/bin/python python $(which $(readlink $(which python3))) 10; \
+    update-alternatives --install /usr/bin/pip pip $(which pip3) 10; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
     /usr/sbin/locale-gen "en_US.UTF-8"; echo LANG="en_US.UTF-8" > /etc/locale.conf; \
     mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \
@@ -111,7 +111,7 @@ ADD . /${USER}/Projects/AutoBDD
 RUN cd /${USER}/Projects/AutoBDD && \
     pip install tinydb && \
     npm config set script-shell "/bin/bash" && \
-    npm install && \
+    npm --loglevel=error install && \
     xvfb-run -a npm test && \
     rm -rf /tmp/chrome_profile_* /tmp/download_*
 
