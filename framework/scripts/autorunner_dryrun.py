@@ -53,32 +53,35 @@ class ChimpDryRun():
         self.case_info['platform'] = self.platform
         self.case_info['browser'] = self.browser
 
-    def get_dry_run_results(self):
+    def create_run_json(self):
         assert path.exists(self.project_full_path)
+        # increase sequence number in case of rerun
+        seq_num = 1
+        while os.path.exists(path.join(self.out_path, 'dryrun_feature.' + str(seq_num) + '.subjson')):
+            seq_num += 1
+        dryrun_json = path.join(self.out_path, 'dryrun_feature.' + str(seq_num) + '.subjson')
+        run_json = path.join(self.out_path, 'run_feature.' + str(seq_num) + '.subjson')
 
-        dryRun_json = path.join(self.out_path, 'dryrun_feature.subjson')
-
-        finalfeaturepath = ''
+        dryrun_feature_list = ''
         if self.modulelist == ['All']:
-            finalfeaturepath = self.project_full_path
+            dryrun_feature_list = self.project_full_path
         else:
             for module in self.modulelist:
-                finalfeaturepath += self.project_full_path + '/' + module + ' '
-        finalfeaturepath.strip()
+                dryrun_feature_list += self.project_full_path + '/' + module + ' '
+        dryrun_feature_list.strip()
 
-        dryRun_cmd = 'cucumber-js --dry-run --format json:' + dryRun_json + ' ' + finalfeaturepath + ' ' + self.argString
-        dryRunArgs = shlex.split(dryRun_cmd)
-        print('\ndryrun command: {}\n'.format(dryRun_cmd))
+        dryrun_cmd = 'cucumber-js --dry-run --format json:' + dryrun_json + ' ' + dryrun_feature_list + ' ' + self.argString
+        Popen_args = shlex.split(dryrun_cmd)
+        print('\ndryrun command: {}\n'.format(dryrun_cmd))
         results = subprocess.Popen(
-            dryRunArgs,
+            Popen_args,
             cwd=self.FrameworkPath,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT
             )
-
         results.communicate()
 
-        with open(dryRun_json, 'r', encoding='utf-8') as fname:
+        with open(dryrun_json, 'r', encoding='utf-8') as fname:
             data = json.load(fname)
             for feature in data:
                 for scenario in feature['elements']:
@@ -91,9 +94,9 @@ class ChimpDryRun():
                     out_json['line'] = scenario['line']
                     self.out_array.append(out_json)
 
-        out_path = path.join(self.out_path, '.runcase.subjson')
-        print('\ndryrun file: {}\n'.format(out_path))
-        with open(out_path, 'w') as fname:
+        print('dryrun file: {}'.format(dryrun_json))
+        print('   run file: {}'.format(run_json))
+        with open(run_json, 'w', encoding='utf-8') as fname:
             json.dump(self.out_array, fname, indent=4)
 
-        return out_path
+        return run_json
