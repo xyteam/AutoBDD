@@ -3,5 +3,5 @@
  * @param  {String}   selector Element selector
  */
 module.exports = (selector) => {
-    browser.scroll(selector);
+    browser.scroll(selector, -10, -10);
 };

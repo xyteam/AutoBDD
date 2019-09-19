@@ -289,7 +289,7 @@ def parse_arguments():
         "--project",
         "--PROJECT",
         dest="PROJECT",
-        default="webtest-example",
+        default="simplest-test",
         help="Run chimp on the given project. Default value: webtest-example")
 
     parser.add_argument(
@@ -297,13 +297,6 @@ def parse_arguments():
         dest="RUNLEVEL",
         default="Feature",
         help="Run automation by 'Feature' or by 'Scenario' level. defalue value: Feature")
-
-    parser.add_argument(
-        "--rerundir",
-        "--RERUNDIR",
-        dest="RERUNDIR",
-        help="Rerun the RERUNDIR folder for failed and crashed cases"
-    )
 
     parser.add_argument(
         "--modulelist",
@@ -341,13 +334,6 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "--runcase",
-        "--RUNCASE",
-        dest="RUNCASE",
-        default=None,
-        help="The path for dry run json file")
-
-    parser.add_argument(
         "--projecttype",
         "--PROJECTTYPE",
         dest="PROJECTTYPE",
@@ -358,20 +344,20 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        '--version', '-v', action='version', version='%(prog)s V1.0')
+        '--version',
+        '-v',
+        action='version',
+        version='%(prog)s V1.0'
+    )
 
-    if sys.argv[1].startswith('+'):
-        args = parser.parse_args (shlex.split (open (sys.argv[1][1:]).read()))
-    else:
-        args = parser.parse_args()
-
-    # print('\nInput parameters:')
-    # for arg in vars(args):
-    #     print('{:*>15}: {}'.format(arg, getattr(args, arg)))
+    args = parser.parse_args()
+    if len(sys.argv) > 1:
+        if sys.argv[1].startswith('+'):
+            args = parser.parse_args(shlex.split(open(sys.argv[1][1:]).read()))
     return args
 
 def get_scenario_status(scenario_out):
-    scenario = json.loads(open(scenario_out).read())
+    scenario = json.loads(open(scenario_out).read(), encoding='utf-8')
     for element in scenario[0]['elements']:
         steps = element['steps']
         for step in steps:
@@ -418,7 +404,6 @@ class ChimpAutoRun:
 
         self.modulelist = arguments.MODULELIST
         self.argstring = arguments.ARGSTRING
-        self.dryrun_file = arguments.RUNCASE
         self.display_size = '1920x1200'
 
         self.project_full_path = path.join(self.FrameworkPath, self.projectbase, self.project)
@@ -437,14 +422,6 @@ class ChimpAutoRun:
             if e.errno != errno.EEXIST:
                 raise
         print('\n*** Report Directory: ***\n {}'.format(self.report_dir_base))
-
-        self.rerun_dir = None
-        if arguments.RERUNDIR is not None:
-            self.rerun_dir = path.join(
-                path.abspath(path.join(self.report_dir_base, '..')),
-                arguments.RERUNDIR)
-            assert path.exists(self.rerun_dir), '{} is not exits'.format(
-                self.rerun_dir)
 
         # remove /tmp/*.lock file
         for item in os.listdir('/tmp/'):
@@ -473,48 +450,37 @@ class ChimpAutoRun:
         # print('*** is Maven = {}'.format (result))
         return result
 
-    def get_dry_run_out(self):
-        if self.dryrun_file:
-            assert path.exists(self.dryrun_file)
-        else:
-            from autorunner_dryrun import ChimpDryRun
-            dry_run = ChimpDryRun(self.projectbase, self.project,
-                                  self.modulelist, self.platform, self.browser,
-                                  self.argstring, self.report_full_path)
-            self.dryrun_file = dry_run.get_dry_run_results()
-
-    def copy_db_file(self):
-        shutil.copy2(path.join(self.rerun_dir, 'db.subjson'), self.report_dir_base)
-
+    def get_run_json(self):
+        from autorunner_dryrun import ChimpDryRun
+        dry_run = ChimpDryRun(self.projectbase, self.project,
+                                self.modulelist, self.platform, self.browser,
+                                self.argstring, self.report_full_path)
+        self.run_json = dry_run.create_run_json()
+        return self.run_json
+        
     def init_tinydb(self, report_path):
-        tinydb_file = path.join(report_path, 'db.subjson')
-        db = TinyDB(tinydb_file, sort_keys=True, indent=4, separators=(',', ': '))
+        tinyrundb_json = path.join(report_path, 'db.subjson')
+        db = TinyDB(tinyrundb_json, sort_keys=True, indent=4, separators=(',', ': '))
         db.purge_table('_default')
-        if self.rerun_dir:
-            for table in db.tables():
-                group = db.table(table)
-                for item in group:
-                    status = get_scenario_status(item['run_feature'])
-                    group.update({'status': status}, doc_ids=[item.doc_id])
-        else:
-            runcases = json.loads(open(self.dryrun_file).read())
-            for case in runcases:
-                if case['feature'] not in db.tables():
-                    table = db.table(case['feature'])
-                    table.insert(case)
-
+        runcases = json.loads(open(self.run_json).read(), encoding='utf-8')
+        for case in runcases:
+            if case['feature'] in db.tables():
+                table = db.table(case['feature'])
+                table.update({'status': 'rerun'})
+            else:
+                table = db.table(case['feature'])
+                table.insert(case)
         db.close()
-        return tinydb_file
+        return tinyrundb_json
 
     def get_available_host(self):
         '''
         get avaiable host by reading config file
         '''
-        config_file = path.join(self.FrameworkPath, 'framework', 'configs',
-                                'chimp_run_host.config')
+        config_file = path.join(self.FrameworkPath, 'framework', 'configs', 'chimp_run_host.config')
         assert path.exists(config_file), '{} is not exits'.format(config_file)
 
-        with open(config_file) as fname:
+        with open(config_file, encoding='utf-8') as fname:
             head = fname.readline()
             while 'SSHHOST' not in head:
                 head = fname.readline()
@@ -533,11 +499,6 @@ class ChimpAutoRun:
         assert len(
             self.
             host) > 0, 'No host is avilable! Check file: chimp_run_host.config'
-        # print('\n*** Avaliable Host: ***')
-        # for item in self.host:
-        #     print(item)
-        # print('Maximum thread count: {}'.format(self.thread_count))
-        # print('*** \n ')
 
     def generate_reports(self, dbfile):
         '''
@@ -565,7 +526,7 @@ class ChimpAutoRun:
             results = group.search((query.status == 'done') | (query.status == 'passed'))
             feature_report = None
             for item in results:
-                element = json.loads(open(item['run_result']).read())[0]
+                element = json.loads(open(item['run_result'], encoding='utf-8').read())[0]
                 if not feature_report:
                     feature_report = element
                 else:
@@ -577,11 +538,6 @@ class ChimpAutoRun:
         with open(report_json_path, 'w') as fname:
             json.dump(cucumber_report_json, fname, indent=4)
 
-        # if self.rerun_dir:
-        #     for fname in os.listdir(self.rerun_dir):
-        #         if fname.startswith('Passed_') and fname.endswith('.jpg'):
-        #             shutil.copy2(path.join(self.rerun_dir, fname), self.report_dir_base)
-
         # generate cucumber HTML report
         report_html_path = report_json_path[:report_json_path.rfind('json')] + 'html'
         cmd_generate_html_report = path.join(self.FrameworkPath, 'framework', 'scripts', 'generate-reports.js') + ' ' + \
@@ -591,10 +547,10 @@ class ChimpAutoRun:
             '--testPlatform=' + self.platform + ' ' + \
             '--testPlatformVer=\'Ubuntu 18.04\' ' + \
             '--testBrowser=' + self.browser + ' ' + \
+            '--testBrowserVer=77 ' + \
             '--testThreads=' + self.parallel + ' ' + \
             '--testStartTime=' + self.runtime_stamp + ' ' + \
             '--testRunDuration=' + run_duration + ' ' + \
-            '--testRerunPath=' + str(self.rerun_dir) + ' ' + \
             '--testRunArgs="' + self.argstring + '"'
         print('Generate HTML Report On: {}'.format(report_html_path))
         print(cmd_generate_html_report)
@@ -628,13 +584,14 @@ class ChimpAutoRun:
             if self.movie == '1':
                 pool_number = cpu_count / 2
             else:
-                pool_number = cpu_count - 1                
+                pool_number = cpu_count
             if pool_number < 1:
                 pool_number = 1
         else:
             pool_number = min(int(self.thread_count), int(self.parallel))
+        
+        pool_number = int(pool_number)
         self.parallel = str(pool_number)
-
         pool = multiprocessing.Pool(pool_number)
 
         print('POOL NUMBER: {}'.format(pool_number))
@@ -649,7 +606,7 @@ class ChimpAutoRun:
             group = db.table(table)
             query = Query()
             case  = None
-            results = group.search((query.status == 'notrun') | (query.status == 'crashed'))
+            results = group.search((query.status == 'notrun') | (query.status == 'rerun') | (query.status == 'crashed'))
             total_runcount += len(results)
             if len(results) > 0:
                 case = results[0]
@@ -714,23 +671,15 @@ class ChimpAutoRun:
 if __name__ == "__main__":
     command_arguments = parse_arguments()
     chimp_run = ChimpAutoRun(command_arguments)
-
-    if chimp_run.rerun_dir:
-        chimp_run.copy_db_file()
-        print('\nget case from rerun directory: {}\n'.format(chimp_run.rerun_dir))
-    else:
-        chimp_run.get_dry_run_out()
-        print('\nget case from dryrun file: {}\n'.format(chimp_run.dryrun_file))
-    
-    db_file = chimp_run.init_tinydb(chimp_run.report_dir_base)
-
+    run_json = chimp_run.get_run_json()
+    rundb_json = chimp_run.init_tinydb(chimp_run.report_dir_base)
     if not command_arguments.REPORTONLY:
         print('\nRunning test in parallel\n')
-        chimp_run.run_in_parallel(db_file)
+        chimp_run.run_in_parallel(rundb_json)
         if command_arguments.RERUNCRASHED:
             for n in range(0, int(command_arguments.RERUNCRASHED)):
                 print('\nRerunning crashed test iteration: {}\n'.format(n))
-                chimp_run.run_in_parallel(db_file)
+                chimp_run.run_in_parallel(rundb_json)
     if not command_arguments.RUNONLY:
         print('\nGenerating reports\n')
-        chimp_run.generate_reports(db_file)
+        chimp_run.generate_reports(rundb_json)

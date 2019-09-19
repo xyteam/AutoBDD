@@ -22,7 +22,6 @@ optionHelp = `
         --testThreads, the parallel test threads
         --testStartTime, the start timestamp
         --testRunDuration, how long it took to run the entire test
-        --testRerunPath, if this is a re-run which report path it re-run against
         --testRunArgs, the run arguments used for running the test, i.e., --modulelist moduleA module B, --tags @SmokeTest, etc. 
 `;
 optionFlags = {
@@ -59,8 +58,7 @@ optionFlags = {
         default: 'Chrome'
     },
     testBrowserVer: {
-        type: 'string',
-        default: '77'
+        type: 'string'
     },
     testThreads: {
         type: 'string'
@@ -92,7 +90,6 @@ var testBrowserVer = cli.flags.testBrowserVer;
 var testThreads = cli.flags.testThreads;
 var testStartTime = cli.flags.testStartTime;
 var testRunDuration = cli.flags.testRunDuration;
-var testRerunPath = cli.flags.testRerunPath;
 var testRunArgs = cli.flags.testRunArgs;
 
 var bootStrapHtmlReporter_options = {
@@ -109,7 +106,6 @@ var bootStrapHtmlReporter_options = {
             "Run Threads": testThreads,
             "Start Time": testStartTime,
             "Run Duration": testRunDuration,
-            "Rerun Path": testRerunPath,
             "Run Args": testRunArgs
         }
     };

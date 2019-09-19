@@ -4,4 +4,7 @@ Feature: test init
   I want to initialize my automation test environment
 
   Scenario: download drivers
-    Given  I open the path "/"
+    When  I open the path "/"
+    Then  I expect the url to contain "version"
+    When  I scroll to element "#logo"
+    And   I should see the "chromeLogo" image on the screen
