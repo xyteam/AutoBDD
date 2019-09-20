@@ -458,11 +458,10 @@ class ChimpAutoRun:
         self.run_json = dry_run.create_run_json()
         return self.run_json
         
-    def init_tinydb(self, report_path):
-        tinyrundb_json = path.join(report_path, 'db.subjson')
+    def init_tinydb(self, tinyrundb_json, run_json):
         db = TinyDB(tinyrundb_json, sort_keys=True, indent=4, separators=(',', ': '))
         db.purge_table('_default')
-        runcases = json.loads(open(self.run_json).read(), encoding='utf-8')
+        runcases = json.loads(open(run_json).read(), encoding='utf-8')
         for case in runcases:
             if case['feature'] in db.tables():
                 table = db.table(case['feature'])
@@ -671,15 +670,18 @@ class ChimpAutoRun:
 if __name__ == "__main__":
     command_arguments = parse_arguments()
     chimp_run = ChimpAutoRun(command_arguments)
-    run_json = chimp_run.get_run_json()
-    rundb_json = chimp_run.init_tinydb(chimp_run.report_dir_base)
+    rundb_json = path.join(chimp_run.report_full_path, 'db.subjson')
+
     if not command_arguments.REPORTONLY:
+        run_json = chimp_run.get_run_json()
+        chimp_run.init_tinydb(rundb_json, run_json)
         print('\nRunning test in parallel\n')
         chimp_run.run_in_parallel(rundb_json)
         if command_arguments.RERUNCRASHED:
             for n in range(0, int(command_arguments.RERUNCRASHED)):
                 print('\nRerunning crashed test iteration: {}\n'.format(n))
                 chimp_run.run_in_parallel(rundb_json)
+
     if not command_arguments.RUNONLY:
         print('\nGenerating reports\n')
         chimp_run.generate_reports(rundb_json)
