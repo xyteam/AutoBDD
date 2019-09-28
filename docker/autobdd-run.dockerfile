@@ -109,7 +109,7 @@ ADD . /${USER}/Projects/AutoBDD
 
 # setup AutoBDD
 RUN cd /${USER}/Projects/AutoBDD && \
-    pip install tinydb && \
+    pip install wheel setuptools tinydb && \
     npm config set script-shell "/bin/bash" && \
     npm --loglevel=error install && \
     xvfb-run -a npm test && \
