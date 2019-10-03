@@ -47,7 +47,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" does( not)* appear inside parent element "([^"]*)?" exactly "([^"]*)?" times$/,
+        /^I expect (?:that )?element "([^"]*)?" does( not)* appear inside parent element "([^"]*)?"(?: exactly "([^"]*)?" times)?$/,
         checkIfElementExistsInsideParentElement
     );
 
