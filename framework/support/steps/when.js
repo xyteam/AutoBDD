@@ -1,6 +1,7 @@
 const announceMessage = require('../../functions/action/announceMessage');
 const clearInputField = require('../../functions/action/clearInputField');
 const clickElement = require('../../functions/action/clickElement');
+const clickElementInsideParentElement = require('../../functions/action/clickElementInsideParentElement');
 const closeLastOpenedWindow = require('../../functions/action/closeLastOpenedWindow');
 const deleteCookie = require('../../functions/action/deleteCookie');
 const debugBrowser = require('../../functions/action/debugBrowser');
@@ -33,8 +34,13 @@ module.exports = function() {
     );
 
     this.When(
-        /^I (click|doubleclick) on (?:the )?(link|button|element) "([^"]*)?"$/,
+        /^I ((?:left |middle |right |double )?click) on (?:the )?(element) "([^"]*)?"$/,
         clickElement
+    );
+
+    this.When(
+        /^I (click|clear) the (\d*1st|\d*2nd|\d*3rd|\d*[^123]th) "([^"]*)?" element(?: inside the (\d*1st|\d*2nd|\d*3rd|\d*[^123]th) parent element "([^"]*)?")?$/,
+        clickElementInsideParentElement
     );
 
     this.When(
