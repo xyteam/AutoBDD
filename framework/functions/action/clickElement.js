@@ -12,16 +12,32 @@ module.exports = (action, type, element) => {
      * Element to perform the action on
      * @type {String}
      */
-    const elem = (type === 'link') ? `=${element}` : element;
+    const targetElement = (type === 'element') ? element : `${type}=${element}`;
 
     /**
      * The method to call on the browser object
      * @type {String}
      */
-    const method = (action === 'click') ? 'click' : 'doubleClick';
-
-    checkIfElementExists(elem);
-    browser.scroll(elem, 0, -200);
-    waitForVisible(elem);
-    browser[method](elem);
+    var method;
+    switch (action) {
+        case 'double click':
+            method = 'doubleClick';
+            break;
+        case 'left click':
+            method = 'leftClick';
+            break;
+        case 'middle click':
+            method = 'middleClick';
+            break;
+        case 'right click':
+            method = 'rightClick';
+            break;
+        case 'click':
+        default:
+            method = 'click';
+    }
+    checkIfElementExists(targetElement);
+    browser.scroll(targetElement, 0, -200);
+    waitForVisible(targetElement);
+    browser[method](targetElement);
 };
