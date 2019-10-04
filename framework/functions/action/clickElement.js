@@ -12,7 +12,22 @@ module.exports = (action, type, element) => {
      * Element to perform the action on
      * @type {String}
      */
-    const targetElement = (type === 'element') ? element : `${type}=${element}`;
+    var targetElement;
+    switch (type) {
+        case 'element':
+            targetElement = element;
+            break;
+        case 'link':
+            targetElement = `a=${element}`;
+            break;
+        default:
+            targetElement = `${type}=${element}`
+    }
+
+    const webElementChars = ['#', '.', '[', '/'];
+    webElementChars.forEach((char) => {
+        if (element.startsWith(char)) targetElement = element;
+    })
 
     /**
      * The method to call on the browser object
