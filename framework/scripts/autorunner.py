@@ -539,13 +539,23 @@ class ChimpAutoRun:
 
         # generate cucumber HTML report
         report_html_path = report_json_path[:report_json_path.rfind('json')] + 'html'
+        
+        if self.browser == 'CH':
+            report_browser = 'chrome'
+        elif self.browser == 'FF':
+            report_browser = 'firefox'
+        elif self.browser == 'IE':
+            report_browser = 'internet explorer'
+        else:
+            report_browser = self.browser
+
         cmd_generate_html_report = path.join(self.FrameworkPath, 'framework', 'scripts', 'generate-reports.js') + ' ' + \
             '--reportJson=' + report_json_path + ' ' + \
             '--reportName=\'AutoBDD HTML Report\' ' +  \
             '--reportTitle=' + self.project + ' ' + \
             '--testPlatform=' + self.platform + ' ' + \
             '--testPlatformVer=\'Ubuntu 18.04\' ' + \
-            '--testBrowser=' + self.browser + ' ' + \
+            '--testBrowser=' + report_browser + ' ' + \
             '--testBrowserVer=77 ' + \
             '--testThreads=' + self.parallel + ' ' + \
             '--testStartTime=' + self.runtime_stamp + ' ' + \
