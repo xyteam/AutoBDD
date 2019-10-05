@@ -12,6 +12,7 @@ module.exports = (action, type, element) => {
      * Element to perform the action on
      * @type {String}
      */
+  
     var targetElement;
     switch (type) {
         case 'element':
