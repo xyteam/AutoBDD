@@ -1,11 +1,10 @@
 const checkClass = require('../../functions/check/checkClass');
 const checkContainsAnyText = require('../../functions/check/checkContainsAnyText');
 const checkIsEmpty = require('../../functions/check/checkIsEmpty');
-const checkContainsText = require('../../functions/check/checkContainsText');
 const checkCookieContent = require('../../functions/check/checkCookieContent');
 const checkCookieExists = require('../../functions/check/checkCookieExists');
 const checkDimension = require('../../functions/check/checkDimension');
-const checkEqualsText = require('../../functions/check/checkEqualsText');
+const checkContainsEqualsMatchesText = require('../../functions/check/checkContainsEqualsMatchesText');
 const checkFocus = require('../../functions/check/checkFocus');
 const checkInURLPath = require('../../functions/check/checkInURLPath');
 const checkIsOpenedInNewWindow = require('../../functions/check/checkIsOpenedInNewWindow');
@@ -32,12 +31,12 @@ const checkIfElementExistsInsideParentElement = require('../../functions/common/
 
 module.exports = function() {
     this.Then(
-        /^I expect (?:that )?(?:the )?title is( not)* "([^"]*)?"$/,
+        /^I expect (?:that )?the title is( not)* "([^"]*)?"$/,
         checkTitle
     );
 
     this.Then(
-        /^I expect (?:that )?(?:the )?title( not)* contains "([^"]*)?"$/,
+        /^I expect (?:that )?the title( not)* contains "([^"]*)?"$/,
         checkTitleContains
     );
 
@@ -62,7 +61,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" is( not)* within (?:(?:the )?)?viewport$/,
+        /^I expect (?:that )?element "([^"]*)?" is( not)* within the viewport$/,
         checkWithinViewport
     );
 
@@ -72,18 +71,13 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?"( not)* contains (?:(?:the )?)?same text as element "([^"]*)?"$/,
+        /^I expect (?:that )?element "([^"]*)?"( not)* contains the same text as element "([^"]*)?"$/,
         compareText
     );
 
     this.Then(
-        /^I expect (?:that )?(button|element) "([^"]*)?"( not)* matches (?:(?:the )?)?text "([^"]*)?"$/,
-        checkEqualsText
-    );
-
-    this.Then(
-        /^I expect (?:that )?(button|element) "([^"]*)?"( not)* contains (?:(?:the )?)?text "([^"]*)?"$/,
-        checkContainsText
+        /^I expect (?:that )?(button|element) "([^"]*)?"( not)* (contains|equals|matches) the text "([^"]*)?"$/,
+        checkContainsEqualsMatchesText
     );
 
     this.Then(
@@ -97,17 +91,17 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?(?:the )?url is( not)* "([^"]*)?"$/,
+        /^I expect (?:that )?the url is( not)* "([^"]*)?"$/,
         checkURL
     );
 
     this.Then(
-        /^I expect (?:that )?(?:the )?path is( not)* "([^"]*)?"$/,
+        /^I expect (?:that )?the path is( not)* "([^"]*)?"$/,
         checkURLPath
     );
 
     this.Then(
-        /^I expect (?:that )?(?:the )?url to( not)* contain "([^"]*)?"$/,
+        /^I expect (?:that )?the url to( not)* contain "([^"]*)?"$/,
         checkInURLPath
     );
 
@@ -117,7 +111,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?(?:the )?font( css)* attribute "([^"]*)?" from element "([^"]*)?" is( not)* "([^"]*)?"$/,
+        /^I expect (?:that )?the font( css)* attribute "([^"]*)?" from element "([^"]*)?" is( not)* "([^"]*)?"$/,
         checkFontProperty
     );
 
@@ -152,12 +146,12 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" is( not)* positioned at ([\d.]+)px on (?:(?:the )?)?(x|y) axis$/,
+        /^I expect (?:that )?element "([^"]*)?" is( not)* positioned at ([\d.]+)px on the (x|y) axis$/,
         checkOffset
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" (has|does not have) (?:(?:the )?)?class "([^"]*)?"$/,
+        /^I expect (?:that )?element "([^"]*)?" (has|does not have) the class "([^"]*)?"$/,
         checkClass
     );
 
@@ -167,7 +161,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:(?:the )?)?url "([^"]*)?" is opened in a new (tab|window)$/,
+        /^I expect the url "([^"]*)?" is opened in a new (tab|window)$/,
         checkIsOpenedInNewWindow
     );
 
@@ -182,7 +176,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?a (alertbox|confirmbox|prompt)( not)* contains (?:(?:the )?)?text "([^"]*)?"$/,
+        /^I expect (?:that )?a (alertbox|confirmbox|prompt)( not)* contains the text "([^"]*)?"$/,
         checkModalText
     );
 }

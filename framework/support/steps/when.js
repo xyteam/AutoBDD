@@ -34,7 +34,7 @@ module.exports = function() {
     );
 
     this.When(
-        /^I ((?:left |middle |right |double )?click) on (?:the )?(element) "([^"]*)?"$/,
+        /^I ((?:left |middle |right |double )?click) on the (\S*) "([^"]*)?"$/,
         clickElement
     );
 
@@ -44,17 +44,17 @@ module.exports = function() {
     );
 
     this.When(
-        /^I (add|set) "([^"]*)?" to (?:the )?inputfield "([^"]*)?"$/,
+        /^I (add|set) "([^"]*)?" to the inputfield "([^"]*)?"$/,
         setInputField
     );
 
     this.When(
-        /^I (add|set) env var "([^"]*)?" to (?:the )?inputfield "([^"]*)?"$/,
+        /^I (add|set) env var "([^"]*)?" to the inputfield "([^"]*)?"$/,
         setInputFieldWithEnvVars
     );
 
     this.When(
-        /^I clear (?:the )?inputfield "([^"]*)?"$/,
+        /^I clear the inputfield "([^"]*)?"$/,
         clearInputField
     );
 
@@ -64,7 +64,7 @@ module.exports = function() {
     );
 
     this.When(
-        /^I submit (?:the )?form "([^"]*)?"$/,
+        /^I submit the form "([^"]*)?"$/,
         submitForm
     );
 
@@ -74,12 +74,12 @@ module.exports = function() {
     );
 
     this.When(
-        /^I set a cookie "([^"]*)?" with (?:the )?content "([^"]*)?"$/,
+        /^I set a cookie "([^"]*)?" with the content "([^"]*)?"$/,
         setCookie
     );
 
     this.When(
-        /^I delete (?:the )?cookie "([^"]*)?"$/,
+        /^I delete the cookie "([^"]*)?"$/,
         deleteCookie
     );
 
@@ -89,12 +89,12 @@ module.exports = function() {
     );
 
     this.When(
-        /^I (accept|dismiss) (?:the )?(alertbox|confirmbox|prompt)$/,
+        /^I (accept|dismiss) the (alertbox|confirmbox|prompt)$/,
         handleModal
     );
 
     this.When(
-        /^I enter "([^"]*)?" into (?:the )?prompt$/,
+        /^I enter "([^"]*)?" into the prompt$/,
         setPromptText
     );
 
@@ -104,12 +104,12 @@ module.exports = function() {
     );
 
     this.When(
-        /^I close (?:the )?last opened (window|tab)$/,
+        /^I close the last opened (window|tab)$/,
         closeLastOpenedWindow
     );
 
     this.When(
-        /^I focus (?:the )?last opened (window|tab)$/,
+        /^I focus the last opened (window|tab)$/,
         focusLastOpenedWindow
     );
 
@@ -119,12 +119,12 @@ module.exports = function() {
     );
 
     this.When(
-        /^I select (?:the )?(\d+)(st|nd|rd|th) option for element "([^"]*)?"$/,
+        /^I select the (\d+)(st|nd|rd|th) option for element "([^"]*)?"$/,
         selectOptionByIndex
     );
 
     this.When(
-        /^I select (?:the )?option with (?:the )?(name|value|text) "([^"]*)?" for element "([^"]*)?"$/,
+        /^I select the option with the (name|value|text) "([^"]*)?" for element "([^"]*)?"$/,
         selectOption
     );
 

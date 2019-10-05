@@ -1,11 +1,10 @@
 const checkContainsAnyText = require('../../functions/check/checkContainsAnyText');
 const checkIsEmpty = require('../../functions/check/checkIsEmpty');
-const checkContainsText = require('../../functions/check/checkContainsText');
 const checkCookieContent = require('../../functions/check/checkCookieContent');
 const checkCookieExists = require('../../functions/check/checkCookieExists');
 const checkDimension = require('../../functions/check/checkDimension');
 const checkElementExists = require('../../functions/check/checkElementExists');
-const checkEqualsText = require('../../functions/check/checkEqualsText');
+const checkContainsEqualsMatchesText = require('../../functions/check/checkContainsEqualsMatchesText');
 const checkModal = require('../../functions/check/checkModal');
 const checkOffset = require('../../functions/check/checkOffset');
 const checkProperty = require('../../functions/check/checkProperty');
@@ -22,7 +21,7 @@ const resizeScreenSize = require('../../functions/action/resizeScreenSize');
 
 module.exports = function() {
     this.Given(
-        /^I open (?:the )?(file|download file|path|url) "([^"]*)?"$/,
+        /^I open the (file|download file|path|url) "([^"]*)?"$/,
         openTarget
     );
 
@@ -32,62 +31,57 @@ module.exports = function() {
     );
 
     this.Given(
-        /^(?:the )?element "([^"]*)?" is( not)* visible$/,
+        /^the element "([^"]*)?" is( not)* visible$/,
         isVisible
     );
 
     this.Given(
-        /^(?:the )?element "([^"]*)?" is( not)* enabled$/,
+        /^the element "([^"]*)?" is( not)* enabled$/,
         isEnabled
     );
 
     this.Given(
-        /^(?:the )?element "([^"]*)?" is( not)* selected$/,
+        /^the element "([^"]*)?" is( not)* selected$/,
         checkSelected
     );
 
     this.Given(
-        /^(?:the )?checkbox "([^"]*)?" is( not)* checked$/,
+        /^the checkbox "([^"]*)?" is( not)* checked$/,
         checkSelected
     );
 
     this.Given(
-        /^there is (an|no) element "([^"]*)?" on (?:the )?page$/,
+        /^there is (an|no) element "([^"]*)?" on the page$/,
         checkElementExists
     );
 
     this.Given(
-        /^(?:the )?title is( not)* "([^"]*)?"$/,
+        /^the title is( not)* "([^"]*)?"$/,
         checkTitle
     );
 
     this.Given(
-        /^(?:the )?element "([^"]*)?" contains( not)* (?:the )?same text as element "([^"]*)?"$/,
+        /^the element "([^"]*)?" contains( not)* the same text as element "([^"]*)?"$/,
         compareText
     );
 
     this.Given(
-        /^(?:the )?(button|element) "([^"]*)?"( not)* matches (?:the )?text "([^"]*)?"$/,
-        checkEqualsText
+        /^the (button|element) "([^"]*)?"( not)* (contains|equals|matches) the text "([^"]*)?"$/,
+        checkContainsEqualsMatchesText
     );
 
     this.Given(
-        /^(?:the )?(button|element) "([^"]*)?"( not)* contains (?:the )?text "([^"]*)?"$/,
-        checkContainsText
-    );
-
-    this.Given(
-        /^(?:the )?(button|element) "([^"]*)?"( not)* contains any text$/,
+        /^the (button|element) "([^"]*)?"( not)* contains any text$/,
         checkContainsAnyText
     );
 
     this.Given(
-        /^(?:the )?(button|element) "([^"]*)?" is( not)* empty$/,
+        /^the (button|element) "([^"]*)?" is( not)* empty$/,
         checkIsEmpty
     );
 
     this.Given(
-        /^(?:the )?page url is( not)* "([^"]*)?"$/,
+        /^the page url is( not)* "([^"]*)?"$/,
         checkUrl
     );
 
@@ -97,22 +91,22 @@ module.exports = function() {
     );
 
     this.Given(
-        /^(?:the )?cookie "([^"]*)?" contains( not)* (?:the )?value "([^"]*)?"$/,
+        /^the cookie "([^"]*)?" contains( not)* the value "([^"]*)?"$/,
         checkCookieContent
     );
 
     this.Given(
-        /^(?:the )?cookie "([^"]*)?" does( not)* exist$/,
+        /^the cookie "([^"]*)?" does( not)* exist$/,
         checkCookieExists
     );
 
     this.Given(
-        /^(?:the )?element "([^"]*)?" is( not)* ([\d]+)px (broad|tall)$/,
+        /^the element "([^"]*)?" is( not)* ([\d]+)px (broad|tall)$/,
         checkDimension
     );
 
     this.Given(
-        /^(?:the )?element "([^"]*)?" is( not)* positioned at ([\d]+)px on (?:the )?(x|y) axis$/,
+        /^the element "([^"]*)?" is( not)* positioned at ([\d]+)px on the (x|y) axis$/,
         checkOffset
     );
 
@@ -122,7 +116,7 @@ module.exports = function() {
     );
 
     this.Given(
-        /^I have closed all but (?:the )?first (window|tab)$/,
+        /^I have closed all but the first (window|tab)$/,
         closeAllButFirstTab
     );
 

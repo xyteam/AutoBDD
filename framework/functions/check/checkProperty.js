@@ -3,13 +3,13 @@
  * @param  {String}   isCSS         Whether to check for a CSS property or an
  *                                  attribute
  * @param  {String}   attrName      The name of the attribute to check
- * @param  {String}   elem          Element selector
+ * @param  {String}   element          Element selector
  * @param  {String}   action        is, contains or matches
  * @param  {String}   falseCase     Whether to check if the value of the
  *                                  attribute matches or not
  * @param  {String}   expectedValue The value to match against
  */
-module.exports = (isCSS, attrName, elem, action, falseCase, expectedValue) => {
+module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) => {
     /**
      * The command to use for fetching the expected value
      * @type {String}
@@ -26,7 +26,7 @@ module.exports = (isCSS, attrName, elem, action, falseCase, expectedValue) => {
      * The actual attribute value
      * @type {Mixed}
      */
-    let attributeValue = browser[command](elem, attrName);
+    let attributeValue = browser[command](element, attrName);
 
     /**
      * when getting something with a color or font-weight WebdriverIO returns a
@@ -41,21 +41,21 @@ module.exports = (isCSS, attrName, elem, action, falseCase, expectedValue) => {
             case 'is':
                 expect(attributeValue).not.toEqual(
                     expectedValue,
-                    `${attrType}: ${attrName} of element "${elem}" should not be ` +
+                    `${attrType}: ${attrName} of element "${element}" should not be ` +
                     `"${attributeValue}"`
                 );        
                 break;
             case 'contains':
                 expect(attributeValue).not.toContain(
                     expectedValue,
-                    `${attrType}: ${attrName} of element "${elem}" should not contain ` +
+                    `${attrType}: ${attrName} of element "${element}" should not contain ` +
                     `"${attributeValue}"`
                 );        
                 break;
             case 'matches':
                 expect(attributeValue).not.toMatch(
                     expectedValue,
-                    `${attrType}: ${attrName} of element "${elem}" should not match ` +
+                    `${attrType}: ${attrName} of element "${element}" should not match ` +
                     `"${attributeValue}"`
                 );        
                 break;
@@ -65,21 +65,21 @@ module.exports = (isCSS, attrName, elem, action, falseCase, expectedValue) => {
             case 'is':
                 expect(attributeValue).toEqual(
                     expectedValue,
-                    `${attrType}: ${attrName} of element "${elem}" should be ` +
+                    `${attrType}: ${attrName} of element "${element}" should be ` +
                     `"${attributeValue}"`
                 );        
                 break;
             case 'contains':
                 expect(attributeValue).toContain(
                     expectedValue,
-                    `${attrType}: ${attrName} of element "${elem}" should contain ` +
+                    `${attrType}: ${attrName} of element "${element}" should contain ` +
                     `"${attributeValue}"`
                 );        
                 break;
             case 'matches':
                 expect(attributeValue).toMatch(
                     expectedValue,
-                    `${attrType}: ${attrName} of element "${elem}" should match ` +
+                    `${attrType}: ${attrName} of element "${element}" should match ` +
                     `"${attributeValue}"`
                 );        
                 break;
