@@ -2,22 +2,19 @@
  * Check if the given elements text is the same as the given text
  * @param  {String}   elementType   Element type (element or button)
  * @param  {String}   element       Element selector
- * @param  {String}   action        is, contains or matches
  * @param  {String}   falseCase     Whether to check if the content equals the
  *                                  given text or not
+ * @param  {String}   action        equals, contains or matches
  * @param  {String}   expectedText  The text to validate against
  */
-module.exports = (elementType, element, action, falseCase, expectedText) => {
+module.exports = (elementType, element, falseCase, action, expectedText) => {
     /**
      * The command to execute on the browser object
      * @type {String}
      */
     let command = 'getValue';
 
-    if (
-        elementType === 'button' ||
-        browser.getAttribute(element, 'value') === null
-    ) {
+    if (elementType === 'button' || browser.getAttribute(element, 'value') === null) {
         command = 'getText';
     }
 
@@ -36,7 +33,6 @@ module.exports = (elementType, element, action, falseCase, expectedText) => {
     // Check for empty element
     if (typeof parsedExpectedText === 'function') {
         parsedExpectedText = '';
-
         boolFalseCase = !boolFalseCase;
     }
 
@@ -70,6 +66,8 @@ module.exports = (elementType, element, action, falseCase, expectedText) => {
                     `"${retrivedValue}"`
                 );        
                 break;
+            default:
+                expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
         }
     } else {
         switch (action) {
@@ -94,6 +92,8 @@ module.exports = (elementType, element, action, falseCase, expectedText) => {
                     `"${retrivedValue}"`
                 );        
                 break;
+            default:
+                expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
         }
     }
 }
