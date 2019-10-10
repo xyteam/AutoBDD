@@ -4,7 +4,7 @@ const clickElement = require('../../functions/action/clickElement');
 const clickElementInsideParentElement = require('../../functions/action/clickElementInsideParentElement');
 const closeLastOpenedWindow = require('../../functions/action/closeLastOpenedWindow');
 const deleteCookie = require('../../functions/action/deleteCookie');
-const debugBrowser = require('../../functions/action/debugBrowser');
+const browserAction = require('../../functions/action/browserAction');
 const dragElement = require('../../functions/action/dragElement');
 const focusLastOpenedWindow = require('../../functions/action/focusLastOpenedWindow');
 const handleModal = require('../../functions/action/handleModal');
@@ -24,8 +24,8 @@ const waitForDownload = require('../../functions/action/waitForDownload');
 
 module.exports = function() {
     this.When(
-        /^I debug browser$/, {timeout: 3600*1000},
-        debugBrowser
+        /^I (back|close|debug|forward|reload|reset) browser$/, {timeout: 3600*1000},
+        browserAction
     );
 
     this.When(
