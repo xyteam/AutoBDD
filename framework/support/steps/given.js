@@ -1,10 +1,10 @@
-const checkContainsAnyText = require('../../functions/check/checkContainsAnyText');
-const checkIsEmpty = require('../../functions/check/checkIsEmpty');
+const checkContainsAnyTextOrValue = require('../../functions/check/checkContainsAnyTextOrValue');
+const checkElementTextValueIsEmpty = require('../../functions/check/checkElementTextValueIsEmpty');
 const checkCookieContent = require('../../functions/check/checkCookieContent');
 const checkCookieExists = require('../../functions/check/checkCookieExists');
 const checkDimension = require('../../functions/check/checkDimension');
 const checkElementExists = require('../../functions/check/checkElementExists');
-const checkContainsEqualsMatchesText = require('../../functions/check/checkContainsEqualsMatchesText');
+const checkContainsEqualsMatchesTextOrValue = require('../../functions/check/checkContainsEqualsMatchesTextOrValue');
 const checkModal = require('../../functions/check/checkModal');
 const checkOffset = require('../../functions/check/checkOffset');
 const checkProperty = require('../../functions/check/checkProperty');
@@ -66,18 +66,18 @@ module.exports = function() {
     );
 
     this.Given(
-        /^the (button|element) "([^"]*)?"( not)* (contains|equals|matches) the text "([^"]*)?"$/,
-        checkContainsEqualsMatchesText
+        /^the (button|element) "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "([^"]*)?"$/,
+        checkContainsEqualsMatchesTextOrValue
     );
 
     this.Given(
-        /^the (button|element) "([^"]*)?"( not)* contains any text$/,
-        checkContainsAnyText
+        /^the (button|element) "([^"]*)?"( not)* contains any (text|value)$/,
+        checkContainsAnyTextOrValue
     );
 
     this.Given(
-        /^the (button|element) "([^"]*)?" is( not)* empty$/,
-        checkIsEmpty
+        /^the (button|element) "([^"]*)?" (text|value) is( not)* empty$/,
+        checkElementTextValueIsEmpty
     );
 
     this.Given(

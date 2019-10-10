@@ -1,10 +1,10 @@
 const checkClass = require('../../functions/check/checkClass');
-const checkContainsAnyText = require('../../functions/check/checkContainsAnyText');
-const checkIsEmpty = require('../../functions/check/checkIsEmpty');
+const checkContainsAnyTextOrValue = require('../../functions/check/checkContainsAnyTextOrValue');
+const checkElementTextValueIsEmpty = require('../../functions/check/checkElementTextValueIsEmpty');
 const checkCookieContent = require('../../functions/check/checkCookieContent');
 const checkCookieExists = require('../../functions/check/checkCookieExists');
 const checkDimension = require('../../functions/check/checkDimension');
-const checkContainsEqualsMatchesText = require('../../functions/check/checkContainsEqualsMatchesText');
+const checkContainsEqualsMatchesTextOrValue = require('../../functions/check/checkContainsEqualsMatchesTextOrValue');
 const checkFocus = require('../../functions/check/checkFocus');
 const checkInURLPath = require('../../functions/check/checkInURLPath');
 const checkIsOpenedInNewWindow = require('../../functions/check/checkIsOpenedInNewWindow');
@@ -76,18 +76,18 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?(button|element) "([^"]*)?"( not)* (contains|equals|matches) the text "([^"]*)?"$/,
-        checkContainsEqualsMatchesText
+        /^I expect (?:that )?(button|element) "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "([^"]*)?"$/,
+        checkContainsEqualsMatchesTextOrValue
     );
 
     this.Then(
-        /^I expect (?:that )?(button|element) "([^"]*)?"( not)* contains any text$/,
-        checkContainsAnyText
+        /^I expect (?:that )?(button|element) "([^"]*)?"( not)* contains (?:any|some) (text|value)$/,
+        checkContainsAnyTextOrValue
     );
 
     this.Then(
-        /^I expect (?:that )?(button|element) "([^"]*)?" is( not)* empty$/,
-        checkIsEmpty
+        /^I expect (?:that )?(button|element) "([^"]*)?" (text|value) is( not)* empty$/,
+        checkElementTextValueIsEmpty
     );
 
     this.Then(
