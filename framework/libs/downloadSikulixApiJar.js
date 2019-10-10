@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var argv = require('minimist')(process.argv.slice(2));
-process.env.DISPLAY = process.env.DISPLAY || ':0';
+process.env.DISPLAY = process.env.DISPLAY || ':1';
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const sikuliApiJar = argv.sikulixApiJar || FrameworkPath + '/framework/libs/sikulixapi-1.1.4.jar';
 const sikuliApiUrl_latest = 'https://raiman.github.io/SikuliX1/sikulixapi.jar';
