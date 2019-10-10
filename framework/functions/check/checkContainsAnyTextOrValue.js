@@ -4,20 +4,18 @@
  * @param  {String}   element       Element selector
  * @param  {String}   falseCase     Whether to check if the content contains
  *                                  text or not
+ * @param  {String}   type          text or value
  */
-module.exports = (elementType, element, falseCase) => {
+module.exports = (elementType, element, falseCase, type) => {
     /**
      * The command to perform on the browser object
      * @type {String}
      */
-    let command = 'getValue';
-
-    if (
-        elementType === 'button' ||
-        browser.getAttribute(element, 'value') === null
-    ) {
-        command = 'getText';
-    }
+    let command = 'getText'
+    
+    if (type == 'value') {
+        command = 'getValue';
+    } 
 
     /**
      * False case
@@ -31,7 +29,7 @@ module.exports = (elementType, element, falseCase) => {
      */
     const text = browser[command](element);
 
-    if (typeof falseCase === 'undefined') {
+    if (typeof falseCase === 'undefined' || falseCase == null) {
         boolFalseCase = false;
     } else {
         boolFalseCase = !!falseCase;
