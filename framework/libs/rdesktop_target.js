@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-// DISPLAY=:0 SSHPORT=21022 ./rdesktop_target.js --start &
-// DISPLAY=:0 SSHPORT=21022 ./rdesktop_target.js --stop
+// DISPLAY=:1 SSHPORT=21022 ./rdesktop_target.js --start &
+// DISPLAY=:1 SSHPORT=21022 ./rdesktop_target.js --stop
 
 var argv = require('minimist')(process.argv.slice(2));
 const start = argv.start;
 const stop = argv.stop;
-process.env.DISPLAY = process.env.DISPLAY || ':0'
+process.env.DISPLAY = process.env.DISPLAY || ':1'
 const FrameworkPath = process.env.FrameworkPath;
 require(FrameworkPath + '/framework/support/env.js');
 const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs');
