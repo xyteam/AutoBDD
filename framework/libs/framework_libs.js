@@ -32,6 +32,8 @@ const myRDPHOST = process.env.RDPHOST;
 const myRDPPORT = process.env.RDPPORT;
 const myRDPUSER = process.env.RDPUSER || mySSHUSER;
 const myRDPPASS = process.env.RDPPASS || mySSHPASS;
+const myMOVIEFR = process.env.MOVIEFR || '8';
+const myMOVIERR = process.env.MOVIERR || '1';
 
 // framework deducted
 const mySSHConnString = mySSHUSER + '@' + mySSHHOST + ' -p ' + mySSHPORT;
@@ -166,9 +168,10 @@ module.exports = {
   },
   startRecording: function(scenarioName) {
     const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
-    const cmd_start_recording = 'ffmpeg -y -s ' + myDISPLAYSIZE +' -f x11grab -an -nostdin -r 4 -i '
-        + myDISPLAY
-        + ' -filter:v "setpts=0.5*PTS" '
+    const cmd_start_recording = 'ffmpeg -y -s ' + myDISPLAYSIZE
+        + ' -f x11grab -an -nostdin -r ' + myMOVIEFR
+        + ' -i ' + myDISPLAY
+        + ' -filter:v "setpts=' + myMOVIERR + '*PTS" '
         + myREPORTDIR + '/Recording_' + scenario_mp4
         + ' 2> /dev/null &';
     if (scenarioName) {
