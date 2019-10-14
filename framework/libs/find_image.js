@@ -106,4 +106,5 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
   };
 
 var location = findImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll);
+console.log(imagePath);
 console.log(location);

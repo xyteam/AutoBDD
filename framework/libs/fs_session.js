@@ -7,6 +7,7 @@ const ModulePath = ProjectPath + '/' + process.env.ThisModule;
 const ModuleSupportPath = ModulePath + '/support';
 const DownloadPathLocal = process.env.DownloadPathLocal;
 const fs = require('fs');
+const glob = require("glob");
 const pdfParse = require('pdf-parse');
 const XLSX = require('xlsx');
 const execSync = require('child_process').execSync;
@@ -38,81 +39,55 @@ module.exports = {
     return testFileFullPath;
   },
 
-  getTestImagePath: function(filePath, fileName, fileExt) {
+  getTestImageList: function(filePath, fileName, fileExt) {
     var imageExt = fileExt || ['gif', 'jpg', 'png'];
     var targetPath = filePath;
-    var platformReleaseXVFBPath = '/' + process.env.PLATFORM + '/' + process.env.ReleaseString + '/' + process.env.XVFB;
-    var platformReleasePath = '/' + process.env.PLATFORM + '/' + process.env.ReleaseString;
-    var platformBrowserPath = '/' + process.env.PLATFORM + '/' + process.env.BROWSER;
-    var platformOnlyPath = '/' + process.env.PLATFORM;
-    var imagePath = null;
+    var imageList = [];
 
-    // TESTIMAGE/PLATFORM/RELEASE/XVFB/
-    if ((imagePath == null) && (process.env.PLATFORM == 'Linux') && (process.env.XVFB == 'XVFB') && fs.existsSync(targetPath + platformReleaseXVFBPath)) {
-      imageExt.some(function(ext) {
-        var filePath = targetPath + platformReleaseXVFBPath + '/' + fileName + '.' + ext;
-        if (fs.existsSync(filePath)) imagePath = filePath;
-      });
-    }
-    // TESTIMAGE/PLATFORM/RELEASE/
-    if ((imagePath == null) && (process.env.PLATFORM == 'Linux') && fs.existsSync(targetPath + platformReleasePath)) {
-      imageExt.some(function(ext) {
-        var filePath = targetPath + platformReleasePath + '/' + fileName + '.' + ext;
-        if (fs.existsSync(filePath)) imagePath = filePath;
-      });
-    }
-    // TESTIMAGE/PLATFORM/BROWSER/
-    if ((imagePath == null) && fs.existsSync(targetPath + platformBrowserPath)) {
-      imageExt.some(function(ext) {
-        var filePath = targetPath + platformBrowserPath + '/' + fileName + '.' + ext;
-        if (fs.existsSync(filePath)) imagePath = filePath;
-      });
-    }
-    // TESTIMAGE/PLATFORM/
-    if ((imagePath == null) && fs.existsSync(targetPath + platformOnlyPath)) {
-      imageExt.some(function(ext) {
-        var filePath = targetPath + platformOnlyPath + '/' + fileName + '.' + ext;
-        if (fs.existsSync(filePath)) imagePath = filePath;
-      });
-    }
     // TESTIMAGE/
-    if ((imagePath == null) && fs.existsSync(targetPath)) {
+    if (fs.existsSync(targetPath)) {
       imageExt.some(function(ext) {
-        var filePath = targetPath + '/' + fileName + '.' + ext;
-        if (fs.existsSync(filePath)) imagePath = filePath;
+        var filePathExact = targetPath + '/' + fileName + '.' + ext;
+        var filePathMatch = targetPath + '/' + fileName + '.*.' + ext;
+        [filePathExact, filePathMatch].forEach((path) => {
+          imageList = imageList.concat(glob.sync(path));
+        });
       });
     }
-    return imagePath;
+    return imageList;
   },
 
-  getModuleImagePath: function(filePath, fileName, fileExt) {
+  getModuleImageList: function(fileName, fileExt) {
     var targetPath = ModuleSupportPath + '/testimages';
-    var imagePath = this.getTestImagePath(targetPath, fileName, fileExt);
-    return imagePath;
+    var imageList = this.getTestImageList(targetPath, fileName, fileExt);
+    return imageList;
   },
 
-  getProjectImagePath: function(fileName, fileExt) {
+  getProjectImageList: function(fileName, fileExt) {
     var targetPath = ProjectSupportPath + '/testimages';
-    var imagePath = this.getTestImagePath(targetPath, fileName, fileExt);
-    return imagePath;
+    var imageList = this.getTestImageList(targetPath, fileName, fileExt);
+    return imageList;
   },
 
-  getFrameworkImagePath: function(fileName, fileExt) {
+  getFrameworkImageList: function(fileName, fileExt) {
     var targetPath = FrameworkSupportPath + '/testimages';
-    var imagePath = this.getTestImagePath(targetPath, fileName, fileExt);
-    return imagePath;
+    var imageList = this.getTestImageList(targetPath, fileName, fileExt);
+    return imageList;
   },  
 
-  globalSearchImagePath: function(filePath, fileName, fileExt) {
-    // Search order: Module, Project, Support, will return null if not found
-    var imagePath = this.getModuleImagePath(filePath, fileName, fileExt);
-    if (!imagePath) {
-      imagePath = this.getProjectImagePath(fileName, fileExt);
+  globalSearchImageList: function(filePath, fileName, fileExt) {
+    // Search order: current, Module, Project, Support, will return [] if not found
+    var imageList = this.getTestImageList(filePath, fileName, fileExt);
+    if (imageList.length == 0) {
+      imageList = this.getModuleImageList(fileName, fileExt);
     }
-    if (!imagePath) {
-      imagePath = this.getFrameworkImagePath(fileName, fileExt);
+    if (imageList.length == 0) {
+      imageList = this.getProjectImageList(fileName, fileExt);
     }
-    return imagePath;
+    if (imageList.length == 0) {
+      imageList = this.getFrameworkImageList(fileName, fileExt);
+    }
+    return imageList;
   },
 
   deleteDownloadFile: function(fileName, fileExt) {

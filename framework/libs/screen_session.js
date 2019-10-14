@@ -31,38 +31,51 @@ module.exports = {
     return returnVal;
   },
 
+  runFindImages: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
+    var returnVal;
+    if (typeof(imagePath) === 'object') {
+      for (let singlePath of imagePath) {
+        returnVal = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll);
+        if (!returnVal.includes('not found')) break;
+      };
+    } else {
+      returnVal = this.runFindImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll);
+    }
+    return returnVal;
+  },
+
   screenFindImage: function(imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll);
+    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll);
     return returnVal;
   },
 
   screenWaitImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime);
+    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime);
     return returnVal;
   },
 
   screenHoverImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'hover');
+    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, 'hover');
     return returnVal;
   },
 
   screenClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'single');
+    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, 'single');
     return returnVal;
   },
 
   screenDoubleClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'double');
+    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, 'double');
     return returnVal;
   },
 
   screenRightClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'right');
+    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, 'right');
     return returnVal;
   },
 
   screenHoverCenter: function() {
-    var returnVal = this.runFindImage('onScreen', 'center', null, null, 'hover');
+    var returnVal = this.runFindImages('onScreen', 'center', null, null, 'hover');
     return returnVal;
   },
 
