@@ -72,7 +72,7 @@ module.exports = {
     }).catch(err => {
         console.error('Testrail getSuites Error :', err);
     }) 
-    if (mySuite == undefined && forceAdd == true) {
+    if (mySuite == undefined && forceAdd === true) {
         console.log ( " > Create suite : " + suiteName );
         mySuite = await this.addSuite_byName(projectId, suiteName);
     } else if ( mySuite == undefined && forceAdd == false) {
@@ -108,7 +108,7 @@ module.exports = {
     }).catch(err => {
         console.error('Testrail getSections Error :', err);
     });
-    if (mySection == undefined && forceAdd == true) {
+    if (mySection == undefined && forceAdd === true) {
         console.log ( " > Create section : " + sectionName );
         mySection = await this.addSection_byName(projectId, suiteName, sectionName, featureData);
     } else if (mySection == undefined && forceAdd == false) {
@@ -148,7 +148,7 @@ module.exports = {
           console.error('Testrail getCases Error :', err);
       });
 
-      if (myCase && forceUpdate == true) {
+      if (myCase && forceUpdate === true) {
         console.log ( " > Update test case : " + this.getGeneratedCaseName(scenario));
         myCase = await this.updateCase_byScenario(myCase.id, feature, scenario);
       }  
@@ -244,7 +244,7 @@ module.exports = {
     })
     
     if (isValid) {
-      if (myMilestone == undefined && forceAdd == true) {
+      if (myMilestone == undefined && forceAdd === true) {
         console.log ( "> Create Milestone : " + milestoneName );
         myMilestone = await this.addMilestone_byName(projectId, milestoneName);
       } else if (myMilestone == undefined && forceAdd == false) {
@@ -297,7 +297,7 @@ module.exports = {
         console.log ("> Update Test Run : " + testRunName );
         myTestRun = await this.updateTestRun_byName (myTestRun.id, caseDicts, jenkinsPath);
       }
-      if (myTestRun == undefined && forceAdd == true) {
+      if (myTestRun == undefined && forceAdd === true) {
         console.log ( "> Create Test Run : " + testRunName );
         myTestRun = await this.addTestRun_byName(projectId, milestoneId, suiteId, testRunName, caseDicts, jenkinsPath);
       } else if (myTestRun == undefined && forceAdd == false) {
