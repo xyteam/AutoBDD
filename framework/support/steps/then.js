@@ -28,7 +28,6 @@ const waitForVisible = require('../../functions/action/waitForVisible');
 const checkIfElementExists = require('../../functions/common/checkIfElementExists');
 const checkIfElementExistsInsideParentElement = require('../../functions/common/checkIfElementExistsInsideParentElement');
 
-
 module.exports = function() {
     this.Then(
         /^I expect (?:that )?the title is( not)* "([^"]*)?"$/,
