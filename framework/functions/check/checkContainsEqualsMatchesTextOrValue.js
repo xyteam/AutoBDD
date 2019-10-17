@@ -44,7 +44,7 @@ module.exports = (elementType, element, falseCase, action, type, expectedText) =
     }
 
     const retrivedValue = browser[command](element).toString();
-    console.log(`${type} : ${retrivedValue}`)
+    // console.log(`${type} : ${retrivedValue}`)
 
     if (boolFalseCase) {
         switch (action) {
