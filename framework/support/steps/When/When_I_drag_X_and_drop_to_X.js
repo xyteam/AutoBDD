@@ -12,7 +12,6 @@ module.exports = function() {
     var target = JSON.parse(targetString)[0];
     var objectCenter = object.center;
     var targetCenter = target.center;
-    this.objectScore = object.score;
     this.screen_session.drag_and_drop(objectCenter, targetCenter);
     browser.pause(1000);
   });

@@ -39,6 +39,14 @@ module.exports = {
     return testFileFullPath;
   },
 
+  getTestImageParms: function(imageName) {
+    const imageName_extSplit = imageName.split(':')[0].split('.');
+    const imageSimilarity = imageName.split(':')[1] || process.env.imageSimilarity;
+    const imageFileExt = imageName_extSplit.length > 1 ? imageName_extSplit.pop() : null;
+    const imageFileName = imageName_extSplit.join('.');
+    return [imageFileName, imageFileExt, imageSimilarity];
+  },
+
   getTestImageList: function(filePath, fileName, fileExt) {
     var imageExt = fileExt || ['gif', 'jpg', 'png'];
     var targetPath = filePath;
