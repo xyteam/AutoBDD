@@ -2,13 +2,12 @@
 
 const java = require('java');
 var argv = require('minimist')(process.argv.slice(2));
-// process.env.DISPLAY = process.env.DISPLAY || ':1';
 const onArea = argv.onArea || 'onScreen';
 const imagePath = argv.imagePath;
-const imageSimilarity = argv.imageSimilarity || parseFloat(process.env.imageSimilarity) || 0.8;
-const imageWaitTime = argv.imageWaitTime || parseFloat(process.env.imageWaitTime) || 1;
-const imageAction = argv.imageAction || false; 
-const imageFindAll = argv.imageFindAll || false;
+const imageSimilarity = argv.imageSimilarity || process.env.imageSimilarity || 0.8;
+const imageWaitTime = argv.imageWaitTime || process.env.imageWaitTime || 1;
+const imageAction = argv.imageAction || 'none';
+const imageFindAll = argv.imageFindAll || 'false';
 const sikuliApiJarPath = (process.env.FrameworkPath) ? process.env.FrameworkPath + '/framework/libs' : '.'
 // const screen_session = require(process.env.FrameworkPath + '/framework/libs/screen_session');
 
@@ -30,11 +29,8 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
     const Screen = java.import('org.sikuli.script.Screen');
     const Pattern = java.import('org.sikuli.script.Pattern');
 
-    var imageSimilarity = parseFloat(imageSimilarity) || parseFloat(process.env.imageSimilarity) || 0.8;
-    var imageWaitTime = parseFloat(imageWaitTime) || parseFloat(process.env.imageWaitTime) || 1;
-    var imageAction = imageAction || false; 
-    var imageFindAll = imageFindAll || false;
-
+    var imageSimilarity = parseFloat(imageSimilarity);
+    var imageWaitTime = parseFloat(imageWaitTime);
     var returnArray = [];
     var findRegion;
     var target;
@@ -56,7 +52,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
     }
 
     try {
-      if (imageFindAll) {
+      if (imageFindAll == 'true') {
         var find_results = findRegion.findAllSync(target);
         while (find_results.hasNextSync()) {
           var find_item = find_results.nextSync();
@@ -64,6 +60,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
           returnItem.location = {x: find_item.x, y: find_item.y};
           returnItem.dimension = {width: find_item.w, height: find_item.h};
           returnItem.center = {x: find_item.x + Math.round(find_item.w / 2), y: find_item.y + Math.round(find_item.h / 2)};
+          returnItem.score = Math.floor(find_item.getScoreSync()*1000000)/1000000;
           returnArray.push(returnItem); 
         }
       } else {
@@ -74,7 +71,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
         returnItem.location = {x: find_item.x, y: find_item.y};
         returnItem.dimension = {width: find_item.w, height: find_item.h};
         returnItem.center = {x: find_item.x + Math.round(find_item.w / 2), y: find_item.y + Math.round(find_item.h / 2)};
-        returnItem.score = find_item.getScoreSync();
+        returnItem.score = Math.floor(find_item.getScoreSync()*1000000)/1000000;
         var click_count = 0;
         switch (imageAction) {
           case 'single':
@@ -104,7 +101,6 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
       return '[not found]';
     }
   };
-
-var location = findImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll);
-console.log(imagePath);
-console.log(location);
+console.log([onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll]);
+const findImage_result = findImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll);
+console.log(findImage_result);

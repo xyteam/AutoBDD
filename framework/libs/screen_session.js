@@ -21,7 +21,7 @@ module.exports = {
                         + ' --imageSimilarity=' + imageSimilarity
                         + ' --imageWaitTime=' + imageWaitTime
                         + ' --imageAction=' + imageAction
-                        + ' --imageFindAll' + imageFindAll);
+                        + ' --imageFindAll=' + imageFindAll);
       outputString = outputBuffer.toString('utf8');
       console.log(outputString);
       returnVal = outputString.substring(outputString.lastIndexOf('['), outputString.lastIndexOf(']') + 1);

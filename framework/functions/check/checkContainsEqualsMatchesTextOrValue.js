@@ -38,7 +38,7 @@ module.exports = (elementType, element, falseCase, action, type, expectedText) =
         boolFalseCase = !boolFalseCase;
     }
 
-    if (parsedExpectedText === undefined && falseCase === undefined) {
+    if (typeof parsedExpectedText === 'undefined' && typeof falseCase === 'undefined') {
         parsedExpectedText = '';
         boolFalseCase = true;
     }
