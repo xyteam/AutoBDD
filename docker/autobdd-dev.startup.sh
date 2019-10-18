@@ -46,9 +46,9 @@ sed -i "s|%HOME%|$HOME|" /etc/supervisor/conf.d/supervisord.conf
 mkdir -p /run/sshd
 
 # home folder
+mkdir -p $HOME/Projects
 mkdir -p $HOME/.config/pcmanfm/LXDE/
 ln -sf /usr/local/share/doro-lxde-wallpapers/desktop-items-0.conf $HOME/.config/pcmanfm/LXDE/
-cd /root && tar cf - ./Projects | (cd $HOME && tar xf -)
 if [ "$HOSTOS" == "Linux" ]; then
   chown -R $USERID:$GROUPID $HOME
 else
