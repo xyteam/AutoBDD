@@ -8,6 +8,7 @@ const execSync = require('child_process').execSync;
 robot.setXDisplayName(process.env.DISPLAY);
 robot.setMouseDelay(1000);
 robot.setKeyboardDelay(50);
+const defaultCPM = process.env.robotDefaultCPM || 600;
 
 module.exports = {
   runFindImage: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
@@ -98,14 +99,15 @@ module.exports = {
     }
   },
 
-  typeString: function(string) {
+  typeString: function(string, cpm) {
+    const myCPM = cpm || defaultCPM;
     var myCharArray = string.split('');
     var myShiftCharArray = ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', ':', '"', '<', '>', '?'];
     myCharArray.forEach(function(myChar) {
       if (myShiftCharArray.indexOf(myChar) >= 0) {
         robot.keyTap(myChar, 'shift');
       } else {
-        robot.typeString(myChar);
+        robot.typeStringDelayed(myChar, myCPM);
       }
     });
   },
@@ -141,8 +143,4 @@ module.exports = {
   getXDisplayName: function() {
     return robot.getXDisplayName();
   },
-
-  typeStringDelayed: function(string, defaultCPM) {
-    robot.typeStringDelayed(string, defaultCPM);
-  }
 }
