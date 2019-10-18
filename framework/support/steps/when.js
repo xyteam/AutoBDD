@@ -14,6 +14,7 @@ const pressButton = require('../../functions/action/pressButton');
 const scroll = require('../../functions/action/scroll');
 const selectOption = require('../../functions/action/selectOption');
 const selectOptionByIndex = require('../../functions/action/selectOptionByIndex');
+const selectFileFromDownloadFolder = require('../../functions/action/selectFileFromDownloadFolder');
 const setCookie = require('../../functions/action/setCookie');
 const setInputField = require('../../functions/action/setInputField');
 const setInputFieldWithEnvVars = require('../../functions/action/setInputFieldWithEnvVars');
@@ -76,6 +77,11 @@ module.exports = function() {
     this.When(
         /^I set a cookie "([^"]*)?" with the content "([^"]*)?"$/,
         setCookie
+    );
+
+    this.When(
+        /^I select the "([^"]*)?" file from the download folder$/, {timeout: process.env.StepTimeoutInMS},
+        selectFileFromDownloadFolder
     );
 
     this.When(
