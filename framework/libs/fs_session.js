@@ -14,7 +14,7 @@ const execSync = require('child_process').execSync;
 
 module.exports = {
   getTestFileFullPath: function(fileName, fileExt) {
-    var testFileExt = fileExt || ['json'];
+    var testFileExt = (fileExt) ? [fileExt] : ['json'];
     var testFileFullPath = null;
 
     // Search order: Module, Project, Support, will return null if not found
@@ -48,7 +48,7 @@ module.exports = {
   },
 
   getTestImageList: function(filePath, fileName, fileExt) {
-    var imageExt = fileExt || ['gif', 'jpg', 'png'];
+    var imageExt = (fileExt) ? [fileExt] : ['gif', 'jpg', 'png'];
     var targetPath = filePath;
     var imageList = [];
 
