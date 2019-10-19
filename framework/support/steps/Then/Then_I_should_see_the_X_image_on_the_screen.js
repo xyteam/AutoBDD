@@ -6,7 +6,7 @@ module.exports = function() {
     const imageWaitTime = 1;
     browser.pause(500);
     var resultString = this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime);
-
+    expect(typeof resultString).not.toBe('undefined');
     expect(resultString).not.toContain('error');
     if (falseCase) {
       expect(resultString).toContain('not found');

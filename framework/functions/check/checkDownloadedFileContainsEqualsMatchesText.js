@@ -15,12 +15,12 @@ module.exports = (fileName, falseCase, action, expectedText) => {
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
-    const downloadFilePath = globSync(getDownloadDir() + '/' + myFileName + '.' + myFileExt)[0]; // we only process the first match
+    const myFilePath = globSync(getDownloadDir() + '/' + myFileName + '.' + myFileExt)[0]; // we only process the first match
     var downloadFileContent;
     switch (myFileExt) {
         case 'pdf':
         case 'PDF':
-            downloadFileContent = fs_session.readPdfData(downloadFilePath).text;
+            downloadFileContent = fs_session.readPdfData(myFilePath).text;
             break;
         case 'xls':
         case 'XLS':
@@ -28,10 +28,10 @@ module.exports = (fileName, falseCase, action, expectedText) => {
         case 'XLSX':
         case 'csv':
         case 'CSV':
-            downloadFileContent = fs_session.readXlsData(downloadFilePath).toString();
+            downloadFileContent = fs_session.readXlsData(myFilePath).toString();
             break;
         default:
-            downloadFileContent = fs.readFileSync(downloadFilePath).toString();
+            downloadFileContent = fs.readFileSync(myFilePath).toString();
     }
     /**
      * The expected text to validate against
