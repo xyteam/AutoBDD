@@ -3,8 +3,9 @@
  * @param  {String}   targetType targetType of navigation (url, file, site or download file)
  * @param  {String}   target The URL to navigate to
  */
+const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
-const fs = require('fs');
+
 module.exports = (targetType, target) => {
     /**
      * The URL to navigate to
@@ -12,13 +13,14 @@ module.exports = (targetType, target) => {
      */
     switch (targetType) {
         case "download file":
-            let downloadDir = getDownloadDir();
+            var myFilePath = globSync(getDownloadDir() + '/' + target)[0]; // we take the first match
             browser.pause(2000);
-            browser.url('file://' + downloadDir + target);
+            browser.url('file://' + myFilePath);
             browser.pause(3000);
             break;
         case "file":
-            browser.url('file://' + target);
+            var myFilePath = globSync(target)[0]; // we take the first match
+            browser.url('file://' + myFilePath);
             break;
         case "path":
             browser.url(browser.options.baseUrl + target);
@@ -28,3 +30,4 @@ module.exports = (targetType, target) => {
             browser.url(target);
     }
 };
+
