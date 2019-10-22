@@ -24,7 +24,7 @@ module.exports = (elementType, element, falseCase, action, type, expectedText) =
      * The expected text to validate against
      * @type {String}
      */
-    let parsedExpectedText = expectedText;
+    let parsedExpectedText = expectedText.startsWith('ENV:') ? eval('process.env.' + expectedText.split(':')[1]) : expectedText;
 
     /**
      * Whether to check if the content equals the given text or not
@@ -100,3 +100,4 @@ module.exports = (elementType, element, falseCase, action, type, expectedText) =
         }
     }
 }
+
