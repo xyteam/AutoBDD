@@ -26,8 +26,8 @@ const isEnabled = require('../../functions/check/isEnabled');
 const isExisting = require('../../functions/check/isExisting');
 const isVisible = require('../../functions/check/isVisible');
 const waitForVisible = require('../../functions/action/waitForVisible');
-const checkIfElementExists = require('../../functions/common/checkIfElementExists');
-const checkIfElementExistsInsideParentElement = require('../../functions/common/checkIfElementExistsInsideParentElement');
+const checkIfElementExists = require('../../functions/check/checkIfElementExists');
+const checkIfElementExistsInsideParentElement = require('../../functions/check/checkIfElementExistsInsideParentElement');
 
 module.exports = function() {
     this.Then(
