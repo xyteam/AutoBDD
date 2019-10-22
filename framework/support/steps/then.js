@@ -76,7 +76,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?(button|element) "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "([^"]*)?"$/,
+        /^I expect (?:that )?element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "([^"]*)?"$/,
         checkContainsEqualsMatchesTextOrValue
     );
 
