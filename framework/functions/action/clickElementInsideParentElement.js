@@ -12,8 +12,8 @@ module.exports = (action, elementIndex, element, parentElementIndex, parentEleme
      * @type {String}
      */
     var targetElementID;
-    const elementIndexInt = parseInt(elementIndex) - 1;
-    const parentElementIndexInt = parseInt(parentElementIndex) - 1;
+    const elementIndexInt = (elementIndex) ? parseInt(elementIndex) - 1 : 0;
+    const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     if (parentElement) {
         const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT;
         targetElementID = browser.elementIdElements(parentElementId, element).value[elementIndexInt].ELEMENT;
