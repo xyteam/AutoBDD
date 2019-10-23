@@ -1,6 +1,6 @@
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?image "([^"]*)?" does( not)* appear (more than|less than|exactly) "([^"]*)?" times$/,
+    /^I expect (?:that )?image "([^"]*)?" does( not)* appear (more than|less than|exactly) "([^"]*)?" time(?:s)?$/,
     {timeout: process.env.StepTimeoutInMS},
     function (imageName, falseCase, compareAction, expectedNumber) {
       const [imageFileName, imageFileExt, imageSimilarity] = this.fs_session.getTestImageParms(imageName);
