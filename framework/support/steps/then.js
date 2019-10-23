@@ -28,6 +28,7 @@ const isVisible = require('../../functions/check/isVisible');
 const waitForVisible = require('../../functions/action/waitForVisible');
 const checkIfElementExists = require('../../functions/check/checkIfElementExists');
 const checkIfElementExistsInsideParentElement = require('../../functions/check/checkIfElementExistsInsideParentElement');
+const checkIfElementInsideParentElementEqualsMatchesTextOrValue = require('../../functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue');
 
 module.exports = function() {
     this.Then(
@@ -41,13 +42,18 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" does( not)* appear exactly "([^"]*)?" times$/,
+        /^I expect (?:that )?element "([^"]*)?" does( not)* appear exactly "([^"]*)?" time(?:s)?$/,
         checkIfElementExists
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" does( not)* appear inside parent element "([^"]*)?"(?: exactly "([^"]*)?" times)?$/,
+        /^I expect (?:that )?element "([^"]*)?" does( not)* appear inside parent element "([^"]*)?"(?: exactly "([^"]*)?" time(?:s)?)?$/,
         checkIfElementExistsInsideParentElement
+    );
+
+    this.Then(
+        /^I expect (?:that )?element "([^"]*)?" inside parent element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "([^"]*)?"$/,
+        checkIfElementInsideParentElementEqualsMatchesTextOrValue
     );
 
     this.Then(
