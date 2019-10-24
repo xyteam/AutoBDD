@@ -1,6 +1,6 @@
 const checkContainsAnyTextOrValue = require('./checkContainsAnyTextOrValue');
 
-module.exports = (elementType, element, type, falseCase) => {
+module.exports = (element, type, falseCase) => {
     // is Empty == undefined == not contain any TextOrValue
     // is not Empty == contains some TextOrValue
     let nextFalseCase = null;
@@ -8,5 +8,5 @@ module.exports = (elementType, element, type, falseCase) => {
         nextFalseCase = 'not';
     } 
 
-    checkContainsAnyTextOrValue(elementType, element, nextFalseCase, type);
+    checkContainsAnyTextOrValue(element, nextFalseCase, type);
 };
