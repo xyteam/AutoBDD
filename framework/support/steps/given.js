@@ -66,7 +66,7 @@ module.exports = function() {
     );
 
     this.Given(
-        /^the element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "([^"]*)?"$/,
+        /^the element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
         checkContainsEqualsMatchesTextOrValue
     );
 
@@ -86,7 +86,7 @@ module.exports = function() {
     );
 
     this.Given(
-        /^the( css)* attribute "([^"]*)?" from element "([^"]*)?" (is|contains|matches)( not)* "([^"]*)?"$/,
+        /^the( css)* attribute "([^"]*)?" from element "([^"]*)?" (is|contains|matches)( not)* "(.*)?"$/,
         checkProperty
     );
 

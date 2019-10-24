@@ -47,7 +47,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" inside parent element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "([^"]*)?"$/,
+        /^I expect (?:that )?element "([^"]*)?" inside parent element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
         checkIfElementInsideParentElementEqualsMatchesTextOrValue
     );
 
@@ -77,7 +77,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "([^"]*)?"$/,
+        /^I expect (?:that )?element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
         checkContainsEqualsMatchesTextOrValue
     );
 
@@ -107,12 +107,12 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the( css)* attribute "([^"]*)?" from element "([^"]*)?" (is|contains|matches)( not)* "([^"]*)?"$/,
+        /^I expect (?:that )?the( css)* attribute "([^"]*)?" from element "([^"]*)?" (is|contains|matches)( not)* "(.*)?"$/,
         checkProperty
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?"( not)* (contains|equals|matches) the text "([^"]*)?"$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?"( not)* (contains|equals|matches) the text "(.*)?"$/,
         checkDownloadedFileContainsEqualsMatchesText
     );
 
