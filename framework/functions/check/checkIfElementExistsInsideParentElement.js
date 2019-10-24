@@ -3,33 +3,42 @@
  * @param  {String}  targetElement  Element selector
  * @param  {Boolean} falseCase      Check if the element (does not) exists
  * @param  {String}  parentElement  Element selector
- * @param  {String}  exactly        Check if the element exists exactly this number (as string)
- *                                  of times
+ * @param  {String}  compareAction  compare action: more than, less than, exactly
+ * @param  {String}  expectedNumber Check if the element exists this number (as string) of times
  */
-module.exports = (targetElement, falseCase, parentElement, exactly) => {
-    const parentElementId = browser.element(parentElement).value.ELEMENT;
-    /**
-     * The number of elements found in the DOM
-     * @type {Int}
-     */
-    const nrOfElements = browser.elementIdElements(parentElementId, targetElement).value;
-
-    if (falseCase === true) {
-        expect(nrOfElements.length).toBe(
-            0,
-            `Element with selector "${targetElement}" should not exist inside "${parentElement}"`
-        );
-    } else if (exactly) {
-        exactly = parseInt(exactly);
-        expect(nrOfElements.length).toBe(
-            exactly,
-            `Element with selector "${targetElement}" should exist exactly ` +
-            `${exactly} time(s) inside "${parentElement}"`
-        );
+module.exports = (targetElement, parentElement, falseCase, compareAction, expectedNumber) => {
+    const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 1;
+    var appearanceNumber;
+    if (parentElement) {
+        const parentElementId = browser.element(parentElement).value.ELEMENT;
+        appearanceNumber = browser.elementIdElements(parentElementId, targetElement).value.length;    
     } else {
-        expect(nrOfElements.length).not.toBeLessThan(
-            1,
-            `Element with selector "${targetElement}" should exist inside "${parentElement}"`
-        );
+        appearanceNumber = browser.elements(targetElement).value.length; 
     }
+    switch (compareAction) {
+        case 'exactly':
+            if (falseCase) {
+                expect(appearanceNumber).not.toEqual(parseInt(myExpectedNumber));
+            }
+            else {
+                expect(appearanceNumber).toEqual(parseInt(myExpectedNumber))
+            }
+            break;
+        case 'less than':
+            if (falseCase) {
+                expect(appearanceNumber).not.toBeLessThan(parseInt(myExpectedNumber));
+            }
+            else {
+                expect(appearanceNumber).toBeLessThan(parseInt(myExpectedNumber))
+            }
+            break;
+        default:
+        case 'more than':
+            if (falseCase) {
+                expect(appearanceNumber).not.toBeGreaterThan(parseInt(myExpectedNumber));
+            }
+            else {
+                expect(appearanceNumber).toBeGreaterThan(parseInt(myExpectedNumber))
+            }
+    }    
 };
