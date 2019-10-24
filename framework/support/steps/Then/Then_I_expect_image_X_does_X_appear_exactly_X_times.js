@@ -1,8 +1,9 @@
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?image "([^"]*)?" does( not)* appear (more than|less than|exactly) "([^"]*)?" time(?:s)?$/,
+    /^I expect (?:that )?image "([^"]*)?" does( not)* appear(?: (more than|less than|exactly) "([^"]*)?" time(?:s)?)?$/,
     {timeout: process.env.StepTimeoutInMS},
     function (imageName, falseCase, compareAction, expectedNumber) {
+      const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 1;
       const [imageFileName, imageFileExt, imageSimilarity] = this.fs_session.getTestImageParms(imageName);
       const imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
       const imageScore = this.lastImage && this.lastImage.imageName == imageName ? this.lastImage.imageScore : imageSimilarity;
@@ -13,31 +14,31 @@ module.exports = function() {
       console.log(JSON.parse(resultString));
       const appearanceNumber = JSON.parse(resultString).length;
       switch (compareAction) {
-        case 'more than':
+        case 'exactly':
           if (falseCase) {
-            expect(appearanceNumber).not.toBeGreaterThan(parseInt(expectedNumber));
+              expect(appearanceNumber).not.toEqual(parseInt(myExpectedNumber));
           }
           else {
-            expect(appearanceNumber).toBeGreaterThan(parseInt(expectedNumber))
+              expect(appearanceNumber).toEqual(parseInt(myExpectedNumber))
           }
           break;
         case 'less than':
           if (falseCase) {
-            expect(appearanceNumber).not.toBeLessThan(parseInt(expectedNumber));
+              expect(appearanceNumber).not.toBeLessThan(parseInt(myExpectedNumber));
           }
           else {
-            expect(appearanceNumber).toBeLessThan(parseInt(expectedNumber))
+              expect(appearanceNumber).toBeLessThan(parseInt(myExpectedNumber))
           }
           break;
-        case 'exactly':
         default:
+        case 'more than':
           if (falseCase) {
-            expect(appearanceNumber).not.toEqual(parseInt(expectedNumber));
+              expect(appearanceNumber).not.toBeGreaterThan(parseInt(myExpectedNumber));
           }
           else {
-            expect(appearanceNumber).toEqual(parseInt(expectedNumber))
+              expect(appearanceNumber).toBeGreaterThan(parseInt(myExpectedNumber))
           }
-      }
+      }    
     }
   );
 };
