@@ -66,17 +66,17 @@ module.exports = function() {
     );
 
     this.Given(
-        /^the (button|element) "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "([^"]*)?"$/,
+        /^the element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "([^"]*)?"$/,
         checkContainsEqualsMatchesTextOrValue
     );
 
     this.Given(
-        /^the (button|element) "([^"]*)?"( not)* contains any (text|value)$/,
+        /^the element "([^"]*)?"( not)* contains any (text|value)$/,
         checkContainsAnyTextOrValue
     );
 
     this.Given(
-        /^the (button|element) "([^"]*)?" (text|value) is( not)* empty$/,
+        /^the element "([^"]*)?" (text|value) is( not)* empty$/,
         checkElementTextValueIsEmpty
     );
 

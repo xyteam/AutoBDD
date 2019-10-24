@@ -42,12 +42,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" does( not)* appear exactly "([^"]*)?" time(?:s)?$/,
-        checkIfElementExists
-    );
-
-    this.Then(
-        /^I expect (?:that )?element "([^"]*)?" does( not)* appear inside parent element "([^"]*)?"(?: exactly "([^"]*)?" time(?:s)?)?$/,
+        /^I expect (?:that )?element "([^"]*)?"(?: inside parent element "([^"]*)?")? does( not)* appear(?: (more than|less than|exactly) "([^"]*)?" time(?:s)?)?$/,
         checkIfElementExistsInsideParentElement
     );
 
@@ -87,12 +82,12 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?(button|element) "([^"]*)?"( not)* contains (?:any|some) (text|value)$/,
+        /^I expect (?:that )?element "([^"]*)?"( not)* contains (?:any|some) (text|value)$/,
         checkContainsAnyTextOrValue
     );
 
     this.Then(
-        /^I expect (?:that )?(button|element) "([^"]*)?" (text|value) is( not)* empty$/,
+        /^I expect (?:that )?element "([^"]*)?" (text|value) is( not)* empty$/,
         checkElementTextValueIsEmpty
     );
 
