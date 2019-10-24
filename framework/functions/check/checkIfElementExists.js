@@ -1,18 +1,18 @@
 /**
  * Check if the given element exists in the DOM one or more times
- * @param  {String}  element  Element selector
- * @param  {Boolean} falsCase Check if the element (does not) exists
- * @param  {String}  exactly  Check if the element exists exactly this number (as string)
- *                            of times
+ * @param  {String}  element   Element selector
+ * @param  {Boolean} falseCase Check if the element (does not) exists
+ * @param  {String}  exactly   Check if the element exists exactly this number (as string)
+ *                             of times
  */
-module.exports = (element, falsCase, exactly) => {
+module.exports = (element, falseCase, exactly) => {
     /**
      * The number of elements found in the DOM
      * @type {Int}
      */
     const nrOfElements = browser.elements(element).value;
 
-    if (falsCase === true) {
+    if (falseCase === true) {
         expect(nrOfElements.length).toBe(
             0,
             `Element with selector "${element}" should not exist on the page`

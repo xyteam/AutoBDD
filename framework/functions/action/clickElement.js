@@ -1,4 +1,4 @@
-const checkIfElementExists = require('../common/checkIfElementExists');
+const checkIfElementExists = require('../check/checkIfElementExists');
 const waitForVisible = require('../action/waitForVisible');
 
 /**

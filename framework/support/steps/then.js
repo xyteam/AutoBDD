@@ -26,8 +26,9 @@ const isEnabled = require('../../functions/check/isEnabled');
 const isExisting = require('../../functions/check/isExisting');
 const isVisible = require('../../functions/check/isVisible');
 const waitForVisible = require('../../functions/action/waitForVisible');
-const checkIfElementExists = require('../../functions/common/checkIfElementExists');
-const checkIfElementExistsInsideParentElement = require('../../functions/common/checkIfElementExistsInsideParentElement');
+const checkIfElementExists = require('../../functions/check/checkIfElementExists');
+const checkIfElementExistsInsideParentElement = require('../../functions/check/checkIfElementExistsInsideParentElement');
+const checkIfElementInsideParentElementEqualsMatchesTextOrValue = require('../../functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue');
 
 module.exports = function() {
     this.Then(
@@ -41,13 +42,13 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" does( not)* appear exactly "([^"]*)?" times$/,
-        checkIfElementExists
+        /^I expect (?:that )?element "([^"]*)?"(?: inside parent element "([^"]*)?")? does( not)* appear(?: (more than|less than|exactly) "([^"]*)?" time(?:s)?)?$/,
+        checkIfElementExistsInsideParentElement
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" does( not)* appear inside parent element "([^"]*)?"(?: exactly "([^"]*)?" times)?$/,
-        checkIfElementExistsInsideParentElement
+        /^I expect (?:that )?element "([^"]*)?" inside parent element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
+        checkIfElementInsideParentElementEqualsMatchesTextOrValue
     );
 
     this.Then(
@@ -76,17 +77,17 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?(button|element) "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "([^"]*)?"$/,
+        /^I expect (?:that )?element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
         checkContainsEqualsMatchesTextOrValue
     );
 
     this.Then(
-        /^I expect (?:that )?(button|element) "([^"]*)?"( not)* contains (?:any|some) (text|value)$/,
+        /^I expect (?:that )?element "([^"]*)?"( not)* contains (?:any|some) (text|value)$/,
         checkContainsAnyTextOrValue
     );
 
     this.Then(
-        /^I expect (?:that )?(button|element) "([^"]*)?" (text|value) is( not)* empty$/,
+        /^I expect (?:that )?element "([^"]*)?" (text|value) is( not)* empty$/,
         checkElementTextValueIsEmpty
     );
 
@@ -106,12 +107,12 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the( css)* attribute "([^"]*)?" from element "([^"]*)?" (is|contains|matches)( not)* "([^"]*)?"$/,
+        /^I expect (?:that )?the( css)* attribute "([^"]*)?" from element "([^"]*)?" (is|contains|matches)( not)* "(.*)?"$/,
         checkProperty
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?"( not)* (contains|equals|matches) the text "([^"]*)?"$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?"( not)* (contains|equals|matches) the text "(.*)?"$/,
         checkDownloadedFileContainsEqualsMatchesText
     );
 

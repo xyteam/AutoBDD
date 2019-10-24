@@ -1,12 +1,11 @@
 /**
  * Check if the given elements contains text
- * @param  {String}   elementType   Element type (element or button)
  * @param  {String}   element       Element selector
  * @param  {String}   falseCase     Whether to check if the content contains
  *                                  text or not
  * @param  {String}   type          text or value
  */
-module.exports = (elementType, element, falseCase, type) => {
+module.exports = (element, falseCase, type) => {
     /**
      * The command to perform on the browser object
      * @type {String}

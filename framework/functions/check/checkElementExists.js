@@ -1,4 +1,4 @@
-const checkIfElementExists = require('../common/checkIfElementExists');
+const checkIfElementExists = require('../check/checkIfElementExists');
 
 /**
  * Check if the given element exists
