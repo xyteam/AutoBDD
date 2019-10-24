@@ -3,7 +3,7 @@ module.exports = function() {
     /^I expect (?:that )?image "([^"]*)?" does( not)* appear(?: (more than|less than|exactly) "([^"]*)?" time(?:s)?)?$/,
     {timeout: process.env.StepTimeoutInMS},
     function (imageName, falseCase, compareAction, expectedNumber) {
-      const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 1;
+      const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 0;
       const [imageFileName, imageFileExt, imageSimilarity] = this.fs_session.getTestImageParms(imageName);
       const imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
       const imageScore = this.lastImage && this.lastImage.imageName == imageName ? this.lastImage.imageScore : imageSimilarity;

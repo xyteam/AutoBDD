@@ -7,7 +7,7 @@
  * @param  {String}  expectedNumber Check if the element exists this number (as string) of times
  */
 module.exports = (targetElement, parentElement, falseCase, compareAction, expectedNumber) => {
-    const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 1;
+    const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 0;
     var appearanceNumber;
     if (parentElement) {
         const parentElementId = browser.element(parentElement).value.ELEMENT;
