@@ -1,36 +1,30 @@
 /**
  * Perform an click action on the given element
  * @param  {String}  action             The action to perform on the target elementID
- * @param  {String}  elementIndex       The nth element start from 1st,2nd,3rd,4th
- * @param  {String}  element            Element selector
+ * @param  {String}  targetElementIndex The nth element start from 1st,2nd,3rd,4th
+ * @param  {String}  targetElement      target element selector
  * @param  {String}  parentElementIndex The nth parent element start from 1st,2nd,3rd,4th
- * @param  {String}  parentElement      Element selector
+ * @param  {String}  parentElement      parent element selector
  */
-module.exports = (action, elementIndex, element, parentElementIndex, parentElement) => {
-    /**
-     * Element to perform the action on
-     * @type {String}
-     */
-    var targetElementID;
-    const elementIndexInt = (elementIndex) ? parseInt(elementIndex) - 1 : 0;
+module.exports = (action, targetElementIndex, targetElement, parentElementIndex, parentElement) => {
+    const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
+
+    var targetElementId;
     if (parentElement) {
         const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT;
-        targetElementID = browser.elementIdElements(parentElementId, element).value[elementIndexInt].ELEMENT;
+        targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
     } else {
-        targetElementID = browser.elements(element).value[elementIndexInt].ELEMENT;
+        targetElementId = browser.elements(targetElement).value[targetElementIndexInt].ELEMENT;
     }
-    /**
-     * The method to call on the browser object
-     * @type {String}
-     */
-    var method;
+
+    var myMethod;
     switch (action) {
         case 'clear':
-            method = 'elementIdClear';
+            myMethod = 'elementIdClear';
         case 'click':
         default:
-            method = 'elementIdClick';
+            myMethod = 'elementIdClick';
     }
-    browser[method](targetElementID);
+    browser[myMethod](targetElementId);
 };
