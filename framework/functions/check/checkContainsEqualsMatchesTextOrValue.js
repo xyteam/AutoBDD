@@ -51,21 +51,21 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                 expect(retrivedValue).not.toContain(
                     parsedExpectedText,
                     `element "${element}" should not contain ${type} ` +
-                    `"${retrivedValue}"`
+                    `"${expectedText}"`
                 );        
                 break;
             case 'equals':
                 expect(retrivedValue).not.toEqual(
                     parsedExpectedText,
                     `element "${element}" should not equal ${type} ` +
-                    `"${retrivedValue}"`
+                    `"${expectedText}"`
                 );        
                 break;
             case 'matches':
                 expect(retrivedValue).not.toMatch(
                     parsedExpectedText,
                     `element "${element}" should not match ${type} ` +
-                    `"${retrivedValue}"`
+                    `"${expectedText}"`
                 );        
                 break;
             default:
@@ -77,21 +77,21 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                 expect(retrivedValue).toContain(
                     parsedExpectedText,
                     `element "${element}" should contain ${type} ` +
-                    `"${retrivedValue}"`
+                    `"${expectedText}"`
                 );        
                 break;
             case 'equals':
                 expect(retrivedValue).toEqual(
                     parsedExpectedText,
                     `element "${element}" should equal ${type} ` +
-                    `"${retrivedValue}"`
+                    `"${expectedText}"`
                 );        
                 break;
             case 'matches':
                 expect(retrivedValue).toMatch(
                     parsedExpectedText,
                     `element "${element}" should match ${type} ` +
-                    `"${retrivedValue}"`
+                    `"${expectedText}"`
                 );        
                 break;
             default:

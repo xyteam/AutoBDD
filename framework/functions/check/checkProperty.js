@@ -42,21 +42,21 @@ module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) =>
                 expect(attributeValue).not.toEqual(
                     expectedValue,
                     `${attrType}: ${attrName} of element "${element}" should not be ` +
-                    `"${attributeValue}"`
+                    `"${expectedValue}"`
                 );        
                 break;
             case 'contains':
                 expect(attributeValue).not.toContain(
                     expectedValue,
                     `${attrType}: ${attrName} of element "${element}" should not contain ` +
-                    `"${attributeValue}"`
+                    `"${expectedValue}"`
                 );        
                 break;
             case 'matches':
                 expect(attributeValue).not.toMatch(
                     expectedValue,
                     `${attrType}: ${attrName} of element "${element}" should not match ` +
-                    `"${attributeValue}"`
+                    `"${expectedValue}"`
                 );        
                 break;
         }
@@ -66,21 +66,21 @@ module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) =>
                 expect(attributeValue).toEqual(
                     expectedValue,
                     `${attrType}: ${attrName} of element "${element}" should be ` +
-                    `"${attributeValue}"`
+                    `"${expectedValue}"`
                 );        
                 break;
             case 'contains':
                 expect(attributeValue).toContain(
                     expectedValue,
                     `${attrType}: ${attrName} of element "${element}" should contain ` +
-                    `"${attributeValue}"`
+                    `"${expectedValue}"`
                 );        
                 break;
             case 'matches':
                 expect(attributeValue).toMatch(
                     expectedValue,
                     `${attrType}: ${attrName} of element "${element}" should match ` +
-                    `"${attributeValue}"`
+                    `"${expectedValue}"`
                 );        
                 break;
         }
