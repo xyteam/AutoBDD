@@ -46,7 +46,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? element "([^"]*)?" inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
+        /^I expect the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")?( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
         checkIfElementInsideParentElementEqualsMatchesTextOrValue
     );
 
