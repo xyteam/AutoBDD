@@ -10,22 +10,22 @@ module.exports = (element, falseCase, exactly) => {
      * The number of elements found in the DOM
      * @type {Int}
      */
-    const nrOfElements = browser.elements(element).value;
+    const nrOfElements = browser.elements(element).value.length;
 
     if (falseCase === true) {
-        expect(nrOfElements.length).toBe(
+        expect(nrOfElements).toBe(
             0,
             `Element with selector "${element}" should not exist on the page`
         );
     } else if (exactly) {
         exactly = parseInt(exactly);
-        expect(nrOfElements.length).toBe(
+        expect(nrOfElements).toBe(
             exactly,
             `Element with selector "${element}" should exist exactly ` +
             `${exactly} time(s)`
         );
     } else {
-        expect(nrOfElements.length).not.toBeLessThan(
+        expect(nrOfElements).not.toBeLessThan(
             1,
             `Element with selector "${element}" should exist on the page`
         );
