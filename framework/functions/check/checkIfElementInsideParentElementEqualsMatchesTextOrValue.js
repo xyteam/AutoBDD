@@ -1,21 +1,25 @@
 /**
  * Check if the given element inside a given parent element has expected text or value
- * @param  {String}   targetElement  Targetlement selector
- * @param  {String}   parentElement Parent Element selector
- * @param  {String}   falseCase     Whether to check if the content equals the
- *                                  given text or not
- * @param  {String}   action        equals, contains or matches
- * @param  {String}   type          text or value
- * @param  {String}   expectedText  The text to validate against
+ * @param  {String}  targetElementIndex The nth element start from 1st,2nd,3rd,4th
+ * @param  {String}  targetElement      target element selector
+ * @param  {String}  parentElementIndex The nth parent element start from 1st,2nd,3rd,4th
+ * @param  {String}  parentElement      parent element selector
+ * @param  {Boolean} falseCase          Check if the element (does not) exists
+ * @param  {String}  action             equals, contains or matches
+ * @param  {String}  type               text or value
+ * @param  {String}  expectedText       The text to validate against
  */
-module.exports = (targetElement, parentElement, falseCase, action, type, expectedText) => {
-    const parentElementId = browser.element(parentElement).value.ELEMENT;
-    const targetElementId = browser.elementIdElement(parentElementId, targetElement).value.ELEMENT;
-    /**
-     * The command to execute on the browser object
-     * @type {String}
-     */
-
+module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, type, expectedText) => {
+    const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
+    const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
+    
+    var targetElementId;
+    if (parentElement) {
+        const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT;
+        targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
+    } else {
+        targetElementId = browser.elements(targetElement).value[targetElementIndexInt].ELEMENT;
+    }
 
     /**
      * The expected text to validate against
