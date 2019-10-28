@@ -5,6 +5,7 @@ const checkCookieContent = require('../../functions/check/checkCookieContent');
 const checkCookieExists = require('../../functions/check/checkCookieExists');
 const checkDimension = require('../../functions/check/checkDimension');
 const checkContainsEqualsMatchesTextOrValue = require('../../functions/check/checkContainsEqualsMatchesTextOrValue');
+const checkDownloadedFileContainsNumOfLines = require('../../functions/check/checkDownloadedFileContainsNumOfLines');
 const checkDownloadedFileContainsEqualsMatchesText = require('../../functions/check/checkDownloadedFileContainsEqualsMatchesText');
 const checkFocus = require('../../functions/check/checkFocus');
 const checkInURLPath = require('../../functions/check/checkInURLPath');
@@ -108,6 +109,11 @@ module.exports = function() {
     this.Then(
         /^I expect (?:that )?the( css)* attribute "([^"]*)?" from element "([^"]*)?" (is|contains|matches)( not)* "(.*)?"$/,
         checkProperty
+    );
+
+    this.Then(
+        /^I expect (?:that )?the downloaded file "([^"]*)?" contains( not)* (exactly|more than|less than) "(.*)?" line(?:s)?$/,
+        checkDownloadedFileContainsNumOfLines
     );
 
     this.Then(
