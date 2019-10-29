@@ -5,10 +5,10 @@
  * @param  {String}   ms                       Wait duration (optional)
  * @param  {String}   falseState               Check for opposite state
  */
-const fs = require('fs');
+const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
 module.exports = (targetName, ms, falseState) => {
-    let downloadDir = getDownloadDir();
+    let fileTarget = getDownloadDir() + targetName.replace(/ /g, '\\ ');
     /**
      * Maximum number of milliseconds to wait, default 3000
      * @type {Int}
@@ -21,18 +21,17 @@ module.exports = (targetName, ms, falseState) => {
      */
     let boolFalseState = !!falseState;
 
-    const downloadFileFullPath = downloadDir + '/' + targetName;
     var timeOut = false;
     var handle = setInterval(() => {
-        console.log('download timeout: ' + downloadFileFullPath);
+        console.log('wait timeout: ' + fileTarget);
         timeOut = true;
-    }, ms);
+    }, intMs);
     if (boolFalseState) {
-        while (fs.existsSync(downloadFileFullPath) && !timeOut) {
+        while (globSync(fileTarget)[0] && !timeOut) {
             browser.pause(3000);
         }
     } else {
-        while (!fs.existsSync(downloadFileFullPath) && !timeOut) {
+        while (!globSync(fileTarget)[0] && !timeOut) {
             browser.pause(3000);
         }
     }

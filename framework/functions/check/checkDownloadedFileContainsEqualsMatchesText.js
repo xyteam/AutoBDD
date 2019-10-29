@@ -15,7 +15,7 @@ module.exports = (fileName, falseCase, action, expectedText) => {
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
-    const myFilePath = globSync(getDownloadDir() + '/' + myFileName + '.' + myFileExt)[0]; // we only process the first match
+    const myFilePath = globSync(getDownloadDir() + myFileName + '.' + myFileExt)[0]; // we only process the first match
     var downloadFileContent;
     switch (myFileExt) {
         case 'pdf':

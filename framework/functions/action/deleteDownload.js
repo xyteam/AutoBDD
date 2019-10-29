@@ -10,7 +10,7 @@ module.exports = (deleteType, fileName) => {
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
-    const myFileList = globSync(getDownloadDir() + '/' + myFileName + '.' + myFileExt);
+    const myFileList = globSync(getDownloadDir() + myFileName + '.' + myFileExt);
 
     switch (deleteType) {
         case "all":
