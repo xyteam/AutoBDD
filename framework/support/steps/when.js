@@ -25,7 +25,7 @@ const waitForDownload = require('../../functions/action/waitForDownload');
 
 module.exports = function() {
     this.When(
-        /^I (back|close|debug|forward|reload|reset) browser$/, {timeout: 3600*1000},
+        /^I (back|close|debug|forward|refresh|reload|reset) browser$/, {timeout: 3600*1000},
         browserAction
     );
 
