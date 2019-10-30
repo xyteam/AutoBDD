@@ -20,7 +20,8 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
         break;
       case '18.04':
       default:
-        sikuliApiJar = sikuliApiJarPath + '/sikulixapi-1.1.4.jar';
+        // sikuliApiJar = sikuliApiJarPath + '/sikulixapi-1.1.4.jar';
+        sikuliApiJar = sikuliApiJarPath + '/sikulixapi-2.0.0.jar';
         break;
     }
     java.classpath.push(sikuliApiJar);

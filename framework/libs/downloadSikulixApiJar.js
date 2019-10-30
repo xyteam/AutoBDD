@@ -3,38 +3,35 @@
 var argv = require('minimist')(process.argv.slice(2));
 process.env.DISPLAY = process.env.DISPLAY || ':1';
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const sikuliApiJar = argv.sikulixApiJar || FrameworkPath + '/framework/libs/sikulixapi-1.1.4.jar';
-const sikuliApiUrl_latest = 'https://raiman.github.io/SikuliX1/sikulixapi.jar';
-const sikuliApiUrl_114 = 'https://raiman.github.io/SikuliX1/sikulixapi.jar';
-var sikuliApiUrl = argv.sikulixUrl || sikuliApiUrl_114;
+const sikuliApiJar = argv.sikulixApiJar || FrameworkPath + '/framework/libs/sikulixapi-2.0.0.jar';
+const sikuliApiUrl_200 = 'https://github.com/RaiMan/SikuliX1/releases/download/v2.0.0/sikulixapi-2.0.0.jar';
+const sikuliApiUrl = argv.sikulixUrl || sikuliApiUrl_200;
 const fs = require('fs');
-const https = require('https');
+const request = require('request');
 const java = require('java');
 
-var findJarStat = function(filePath, getUrl) {
-  return new Promise(async function(resolve, reject) {
-    if (!fs.existsSync(sikuliApiJar) || fs.statSync(sikuliApiJar).size == 0) {
-      var request = await https.get(getUrl, function(res) {
-        console.log('statusCode:', res.statusCode);
-        console.log('headers:', res.headers);
-        if (res.statusCode != 200) {
-          reject(false);
+const findJarStat = (filePath, getUrl) => {
+    return new Promise(async (resolve, reject) => {
+        if (fs.existsSync(filePath) && fs.statSync(filePath).size > 0) {
+            resolve(true);
         } else {
-          try {
-            var saveDest= fs.createWriteStream(filePath);
-            var saveStat = res.pipe(saveDest);
-            saveDest.on('finish', function(){
-              resolve(true)
-            });
-          } catch(e) {
-            reject(false);
-          }
+            const options = {
+                url: getUrl,
+	        encoding: null
+            }
+            await request.get(options, (err, res, body) => {
+                console.log('statusCode:', res.statusCode);
+                console.log('headers:', res.headers);
+                try {
+                    fs.writeFileSync(filePath, Buffer.from(body, 'utf8'));
+                } catch(e) {
+	            console.log(e);
+	            reject(false);
+                }
+	        resolve(true);
+          });
         }
-      })
-    } else {
-      resolve(true);
-    }
-  });
+    });
 }
 
 findJarStat(sikuliApiJar, sikuliApiUrl).then(function(jarStat) {
@@ -53,3 +50,4 @@ findJarStat(sikuliApiJar, sikuliApiUrl).then(function(jarStat) {
 }).catch(function(e) {
   console.log(e);
 });
+
