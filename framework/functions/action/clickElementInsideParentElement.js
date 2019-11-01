@@ -10,25 +10,27 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
 
-    var targetElementId;
+    var myParentElement, myTargetElement;
     if (parentElement) {
-        const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT;
-        targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
+        myParentElement = browser.elements(parentElement).value[parentElementIndexInt];
+        myTargetElement = browser.elementIdElements(myParentElement.ELEMENT, targetElement).value[targetElementIndexInt];
     } else {
-        targetElementId = browser.elements(targetElement).value[targetElementIndexInt].ELEMENT;
+        myTargetElement = browser.elements(targetElement).value[targetElementIndexInt];
     }
+
+    console.log(myTargetElement);
 
     switch (action) {
         case 'deepClick':
-            const runInBrowser = (element) => { element.click() };
-            const elementToClickOn = browser.element(targetElementId).value;
-            browser.execute(runInBrowser, elementToClickOn);      
+            const runInBrowser = function(argument) { argument.click(); };
+            browser.execute(runInBrowser, myParentElement);
+            browser.execute(runInBrowser, myTargetElement);      
             break;
         case 'clear':
-            browser.elementIdClear(targetElementId);
+            browser.elementIdClear(myTargetElement.ELEMENT);
             break;
         case 'click':
         default:
-            browser.elementIdClick(targetElementId);
+            browser.elementIdClick(myTargetElement.ELEMENT);
     }
 };
