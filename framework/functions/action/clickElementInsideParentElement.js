@@ -18,13 +18,17 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
         targetElementId = browser.elements(targetElement).value[targetElementIndexInt].ELEMENT;
     }
 
-    var myMethod;
     switch (action) {
+        case 'deepClick':
+            const runInBrowser = (element) => { element.click() };
+            const elementToClickOn = browser.element(targetElementId).value;
+            browser.execute(runInBrowser, elementToClickOn);      
+            break;
         case 'clear':
-            myMethod = 'elementIdClear';
+            browser.elementIdClear(targetElementId);
+            break;
         case 'click':
         default:
-            myMethod = 'elementIdClick';
+            browser.elementIdClick(targetElementId);
     }
-    browser[myMethod](targetElementId);
 };
