@@ -17,20 +17,26 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
     } else {
         myTargetElement = browser.elements(targetElement).value[targetElementIndexInt];
     }
-
     console.log(myTargetElement);
 
     switch (action) {
-        case 'deepClick':
-            const runInBrowser = function(argument) { argument.click(); };
-            browser.execute(runInBrowser, myParentElement);
-            browser.execute(runInBrowser, myTargetElement);      
-            break;
         case 'clear':
             browser.elementIdClear(myTargetElement.ELEMENT);
+            break;
+        case 'deepClick':
+            try {
+                console.log('1st try with direct click ...')
+                browser.elementIdClick(myTargetElement.ELEMENT);
+            } catch (e) {
+                console.log('2nd try with deep click ...')
+                const runInBrowser = function(argument) { argument.click(); };
+                browser.execute(runInBrowser, myTargetElement);          
+            }
             break;
         case 'click':
         default:
             browser.elementIdClick(myTargetElement.ELEMENT);
+            break;
     }
 };
+
