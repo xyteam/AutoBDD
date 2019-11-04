@@ -1,4 +1,6 @@
 const announceMessage = require('../../functions/action/announceMessage');
+const changeBrowserBackground = require('../../functions/action/changeBrowserBackground');
+const changeBrowserZoom = require('../../functions/action/changeBrowserZoom');
 const clearInputField = require('../../functions/action/clearInputField');
 const clickElement = require('../../functions/action/clickElement');
 const clickElementInsideParentElement = require('../../functions/action/clickElementInsideParentElement');
@@ -135,6 +137,11 @@ module.exports = function() {
     );
 
     this.When(
+        /^I set browser background color to "([^"]*)?"$/,
+        changeBrowserBackground
+    );
+
+    this.When(
         /^I wait on download file "([^"]*)?"(?: for (\d+)ms)* to( not)* exist$/,
         {
             wrapperOptions: {
@@ -152,6 +159,11 @@ module.exports = function() {
             },
         },
         waitFor
+    );
+
+    this.When(
+        /^I zoom browser to "([^"]*)?"$/,
+        changeBrowserZoom
     );
 
 }

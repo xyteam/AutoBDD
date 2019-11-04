@@ -29,8 +29,8 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
                 browser.elementIdClick(myTargetElement.ELEMENT);
             } catch (e) {
                 console.log('2nd try with deep click ...')
-                const runInBrowser = function(argument) { argument.click(); };
-                browser.execute(runInBrowser, myTargetElement);          
+                const deepClick = function(argument) { argument.click(); };
+                browser.execute(deepClick, myTargetElement);          
             }
             break;
         case 'click':
