@@ -3,9 +3,9 @@
  * @param  {String}   percent zoom percent, i.e., 80%, 120%, 
  */
 module.exports = (percent) => {
-    const browserZoom = function(argument) { document.body.style.zoom = argument; };
+    const changeBrowserZoom = function(argument) { document.body.style.zoom = argument; };
     try {
-        browser.execute(browserZoom, percent); 
+        browser.execute(changeBrowserZoom, percent); 
     } catch (e) {
         console.log(`browser zoom ${percent} failed`);
     }
