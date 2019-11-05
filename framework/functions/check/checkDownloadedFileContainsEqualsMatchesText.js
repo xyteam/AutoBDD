@@ -1,8 +1,8 @@
 /**
  * Check if the given elements text is the same as the given text
  * @param  {String}   fileName      File name
- * @param  {String}   falseCase     Whether to check if the content equals the
- *                                  given text or not
+ * @param  {String}   lineNumber    at line number
+ * @param  {String}   falseCase     not
  * @param  {String}   action        equals, contains or matches
  * @param  {String}   expectedText  The text to validate against
  */
@@ -11,16 +11,21 @@ const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
 
-module.exports = (fileName, falseCase, action, expectedText) => {
+module.exports = (fileName, lineNumber, falseCase, action, expectedText) => {
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
     const myFilePath = globSync(getDownloadDir() + myFileName + '.' + myFileExt)[0]; // we only process the first match
-    var downloadFileContent;
+    var downloadFileContent, readTargetContent;
     switch (myFileExt) {
         case 'pdf':
         case 'PDF':
             downloadFileContent = fs_session.readPdfData(myFilePath).text;
+            if (lineNumber) {
+                readTargetContent = downloadFileContent.split('\n')[parseInt(lineNumber)];
+            } else {
+                readTargetContent = downloadFileContent;
+            }
             break;
         case 'xls':
         case 'XLS':
@@ -29,10 +34,22 @@ module.exports = (fileName, falseCase, action, expectedText) => {
         case 'csv':
         case 'CSV':
             downloadFileContent = fs_session.readXlsData(myFilePath).toString();
+            const xlsData = fs_session.readXlsData(myFilePath).filter(row => row.length > 0);
+            if (lineNumber) {
+                readTargetContent = xlsData[lineNumber];
+            } else {
+                readTargetContent = downloadFileContent;
+            }        
             break;
         default:
             downloadFileContent = fs.readFileSync(myFilePath).toString();
+            if (lineNumber) {
+                readTargetContent = downloadFileContent.split('\n')[parseInt(lineNumber)];
+            } else {
+                readTargetContent = downloadFileContent;
+            }        
     }
+
     /**
      * The expected text to validate against
      * @type {String}
@@ -56,27 +73,24 @@ module.exports = (fileName, falseCase, action, expectedText) => {
         boolFalseCase = true;
     }
 
-    const retrivedValue = downloadFileContent;
-    // console.log(`text : ${retrivedValue}`)
-
     if (boolFalseCase) {
         switch (action) {
             case 'contains':
-                expect(retrivedValue).not.toContain(
+                expect(readTargetContent).not.toContain(
                     parsedExpectedText,
                     `file "${fileName}" should not contain text ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'equals':
-                expect(retrivedValue).not.toEqual(
+                expect(readTargetContent).not.toEqual(
                     parsedExpectedText,
                     `file "${fileName}" should not equal text ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'matches':
-                expect(retrivedValue).not.toMatch(
+                expect(readTargetContent).not.toMatch(
                     parsedExpectedText,
                     `file "${fileName}" should not match text ` +
                     `"${parsedExpectedText}"`
@@ -88,21 +102,21 @@ module.exports = (fileName, falseCase, action, expectedText) => {
     } else {
         switch (action) {
             case 'contains':
-                expect(retrivedValue).toContain(
+                expect(readTargetContent).toContain(
                     parsedExpectedText,
                     `file "${fileName}" should contain text ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'equals':
-                expect(retrivedValue).toEqual(
+                expect(readTargetContent).toEqual(
                     parsedExpectedText,
                     `file "${fileName}" should equal text ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'matches':
-                expect(retrivedValue).toMatch(
+                expect(readTargetContent).toMatch(
                     parsedExpectedText,
                     `file "${fileName}" should match text ` +
                     `"${parsedExpectedText}"`

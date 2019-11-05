@@ -6,6 +6,7 @@ const checkCookieExists = require('../../functions/check/checkCookieExists');
 const checkDimension = require('../../functions/check/checkDimension');
 const checkContainsEqualsMatchesTextOrValue = require('../../functions/check/checkContainsEqualsMatchesTextOrValue');
 const checkDownloadedFileContainsNumOfLines = require('../../functions/check/checkDownloadedFileContainsNumOfLines');
+const checkDownloadedFileContainsRowsAndColumns = require('../../functions/check/checkDownloadedFileContainsRowsAndColumns');
 const checkDownloadedFileContainsEqualsMatchesText = require('../../functions/check/checkDownloadedFileContainsEqualsMatchesText');
 const checkFocus = require('../../functions/check/checkFocus');
 const checkInURLPath = require('../../functions/check/checkInURLPath');
@@ -112,12 +113,17 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?" contains( not)* (exactly|more than|less than) "(.*)?" line(?:s)?$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?" contains( not)* (exactly|more than|less than) (\d+) line(?:s)?$/,
         checkDownloadedFileContainsNumOfLines
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?"( not)* (contains|equals|matches) the text "(.*)?"$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?" contains (\d+) row(?:s)?(?: and (\d+) column(?:s)?)?$/,
+        checkDownloadedFileContainsRowsAndColumns
+    );
+
+    this.Then(
+        /^I expect (?:that )?the downloaded file "([^"]*)?"(?: at line (\d+))?( not)* (contains|equals|matches) the text "(.*)?"$/,
         checkDownloadedFileContainsEqualsMatchesText
     );
 
