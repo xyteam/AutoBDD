@@ -4,7 +4,6 @@ const checkElementTextValueIsEmpty = require('../../functions/check/checkElement
 const checkCookieContent = require('../../functions/check/checkCookieContent');
 const checkCookieExists = require('../../functions/check/checkCookieExists');
 const checkDimension = require('../../functions/check/checkDimension');
-const checkContainsEqualsMatchesTextOrValue = require('../../functions/check/checkContainsEqualsMatchesTextOrValue');
 const checkDownloadedFileContainsNumOfLines = require('../../functions/check/checkDownloadedFileContainsNumOfLines');
 const checkDownloadedFileContainsRowsAndColumns = require('../../functions/check/checkDownloadedFileContainsRowsAndColumns');
 const checkDownloadedFileContainsEqualsMatchesText = require('../../functions/check/checkDownloadedFileContainsEqualsMatchesText');
@@ -75,11 +74,6 @@ module.exports = function() {
     this.Then(
         /^I expect (?:that )?the element "([^"]*)?"( not)* contains the same text as element "([^"]*)?"$/,
         compareText
-    );
-
-    this.Then(
-        /^I expect (?:that )?the element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
-        checkContainsEqualsMatchesTextOrValue
     );
 
     this.Then(

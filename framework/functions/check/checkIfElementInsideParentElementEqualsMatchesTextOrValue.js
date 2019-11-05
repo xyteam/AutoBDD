@@ -48,6 +48,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     switch (type) {
         case 'value':
             retrivedValue = browser.elementIdAttribute(targetElementId, type).value;
+            break;
         case 'text':
         default:
             retrivedValue = browser.elementIdText(targetElementId).value;
@@ -60,21 +61,21 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
             case 'contains':
                 expect(retrivedValue).not.toContain(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}"should not contain ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should not contain ${type} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'equals':
                 expect(retrivedValue).not.toEqual(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}"should not equal ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should not equal ${type} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'matches':
                 expect(retrivedValue).not.toMatch(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}"should not match ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should not match ${type} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
@@ -86,21 +87,21 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
             case 'contains':
                 expect(retrivedValue).toContain(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}"should contain ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should contain ${type} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'equals':
                 expect(retrivedValue).toEqual(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}"should equal ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should equal ${type} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'matches':
                 expect(retrivedValue).toMatch(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}"should match ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should match ${type} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
