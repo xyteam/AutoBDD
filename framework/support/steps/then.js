@@ -6,6 +6,7 @@ const checkCookieExists = require('../../functions/check/checkCookieExists');
 const checkDimension = require('../../functions/check/checkDimension');
 const checkContainsEqualsMatchesTextOrValue = require('../../functions/check/checkContainsEqualsMatchesTextOrValue');
 const checkDownloadedFileContainsNumOfLines = require('../../functions/check/checkDownloadedFileContainsNumOfLines');
+const checkDownloadedFileContainsRowsAndColumns = require('../../functions/check/checkDownloadedFileContainsRowsAndColumns');
 const checkDownloadedFileContainsEqualsMatchesText = require('../../functions/check/checkDownloadedFileContainsEqualsMatchesText');
 const checkFocus = require('../../functions/check/checkFocus');
 const checkInURLPath = require('../../functions/check/checkInURLPath');
@@ -42,52 +43,52 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect the element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? does( not)* appear(?: (more than|less than|exactly) "([^"]*)?" time(?:s)?)?$/,
+        /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? does( not)* appear(?: (more than|less than|exactly) "([^"]*)?" time(?:s)?)?$/,
         checkIfElementExistsInsideParentElement
     );
 
     this.Then(
-        /^I expect the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")?( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
+        /^I expect (?:that )?the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")?( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
         checkIfElementInsideParentElementEqualsMatchesTextOrValue
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" is( not)* visible$/,
+        /^I expect (?:that )?the element "([^"]*)?" is( not)* visible$/,
         isVisible
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" becomes( not)* visible$/,
+        /^I expect (?:that )?the element "([^"]*)?" becomes( not)* visible$/,
         waitForVisible
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" is( not)* within the viewport$/,
+        /^I expect (?:that )?the element "([^"]*)?" is( not)* within the viewport$/,
         checkWithinViewport
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" does( not)* exist$/,
+        /^I expect (?:that )?the element "([^"]*)?" does( not)* exist$/,
         isExisting
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?"( not)* contains the same text as element "([^"]*)?"$/,
+        /^I expect (?:that )?the element "([^"]*)?"( not)* contains the same text as element "([^"]*)?"$/,
         compareText
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
+        /^I expect (?:that )?the element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
         checkContainsEqualsMatchesTextOrValue
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?"( not)* contains (?:any|some) (text|value)$/,
+        /^I expect (?:that )?the element "([^"]*)?"( not)* contains (?:any|some) (text|value)$/,
         checkContainsAnyTextOrValue
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" (text|value) is( not)* empty$/,
+        /^I expect (?:that )?the element "([^"]*)?" (text|value) is( not)* empty$/,
         checkElementTextValueIsEmpty
     );
 
@@ -112,12 +113,17 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?" contains( not)* (exactly|more than|less than) "(.*)?" line(?:s)?$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?" contains( not)* (exactly|more than|less than) (\d+) line(?:s)?$/,
         checkDownloadedFileContainsNumOfLines
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?"( not)* (contains|equals|matches) the text "(.*)?"$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?" contains (\d+) row(?:s)?(?: and (\d+) column(?:s)?)?$/,
+        checkDownloadedFileContainsRowsAndColumns
+    );
+
+    this.Then(
+        /^I expect (?:that )?the downloaded file "([^"]*)?"(?: at line (\d+))?( not)* (contains|equals|matches) the text "(.*)?"$/,
         checkDownloadedFileContainsEqualsMatchesText
     );
 
@@ -127,57 +133,57 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?checkbox "([^"]*)?" is( not)* checked$/,
+        /^I expect (?:that )?the checkbox "([^"]*)?" is( not)* checked$/,
         checkSelected
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" is( not)* selected$/,
+        /^I expect (?:that )?the element "([^"]*)?" is( not)* selected$/,
         checkSelected
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" is( not)* enabled$/,
+        /^I expect (?:that )?the element "([^"]*)?" is( not)* enabled$/,
         isEnabled
     );
 
     this.Then(
-        /^I expect (?:that )?cookie "([^"]*)?"( not)* contains "([^"]*)?"$/,
+        /^I expect (?:that )?the cookie "([^"]*)?"( not)* contains "([^"]*)?"$/,
         checkCookieContent
     );
 
     this.Then(
-        /^I expect (?:that )?cookie "([^"]*)?"( not)* exists$/,
+        /^I expect (?:that )?the cookie "([^"]*)?"( not)* exists$/,
         checkCookieExists
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" is( not)* ([\d.]+)px (broad|tall)$/,
+        /^I expect (?:that )?the element "([^"]*)?" is( not)* ([\d.]+)px (broad|tall)$/,
         checkDimension
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" is( not)* positioned at ([\d.]+)px on the (x|y) axis$/,
+        /^I expect (?:that )?the element "([^"]*)?" is( not)* positioned at ([\d.]+)px on the (x|y) axis$/,
         checkOffset
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" (has|does not have) the class "([^"]*)?"$/,
+        /^I expect (?:that )?the element "([^"]*)?" (has|does not have) the class "([^"]*)?"$/,
         checkClass
     );
 
     this.Then(
-        /^I expect a new (window|tab) has( not)* been opened$/,
+        /^I expect (?:that )?a new (window|tab) has( not)* been opened$/,
         checkNewWindow
     );
 
     this.Then(
-        /^I expect the url "([^"]*)?" is opened in a new (tab|window)$/,
+        /^I expect (?:that )?the url "([^"]*)?" is opened in a new (tab|window)$/,
         checkIsOpenedInNewWindow
     );
 
     this.Then(
-        /^I expect (?:that )?element "([^"]*)?" is( not)* focused$/,
+        /^I expect (?:that )?the element "([^"]*)?" is( not)* focused$/,
         checkFocus
     );
 

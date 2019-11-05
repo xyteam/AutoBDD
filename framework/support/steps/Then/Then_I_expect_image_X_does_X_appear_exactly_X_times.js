@@ -1,6 +1,6 @@
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?image "([^"]*)?" does( not)* appear(?: (more than|less than|exactly) "([^"]*)?" time(?:s)?)?$/,
+    /^I expect (?:that )?the image "([^"]*)?" does( not)* appear(?: (more than|less than|exactly) "([^"]*)?" time(?:s)?)?$/,
     {timeout: process.env.StepTimeoutInMS},
     function (imageName, falseCase, compareAction, expectedNumber) {
       const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 0;
@@ -42,3 +42,4 @@ module.exports = function() {
     }
   );
 };
+
