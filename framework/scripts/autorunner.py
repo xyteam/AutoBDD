@@ -568,7 +568,7 @@ class ChimpAutoRun:
         # generate cucumber XML report
         report_xml_path = report_json_path[:report_json_path.rfind('json')] + 'xml'
         cmd_generate_xml_report = 'cat ' + report_json_path + \
-                                    ' | cucumber-junit > ' + \
+                                    ' | cucumber-junit --strict > ' + \
                                     report_xml_path
         print('Generate XML Report On: {}'.format(report_xml_path))
         print(cmd_generate_xml_report)
