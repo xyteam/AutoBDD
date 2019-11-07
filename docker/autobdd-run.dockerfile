@@ -1,8 +1,5 @@
-# docker build \
-#   --tag autobdd-run:1.0.1 \
-#   --build-arg AutoBDD_Ver=1.0.1 \
-#   --file autobdd-run.dockerfile \
-#   ${PWD}
+# build docker:
+# cd docker && docker-compose build autobdd-run
 #
 # run test:
 # docker-compose run -d autobdd-run "--project=$BDD_PROJECT --parallel=1"

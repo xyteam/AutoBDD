@@ -1,8 +1,5 @@
-# docker build \
-#   --tag autobdd-dev:1.0.1 \
-#   --build-arg AutoBDD_Ver=1.0.1 \
-#   --file autobdd-dev.dockerfile \
-#   ${PWD}
+# build docker:
+# cd docker && docker-compose build autobdd-dev
 #
 # development env:
 #   docker-compose -d up autobdd-dev
