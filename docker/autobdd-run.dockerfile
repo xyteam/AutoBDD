@@ -110,7 +110,7 @@ RUN cd /${USER}/Projects/AutoBDD && \
     npm config set script-shell "/bin/bash" && \
     npm --loglevel=error install && \
     xvfb-run -a npm test && \
-    rm -rf /tmp/chrome_profile_* /tmp/download_*
+    rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/simplest-test/bdd_reports
 
 # insert entry point
 COPY docker/autobdd-run.startup.sh /
