@@ -5,7 +5,16 @@
  *                                  text or not
  * @param  {String}   type          text or value
  */
+
+const parseExpectedText = require('../common/parseExpectedText');
+
 module.exports = (element, falseCase, type) => {
+    /**
+     * The expected text to validate against
+     * @type {String}
+     */
+    var parsedElement = parseExpectedText(element);
+
     /**
      * The command to perform on the browser object
      * @type {String}
@@ -26,7 +35,7 @@ module.exports = (element, falseCase, type) => {
      * The text of the element
      * @type {String}
      */
-    const text = browser[command](element);
+    const text = browser[command](parsedElement);
 
     if (typeof falseCase === 'undefined' || falseCase == null) {
         boolFalseCase = false;

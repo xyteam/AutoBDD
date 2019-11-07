@@ -6,8 +6,10 @@
  * @param  {String}   action        equals, contains or matches
  * @param  {String}   expectedText  The text to validate against
  */
+
 const fs = require('fs');
 const globSync = require("glob").sync;
+const parseExpectedText = require('../common/parseExpectedText');
 const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
 
@@ -17,6 +19,13 @@ module.exports = (fileName, lineNumber, falseCase, action, expectedText) => {
     const myFileName = fileName_extSplit.join('.');
     const myFilePath = globSync(getDownloadDir() + myFileName + '.' + myFileExt)[0]; // we only process the first match
     var downloadFileContent, readTargetContent;
+
+    /**
+     * The expected text to validate against
+     * @type {String}
+     */
+    var parsedExpectedText = parseExpectedText(expectedText);
+
     switch (myFileExt) {
         case 'pdf':
         case 'PDF':
@@ -49,12 +58,6 @@ module.exports = (fileName, lineNumber, falseCase, action, expectedText) => {
                 readTargetContent = downloadFileContent;
             }        
     }
-
-    /**
-     * The expected text to validate against
-     * @type {String}
-     */
-    let parsedExpectedText = expectedText;
 
     /**
      * Whether to check if the content equals the given text or not

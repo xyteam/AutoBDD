@@ -6,7 +6,22 @@
  *                                  the given text or not
  * @param  {String}   expectedText  The text to check against
  */
+
+const parseExpectedText = require('../common/parseExpectedText');
+
 module.exports = (elementType, element, falseCase, expectedText) => {
+    /**
+     * The expected text to validate against
+     * @type {String}
+     */
+    var parsedElement = parseExpectedText(element);
+
+    /**
+     * The expected text to validate against
+     * @type {String}
+     */
+    var parsedExpectedText = parseExpectedText(expectedText);
+
     /**
      * The command to perform on the browser object
      * @type {String}
@@ -14,8 +29,8 @@ module.exports = (elementType, element, falseCase, expectedText) => {
     let command = 'getText';
 
     if (
-        browser.getText(element) == '' &&
-        browser.getAttribute(element, 'value') !== null
+        browser.getText(parsedElement) == '' &&
+        browser.getAttribute(parsedElement, 'value') !== null
     ) {
         command = 'getValue';
     }
@@ -27,27 +42,21 @@ module.exports = (elementType, element, falseCase, expectedText) => {
     let boolFalseCase;
 
     /**
-     * The expected text
-     * @type {String}
-     */
-    let stringExpectedText = expectedText;
-
-    /**
      * The text of the element
      * @type {String}
      */
-    const text = browser[command](element);
+    const text = browser[command](parsedElement);
 
     if (typeof expectedText === 'undefined') {
-        stringExpectedText = falseCase;
+        parsedExpectedText = falseCase;
         boolFalseCase = false;
     } else {
         boolFalseCase = (falseCase === ' not');
     }
 
     if (boolFalseCase) {
-        expect(text).not.toContain(stringExpectedText);
+        expect(text).not.toContain(parsedExpectedText);
     } else {
-        expect(text).toContain(stringExpectedText);
+        expect(text).toContain(parsedExpectedText);
     }
 };

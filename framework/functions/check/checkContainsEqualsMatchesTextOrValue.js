@@ -7,7 +7,22 @@
  * @param  {String}   type          text or value
  * @param  {String}   expectedText  The text to validate against
  */
+
+const parseExpectedText = require('../common/parseExpectedText');
+
 module.exports = (element, falseCase, action, type, expectedText) => {
+    /**
+     * The expected text to validate against
+     * @type {String}
+     */
+    var parsedElement = parseExpectedText(element);
+
+    /**
+     * The expected text to validate against
+     * @type {String}
+     */
+    var parsedExpectedText = parseExpectedText(expectedText);
+
     /**
      * The command to execute on the browser object
      * @type {String}
@@ -18,12 +33,6 @@ module.exports = (element, falseCase, action, type, expectedText) => {
     if (type == 'value') {
         command = 'getValue';
     } 
-
-    /**
-     * The expected text to validate against
-     * @type {String}
-     */
-    let parsedExpectedText = expectedText.startsWith('ENV:') ? eval('process.env.' + expectedText.split(':')[1]) : expectedText;
 
     /**
      * Whether to check if the content equals the given text or not
@@ -42,7 +51,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
         boolFalseCase = true;
     }
 
-    const retrivedValue = browser[command](element).toString();
+    const retrivedValue = browser[command](parsedElement).toString();
     // console.log(`${type} : ${retrivedValue}`)
 
     if (boolFalseCase) {
@@ -50,22 +59,22 @@ module.exports = (element, falseCase, action, type, expectedText) => {
             case 'contains':
                 expect(retrivedValue).not.toContain(
                     parsedExpectedText,
-                    `element "${element}" should not contain ${type} ` +
-                    `"${expectedText}"`
+                    `element "${parsedElement}" should not contain ${type} ` +
+                    `"${parsedExpectedText}"`
                 );        
                 break;
             case 'equals':
                 expect(retrivedValue).not.toEqual(
                     parsedExpectedText,
-                    `element "${element}" should not equal ${type} ` +
-                    `"${expectedText}"`
+                    `element "${parsedElement}" should not equal ${type} ` +
+                    `"${parsedExpectedText}"`
                 );        
                 break;
             case 'matches':
                 expect(retrivedValue).not.toMatch(
                     parsedExpectedText,
-                    `element "${element}" should not match ${type} ` +
-                    `"${expectedText}"`
+                    `element "${parsedElement}" should not match ${type} ` +
+                    `"${parsedExpectedText}"`
                 );        
                 break;
             default:
@@ -76,22 +85,22 @@ module.exports = (element, falseCase, action, type, expectedText) => {
             case 'contains':
                 expect(retrivedValue).toContain(
                     parsedExpectedText,
-                    `element "${element}" should contain ${type} ` +
-                    `"${expectedText}"`
+                    `element "${parsedElement}" should contain ${type} ` +
+                    `"${parsedExpectedText}"`
                 );        
                 break;
             case 'equals':
                 expect(retrivedValue).toEqual(
                     parsedExpectedText,
-                    `element "${element}" should equal ${type} ` +
-                    `"${expectedText}"`
+                    `element "${parsedElement}" should equal ${type} ` +
+                    `"${parsedExpectedText}"`
                 );        
                 break;
             case 'matches':
                 expect(retrivedValue).toMatch(
                     parsedExpectedText,
-                    `element "${element}" should match ${type} ` +
-                    `"${expectedText}"`
+                    `element "${parsedElement}" should match ${type} ` +
+                    `"${parsedExpectedText}"`
                 );        
                 break;
             default:

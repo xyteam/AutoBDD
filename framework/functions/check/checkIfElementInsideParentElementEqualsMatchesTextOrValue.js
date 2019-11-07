@@ -9,7 +9,9 @@
  * @param  {String}  type               text or value
  * @param  {String}  expectedText       The text to validate against
  */
+
 const parseExpectedText = require('../common/parseExpectedText');
+
 module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, type, expectedText) => {
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
@@ -27,11 +29,6 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
      * @type {String}
      */
     var parsedExpectedText = parseExpectedText(expectedText);
-    // if (expectedText && expectedText != '') {
-    //     parsedExpectedText = expectedText.startsWith('ENV:') ? eval('process.env.' + expectedText.split(':')[1]) : expectedText;
-    // } else {
-    //     parsedExpectedText = '';
-    // }
 
     /**
      * Whether to check if the content equals the given text or not
