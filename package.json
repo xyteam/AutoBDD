@@ -43,7 +43,7 @@
   "scripts": {
     "download-sikuliapi": "./framework/libs/downloadSikulixApiJar.js",
     "test-init": ". .autoPathrc.sh; cd ./test-projects/simplest-test/test-init; chimpy",
-    "test-run": ". .autoPathrc.sh; ./framework/scripts/autorunner.py --project simplest-test --movie 1",
+    "test-run": ". .autoPathrc.sh; ./framework/scripts/autorunner.py --project simplest-test --movie 1 --argstring '--tags ~@INIT'",
     "test": "npm run download-sikuliapi; npm run test-init; npm run test-run"
   },
   "repository": {
