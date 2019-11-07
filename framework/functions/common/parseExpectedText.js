@@ -47,4 +47,8 @@ module.exports = (expectedText) => {
         }
     }
     return parsedExpectedText;
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 72285a05205a81ca4f1bc110f3a5296dbdd8d477

@@ -1,8 +1,5 @@
-# docker build \
-#   --tag autobdd-run:1.0.1 \
-#   --build-arg AutoBDD_Ver=1.0.1 \
-#   --file autobdd-run.dockerfile \
-#   ${PWD}
+# build docker:
+# cd docker && docker-compose build autobdd-run
 #
 # run test:
 # docker-compose run -d autobdd-run "--project=$BDD_PROJECT --parallel=1"
@@ -113,7 +110,7 @@ RUN cd /${USER}/Projects/AutoBDD && \
     npm config set script-shell "/bin/bash" && \
     npm --loglevel=error install && \
     xvfb-run -a npm test && \
-    rm -rf /tmp/chrome_profile_* /tmp/download_*
+    rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/simplest-test/bdd_reports
 
 # insert entry point
 COPY docker/autobdd-run.startup.sh /

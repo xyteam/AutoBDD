@@ -2,6 +2,14 @@
  * Scroll the page to the given element
  * @param  {String}   selector Element selector
  */
+
+const parseExpectedText = require('../common/parseExpectedText');
+
 module.exports = (selector) => {
-    browser.scroll(selector, -10, -10);
+    /**
+     * The expected text to validate against
+     * @type {String}
+     */
+    var parsedSelector = parseExpectedText(selector);
+    browser.scroll(parsedSelector, -10, -10);
 };

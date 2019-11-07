@@ -1,31 +1,46 @@
 /**
  * Check the content of a cookie against a given value
- * @param  {String}   name          The name of the cookie
- * @param  {String}   falseCase     Whether or not to check if the value matches
- *                                  or not
- * @param  {String}   expectedValue The value to check against
+ * @param  {String}   cookieName     The cookieName of the cookie
+ * @param  {String}   falseCase      Whether or not to check if the value matches
+ *                                   or not
+ * @param  {String}   expectedValue  The value to check against
  */
-module.exports = (name, falseCase, expectedValue) => {
+
+const parseExpectedText = require('../common/parseExpectedText');
+
+module.exports = (cookieName, falseCase, expectedValue) => {
+    /**
+     * The expected text to validate against
+     * @type {String}
+     */
+    var parsedCookieName = parseExpectedText(cookieName);
+
+    /**
+     * The expected text to validate against
+     * @type {String}
+     */
+    var parsedExpectedValue = parseExpectedText(expectedValue);
+
     /**
      * The cookie retrieved from the browser object
      * @type {Object}
      */
-    const cookie = browser.getCookie(name);
+    const cookie = browser.getCookie(parsedCookieName);
 
     expect(cookie.name).toEqual(
-        name,
-        `no cookie found with the name "${name}"`
+        parsedCookieName,
+        `no cookie found with the name "${parsedCookieName}"`
     );
 
     if (falseCase) {
         expect(cookie.value).not.toEqual(
-                expectedValue,
-                `expected cookie "${name}" not to have value "${expectedValue}"`
+                parsedExpectedValue,
+                `expected cookie "${parsedCookieName}" not to have value "${parsedExpectedValue}"`
             );
     } else {
         expect(cookie.value).toEqual(
-                expectedValue,
-                `expected cookie "${name}" to have value "${expectedValue}"` +
+                parsedExpectedValue,
+                `expected cookie "${parsedCookieName}" to have value "${parsedExpectedValue}"` +
                 ` but got "${cookie.value}"`
             );
     }

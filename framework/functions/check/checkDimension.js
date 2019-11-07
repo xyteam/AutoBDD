@@ -1,23 +1,38 @@
 /**
  * Check the dimensions of the given element
- * @param  {String}   elem         Element selector
+ * @param  {String}   element      Element selector
  * @param  {String}   falseCase    Whether to check if the dimensions match or
  *                                 not
  * @param  {String}   expectedSize Expected size
  * @param  {String}   dimension    Dimension to check (broad or tall)
  */
-module.exports = (elem, falseCase, expectedSize, dimension) => {
+
+const parseExpectedText = require('../common/parseExpectedText');
+
+module.exports = (element, falseCase, expectedSize, dimension) => {
+    /**
+     * The expected text to validate against
+     * @type {String}
+     */
+    var parsedElement = parseExpectedText(element);
+
+    /**
+     * The expected text to validate against
+     * @type {String}
+     */
+    var parsedExpectedSize = parseExpectedText(expectedSize);
+
     /**
      * The size of the given element
      * @type {Object}
      */
-    const elementSize = browser.getElementSize(elem);
+    const elementSize = browser.getElementSize(parsedElement);
 
     /**
      * Parsed size to check for
      * @type {Int}
      */
-    const intExpectedSize = parseInt(expectedSize, 10);
+    const intExpectedSize = parseInt(parsedExpectedSize, 10);
 
     /**
      * The size property to check against
@@ -39,13 +54,13 @@ module.exports = (elem, falseCase, expectedSize, dimension) => {
     if (falseCase) {
         expect(originalSize).not.toEqual(
                 intExpectedSize,
-                `Element "${elem}" should not have a ${label} of ` +
+                `Element "${parsedElement}" should not have a ${label} of ` +
                 `${intExpectedSize}px`
             );
     } else {
         expect(originalSize).toEqual(
                 intExpectedSize,
-                `Element "${elem}" should have a ${label} of ` +
+                `Element "${parsedElement}" should have a ${label} of ` +
                 `${intExpectedSize}px, but is ${originalSize}px`
             );
     }

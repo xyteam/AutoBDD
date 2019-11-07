@@ -3,9 +3,7 @@
 ```
 mkdir -p ~/Projects; cd ~/Projects; \
 git clone https://github.com/xyteam/webtest-example.git; \
-cd webtest-example; \
-export BDD_PROJECT=$(basename ${PWD}); \
-cd docker; \
+cd webtest-example/docker; \
 docker-compose run --rm test-run "--tags @SmokeTest --movie=1"
 ```
 Open the HTML BDD test report in ~/Projects/webtest-example/bdd_reports/
