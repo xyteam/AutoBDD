@@ -12,7 +12,6 @@ const frameworkWorld = {
         self.fs_session = require(FrameworkPath + '/framework/libs/fs_session');
         self.javacucumber_session = require(FrameworkPath + '/framework/libs/javacucumber_session');
         self.screen_session = require(FrameworkPath + '/framework/libs/screen_session');
-        self.texted_elements = require('./webelements/texted_elements');
         return self;
     }
 }
