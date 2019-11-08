@@ -2,7 +2,7 @@ const announceMessage = require('../../functions/action/announceMessage');
 const changeBrowserBackground = require('../../functions/action/changeBrowserBackground');
 const changeBrowserZoom = require('../../functions/action/changeBrowserZoom');
 const clearInputField = require('../../functions/action/clearInputField');
-const clickElement = require('../../functions/action/clickElement');
+const actOnElement = require('../../functions/action/actOnElement');
 const clickElementInsideParentElement = require('../../functions/action/clickElementInsideParentElement');
 const closeLastOpenedWindow = require('../../functions/action/closeLastOpenedWindow');
 const deleteCookie = require('../../functions/action/deleteCookie');
@@ -37,8 +37,8 @@ module.exports = function() {
     );
 
     this.When(
-        /^I ((?:left |middle |right |double )?click) on the (\S*) "([^"]*)?"$/,
-        clickElement
+        /^I ((?:left |middle |right |double )?click|hover) on the (\S*) "([^"]*)?"$/,
+        actOnElement
     );
 
     this.When(

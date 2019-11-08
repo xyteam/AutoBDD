@@ -31,12 +31,12 @@ module.exports = function() {
     );
 
     this.Given(
-        /^the element "([^"]*)?" is( not)* visible$/,
+        /^(?:(some|all) of )?the element "([^"]*)?" is( not)* visible$/,
         isVisible
     );
 
     this.Given(
-        /^the element "([^"]*)?" is( not)* enabled$/,
+        /^(?:(some|all) of )?the element "([^"]*)?" is( not)* enabled$/,
         isEnabled
     );
 
