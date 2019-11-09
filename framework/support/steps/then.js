@@ -25,7 +25,6 @@ const checkWithinViewport = require('../../functions/check/checkWithinViewport')
 const compareText = require('../../functions/check/compareText');
 const isEnabled = require('../../functions/check/isEnabled');
 const isVisible = require('../../functions/check/isVisible');
-// const waitForVisible = require('../../functions/action/waitForVisible');
 const checkIfElementExistsInsideParentElement = require('../../functions/check/checkIfElementExistsInsideParentElement');
 const checkIfElementInsideParentElementEqualsMatchesTextOrValue = require('../../functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue');
 
@@ -54,11 +53,6 @@ module.exports = function() {
         /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" (is|becomes)( not)* visible$/,
         isVisible
     );
-
-    // this.Then(
-    //     /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" becomes( not)* visible$/,
-    //     waitForVisible
-    // );
 
     this.Then(
         /^I expect (?:that )?the element "([^"]*)?" is( not)* within the viewport$/,
@@ -131,7 +125,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the element "([^"]*)?" is( not)* enabled$/,
+        /^I expect (?:that )?the element "([^"]*)?" (is|becomes)( not)* enabled$/,
         isEnabled
     );
 

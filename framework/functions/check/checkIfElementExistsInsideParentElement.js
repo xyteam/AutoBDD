@@ -11,11 +11,11 @@
  module.exports = (targetElement, parentElementIndex, parentElement, falseCase, compareAction, expectedNumber) => {
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 0;
-    const myCompareAction = (compareAction) ? compareAction : 'more than';
+    const myCompareAction = compareAction || (falseCase) ? 'exactly' : 'more than';
 
     var appearanceNumber;
     if (parentElement) {
-        const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT
+        const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT;
         appearanceNumber = browser.elementIdElements(parentElementId, targetElement).value.length;
     } else {
         appearanceNumber = browser.elements(targetElement).value.length;
@@ -23,25 +23,25 @@
 
     switch (myCompareAction) {
         case 'exactly':
-            expect(appearanceNumber).toEqual(parseInt(myExpectedNumber))
+            expect(appearanceNumber).toEqual(parseInt(myExpectedNumber));
             break;
         case 'not exactly':
             expect(typeof falseCase === 'undefined').toBe(true, 'cannot use double negative expression');
-            expect(appearanceNumber).not.toEqual(parseInt(myExpectedNumber))
+            expect(appearanceNumber).not.toEqual(parseInt(myExpectedNumber));
             break;
         case 'more than':
-            expect(appearanceNumber).toBeGreaterThan(parseInt(myExpectedNumber))
+            expect(appearanceNumber).toBeGreaterThan(parseInt(myExpectedNumber));
             break;
         case 'no more than':
             expect(typeof falseCase === 'undefined').toBe(true, 'cannot use double negative expression');
-            expect(appearanceNumber).not.toBeGreaterThan(parseInt(myExpectedNumber))
+            expect(appearanceNumber).not.toBeGreaterThan(parseInt(myExpectedNumber));
             break;
         case 'less than':
-            expect(appearanceNumber).toBeLessThan(parseInt(myExpectedNumber))
+            expect(appearanceNumber).toBeLessThan(parseInt(myExpectedNumber));
             break;
         case 'no less than':
             expect(typeof falseCase === 'undefined').toBe(true, 'cannot use double negative expression');
-            expect(appearanceNumber).not.toBeLessThan(parseInt(myExpectedNumber))
+            expect(appearanceNumber).not.toBeLessThan(parseInt(myExpectedNumber));
             break;
     }    
 };
