@@ -66,8 +66,6 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
         }
       } else {
         const find_item = findRegion.waitSync(target, myImageWaitTime);
-        // uncomment this line to show selected image, however this will break test in xvfb
-        // find_item.highlight(1);
         var returnItem = {location: null, dimension: null, center: null, clicked: null, score: null};
         returnItem.location = {x: find_item.x, y: find_item.y};
         returnItem.dimension = {width: find_item.w, height: find_item.h};
