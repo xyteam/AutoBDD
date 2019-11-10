@@ -125,7 +125,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the element "([^"]*)?" (is|becomes)( not)* enabled$/,
+        /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" (is|becomes)( not)* enabled$/,
         isEnabled
     );
 
