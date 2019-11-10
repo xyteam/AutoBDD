@@ -13,6 +13,8 @@ module.exports = function() {
     // shake mouse to induce the display of PDF download icon
     this.screen_session.moveMouse(0, 0);
     this.screen_session.moveMouse(100, 100);
+    this.screen_session.moveMouse(0, 0);
+    this.screen_session.moveMouse(100, 100);
     var resultString = this.screen_session.screenFindImage(imageFullPath, imageSimilarity, imageWaitTime, 'single');
     expect(resultString).not.toContain('not found');
     expect(resultString).not.toContain('error');
