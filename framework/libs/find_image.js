@@ -56,7 +56,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
       if (imageFindAll == 'true') {
         var find_results = findRegion.findAllSync(target);
         while (find_results.hasNextSync()) {
-          var find_item = find_results.nextSync();
+          const find_item = find_results.nextSync();
           var returnItem = {location: null, dimension: null, center: null, clicked: null};
           returnItem.location = {x: find_item.x, y: find_item.y};
           returnItem.dimension = {width: find_item.w, height: find_item.h};
@@ -65,7 +65,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
           returnArray.push(returnItem); 
         }
       } else {
-        var find_item = findRegion.waitSync(target, myImageWaitTime);
+        const find_item = findRegion.waitSync(target, myImageWaitTime);
         // uncomment this line to show selected image, however this will break test in xvfb
         // find_item.highlight(1);
         var returnItem = {location: null, dimension: null, center: null, clicked: null, score: null};
