@@ -17,7 +17,7 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
     } else {
         myTargetElement = browser.elements(targetElement).value[targetElementIndexInt];
     }
-    console.log(myTargetElement);
+    // console.log(myTargetElement);
 
     switch (action) {
         case 'clear':

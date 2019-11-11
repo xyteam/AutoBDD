@@ -12,6 +12,8 @@ const sikuliApiJarPath = (process.env.FrameworkPath) ? process.env.FrameworkPath
 // const screen_session = require(process.env.FrameworkPath + '/framework/libs/screen_session');
 
 const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) => {
+  const myImageSimilarity = parseFloat(imageSimilarity);
+  const myImageWaitTime = parseFloat(imageWaitTime);
     // Sikuli Property
     var sikuliApiJar;
     switch (process.env.ReleaseString) {
@@ -29,13 +31,11 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
     // const Region = java.import('org.sikuli.script.Region');
     const Screen = java.import('org.sikuli.script.Screen');
     const Pattern = java.import('org.sikuli.script.Pattern');
+    const myImageSimilarity_inJavaVar = java.newFloat(myImageSimilarity);
 
-    var imageSimilarity = parseFloat(imageSimilarity);
-    var imageWaitTime = parseFloat(imageWaitTime);
     var returnArray = [];
     var findRegion;
     var target;
-    var sim_java = java.newFloat(imageSimilarity);
 
     switch (onArea) {
       // case 'onFocused':
@@ -43,20 +43,20 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
       //   break;
       case 'onScreen':
       default:
-        findRegion = new Screen();
+        var findRegion = new Screen();
     }
 
     if (imagePath == 'center') {
       target = findRegion.getCenterSync();
     } else {
-      target = (new Pattern(imagePath)).similarSync(sim_java);
+      target = (new Pattern(imagePath)).similarSync(myImageSimilarity_inJavaVar);
     }
 
     try {
       if (imageFindAll == 'true') {
         var find_results = findRegion.findAllSync(target);
         while (find_results.hasNextSync()) {
-          var find_item = find_results.nextSync();
+          const find_item = find_results.nextSync();
           var returnItem = {location: null, dimension: null, center: null, clicked: null};
           returnItem.location = {x: find_item.x, y: find_item.y};
           returnItem.dimension = {width: find_item.w, height: find_item.h};
@@ -65,9 +65,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
           returnArray.push(returnItem); 
         }
       } else {
-        var find_item = findRegion.waitSync(target, imageWaitTime);
-        // uncomment this line to show selected image, however this will break test in xvfb
-        // find_item.highlight(1);
+        const find_item = findRegion.waitSync(target, myImageWaitTime);
         var returnItem = {location: null, dimension: null, center: null, clicked: null, score: null};
         returnItem.location = {x: find_item.x, y: find_item.y};
         returnItem.dimension = {width: find_item.w, height: find_item.h};
@@ -99,6 +97,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
       }
       return JSON.stringify(returnArray);
     } catch(e) {
+      // console.log(e);
       return '[not found]';
     }
   };

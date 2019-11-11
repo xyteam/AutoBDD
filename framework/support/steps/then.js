@@ -24,9 +24,7 @@ const checkURLPath = require('../../functions/check/checkURLPath');
 const checkWithinViewport = require('../../functions/check/checkWithinViewport');
 const compareText = require('../../functions/check/compareText');
 const isEnabled = require('../../functions/check/isEnabled');
-const isExisting = require('../../functions/check/isExisting');
 const isVisible = require('../../functions/check/isVisible');
-const waitForVisible = require('../../functions/action/waitForVisible');
 const checkIfElementExistsInsideParentElement = require('../../functions/check/checkIfElementExistsInsideParentElement');
 const checkIfElementInsideParentElementEqualsMatchesTextOrValue = require('../../functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue');
 
@@ -42,7 +40,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? does( not)* appear(?: (more than|less than|exactly) "([^"]*)?" time(?:s)?)?$/,
+        /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|no less than) "([^"]*)?" time(?:s)?)?$/,
         checkIfElementExistsInsideParentElement
     );
 
@@ -52,23 +50,13 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the element "([^"]*)?" is( not)* visible$/,
+        /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" (is|becomes)( not)* visible$/,
         isVisible
-    );
-
-    this.Then(
-        /^I expect (?:that )?the element "([^"]*)?" becomes( not)* visible$/,
-        waitForVisible
     );
 
     this.Then(
         /^I expect (?:that )?the element "([^"]*)?" is( not)* within the viewport$/,
         checkWithinViewport
-    );
-
-    this.Then(
-        /^I expect (?:that )?the element "([^"]*)?" does( not)* exist$/,
-        isExisting
     );
 
     this.Then(
@@ -137,7 +125,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the element "([^"]*)?" is( not)* enabled$/,
+        /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" (is|becomes)( not)* enabled$/,
         isEnabled
     );
 

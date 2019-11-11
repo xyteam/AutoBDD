@@ -1,6 +1,5 @@
 const checkIfElementExists = require('../check/checkIfElementExists');
-const waitForVisible = require('../action/waitForVisible');
-
+const isVisible = require('../check/isVisible');
 /**
  * Perform an click action on the given element
  * @param  {String}   action  The action to perform (click or doubleClick)
@@ -36,6 +35,9 @@ module.exports = (action, type, element) => {
      */
     var method;
     switch (action) {
+        case 'hover':
+            method = 'moveTo';
+            break;
         case 'double click':
             method = 'doubleClick';
             break;
@@ -49,11 +51,13 @@ module.exports = (action, type, element) => {
             method = 'rightClick';
             break;
         case 'click':
-        default:
             method = 'click';
+            break;
+        default:
+            method = action;
     }
     checkIfElementExists(targetElement);
     browser.scroll(targetElement, 0, -200);
-    waitForVisible(targetElement);
+    isVisible('some', targetElement, 'becomes');
     browser[method](targetElement);
 };
