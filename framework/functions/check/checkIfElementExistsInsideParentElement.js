@@ -11,7 +11,7 @@
  module.exports = (targetElement, parentElementIndex, parentElement, falseCase, compareAction, expectedNumber) => {
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 0;
-    const myCompareAction = compareAction || (falseCase) ? 'exactly' : 'more than';
+    const myCompareAction = compareAction || ((typeof falseCase == 'undefined') ? 'more than' : 'exactly');
 
     var appearanceNumber;
     if (parentElement) {
