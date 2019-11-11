@@ -13,7 +13,7 @@ module.exports = (targetName, ms, falseState) => {
      * Maximum number of milliseconds to wait, default 3000
      * @type {Int}
      */
-    const intMs = parseInt(ms, 10) || 3000;
+    const intMs = parseInt(ms, 10) || 5000;
 
     /**
      * Boolean interpretation of the false state
@@ -23,7 +23,7 @@ module.exports = (targetName, ms, falseState) => {
 
     var timeOut = false;
     var handle = setInterval(() => {
-        console.log('wait timeout: ' + fileTarget);
+        console.log(`wait timeout: ${fileTarget}, ${intMs} ms`);
         timeOut = true;
     }, intMs);
     if (boolFalseState) {
