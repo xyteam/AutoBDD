@@ -11,6 +11,7 @@ const glob = require("glob");
 const pdfParse = require('pdf-parse');
 const XLSX = require('xlsx');
 const execSync = require('child_process').execSync;
+const supportedImageExt = ['gif', 'jpg', 'png'];
 
 module.exports = {
   getTestFileFullPath: function(fileName, fileExt) {
@@ -42,13 +43,13 @@ module.exports = {
   getTestImageParms: function(imageName) {
     const imageName_extSplit = imageName.split(':')[0].split('.');
     const imageSimilarity = imageName.split(':')[1] || process.env.imageSimilarity;
-    const imageFileExt = imageName_extSplit.length > 1 ? imageName_extSplit.pop() : null;
+    const imageFileExt = (imageName_extSplit.length > 1 && supportedImageExt.includes(imageSimilarity[imageSimilarity.length - 1])) ? imageName_extSplit.pop() : null;
     const imageFileName = imageName_extSplit.join('.');
     return [imageFileName, imageFileExt, imageSimilarity];
   },
 
   getTestImageList: function(filePath, fileName, fileExt) {
-    var imageExt = (fileExt) ? [fileExt] : ['gif', 'jpg', 'png'];
+    var imageExt = (fileExt) ? [fileExt] : supportedImageExt;
     var targetPath = filePath;
     var imageList = [];
 
