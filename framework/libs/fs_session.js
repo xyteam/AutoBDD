@@ -130,7 +130,14 @@ module.exports = {
   readXlsData: function(xlsFullPath) {
     const dataBuffer = fs.readFileSync(xlsFullPath);
     const workbook = XLSX.read(dataBuffer, {type:'buffer'});
-    var  xlsData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header:1});
+    const  xlsData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header:1});
     return xlsData;
+  },
+
+  readJsonData: function(jsonFullPath) {
+    const dataBuffer = fs.readFileSync(jsonFullPath);
+    const jsonData = JSON.parse(dataBuffer);
+    return jsonData;
   }
+
 }
