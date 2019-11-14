@@ -27,7 +27,8 @@ module.exports = (fileName, expectedNumOfRows, expectedNumOfColumns) => {
         case 'XLSX':
         case 'csv':
         case 'CSV':
-            const xlsData = fs_session.readXlsData(myFilePath);
+            // need the filter statement to filter empty lines
+            const xlsData = fs_session.readXlsData(myFilePath).filter(row => row.length > 0);
             countedNumOfRows = xlsData.length;
             countedNumOfColumns = (countedNumOfRows > 0) ? xlsData[0].length : 0;
             break;
