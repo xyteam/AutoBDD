@@ -27,15 +27,15 @@ module.exports = (fileName, expectedNumOfRows, expectedNumOfColumns) => {
         case 'XLSX':
         case 'csv':
         case 'CSV':
-            const xlsData = fs_session.readXlsData(myFilePath).filter(row => row.length > 0);
+            const xlsData = fs_session.readXlsData(myFilePath);
             countedNumOfRows = xlsData.length;
-            countedNumOfColumns = xlsData[0].length;
+            countedNumOfColumns = (countedNumOfRows > 0) ? xlsData[0].length : 0;
             break;
         case 'json':
         case 'JSON':
             const jsonData = fs_session.readJsonData(myFilePath);
             countedNumOfRows = Object.keys(jsonData).length;
-            countedNumOfColumns = Object.keys(jsonData[0]).length;
+            countedNumOfColumns = (countedNumOfRows > 0) ? Object.keys(jsonData[0]).length : 0;
             break;
         default:
             countedNumOfRows = fs.readFileSync(myFilePath).toString().split('\n').length;
