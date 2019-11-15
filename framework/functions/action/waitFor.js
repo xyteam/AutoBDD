@@ -26,6 +26,9 @@ module.exports =
      * @type {Boolean}
      */
     let boolFalseState = !!falseState;
+    if (typeof falseState === 'undefined') {
+        boolFalseState = false;
+    }
 
     /**
      * Parsed interpretation of the state
@@ -34,24 +37,22 @@ module.exports =
     let parsedState = '';
 
     if (falseState || state) {
-        parsedState = state.indexOf(' ') > -1
+        parsedState = state.includes(' ')
             ? state.split(/\s/)[state.split(/\s/).length - 1]
             : state;
 
-        // Check box checked state translates to selected state
-        if (parsedState === 'checked') {
-            parsedState = 'selected';
+        // change parsedState in case state and command does not match
+        switch (parsedState) {
+            case 'checked':
+                parsedState = 'selected';
+                break;
         }
 
         if (parsedState) {
-            command = `waitFor${parsedState[0].toUpperCase()}` +
-                `${parsedState.slice(1)}`;
+            command = `waitFor${parsedState[0].toUpperCase()}` + `${parsedState.slice(1)}`;
         }
     }
 
-    if (typeof falseState === 'undefined') {
-        boolFalseState = false;
-    }
-
+    // console.log(command);
     browser[command](elem, intMs, boolFalseState);
 };
