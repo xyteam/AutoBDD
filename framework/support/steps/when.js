@@ -2,7 +2,6 @@ const announceMessage = require('../../functions/action/announceMessage');
 const changeBrowserBackground = require('../../functions/action/changeBrowserBackground');
 const changeBrowserZoom = require('../../functions/action/changeBrowserZoom');
 const clearInputField = require('../../functions/action/clearInputField');
-const actOnElement = require('../../functions/action/actOnElement');
 const clickElementInsideParentElement = require('../../functions/action/clickElementInsideParentElement');
 const closeLastOpenedWindow = require('../../functions/action/closeLastOpenedWindow');
 const deleteCookie = require('../../functions/action/deleteCookie');
@@ -22,6 +21,7 @@ const setInputField = require('../../functions/action/setInputField');
 const setInputFieldWithEnvVars = require('../../functions/action/setInputFieldWithEnvVars');
 const setPromptText = require('../../functions/action/setPromptText');
 const submitForm = require('../../functions/action/submitForm');
+const waitAndActOnElement = require('../../functions/action/waitAndActOnElement');
 const waitFor = require('../../functions/action/waitFor');
 const waitForDownload = require('../../functions/action/waitForDownload');
 
@@ -37,8 +37,8 @@ module.exports = function() {
     );
 
     this.When(
-        /^I ((?:left |middle |right |double )?click|hover) on the (\S*) "([^"]*)?"$/,
-        actOnElement
+        /^I (?:wait (?:(\d+)ms )?and )?((?:left |middle |right |double )?click|hover) on the (\S*) "([^"]*)?"$/,
+        waitAndActOnElement
     );
 
     this.When(

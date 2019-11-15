@@ -27,9 +27,16 @@ module.exports = (fileName, expectedNumOfRows, expectedNumOfColumns) => {
         case 'XLSX':
         case 'csv':
         case 'CSV':
+            // need the filter statement to filter empty lines
             const xlsData = fs_session.readXlsData(myFilePath).filter(row => row.length > 0);
             countedNumOfRows = xlsData.length;
-            countedNumOfColumns = xlsData[0].length;
+            countedNumOfColumns = (countedNumOfRows > 0) ? xlsData[0].length : 0;
+            break;
+        case 'json':
+        case 'JSON':
+            const jsonData = fs_session.readJsonData(myFilePath);
+            countedNumOfRows = Object.keys(jsonData).length;
+            countedNumOfColumns = (countedNumOfRows > 0) ? Object.keys(jsonData[0]).length : 0;
             break;
         default:
             countedNumOfRows = fs.readFileSync(myFilePath).toString().split('\n').length;
@@ -39,8 +46,8 @@ module.exports = (fileName, expectedNumOfRows, expectedNumOfColumns) => {
         let parsedExpectedNumOfRows = parseInt(expectedNumOfRows);
         expect(countedNumOfRows).toEqual(
             parsedExpectedNumOfRows,
-            `file "${fileName}" should contain text ` +
-            `"${parsedExpectedNumOfRows}"`
+            `file ${fileName} should contain ` +
+            `${parsedExpectedNumOfRows} rows`
         );    
     }
 
@@ -48,8 +55,8 @@ module.exports = (fileName, expectedNumOfRows, expectedNumOfColumns) => {
         let parsedExpectedNumOfColumns = parseInt(expectedNumOfColumns);
         expect(countedNumOfColumns).toEqual(
             parsedExpectedNumOfColumns,
-            `file "${fileName}" should contain text ` +
-            `"${parsedExpectedNumOfColumns}"`
+            `file ${fileName} should contain ` +
+            `${parsedExpectedNumOfColumns} columns`
         );    
     }
 }
