@@ -55,7 +55,8 @@ def definepath (case, project_name, report_dir_base):
     # print(module_path, module_name, feature_path, feature_name, run_result, run_report, report_dir_relative)
     return module_path, module_name, feature_path, feature_name, run_result, run_report, report_dir_relative
 
-def run_test(host,
+def run_test(FrameworkPath,
+              host,
               platform,
               browser,
               project_base,
@@ -89,7 +90,7 @@ def run_test(host,
                 ' DEBUGMODE=' + debugmode + \
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
-                ' xvfb-run --auto-servernum --server-args=\"-screen 0 ' + display_size + 'x16\"' + \
+                ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args=\"-screen 0 ' + display_size + 'x16\"' + \
                 ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + feature_file + \
                 ' --plugin pretty --add-plugin json:' + run_result + \
                 ' 2>&1 > ' + run_report
@@ -105,7 +106,7 @@ def run_test(host,
                 ' DEBUGMODE=' + debugmode + \
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
-                ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
+                ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x16"' + \
                 ' chimpy ' + chimp_profile + ' ' + feature_file + \
                 ' --format=json:' + run_result + \
                 ' ' + argstring + \
@@ -136,7 +137,7 @@ def run_test(host,
                         ' PLATFORM=' + platform + \
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
-                        ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
+                        ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x16"' + \
                         ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + feature_file + \
                         ' --plugin pretty --add-plugin json:' + run_result + \
                         ' 2>&1 > ' + run_report
@@ -164,7 +165,7 @@ def run_test(host,
                         ' PLATFORM=' + platform + \
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
-                        ' xvfb-run --auto-servernum --server-args="-screen 0 ' + display_size + 'x16"' + \
+                        ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x16"' + \
                         ' chimpy ' + chimp_profile + ' ' + feature_file + \
                         ' --format=json:' + run_result + \
                         ' ' + argstring + \
@@ -624,7 +625,8 @@ class ChimpAutoRun:
                     case, self.project, self.report_dir_base)
                     module_full_path = path.join(self.projectbase, self.project, module_path)
                     group.update({'status': 'running', 'run_result': run_result, 'run_report': run_report}, doc_ids=[case.doc_id])
-                    r = pool.apply_async(run_test,  args=(self.host,
+                    r = pool.apply_async(run_test,  args=(self.FrameworkPath,
+                                                    self.host,
                                                     self.platform,
                                                     self.browser,
                                                     self.projectbase,
