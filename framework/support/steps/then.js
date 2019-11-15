@@ -40,7 +40,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|no less than) "([^"]*)?" time(?:s)?)?$/,
+        /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
         checkIfElementExistsInsideParentElement
     );
 
