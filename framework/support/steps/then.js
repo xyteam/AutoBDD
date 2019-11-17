@@ -105,7 +105,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?"(?: at line (\d+))?( not)* (contains|equals|matches) the text "(.*)?"$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?"(?: at (?:line|row) (\d+)(?: and column (\d+))?)?( not)* (contains|equals|matches) the text "(.*)?"$/,
         checkDownloadedFileContainsEqualsMatchesText
     );
 
