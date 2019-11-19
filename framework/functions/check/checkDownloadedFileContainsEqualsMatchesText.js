@@ -1,7 +1,8 @@
 /**
  * Check if the given elements text is the same as the given text
  * @param  {String}   fileName      File name
- * @param  {String}   lineNumber    at line number
+ * @param  {String}   rowNumber     at row/line number
+ * @param  {String}   colNumber     at column number
  * @param  {String}   falseCase     not
  * @param  {String}   action        equals, contains or matches
  * @param  {String}   expectedText  The text to validate against
@@ -13,7 +14,7 @@ const parseExpectedText = require('../common/parseExpectedText');
 const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
 
-module.exports = (fileName, lineNumber, falseCase, action, expectedText) => {
+module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedText) => {
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
@@ -30,8 +31,8 @@ module.exports = (fileName, lineNumber, falseCase, action, expectedText) => {
         case 'pdf':
         case 'PDF':
             downloadFileContent = fs_session.readPdfData(myFilePath).text;
-            if (lineNumber) {
-                readTargetContent = downloadFileContent.split('\n')[parseInt(lineNumber)];
+            if (rowNumber) {
+                readTargetContent = downloadFileContent.split('\n')[rowNumber];
             } else {
                 readTargetContent = downloadFileContent;
             }
@@ -42,18 +43,20 @@ module.exports = (fileName, lineNumber, falseCase, action, expectedText) => {
         case 'XLSX':
         case 'csv':
         case 'CSV':
-            downloadFileContent = fs_session.readXlsData(myFilePath).toString();
             const xlsData = fs_session.readXlsData(myFilePath).filter(row => row.length > 0);
-            if (lineNumber) {
-                readTargetContent = xlsData[lineNumber];
-            } else {
+            if (rowNumber && colNumber) {
+                readTargetContent = xlsData[rowNumber][colNumber].toString();
+            } else if (rowNumber) {
+                readTargetContent = xlsData[rowNumber].toString();
+            } else{
+                downloadFileContent = fs_session.readXlsData(myFilePath).toString();
                 readTargetContent = downloadFileContent;
-            }        
+            }
             break;
         default:
             downloadFileContent = fs.readFileSync(myFilePath).toString();
-            if (lineNumber) {
-                readTargetContent = downloadFileContent.split('\n')[parseInt(lineNumber)];
+            if (rowNumber) {
+                readTargetContent = downloadFileContent.split('\n')[rowNumber];
             } else {
                 readTargetContent = downloadFileContent;
             }        
