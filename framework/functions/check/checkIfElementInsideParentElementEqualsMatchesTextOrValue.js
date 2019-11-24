@@ -6,13 +6,13 @@
  * @param  {String}  parentElement      parent element selector
  * @param  {Boolean} falseCase          Check if the element (does not) exists
  * @param  {String}  action             equals, contains or matches
- * @param  {String}  type               text or value
+ * @param  {String}  targetType               text or value
  * @param  {String}  expectedText       The text to validate against
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, type, expectedText) => {
+module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, targetType, expectedText) => {
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     
@@ -48,7 +48,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     }
 
     var retrivedValue;
-    switch (type) {
+    switch (targetType) {
         case 'value':
             retrivedValue = browser.elementIdAttribute(targetElementId, type).value;
             break;
@@ -57,59 +57,59 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
             retrivedValue = browser.elementIdText(targetElementId).value;
     }
 
-    // console.log(`${type} : ${retrivedValue}`)
+    // console.log(`${targetType} : ${retrivedValue}`)
 
     if (boolFalseCase) {
         switch (action) {
             case 'contains':
                 expect(retrivedValue).not.toContain(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}" should not contain ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should not contain ${targetType} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'equals':
                 expect(retrivedValue).not.toEqual(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}" should not equal ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should not equal ${targetType} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'matches':
                 expect(retrivedValue).not.toMatch(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}" should not match ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should not match ${targetType} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
+                expect(false).toEqual(true, `action ${action} should be one of contains, equals or matches`);
         }
     } else {
         switch (action) {
             case 'contains':
                 expect(retrivedValue).toContain(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}" should contain ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should contain ${targetType} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'equals':
                 expect(retrivedValue).toEqual(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}" should equal ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should equal ${targetType} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             case 'matches':
                 expect(retrivedValue).toMatch(
                     parsedExpectedText,
-                    `target element "${targetElement}" inside parent element "${parentElement}" should match ${type} ` +
+                    `target element "${targetElement}" inside parent element "${parentElement}" should match ${targetType} ` +
                     `"${parsedExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
+                expect(false).toEqual(true, `action ${action} should be one of contains, equals or matches`);
         }
     }
 };

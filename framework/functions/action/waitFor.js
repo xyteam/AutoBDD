@@ -52,7 +52,7 @@ module.exports =
             command = `waitFor${parsedState[0].toUpperCase()}` + `${parsedState.slice(1)}`;
         }
     }
-
+    // console.log(elem);
     // console.log(command);
     browser[command](elem, intMs, boolFalseState);
 };

@@ -10,6 +10,7 @@ const waitFor = require('../action/waitFor');
  * @param  {String}   element Element selector
  */
 module.exports = (waitMs, action, type, element) => {
+    const myWaitMS = parseInt(waitMs, 10) || 3000;
     /**
      * Element to perform the action on
      * @type {String}
@@ -61,7 +62,7 @@ module.exports = (waitMs, action, type, element) => {
 
     checkIfElementExists(targetElement);
     if (method.toLowerCase().includes('click')) {
-        waitFor(targetElement, waitMs, null, 'enabled');
+        waitFor(targetElement, myWaitMS, null, 'enabled');
     }
     browser.scroll(targetElement, 0, -200);
     isVisible('some', targetElement, 'becomes');

@@ -56,6 +56,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
 
     if (boolFalseCase) {
         switch (action) {
+            case 'contain':
             case 'contains':
                 expect(retrivedValue).not.toContain(
                     parsedExpectedText,
@@ -63,6 +64,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'equal':
             case 'equals':
                 expect(retrivedValue).not.toEqual(
                     parsedExpectedText,
@@ -70,6 +72,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'matche':
             case 'matches':
                 expect(retrivedValue).not.toMatch(
                     parsedExpectedText,
@@ -82,6 +85,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
         }
     } else {
         switch (action) {
+            case 'contain':
             case 'contains':
                 expect(retrivedValue).toContain(
                     parsedExpectedText,
@@ -89,6 +93,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'equal':
             case 'equals':
                 expect(retrivedValue).toEqual(
                     parsedExpectedText,
@@ -96,6 +101,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'matche':
             case 'matches':
                 expect(retrivedValue).toMatch(
                     parsedExpectedText,
