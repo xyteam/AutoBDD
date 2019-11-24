@@ -50,7 +50,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     var retrivedValue;
     switch (targetType) {
         case 'value':
-            retrivedValue = browser.elementIdAttribute(targetElementId, type).value;
+            retrivedValue = browser.elementIdAttribute(targetElementId, targetType).value;
             break;
         case 'text':
         default:
@@ -113,3 +113,5 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
         }
     }
 };
+
+
