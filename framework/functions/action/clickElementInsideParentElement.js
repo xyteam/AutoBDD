@@ -20,6 +20,9 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
     // console.log(myTargetElement);
 
     switch (action) {
+        case 'moveTo':
+            browser.moveTo(myTargetElement.ELEMENT);
+            break;
         case 'clear':
             browser.elementIdClear(myTargetElement.ELEMENT);
             break;
