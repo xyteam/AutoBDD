@@ -6,7 +6,7 @@
 #   docker-compose down autobdd-dev
 
 ARG AutoBDD_Ver
-FROM xyteam/autobdd-run:${AutoBDD_Ver}
+FROM xyteam/autobdd-run:latest
 USER root
 ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
