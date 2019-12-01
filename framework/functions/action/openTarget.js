@@ -25,7 +25,7 @@ module.exports = (targetType, targetName) => {
             break;
         case "file":
             fileTarget = parsedTargetName.replace(/ /g, '\ ');
-            urlTarget = encodeURI('file://' + globSync(myTarget)[0]); // we take the first match
+            urlTarget = encodeURI('file://' + globSync(fileTarget)[0]); // we take the first match
             console.log(urlTarget)
             browser.url(urlTarget);
             break;
