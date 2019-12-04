@@ -42,7 +42,7 @@ module.exports = function() {
     );
 
     this.When(
-        /^I (click|clear|deepClick|moveTo) the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")?$/,
+        /^I (clear|click|tryClick|deepClick|moveTo) the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")?$/,
         clickElementInsideParentElement
     );
 

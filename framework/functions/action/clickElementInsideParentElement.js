@@ -26,7 +26,7 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
         case 'clear':
             browser.elementIdClear(myTargetElement.ELEMENT);
             break;
-        case 'deepClick':
+        case 'tryClick':
             try {
                 console.log('1st try with direct click ...')
                 browser.elementIdClick(myTargetElement.ELEMENT);
@@ -36,6 +36,11 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
                 browser.execute(deepClick, myTargetElement);          
             }
             break;
+        case 'deepClick':
+                console.log('do deep click ...')
+                const deepClick = function(argument) { argument.click(); };
+                browser.execute(deepClick, myTargetElement);          
+                break;
         case 'click':
         default:
             browser.elementIdClick(myTargetElement.ELEMENT);
