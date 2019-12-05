@@ -25,6 +25,7 @@ const checkWithinViewport = require('../../functions/check/checkWithinViewport')
 const compareText = require('../../functions/check/compareText');
 const isEnabled = require('../../functions/check/isEnabled');
 const isVisible = require('../../functions/check/isVisible');
+const checkElementStatusInsideParentElement = require('../../functions/check/checkElementStatusInsideParentElement');
 const checkIfElementExistsInsideParentElement = require('../../functions/check/checkIfElementExistsInsideParentElement');
 const checkIfElementInsideParentElementEqualsMatchesTextOrValue = require('../../functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue');
 
@@ -42,6 +43,11 @@ module.exports = function() {
     this.Then(
         /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
         checkIfElementExistsInsideParentElement
+    );
+
+    this.Then(
+        /^I expect (?:that )?the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? is( not)* (displayed|enabled|selected)$/,
+        checkElementStatusInsideParentElement
     );
 
     this.Then(
@@ -125,7 +131,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" (is|becomes)( not)* enabled$/,
+        /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" (becomes)( not)* enabled$/,
         isEnabled
     );
 
