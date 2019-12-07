@@ -48,6 +48,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                     `target element "${targetElement}" inside parent element "${parentElement}" should not be ${expectedStauts}`
                 );        
                 break;
+            case 'checked':
             case 'selected':
                 expect(browser.elementIdSelected(targetElementId).value).not.toBe(
                     true,
@@ -71,6 +72,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                     `target element "${targetElement}" inside parent element "${parentElement}" should be ${expectedStauts}`
                 );        
                 break;
+            case 'checked':
             case 'selected':
                 expect(browser.elementIdSelected(targetElementId).value).toBe(
                     true,
