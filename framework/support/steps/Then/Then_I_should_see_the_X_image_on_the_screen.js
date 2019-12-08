@@ -3,7 +3,7 @@ const parseExpectedText = require(FrameworkPath + '/framework/functions/common/p
 module.exports = function() {
   this.Then(/^I should(?: still)?( not)* see the "([^"]*)" image on the screen$/, {timeout: process.env.StepTimeoutInMS}, function (falseCase, imageName) {
     var parsedImageName = parseExpectedText(imageName);
-    const [imageFileName, imageFileExt, imageSimilarity] = this.fs_session.getTestImageParms(parsedImageName);
+    const [imageFileName, imageFileExt, imageSimilarity, imageSimilarityMax] = this.fs_session.getTestImageParms(parsedImageName);
     const imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
     const imageScore = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
     const imageWaitTime = 1;

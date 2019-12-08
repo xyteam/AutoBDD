@@ -5,12 +5,12 @@ module.exports = function() {
     function (imageName, falseCase, compareAction, expectedNumber) {
       const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 0;
       const myCompareAction = compareAction || ((typeof falseCase == 'undefined') ? 'more than' : 'exactly');
-      const [imageFileName, imageFileExt, imageSimilarity] = this.fs_session.getTestImageParms(imageName);
+      const [imageFileName, imageFileExt, imageSimilarity, imageSimilarityMax] = this.fs_session.getTestImageParms(imageName);
       const imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
       const imageScore = this.lastImage && this.lastImage.imageName == imageName ? this.lastImage.imageScore : imageSimilarity;
       const imageWaitTime = 1;
       browser.pause(500);
-      const resultString = this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime, null, true);
+      const resultString = this.screen_session.screenFindAllImages(imagePathList, imageScore, imageWaitTime, null, true, imageSimilarityMax);
       var appearanceNumber;
       if (resultString.includes('not found')) {
         console.log('expected image does not show on screen');
