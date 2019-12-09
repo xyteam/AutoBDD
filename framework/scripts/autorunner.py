@@ -11,6 +11,7 @@ import errno
 import json
 import argparse
 import shutil
+import subprocess
 import re
 import multiprocessing
 import os.path as path
@@ -543,12 +544,22 @@ class ChimpAutoRun:
         
         if self.browser == 'CH':
             report_browser = 'chrome'
+            report_browser_ver = subprocess.run('google-chrome --version'.split(), stdout=subprocess.PIPE) \
+                .stdout.decode('utf-8') \
+                .replace('Google Chrome', '') \
+                .strip()
         elif self.browser == 'FF':
             report_browser = 'firefox'
+            report_browser_ver = subprocess.run('firefox --version'.split(), stdout=subprocess.PIPE) \
+                .stdout.decode('utf-8') \
+                .replace('Mozilla Firefox', '') \
+                .strip()
         elif self.browser == 'IE':
             report_browser = 'internet explorer'
+            report_browser_ver = 'Unknown'
         else:
             report_browser = self.browser
+            report_browser_ver = 'Unknown'
 
         cmd_generate_html_report = path.join(self.FrameworkPath, 'framework', 'scripts', 'generate-reports.js') + ' ' + \
             '--reportJson=' + report_json_path + ' ' + \
@@ -557,7 +568,7 @@ class ChimpAutoRun:
             '--testPlatform=' + self.platform + ' ' + \
             '--testPlatformVer=\'Ubuntu 18.04\' ' + \
             '--testBrowser=' + report_browser + ' ' + \
-            '--testBrowserVer=77 ' + \
+            '--testBrowserVer=' + report_browser_ver + ' ' + \
             '--testThreads=' + self.parallel + ' ' + \
             '--testStartTime=' + self.runtime_stamp + ' ' + \
             '--testRunDuration=' + run_duration + ' ' + \

@@ -107,7 +107,7 @@ module.exports = function() {
     );
 
     this.When(
-        /^I scroll to element "([^"]*)?"$/,
+        /^I scroll to the element "([^"]*)?"$/,
         scroll
     );
 

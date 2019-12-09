@@ -34,29 +34,29 @@ if [ "$USER" != "root" ]; then
         PASSWORD=ubuntu
     fi
     export HOME=/home/$USER
+    sed -i "s|%USER%|$USER|" /etc/supervisor/conf.d/supervisord.conf
+    sed -i "s|%HOME%|$HOME|" /etc/supervisor/conf.d/supervisord.conf
     echo "$USER:$PASSWORD" | chpasswd
+    unset PASSWORD
+
+    # HOME
+    cd /root && tar cf - ./Projects/AutoBDD/node_modules | (cd $HOME && tar xf -)
     cp -r /root/{.gtkrc-2.0,.asoundrc} ${HOME}
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
-    unset PASSWORD
+    # prepare sshd
+    mkdir -p /run/sshd
+    mkdir -p $HOME/Projects
+    mkdir -p $HOME/.config/pcmanfm/LXDE/
+    ln -sf /usr/local/share/doro-lxde-wallpapers/desktop-items-0.conf $HOME/.config/pcmanfm/LXDE/
+    if [ "$HOSTOS" == "Linux" ]; then
+    chown -R $USERID:$GROUPID $HOME
+    else
+    chown -R $USER:$USER $HOME
+    fi
+    # set bash_profile
+    cat /root/.bashrc >> $HOME/.bash_profile && chown $USER:$USER $HOME/.bash_profile
 fi
-sed -i "s|%USER%|$USER|" /etc/supervisor/conf.d/supervisord.conf
-sed -i "s|%HOME%|$HOME|" /etc/supervisor/conf.d/supervisord.conf
-
-# prepare sshd
-mkdir -p /run/sshd
-
-# home folder
-mkdir -p $HOME/Projects
-mkdir -p $HOME/.config/pcmanfm/LXDE/
-ln -sf /usr/local/share/doro-lxde-wallpapers/desktop-items-0.conf $HOME/.config/pcmanfm/LXDE/
-if [ "$HOSTOS" == "Linux" ]; then
-  chown -R $USERID:$GROUPID $HOME
-else
-  chown -R $USER:$USER $HOME
-fi
-
-# set bash_profile
-cat /root/.bashrc >> $HOME/.bash_profile && chown $USER:$USER $HOME/.bash_profile
+# add display and npm settings to bash_profile
 cat >> $HOME/.bash_profile << END_bash_profile
 export DISPLAY=:1
 npm config set script-shell /bin/bash

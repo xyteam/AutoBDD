@@ -16,7 +16,6 @@ const checkNewWindow = require('../../functions/check/checkNewWindow');
 const checkOffset = require('../../functions/check/checkOffset');
 const checkProperty = require('../../functions/check/checkProperty');
 const checkFontProperty = require('../../functions/check/checkFontProperty');
-const checkSelected = require('../../functions/check/checkSelected');
 const checkTitle = require('../../functions/check/checkTitle');
 const checkTitleContains = require('../../functions/check/checkTitleContains');
 const checkURL = require('../../functions/check/checkURL');
@@ -46,7 +45,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? is( not)* (displayed|enabled|selected)$/,
+        /^I expect (?:that )?the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? is( not)* (displayed|checked|enabled|selected)$/,
         checkElementStatusInsideParentElement
     );
 
@@ -118,16 +117,6 @@ module.exports = function() {
     this.Then(
         /^I expect (?:that )?the font( css)* attribute "([^"]*)?" from element "([^"]*)?" is( not)* "([^"]*)?"$/,
         checkFontProperty
-    );
-
-    this.Then(
-        /^I expect (?:that )?the checkbox "([^"]*)?" is( not)* checked$/,
-        checkSelected
-    );
-
-    this.Then(
-        /^I expect (?:that )?the element "([^"]*)?" is( not)* selected$/,
-        checkSelected
     );
 
     this.Then(

@@ -11,7 +11,7 @@ robot.setKeyboardDelay(50);
 const defaultCPM = process.env.robotDefaultCPM || 600;
 
 module.exports = {
-  runFindImage: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
+  runFindImage: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax) {
     var outputBuffer;
     var outputString;
     var returnVal;
@@ -22,7 +22,8 @@ module.exports = {
                         + ' --imageSimilarity=' + imageSimilarity
                         + ' --imageWaitTime=' + imageWaitTime
                         + ' --imageAction=' + imageAction
-                        + ' --imageFindAll=' + imageFindAll);
+                        + ' --imageFindAll=' + imageFindAll
+                        + ' --imageSimilarityMax=' + imageSimilarityMax);
       outputString = outputBuffer.toString('utf8');
       console.log(outputString);
       returnVal = outputString.substring(outputString.lastIndexOf('['), outputString.lastIndexOf(']') + 1);
@@ -32,21 +33,26 @@ module.exports = {
     return returnVal;
   },
 
-  runFindImages: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
+  runFindImages: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax) {
     var returnVal;
     if (typeof(imagePath) === 'object') {
       for (let singlePath of imagePath) {
-        returnVal = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll);
+        returnVal = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
         if (!returnVal.includes('not found')) break;
       };
     } else {
-      returnVal = this.runFindImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll);
+      returnVal = this.runFindImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
     }
     return returnVal;
   },
 
-  screenFindImage: function(imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll) {
-    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll);
+  screenFindAllImages: function (imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax) {
+    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, null, true, imageSimilarityMax);
+    return returnVal;
+  },
+
+  screenFindImage: function(imagePath, imageSimilarity, imageWaitTime, imageAction) {
+    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, imageAction);
     return returnVal;
   },
 
