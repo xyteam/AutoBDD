@@ -66,6 +66,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
             returnItem.location = {x: find_item.x, y: find_item.y};
             returnItem.dimension = {width: find_item.w, height: find_item.h};
             returnItem.center = {x: find_item.x + Math.round(find_item.w / 2), y: find_item.y + Math.round(find_item.h / 2)};
+            returnItem.text = find_item.textSync();
             returnArray.push(returnItem);
           }
         }
@@ -77,6 +78,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
         returnItem.dimension = {width: find_item.w, height: find_item.h};
         returnItem.center = {x: find_item.x + Math.round(find_item.w / 2), y: find_item.y + Math.round(find_item.h / 2)};
         returnItem.score = Math.floor(find_item.getScoreSync()*1000000)/1000000;
+        returnItem.text = find_item.textSync();
         var click_count = 0;
         switch (imageAction) {
           case 'single':

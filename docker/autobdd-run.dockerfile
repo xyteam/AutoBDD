@@ -11,6 +11,7 @@ ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
 ARG AutoBDD_Ver
 
+# switch to faster ubuntu archive
 RUN sed -i 's#http://archive.ubuntu.com/#http://tw.archive.ubuntu.com/#' /etc/apt/sources.list;
 
 # apt install essential tools for apt install/upgrade
@@ -20,61 +21,66 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
 		apt-utils curl wget software-properties-common sudo tzdata; \
 # Set the timezone.
-    sudo dpkg-reconfigure -f noninteractive tzdata; \
+    dpkg-reconfigure -f noninteractive tzdata; \
 # install standard linux tools needed for automation framework
     apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    autofs \
-    binutils \
-    build-essential \
-    dirmngr \
-    ffmpeg \
-    fonts-liberation \
-    git \
-    gpg-agent \
-    imagemagick \
-    less \
-    libappindicator3-1 \
-    libatk-bridge2.0-0 \
-    libgtk-3-0 \
-    libnspr4 \
-    libnss3 \
-    libopencv-dev \
-    libpng++-dev \
-    libpython2.7-stdlib \
-    libpython3-stdlib \
-    libxss1 \
-    libxtst-dev \
-    locales \
-    lsof \
-    lubuntu-core \
-    maven \
-    net-tools \
-    ntpdate \
-    python3-dev \
-    python3-pip \
-    rdesktop \
-    rsync \
-    tdsodbc \
-    tesseract-ocr \
-    tree \
-    unixodbc \
-    unixodbc-dev \
-    unzip \
-    wmctrl \
-    x11-xserver-utils \
-    xclip \
-    xdg-utils \
-    xdotool \
-    xvfb \
-    zlib1g-dev; \
+        autofs \
+        binutils \
+        build-essential \
+        dirmngr \
+        ffmpeg \
+        fonts-liberation \
+        git \
+        gpg-agent \
+        imagemagick \
+        less \
+        libappindicator3-1 \
+        libatk-bridge2.0-0 \
+        libgtk-3-0 \
+        libnspr4 \
+        libnss3 \
+        libopencv-dev \
+        libpng++-dev \
+        libpython2.7-stdlib \
+        libpython3-stdlib \
+        libxss1 \
+        libxtst-dev \
+        locales \
+        lsof \
+        lubuntu-core \
+        maven \
+        net-tools \
+        ntpdate \
+        python3-dev \
+        python3-pip \
+        rdesktop \
+        rsync \
+        tdsodbc \
+        tree \
+        unixodbc \
+        unixodbc-dev \
+        unzip \
+        wmctrl \
+        x11-xserver-utils \
+        xclip \
+        xdg-utils \
+        xdotool \
+        xvfb \
+        zlib1g-dev; \
+# install newer tesseract-ocr
+    add-apt-repository ppa:alex-p/tesseract-ocr -y && \
+    apt-get update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" && \
+    apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+        tesseract-ocr \
+        libtesseract-dev; \
+# system configuration update
+    ldconfig; \
+    update-ca-certificates; \
 # final autoremove
-    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" && \
     apt purge -y openjdk-11-jre-headless && \
-    apt --purge autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; \
-# update ca certs
-    update-ca-certificates
+    apt --purge autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold";
 
-# install nodejs 8.x
+# install nodejs 10.x
 RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
     apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
     apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
