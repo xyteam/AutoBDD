@@ -18,17 +18,17 @@ if [ "$USER" != "root" ]; then
     cp -r /root/{.gtkrc-2.0,.asoundrc} ${HOME}
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
     unset PASSWORD
+    # home folder
+    cd /root && tar cf - ./Projects | (cd $HOME && tar xf -)
+    if [ "$HOSTOS" == "Linux" ]; then
+      chown -R $USERID:$GROUPID $HOME
+    else
+      chown -R $USER:$USER $HOME
+    fi
+    # set bash_profile
+    cat /root/.bashrc >> $HOME/.bash_profile && chown $USER:$USER $HOME/.bash_profile
 fi
-
-# home folder
-cd /root && tar cf - ./Projects | (cd $HOME && tar xf -)
-if [ "$HOSTOS" == "Linux" ]; then
-  chown -R $USERID:$GROUPID $HOME
-else
-  chown -R $USER:$USER $HOME
-fi
-# set bash_profile
-cat /root/.bashrc >> $HOME/.bash_profile && chown $USER:$USER $HOME/.bash_profile
+# add npm settings to bash_profile
 cat >> $HOME/.bash_profile << END_bash_profile
 npm config set script-shell /bin/bash
 END_bash_profile
