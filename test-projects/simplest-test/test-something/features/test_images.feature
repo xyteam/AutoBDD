@@ -6,5 +6,6 @@ Feature: test images
 
   Scenario: test images
     When  I open the path "/"
-    And   I scroll to element "#logo"
+    And   I scroll to the element "#logo"
     Then  I should see the "chromeLogo" image on the screen
+    And   I expect that the "chromeLogo" image contains the text "chrome"
