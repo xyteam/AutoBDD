@@ -10,3 +10,4 @@ process.env.ThisModule = path.resolve().split(PROJECTNAME)[1].split('/')[1]
 process.env.ROOTPATH = '/';
 process.env.LOGOID = '#logo';
 process.env.LOGO_FILENAME = 'chromeLogo';
+process.env.LOGO_TEXT = 'chrome';
