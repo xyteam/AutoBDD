@@ -12,9 +12,9 @@ module.exports = function() {
     expect(typeof resultString).not.toBe('undefined');
     expect(resultString).not.toContain('error');
     if (falseCase) {
-      expect(resultString).toContain('not found', `expect image ${parsedImageName} not on the screen but found.`);
+      expect(resultString).toContain('[not found]', `expect image ${parsedImageName} not on the screen but found.`);
     } else {
-      expect(resultString).not.toContain('not found', `expect image ${parsedImageName} on the screen but not found.`);
+      expect(resultString).not.toContain('[not found]', `expect image ${parsedImageName} on the screen but not found.`);
       var resultArray = JSON.parse(resultString);
       this.lastImage = {
         'imageName': parsedImageName,

@@ -16,13 +16,13 @@ module.exports = function() {
     this.screen_session.moveMouse(0, 0);
     this.screen_session.moveMouse(100, 100);
     var resultString = this.screen_session.screenFindImage(imageFullPath, imageSimilarity, imageWaitTime, 'single');
-    expect(resultString).not.toContain('not found');
+    expect(resultString).not.toContain('[not found]');
     expect(resultString).not.toContain('error');
     var resultArray = JSON.parse(resultString);
     // click LinuxSave_button
     var saveButtonFullPath = this.fs_session.globalSearchImageList(__dirname, 'FileSave_button');
     var resultString = this.screen_session.screenFindImage(saveButtonFullPath, (imageSimilarity * 0.6), imageWaitTime, 'single');
-    expect(resultString).not.toContain('not found');
+    expect(resultString).not.toContain('[not found]');
     expect(resultString).not.toContain('error');
     var resultArray = JSON.parse(resultString);
     var downloadFilePath = this.fs_session.checkDownloadFile(fileName, fileExt);

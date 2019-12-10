@@ -13,7 +13,7 @@ module.exports = function() {
       default:
       break;
     }
-    expect(resultString).not.toContain('not found');
+    expect(resultString).not.toContain('[not found]');
     expect(resultString).not.toContain('error');
     var resultArray = JSON.parse(resultString);
     console.log(resultArray[0].clicked)

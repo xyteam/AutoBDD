@@ -14,7 +14,7 @@ module.exports = function() {
       browser.pause(500);
       const resultString = this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime);
       var readTargetContent;
-      if (resultString.includes('not found')) {
+      if (resultString.includes('[not found]')) {
         console.log('expected image does not show on screen');
         readTargetContent = '';
       } else {

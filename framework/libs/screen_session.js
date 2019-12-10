@@ -38,7 +38,7 @@ module.exports = {
     if (typeof(imagePath) === 'object') {
       for (let singlePath of imagePath) {
         returnVal = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
-        if (!returnVal.includes('not found')) break;
+        if (!returnVal.includes('[not found]')) break;
       };
     } else {
       returnVal = this.runFindImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
