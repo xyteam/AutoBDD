@@ -10,21 +10,18 @@ module.exports = function() {
     var imageFullPath = this.fs_session.globalSearchImageList(__dirname, imageName.split(':')[0]);
     var imageSimilarity = imageName.split(':')[1] || process.env.imageSimilarity;
     var imageWaitTime = process.env.imageWaitTime;
+    var screenFindResult;
     // shake mouse to induce the display of PDF download icon
     this.screen_session.moveMouse(0, 0);
     this.screen_session.moveMouse(100, 100);
     this.screen_session.moveMouse(0, 0);
     this.screen_session.moveMouse(100, 100);
-    var resultString = this.screen_session.screenFindImage(imageFullPath, imageSimilarity, imageWaitTime, 'single');
-    expect(resultString).not.toContain('not found');
-    expect(resultString).not.toContain('error');
-    var resultArray = JSON.parse(resultString);
+    screenFindResult = JSON.parse(this.screen_session.screenFindImage(imageFullPath, imageSimilarity, imageWaitTime, 'single'));
+    expect(screenFindResult.length).toBeGreaterThan(0, 'failed to click PDF download icon');
     // click LinuxSave_button
     var saveButtonFullPath = this.fs_session.globalSearchImageList(__dirname, 'FileSave_button');
-    var resultString = this.screen_session.screenFindImage(saveButtonFullPath, (imageSimilarity * 0.6), imageWaitTime, 'single');
-    expect(resultString).not.toContain('not found');
-    expect(resultString).not.toContain('error');
-    var resultArray = JSON.parse(resultString);
+    screenFindResult = JSON.parse(this.screen_session.screenFindImage(saveButtonFullPath, (imageSimilarity * 0.6), imageWaitTime, 'single'));
+    expect(screenFindResult.length).toBeGreaterThan(0, 'failed to click FileSave button');
     var downloadFilePath = this.fs_session.checkDownloadFile(fileName, fileExt);
     expect(downloadFilePath).toContain(fileName + '.' + fileExt);
   });

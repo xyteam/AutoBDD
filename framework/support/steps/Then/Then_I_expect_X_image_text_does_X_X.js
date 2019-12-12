@@ -12,14 +12,13 @@ module.exports = function() {
       const imageScore = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
       const imageWaitTime = 1;
       browser.pause(500);
-      const resultString = this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime);
+      const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime));
       var readTargetContent;
-      if (resultString.includes('not found')) {
+      if (screenFindResult.length == 0) {
         console.log('expected image does not show on screen');
         readTargetContent = '';
       } else {
-        console.log(JSON.parse(resultString));
-        readTargetContent = JSON.parse(resultString)[0].text;
+        readTargetContent = screenFindResult[0].text;
       }
       let boolFalseCase = !!falseCase;
       if (boolFalseCase) {

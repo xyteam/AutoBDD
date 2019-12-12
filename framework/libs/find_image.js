@@ -70,7 +70,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
             returnArray.push(returnItem);
           }
         }
-        if (returnArray.length == 0) returnArray.push('not found');
+        if (returnArray.length == 0) returnArray.push('notFound');
       } else {
         const find_item = findRegion.waitSync(oneTarget, myImageWaitTime);
         var returnItem = {location: null, dimension: null, center: null, clicked: null, score: null};
@@ -106,7 +106,8 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
       return JSON.stringify(returnArray);
     } catch(e) {
       // console.log(e);
-      return '[not found]';
+      returnArray.push('notFound');
+      return JSON.stringify(returnArray);
     }
   };
 console.log([onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax]);

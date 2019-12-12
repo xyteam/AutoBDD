@@ -28,61 +28,88 @@ module.exports = {
       console.log(outputString);
       returnVal = outputString.substring(outputString.lastIndexOf('['), outputString.lastIndexOf(']') + 1);
     } catch(e){
-      returnVal = 'execSync error: ' + e.message;
+      returnVal = '["execSyncError": ' + e.message + ']';
     }
     return returnVal;
   },
 
-  runFindImages: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax) {
-    var returnVal;
+  findImageFromList: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, listStrategy) {
+    // listStrategy to be one of:
+    // firstMatch, //default
+    // bestMatch,
+    var myListStrategy = listStrategy || 'firstMatch';
+    var runResultString;
+    var runResultJson = []
+    var returnVal = [];
     if (typeof(imagePath) === 'object') {
       for (let singlePath of imagePath) {
-        returnVal = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
-        if (!returnVal.includes('not found')) break;
+        runResultString = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
+        if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
+          runResultJson = JSON.parse(runResultString);
+        }
+        if (runResultJson.length > 0 && myListStrategy == 'firstMatch') {
+          returnVal = [...runResultJson];
+          break; // break for loop
+        } else if (runResultJson.length > 0 && myListStrategy == 'bestMatch') {
+          if (returnVal.length == 0 || returnVal[0].score < runResultJson.score) {
+            returnVal = [...runResultJson];
+          }
+        }
       };
     } else {
-      returnVal = this.runFindImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
+      runResultString = this.runFindImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
+      if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
+        runResultJson = JSON.parse(runResultString);
+      }
+      returnVal = [...runResultJson];
     }
-    return returnVal;
+    // sort base on returnVal.score from npmhigh to low
+    if (returnVal.length > 0) {
+      returnVal.sort((a, b) => { return (a.score > b.score) ? -1 : (a.score < b.score) ? 1 : 0 })
+    }
+    // console.log(runResultString);
+    // console.log(JSON.stringify(runResultJson));
+    // console.log(JSON.stringify(returnVal));
+    return JSON.stringify(returnVal);
   },
 
   screenFindAllImages: function (imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax) {
-    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, null, true, imageSimilarityMax);
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, null, true, imageSimilarityMax);
     return returnVal;
   },
 
   screenFindImage: function(imagePath, imageSimilarity, imageWaitTime, imageAction) {
-    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, imageAction);
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, imageAction);
     return returnVal;
   },
 
   screenWaitImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime);
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime);
     return returnVal;
   },
 
   screenHoverImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, 'hover');
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'hover');
     return returnVal;
   },
 
   screenClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, 'single');
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'single');
     return returnVal;
   },
 
   screenDoubleClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, 'double');
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'double');
     return returnVal;
   },
 
   screenRightClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImages('onScreen', imagePath, imageSimilarity, imageWaitTime, 'right');
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'right');
     return returnVal;
   },
 
   screenHoverCenter: function() {
-    var returnVal = this.runFindImages('onScreen', 'center', null, null, 'hover');
+    var returnVal = this.findImageFromList('onScreen', 'center', null, null, 'hover');
     return returnVal;
   },
 
