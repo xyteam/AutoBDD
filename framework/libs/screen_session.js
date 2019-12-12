@@ -35,9 +35,9 @@ module.exports = {
 
   findImageFromList: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, listStrategy) {
     // listStrategy to be one of:
-    // firstMatch,
+    // firstMatch, //default
     // bestMatch,
-    // allMatchSorted (default)
+    var myListStrategy = listStrategy || 'firstMatch';
     var runResultString;
     var runResultJson = []
     var returnVal = [];
@@ -47,15 +47,13 @@ module.exports = {
         if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
           runResultJson = JSON.parse(runResultString);
         }
-        if (runResultJson.length > 0 && listStrategy == 'firstMatch') {
+        if (runResultJson.length > 0 && myListStrategy == 'firstMatch') {
           returnVal = [...runResultJson];
           break; // break for loop
-        } else if (runResultJson.length > 0 && listStrategy == 'bestMatch') {
+        } else if (runResultJson.length > 0 && myListStrategy == 'bestMatch') {
           if (returnVal.length == 0 || returnVal[0].score < runResultJson.score) {
             returnVal = [...runResultJson];
           }
-        } else if (runResultJson.length > 0) {
-          returnVal = returnVal.concat(runResultJson);
         }
       };
     } else {
