@@ -3,19 +3,15 @@ module.exports = function() {
     var imageFullPath = this.fs_session.globalSearchImageList(__dirname, imageName.split(':')[0]);
     var imageSimilarity = imageName.split(':')[1] || process.env.imageSimilarity;
     var imageWaitTime = process.env.imageWaitTime;
-    var resultString
+    var screenFindResult
     switch (mouseAction) {
       case "hover":
-        resultString = this.screen_session.screenHoverImage(imageFullPath, imageSimilarity, imageWaitTime);
+        screenFindResult = JSON.parse(this.screen_session.screenHoverImage(imageFullPath, imageSimilarity, imageWaitTime));
       break;
       case "click":
-        resultString = this.screen_session.screenClickImage(imageFullPath, imageSimilarity, imageWaitTime);
+        screenFindResult = JSON.parse(this.screen_session.screenClickImage(imageFullPath, imageSimilarity, imageWaitTime));
       default:
       break;
     }
-    expect(resultString).not.toContain('[not found]');
-    expect(resultString).not.toContain('error');
-    var resultArray = JSON.parse(resultString);
-    console.log(resultArray[0].clicked)
   });
 };

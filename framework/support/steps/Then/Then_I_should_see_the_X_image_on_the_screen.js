@@ -8,18 +8,15 @@ module.exports = function() {
     const imageScore = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
     const imageWaitTime = 1;
     browser.pause(500);
-    var resultString = this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime);
-    expect(typeof resultString).not.toBe('undefined');
-    expect(resultString).not.toContain('error');
+    var screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime));
     if (falseCase) {
-      expect(resultString).toContain('[not found]', `expect image ${parsedImageName} not on the screen but found.`);
+      expect(screenFindResult.length).toEqual(0, `expect image ${parsedImageName} not on the screen but found.`);
     } else {
-      expect(resultString).not.toContain('[not found]', `expect image ${parsedImageName} on the screen but not found.`);
-      var resultArray = JSON.parse(resultString);
+      expect(screenFindResult.length).toBeGreaterThan(0, `expect image ${parsedImageName} on the screen but not found.`);
       this.lastImage = {
         'imageName': parsedImageName,
-        'imageLocation': resultArray[0].location,
-        'imageScore': resultArray[0].score
+        'imageLocation': screenFindResult[0].location,
+        'imageScore': screenFindResult[0].score
       }
       // console.log(this.lastImage);
     }
