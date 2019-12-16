@@ -25,10 +25,9 @@ module.exports = {
                         + ' --imageFindAll=' + imageFindAll
                         + ' --imageSimilarityMax=' + imageSimilarityMax);
       outputString = outputBuffer.toString('utf8');
-      // console.log(outputString);
       returnVal = outputString.substring(outputString.lastIndexOf('[{'), outputString.lastIndexOf('}]') + 2);
     } catch(e){
-      returnVal = '["execSyncError": ' + e.message + ']';
+      returnVal = '[{execSyncError: ' + e.message + '}]';
     }
     return returnVal;
   },
@@ -45,7 +44,6 @@ module.exports = {
       for (let singlePath of imagePath) {
         runResultString = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
         if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
-          // console.log(runResultString);
           runResultJson = JSON.parse(runResultString);
         }
         if (runResultJson.length > 0 && myListStrategy == 'firstMatch') {
@@ -68,7 +66,6 @@ module.exports = {
     if (returnVal.length > 0) {
       returnVal.sort((a, b) => { return (a.score > b.score) ? -1 : (a.score < b.score) ? 1 : 0 })
     }
-    // console.log(runResultString);
     // console.log(JSON.stringify(runResultJson));
     // console.log(JSON.stringify(returnVal));
     return JSON.stringify(returnVal);
