@@ -12,9 +12,10 @@ const imageSimilarityMax = argv.imageSimilarityMax || 1;
 const sikuliApiJarPath = (process.env.FrameworkPath) ? process.env.FrameworkPath + '/framework/libs' : '.'
 // const screen_session = require(process.env.FrameworkPath + '/framework/libs/screen_session');
 
-const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax) => {
+const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, maxCount) => {
   const myImageSimilarity = parseFloat(imageSimilarity);
   const myImageWaitTime = parseFloat(imageWaitTime);
+  const myMaxCount = maxCount || 30;
     // Sikuli Property
     var sikuliApiJar;
     switch (process.env.ReleaseString) {
@@ -52,17 +53,20 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
     } else {
       // oneTarget for imageAction, allTargets for imageFindAll
       oneTarget = (new Pattern(imagePath)).similarSync(java.newFloat(myImageSimilarity));
-      allTargets = (new Pattern(imagePath)).similarSync(java.newFloat(myImageSimilarity/2));
+      allTargets = (new Pattern(imagePath)).similarSync(java.newFloat(myImageSimilarity));
     }
 
     try {
       if (imageFindAll == 'true') {
         var find_results = findRegion.findAllSync(allTargets);
-        while (find_results.hasNextSync()) {
+        var matchCount = 0;
+        while (matchCount < myMaxCount && find_results.hasNextSync()) {
           const find_item = find_results.nextSync();
           var returnItem = {location: null, dimension: null, center: null, clicked: null};
           returnItem.score = Math.floor(find_item.getScoreSync()*1000000)/1000000;
           if (returnItem.score >= imageSimilarity && returnItem.score <= imageSimilarityMax) {
+            matchCount += 1;
+            find_item.highlight(0.1);
             returnItem.location = {x: find_item.x, y: find_item.y};
             returnItem.dimension = {width: find_item.w, height: find_item.h};
             returnItem.center = {x: find_item.x + Math.round(find_item.w / 2), y: find_item.y + Math.round(find_item.h / 2)};
@@ -73,6 +77,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
         if (returnArray.length == 0) returnArray.push('notFound');
       } else {
         const find_item = findRegion.waitSync(oneTarget, myImageWaitTime);
+        find_item.highlight(0.1);
         var returnItem = {location: null, dimension: null, center: null, clicked: null, score: null};
         returnItem.location = {x: find_item.x, y: find_item.y};
         returnItem.dimension = {width: find_item.w, height: find_item.h};
@@ -113,3 +118,4 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
 console.log([onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax]);
 const findImage_result = findImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
 console.log(findImage_result);
+
