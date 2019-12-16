@@ -25,8 +25,8 @@ module.exports = {
                         + ' --imageFindAll=' + imageFindAll
                         + ' --imageSimilarityMax=' + imageSimilarityMax);
       outputString = outputBuffer.toString('utf8');
-      console.log(outputString);
-      returnVal = outputString.substring(outputString.lastIndexOf('['), outputString.lastIndexOf(']') + 1);
+      // console.log(outputString);
+      returnVal = outputString.substring(outputString.lastIndexOf('[{'), outputString.lastIndexOf('}]') + 2);
     } catch(e){
       returnVal = '["execSyncError": ' + e.message + ']';
     }
@@ -45,6 +45,7 @@ module.exports = {
       for (let singlePath of imagePath) {
         runResultString = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
         if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
+          // console.log(runResultString);
           runResultJson = JSON.parse(runResultString);
         }
         if (runResultJson.length > 0 && myListStrategy == 'firstMatch') {
@@ -177,3 +178,4 @@ module.exports = {
     return robot.getXDisplayName();
   },
 }
+
