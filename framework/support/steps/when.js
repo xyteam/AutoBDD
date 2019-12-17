@@ -154,6 +154,7 @@ module.exports = function() {
     this.When(
         /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to( not)* (be checked|be enabled|be selected|be visible|contain a text|contain a value|exist))*$/,
         {
+            timeout: 3600*1000,
             wrapperOptions: {
                 retry: 3,
             },
