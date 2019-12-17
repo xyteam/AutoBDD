@@ -10,6 +10,7 @@ const imageAction = argv.imageAction || 'none';
 const imageFindAll = argv.imageFindAll || 'false';
 const imageSimilarityMax = argv.imageSimilarityMax || 1;
 const sikuliApiJarPath = (process.env.FrameworkPath) ? process.env.FrameworkPath + '/framework/libs' : '.'
+const notFoundStatus = {status: 'notFound'};
 // const screen_session = require(process.env.FrameworkPath + '/framework/libs/screen_session');
 
 const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, maxCount) => {
@@ -74,7 +75,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
             returnArray.push(returnItem);
           }
         }
-        if (returnArray.length == 0) returnArray.push('notFound');
+        if (returnArray.length == 0) returnArray.push(notFoundStatus);
       } else {
         const find_item = findRegion.waitSync(oneTarget, myImageWaitTime);
         find_item.highlight(0.1);
@@ -111,7 +112,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
       return JSON.stringify(returnArray);
     } catch(e) {
       // console.log(e);
-      returnArray.push('notFound');
+      returnArray.push(notFoundStatus);
       return JSON.stringify(returnArray);
     }
   };
