@@ -20,7 +20,7 @@ module.exports = function() {
     expect(screenFindResult[0].status).not.toEqual('notFound', 'failed to click PDF download icon');
     // click LinuxSave_button
     var saveButtonFullPath = this.fs_session.globalSearchImageList(__dirname, 'FileSave_button');
-    console.log(saveButtonFullPath);
+    // console.log(saveButtonFullPath);
     screenFindResult = JSON.parse(this.screen_session.findImageFromList('onScreen', saveButtonFullPath, (imageSimilarity * 0.6), imageWaitTime, 'single'));
     expect(screenFindResult[0].status).not.toEqual('notFound', 'failed to click FileSave button');
     var downloadFilePath = this.fs_session.checkDownloadFile(fileName, fileExt);
