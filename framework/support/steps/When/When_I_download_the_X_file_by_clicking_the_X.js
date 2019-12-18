@@ -17,11 +17,11 @@ module.exports = function() {
     this.screen_session.moveMouse(0, 0);
     this.screen_session.moveMouse(100, 100);
     screenFindResult = JSON.parse(this.screen_session.screenFindImage(imageFullPath, imageSimilarity, imageWaitTime, 'single'));
-    expect(screenFindResult.length).toBeGreaterThan(0, 'failed to click PDF download icon');
+    expect(screenFindResult[0].status).not.toEqual('notFound', 'failed to click PDF download icon');
     // click LinuxSave_button
     var saveButtonFullPath = this.fs_session.globalSearchImageList(__dirname, 'FileSave_button');
     screenFindResult = JSON.parse(this.screen_session.screenFindImage(saveButtonFullPath, (imageSimilarity * 0.6), imageWaitTime, 'single'));
-    expect(screenFindResult.length).toBeGreaterThan(0, 'failed to click FileSave button');
+    expect(screenFindResult[0].status).not.toEqual('notFound', 'failed to click FileSave button');
     var downloadFilePath = this.fs_session.checkDownloadFile(fileName, fileExt);
     expect(downloadFilePath).toContain(fileName + '.' + fileExt);
   });

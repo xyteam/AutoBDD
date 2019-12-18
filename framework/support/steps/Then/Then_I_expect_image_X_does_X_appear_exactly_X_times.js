@@ -14,36 +14,36 @@ module.exports = function() {
       const imageWaitTime = 1;
       browser.pause(500);
       const screenFindResult = JSON.parse(this.screen_session.screenFindAllImages(imagePathList, imageScore, imageWaitTime, null, true, imageSimilarityMax));
-      if (screenFindResult.length == 0) {
+      var myScreenFindResult = [];
+      if (screenFindResult[0].status == 'notFound') {
         console.log('expected image does not show on screen');
       } else {
         console.log(screenFindResult);
+        myScreenFindResult = myScreenFindResult.concat(screenFindResult);
       }
       switch (myCompareAction) {
         case 'exactly':
-            expect(screenFindResult.length).toEqual(parseInt(myExpectedNumber));
+            expect(myScreenFindResult.length).toEqual(parseInt(myExpectedNumber));
             break;
         case 'not exactly':
             expect(typeof falseCase === 'undefined').toBe(true, 'cannot use double negative expression');
-            expect(screenFindResult.length).not.toEqual(parseInt(myExpectedNumber));
+            expect(myScreenFindResult.length).not.toEqual(parseInt(myExpectedNumber));
             break;
         case 'more than':
-            expect(screenFindResult.length).toBeGreaterThan(parseInt(myExpectedNumber));
+            expect(myScreenFindResult.length).toBeGreaterThan(parseInt(myExpectedNumber));
             break;
         case 'no more than':
             expect(typeof falseCase === 'undefined').toBe(true, 'cannot use double negative expression');
-            expect(screenFindResult.length).not.toBeGreaterThan(parseInt(myExpectedNumber));
+            expect(myScreenFindResult.length).not.toBeGreaterThan(parseInt(myExpectedNumber));
             break;
         case 'less than':
-            expect(screenFindResult.length).toBeLessThan(parseInt(myExpectedNumber));
+            expect(myScreenFindResult.length).toBeLessThan(parseInt(myExpectedNumber));
             break;
         case 'no less than':
             expect(typeof falseCase === 'undefined').toBe(true, 'cannot use double negative expression');
-            expect(screenFindResult.length).not.toBeLessThan(parseInt(myExpectedNumber));
+            expect(myScreenFindResult.length).not.toBeLessThan(parseInt(myExpectedNumber));
             break;
       }    
     }
   );
 };
-
-

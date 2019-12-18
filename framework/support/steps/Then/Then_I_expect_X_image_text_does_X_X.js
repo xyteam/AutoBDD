@@ -14,7 +14,7 @@ module.exports = function() {
       browser.pause(500);
       const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime));
       var readTargetContent;
-      if (screenFindResult.length == 0) {
+      if (screenFindResult[0].status == 'notFound') {
         console.log('expected image does not show on screen');
         readTargetContent = '';
       } else {
@@ -77,5 +77,3 @@ module.exports = function() {
     }
   );
 };
-
-
