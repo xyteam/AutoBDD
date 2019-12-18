@@ -13,5 +13,7 @@ module.exports = function() {
       default:
       break;
     }
+    console.log(screenFindResult);
+    expect(screenFindResult[0].status).not.toEqual('notFound', `can not ${mouseAction} the "${imageName}" image on the screen`);
   });
 };
