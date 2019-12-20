@@ -8,7 +8,7 @@ module.exports = function() {
     const imageScore = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
     const imageWaitTime = 1;
     browser.pause(500);
-    var screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime));
+    var screenFindResult = JSON.parse(this.screen_session.findImageFromList('onScreen', imagePathList, imageScore, imageWaitTime));
     if (falseCase) {
       expect(screenFindResult[0].status).toEqual('notFound', `expect image ${parsedImageName} not on the screen but found.`);
     } else {
