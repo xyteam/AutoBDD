@@ -14,10 +14,11 @@ module.exports = function() {
       browser.pause(500);
       const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime));
       var readTargetContent;
-      if (screenFindResult[0].status == 'notFound') {
+      if (screenFindResult.length == 0) {
         console.log('expected image does not show on screen');
         readTargetContent = '';
       } else {
+        console.log(screenFindResult);
         readTargetContent = screenFindResult[0].text;
       }
       let boolFalseCase = !!falseCase;

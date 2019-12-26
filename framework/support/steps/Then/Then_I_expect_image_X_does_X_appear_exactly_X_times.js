@@ -15,7 +15,7 @@ module.exports = function() {
       browser.pause(500);
       const screenFindResult = JSON.parse(this.screen_session.screenFindAllImages(imagePathList, imageScore, imageWaitTime, null, true, imageSimilarityMax));
       var myScreenFindResult = [];
-      if (screenFindResult[0].status == 'notFound') {
+      if (screenFindResult.length == 0) {
         console.log('expected image does not show on screen');
       } else {
         console.log(screenFindResult);

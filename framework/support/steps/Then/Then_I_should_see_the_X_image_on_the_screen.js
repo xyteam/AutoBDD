@@ -9,10 +9,11 @@ module.exports = function() {
     const imageWaitTime = 1;
     browser.pause(500);
     var screenFindResult = JSON.parse(this.screen_session.findImageFromList('onScreen', imagePathList, imageScore, imageWaitTime));
+    console.log(screenFindResult);
     if (falseCase) {
-      expect(screenFindResult[0].status).toEqual('notFound', `expect image ${parsedImageName} not on the screen but found.`);
+      expect(screenFindResult.length).toEqual(0, `expect image ${parsedImageName} not on the screen but found.`);
     } else {
-      expect(screenFindResult[0].status).not.toEqual('notFound', `expect image ${parsedImageName} on the screen but not found.`);
+      expect(screenFindResult.length).not.toEqual(0, `expect image ${parsedImageName} on the screen but not found.`);
       this.lastImage = {
         'imageName': parsedImageName,
         'imageLocation': screenFindResult[0].location,
