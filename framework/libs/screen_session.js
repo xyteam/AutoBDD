@@ -62,8 +62,8 @@ module.exports = {
       }
       returnVal = [...runResultJson];
     }
-    // sort base on returnVal.score from npmhigh to low
-    if (returnVal.length > 0) {
+    // sort base on returnVal.score from high to low
+    if (returnVal.length > 1) {
       returnVal.sort((a, b) => { return (a.score > b.score) ? -1 : (a.score < b.score) ? 1 : 0 })
     }
     // console.log(JSON.stringify(runResultJson));
@@ -77,37 +77,37 @@ module.exports = {
   },
 
   screenFindImage: function(imagePath, imageSimilarity, imageWaitTime, imageAction) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, imageAction);
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, imageAction);
     return returnVal;
   },
 
   screenWaitImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime);
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime);
     return returnVal;
   },
 
   screenHoverImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'hover');
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'hover');
     return returnVal;
   },
 
   screenClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'single');
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'single');
     return returnVal;
   },
 
   screenDoubleClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'double');
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'double');
     return returnVal;
   },
 
   screenRightClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.runFindImage('onScreen', imagePath, imageSimilarity, imageWaitTime, 'right');
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'right');
     return returnVal;
   },
 
   screenHoverCenter: function() {
-    var returnVal = this.runFindImage('onScreen', 'center', null, null, 'hover');
+    var returnVal = this.findImageFromList('onScreen', 'center', null, null, 'hover');
     return returnVal;
   },
 

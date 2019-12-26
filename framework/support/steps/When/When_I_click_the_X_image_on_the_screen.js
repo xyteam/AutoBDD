@@ -14,6 +14,6 @@ module.exports = function() {
       break;
     }
     console.log(screenFindResult);
-    expect(screenFindResult[0].status).not.toEqual('notFound', `can not ${mouseAction} the "${imageName}" image on the screen`);
+    expect(screenFindResult.length).not.toEqual(0, `can not ${mouseAction} the "${imageName}" image on the screen`);
   });
 };
