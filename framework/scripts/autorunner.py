@@ -687,7 +687,7 @@ class ChimpAutoRun:
                                 if os.path.exists(case['run_result']) and os.path.getsize(case['run_result']) > 0:
                                     resultString = ''
                                     failedString = '"status": "failed"'
-                                    with open(case['run_result']) as f:
+                                    with open(case['run_result'], encoding='utf-8') as f:
                                         resultString = f.read()
                                     if (resultString.find(failedString) >= 0):
                                         group.update({'status': 'failed'}, doc_ids=[case.doc_id])
