@@ -208,7 +208,7 @@ def parse_arguments():
         dest="RUNONLY",
         default=None,
         help=
-        "instead of running test and generating report for each run, this will run test only but will not generate cucumber report. Default: None"
+        "will run test only and will not generate cucumber report. Default: None"
     )
 
     parser.add_argument(
@@ -217,14 +217,23 @@ def parse_arguments():
         dest="REPORTONLY",
         default=None,
         help=
-        "instead of running test and generating report for each run, this will generate cucumber report only for the given path. Default: None"
+        "will generate cucumber report only for the given path. Default: None"
     )
 
     parser.add_argument(
         "--reruncrashed",
         "--RERUNCRASHED",
         dest="RERUNCRASHED",
-        help="Number of iterations to re-run crashed tests"
+        default="0",
+        help="Number of iterations to re-run crashed feature"
+    )
+
+    parser.add_argument(
+        "--rerunfailed",
+        "--RERUNFAILED",
+        dest="RERUNFAILED",
+        default="0",
+        help="Number of iterations to re-run failed feature"
     )
 
     parser.add_argument(
@@ -248,7 +257,7 @@ def parse_arguments():
         "--MOVIE",
         dest="MOVIE",
         default="0",
-        help="record movie when chimp running. Default value: 0")
+        help="record movie for each scenario. Default value: 0")
 
     parser.add_argument(
         "--platform",
@@ -452,7 +461,7 @@ class ChimpAutoRun:
         # print('*** is Maven = {}'.format (result))
         return result
 
-    def get_run_json(self):
+    def create_dryrun_json(self):
         from autorunner_dryrun import ChimpDryRun
         dry_run = ChimpDryRun(self.projectbase, self.project,
                                 self.modulelist, self.platform, self.browser,
@@ -524,15 +533,16 @@ class ChimpAutoRun:
         cucumber_report_json = []
         for table in db.tables():
             group = db.table(table)
-            results = group.search((query.status == 'done') | (query.status == 'passed'))
+            reportList = group.search(query.status != 'crashed')
             feature_report = None
-            for item in results:
+            for item in reportList:
                 element = json.loads(open(item['run_result'], encoding='utf-8').read())[0]
                 if not feature_report:
                     feature_report = element
                 else:
                     feature_report['elements'].append(element['elements'][0])
-            cucumber_report_json.append(feature_report)
+            if feature_report is not None:
+                cucumber_report_json.append(feature_report)
         db.close()
 
         report_json_path = os.path.join(self.report_dir_base, 'cucumber-report.json')
@@ -586,12 +596,12 @@ class ChimpAutoRun:
         print(cmd_generate_xml_report)
         os.system(cmd_generate_xml_report)
 
-    def run_in_parallel(self, dbfile):
+    def run_in_parallel(self, dbfile, rerunWhat):
         '''
         run chimp in parallel
 
         1. determine parallel pool size base on parallel input or CPU count
-        2. from db find case of 'notrun' or 'failed'
+        2. from db find case of 'notrun', 'rerun' and rerunWhat ('failed' or 'crashed')
 
         '''
         # set sub process pool number
@@ -622,15 +632,15 @@ class ChimpAutoRun:
         # each feature is a table, scenarios are entries in a table
         # here we identify any feature contains scenario that is notrun or failed and run the entire feature
         progress = []
-        total_runcount = 0
+        runCount = 0
         for table in db.tables():
             group = db.table(table)
             query = Query()
             case  = None
-            results = group.search((query.status == 'notrun') | (query.status == 'rerun') | (query.status == 'crashed'))
-            total_runcount += len(results)
-            if len(results) > 0:
-                case = results[0]
+            runList = group.search((query.status == 'notrun') | (query.status == 'rerun') | (query.status == rerunWhat))
+            runCount += len(runList)
+            if len(runList) > 0:
+                case = runList[0]
                 if case.doc_id:
                     module_path, module_name, feature_path, feature_name, run_result, run_report, report_dir_relative = definepath(
                     case, self.project, self.report_dir_base)
@@ -659,9 +669,9 @@ class ChimpAutoRun:
                 else:
                     break
         
-        print('Expected total: {}'.format(total_runcount))
+        print('Expected total: {}'.format(runCount))
         overall = 0
-        while overall < total_runcount:
+        while overall < runCount:
             scan = 0
             time.sleep(1)
             for r in progress:
@@ -671,16 +681,23 @@ class ChimpAutoRun:
                     for table in db.tables():
                         group = db.table(table)
                         query = Query()
-                        results = group.search(query.status == 'running')
-                        for case in results:
+                        runList = group.search(query.status == 'running')
+                        for case in runList:
                             if done_feature in case['uri']:
                                 if os.path.exists(case['run_result']) and os.path.getsize(case['run_result']) > 0:
-                                    group.update({'status': 'done'}, doc_ids=[case.doc_id])
+                                    resultString = ''
+                                    failedString = '"status": "failed"'
+                                    with open(case['run_result']) as f:
+                                        resultString = f.read()
+                                    if (resultString.find(failedString) >= 0):
+                                        group.update({'status': 'failed'}, doc_ids=[case.doc_id])
+                                    else:
+                                        group.update({'status': 'passed'}, doc_ids=[case.doc_id])
                                 else:
                                     group.update({'status': 'crashed'}, doc_ids=[case.doc_id])
             if scan > overall:
                 overall = scan
-                print('Progress: {} of {} done'.format(overall, total_runcount))
+                print('Progress: {} of {} done'.format(overall, runCount))
 
         # all parallel jobs are done
         pool.close()
@@ -693,18 +710,38 @@ class ChimpAutoRun:
 if __name__ == "__main__":
     command_arguments = parse_arguments()
     chimp_run = ChimpAutoRun(command_arguments)
-    rundb_json = path.join(chimp_run.report_full_path, 'db.subjson')
+    rundb_json_path = path.join(chimp_run.report_full_path, 'db.subjson')
 
+    # if db.subjson does not exist
+    #   call dry-run and use dry-run json to init db.json
+    # else
+    #   try to open and load db.subjson to determine if we need to initiate db.json
+    #   if db.subjson is not a valid json (exception)
+    #       call dry-run and use dry-run json to init db.json
+    if not os.path.exists(rundb_json_path):
+        run_json = chimp_run.create_dryrun_json()
+        chimp_run.init_tinydb(rundb_json_path, run_json)
+    else:
+        try:
+            run_json = json.loads(open(rundb_json_path).read(), encoding='utf-8')
+        except ValueError as e:
+            print('\ndb.json is not valid: {}\nusing dry-run to recreate db.json.\n'.format(e))
+            run_json = chimp_run.create_dryrun_json()
+            chimp_run.init_tinydb(rundb_json_path, run_json)
+    # db.json is created
     if not command_arguments.REPORTONLY:
-        run_json = chimp_run.get_run_json()
-        chimp_run.init_tinydb(rundb_json, run_json)
         print('\nRunning test in parallel\n')
-        chimp_run.run_in_parallel(rundb_json)
+        chimp_run.run_in_parallel(rundb_json_path, None)
+        if command_arguments.RERUNFAILED:
+            for n in range(0, int(command_arguments.RERUNFAILED)):
+                print('\nRerunning failed test iteration: {}\n'.format(n))
+                chimp_run.run_in_parallel(rundb_json_path, 'failed')
         if command_arguments.RERUNCRASHED:
             for n in range(0, int(command_arguments.RERUNCRASHED)):
                 print('\nRerunning crashed test iteration: {}\n'.format(n))
-                chimp_run.run_in_parallel(rundb_json)
+                chimp_run.run_in_parallel(rundb_json_path, 'crashed')
 
     if not command_arguments.RUNONLY:
         print('\nGenerating reports\n')
-        chimp_run.generate_reports(rundb_json)
+        chimp_run.generate_reports(rundb_json_path)
+
