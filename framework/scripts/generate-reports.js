@@ -93,45 +93,45 @@ var testRunDuration = cli.flags.testRunDuration;
 var testRunArgs = cli.flags.testRunArgs;
 
 var bootStrapHtmlReporter_options = {
-        launchReport: false,
-        ignoreBadJsonFile: false,
-        reportSuiteAsScenarios: false,
-        metadata: {
-            "Project": reportName,
-            "Title": reportTitle,
-            "Platform": testPlatform,
-            "Device": testDevice,
-            "Browser": testBrowser,
-            "browserVersion": testBrowserVer,
-            "Run Threads": testThreads,
-            "Start Time": testStartTime,
-            "Run Duration": testRunDuration,
-            "Run Args": testRunArgs
-        }
-    };
+    launchReport: false,
+    ignoreBadJsonFile: false,
+    reportSuiteAsScenarios: false,
+    metadata: {
+        "Project": reportName,
+        "Title": reportTitle,
+        "Platform": testPlatform,
+        "Device": testDevice,
+        "Browser": testBrowser,
+        "browserVersion": testBrowserVer,
+        "Run Threads": testThreads,
+        "Start Time": testStartTime,
+        "Run Duration": testRunDuration,
+        "Run Args": testRunArgs
+    }
+};
 
-    var searchableHtmlReporter_options = {
-        metadata: {
-            browser: {
-                name: testBrowser,
-                version: testBrowserVer
-            },
-            device: testDevice,
-            platform: {
-                name: testPlatform,
-                version: testPlatformVer
-            },
+var searchableHtmlReporter_options = {
+    metadata: {
+        browser: {
+            name: testBrowser,
+            version: testBrowserVer
         },
-        customData: {
-            title: reportTitle,
-            data: [
-                {label: 'Run Threads', value: testThreads},
-                {label: 'Start Time', value: testStartTime},
-                {label: 'Run Duration', value: testRunDuration},
-                {label: 'Run Args', value: testRunArgs}
-            ]
-        }    
-    };
+        device: testDevice,
+        platform: {
+            name: testPlatform,
+            version: testPlatformVer
+        },
+    },
+    customData: {
+        title: reportTitle,
+        data: [
+            {label: 'Run Threads', value: testThreads},
+            {label: 'Start Time', value: testStartTime},
+            {label: 'Run Duration', value: testRunDuration},
+            {label: 'Run Args', value: testRunArgs}
+        ]
+    }    
+};
 
 if (fs.lstatSync(reportJson).isFile()) {
     if (reportType.includes('cucumber')) {
@@ -182,3 +182,4 @@ if (fs.lstatSync(reportJson).isFile()) {
     console.log('Reporter Error: jsonFile need to a cucumber jsonFile.');
     process.exit(1);
 }
+
