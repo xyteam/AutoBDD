@@ -469,19 +469,20 @@ class ChimpAutoRun:
         self.run_json = dry_run.create_run_json()
         return self.run_json
         
-    def init_tinydb(self, tinyrundb_json, run_json):
+    def update_tinydb(self, tinyrundb_json, run_json, rerunWhat):
         db = TinyDB(tinyrundb_json, sort_keys=True, indent=4, separators=(',', ': '))
         db.purge_table('_default')
+        query = Query()
         runcases = json.loads(open(run_json).read(), encoding='utf-8')
         for case in runcases:
             if case['feature'] in db.tables():
-                table = db.table(case['feature'])
-                table.update({'status': 'rerun'})
+                feature_table = db.table(case['feature'])
+                if (rerunWhat is not None) and (len(feature_table.search(query.status == rerunWhat)) > 0):
+                    feature_table.update({'status': 'rerun'})
             else:
-                table = db.table(case['feature'])
-                table.insert(case)
+                feature_table = db.table(case['feature'])
+                feature_table.insert(case)
         db.close()
-        return tinyrundb_json
 
     def get_available_host(self):
         '''
@@ -596,12 +597,12 @@ class ChimpAutoRun:
         print(cmd_generate_xml_report)
         os.system(cmd_generate_xml_report)
 
-    def run_in_parallel(self, dbfile, rerunWhat):
+    def run_in_parallel(self, dbfile):
         '''
         run chimp in parallel
 
         1. determine parallel pool size base on parallel input or CPU count
-        2. from db find case of 'notrun', 'rerun' and rerunWhat ('failed' or 'crashed')
+        2. from db find case of 'notrun' and 'rerun'
 
         '''
         # set sub process pool number
@@ -637,7 +638,7 @@ class ChimpAutoRun:
             group = db.table(table)
             query = Query()
             case  = None
-            runList = group.search((query.status == 'notrun') | (query.status == 'rerun') | (query.status == rerunWhat))
+            runList = group.search((query.status == 'notrun') | (query.status == 'rerun'))
             runCount += len(runList)
             if len(runList) > 0:
                 case = runList[0]
@@ -711,35 +712,24 @@ if __name__ == "__main__":
     command_arguments = parse_arguments()
     chimp_run = ChimpAutoRun(command_arguments)
     rundb_json_path = path.join(chimp_run.report_full_path, 'db.subjson')
-
-    # if db.subjson does not exist
-    #   call dry-run and use dry-run json to init db.json
-    # else
-    #   try to open and load db.subjson to determine if we need to initiate db.json
-    #   if db.subjson is not a valid json (exception)
-    #       call dry-run and use dry-run json to init db.json
-    if not os.path.exists(rundb_json_path):
-        run_json = chimp_run.create_dryrun_json()
-        chimp_run.init_tinydb(rundb_json_path, run_json)
-    else:
-        try:
-            run_json = json.loads(open(rundb_json_path).read(), encoding='utf-8')
-        except ValueError as e:
-            print('\ndb.json is not valid: {}\nusing dry-run to recreate db.json.\n'.format(e))
-            run_json = chimp_run.create_dryrun_json()
-            chimp_run.init_tinydb(rundb_json_path, run_json)
-    # db.json is created
+    
     if not command_arguments.REPORTONLY:
         print('\nRunning test in parallel\n')
-        chimp_run.run_in_parallel(rundb_json_path, None)
+        # first run start from dryrun_json
+        run_feature_subjson = chimp_run.create_dryrun_json()
+        chimp_run.update_tinydb(rundb_json_path, run_feature_subjson, None)
+        chimp_run.run_in_parallel(rundb_json_path)
+        # rerun will re-use previous dryrun_json
         if command_arguments.RERUNFAILED:
             for n in range(0, int(command_arguments.RERUNFAILED)):
                 print('\nRerunning failed test iteration: {}\n'.format(n))
-                chimp_run.run_in_parallel(rundb_json_path, 'failed')
+                chimp_run.update_tinydb(rundb_json_path, run_feature_subjson, 'failed')
+                chimp_run.run_in_parallel(rundb_json_path)
         if command_arguments.RERUNCRASHED:
             for n in range(0, int(command_arguments.RERUNCRASHED)):
                 print('\nRerunning crashed test iteration: {}\n'.format(n))
-                chimp_run.run_in_parallel(rundb_json_path, 'crashed')
+                chimp_run.update_tinydb(rundb_json_path, run_feature_subjson, 'crashed')
+                chimp_run.run_in_parallel(rundb_json_path)
 
     if not command_arguments.RUNONLY:
         print('\nGenerating reports\n')
