@@ -38,6 +38,7 @@ module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) =>
 
     if (falseCase) {
         switch (action) {
+            case 'be':
             case 'is':
                 expect(attributeValue).not.toEqual(
                     expectedValue,
@@ -45,6 +46,7 @@ module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) =>
                     `"${expectedValue}"`
                 );        
                 break;
+            case 'contain':
             case 'contains':
                 expect(attributeValue).not.toContain(
                     expectedValue,
@@ -52,6 +54,7 @@ module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) =>
                     `"${expectedValue}"`
                 );        
                 break;
+            case 'match':
             case 'matches':
                 expect(attributeValue).not.toMatch(
                     expectedValue,
@@ -62,6 +65,7 @@ module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) =>
         }
     } else {
         switch (action) {
+            case 'be':
             case 'is':
                 expect(attributeValue).toEqual(
                     expectedValue,
@@ -69,6 +73,7 @@ module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) =>
                     `"${expectedValue}"`
                 );        
                 break;
+            case 'contain':
             case 'contains':
                 expect(attributeValue).toContain(
                     expectedValue,
@@ -76,6 +81,7 @@ module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) =>
                     `"${expectedValue}"`
                 );        
                 break;
+            case 'match':
             case 'matches':
                 expect(attributeValue).toMatch(
                     expectedValue,
