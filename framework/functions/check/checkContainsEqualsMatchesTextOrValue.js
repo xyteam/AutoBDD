@@ -72,7 +72,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                     `"${parsedExpectedText}"`
                 );        
                 break;
-            case 'matche':
+            case 'match':
             case 'matches':
                 expect(retrivedValue).not.toMatch(
                     parsedExpectedText,
@@ -101,7 +101,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                     `"${parsedExpectedText}"`
                 );        
                 break;
-            case 'matche':
+            case 'match':
             case 'matches':
                 expect(retrivedValue).toMatch(
                     parsedExpectedText,

@@ -81,6 +81,7 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
 
     if (boolFalseCase) {
         switch (action) {
+            case 'contain':
             case 'contains':
                 expect(readTargetContent).not.toContain(
                     parsedExpectedText,
@@ -88,6 +89,7 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'equal':
             case 'equals':
                 expect(readTargetContent).not.toEqual(
                     parsedExpectedText,
@@ -95,6 +97,7 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'match':
             case 'matches':
                 expect(readTargetContent).not.toMatch(
                     parsedExpectedText,
@@ -107,6 +110,7 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
         }
     } else {
         switch (action) {
+            case 'contain':
             case 'contains':
                 expect(readTargetContent).toContain(
                     parsedExpectedText,
@@ -114,6 +118,7 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'equal':
             case 'equals':
                 expect(readTargetContent).toEqual(
                     parsedExpectedText,
@@ -121,6 +126,7 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'match':
             case 'matches':
                 expect(readTargetContent).toMatch(
                     parsedExpectedText,

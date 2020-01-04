@@ -61,6 +61,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
 
     if (boolFalseCase) {
         switch (action) {
+            case 'contain':
             case 'contains':
                 expect(retrivedValue).not.toContain(
                     parsedExpectedText,
@@ -68,6 +69,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'equal':
             case 'equals':
                 expect(retrivedValue).not.toEqual(
                     parsedExpectedText,
@@ -75,6 +77,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'match':
             case 'matches':
                 expect(retrivedValue).not.toMatch(
                     parsedExpectedText,
@@ -87,6 +90,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
         }
     } else {
         switch (action) {
+            case 'contain':
             case 'contains':
                 expect(retrivedValue).toContain(
                     parsedExpectedText,
@@ -94,6 +98,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'equal':
             case 'equals':
                 expect(retrivedValue).toEqual(
                     parsedExpectedText,
@@ -101,6 +106,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                     `"${parsedExpectedText}"`
                 );        
                 break;
+            case 'match':
             case 'matches':
                 expect(retrivedValue).toMatch(
                     parsedExpectedText,
