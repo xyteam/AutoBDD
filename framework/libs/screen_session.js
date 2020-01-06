@@ -42,6 +42,7 @@ module.exports = {
     var returnVal = [];
     if (typeof(imagePath) === 'object') {
       for (let singlePath of imagePath) {
+        console.log(singlePath);
         runResultString = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
         if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
           runResultJson = JSON.parse(runResultString);
@@ -67,7 +68,7 @@ module.exports = {
       returnVal.sort((a, b) => { return (a.score > b.score) ? -1 : (a.score < b.score) ? 1 : 0 })
     }
     // console.log(JSON.stringify(runResultJson));
-    // console.log(JSON.stringify(returnVal));
+    console.log(JSON.stringify(returnVal));
     return JSON.stringify(returnVal);
   },
 
