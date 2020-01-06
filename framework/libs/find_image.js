@@ -5,7 +5,7 @@ var argv = require('minimist')(process.argv.slice(2));
 const onArea = argv.onArea || 'onScreen';
 const imagePath = argv.imagePath;
 const imageSimilarity = argv.imageSimilarity || process.env.imageSimilarity || 0.8;
-const imageWaitTime = argv.imageWaitTime || process.env.imageWaitTime || 1;
+const imageWaitTime = argv.imageWaitTime || process.env.imageWaitTime || 5;
 const imageAction = argv.imageAction || 'none';
 const imageFindAll = argv.imageFindAll || 'false';
 const imageSimilarityMax = argv.imageSimilarityMax || 1;
@@ -38,7 +38,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
 
     var returnArray = [];
     var findRegion;
-    var oneTarget, allTargets;
+    var oneTarget;
 
     switch (onArea) {
       // case 'onFocused':
@@ -46,20 +46,19 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
       //   break;
       case 'onScreen':
       default:
-        var findRegion = new Screen();
+        findRegion = new Screen();
+        findRegion.setAutoWaitTimeout(myImageWaitTime);
     }
 
     if (imagePath == 'center') {
       oneTarget = findRegion.getCenterSync();
     } else {
-      // oneTarget for imageAction, allTargets for imageFindAll
       oneTarget = (new Pattern(imagePath)).similarSync(java.newFloat(myImageSimilarity));
-      allTargets = (new Pattern(imagePath)).similarSync(java.newFloat(myImageSimilarity));
     }
 
     try {
       if (imageFindAll == 'true') {
-        var find_results = findRegion.findAllSync(allTargets);
+        var find_results = findRegion.findAllSync(oneTarget);
         var matchCount = 0;
         while (matchCount < myMaxCount && find_results.hasNextSync()) {
           const find_item = find_results.nextSync();
@@ -77,7 +76,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
         }
         if (returnArray.length == 0) returnArray.push(notFoundStatus);
       } else {
-        const find_item = findRegion.waitSync(oneTarget, myImageWaitTime);
+        const find_item = findRegion.waitSync(oneTarget);
         find_item.highlight(0.1);
         var returnItem = {location: null, dimension: null, center: null, clicked: null, score: null};
         returnItem.location = {x: find_item.x, y: find_item.y};
