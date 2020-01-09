@@ -40,17 +40,17 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
+        /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
         checkIfElementExistsInsideParentElement
     );
 
     this.Then(
-        /^I expect (?:that )?the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")? is( not)* (displayed|checked|enabled|selected)$/,
+        /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? is( not)* (displayed|checked|enabled|selected)$/,
         checkElementStatusInsideParentElement
     );
 
     this.Then(
-        /^I expect (?:that )?the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? element "([^"]*)?"(?: inside the(?: (\d*1st|\d*2nd|\d*3rd|\d*[^123]th))? parent element "([^"]*)?")?( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
+        /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
         checkIfElementInsideParentElementEqualsMatchesTextOrValue
     );
 
