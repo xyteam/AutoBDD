@@ -10,7 +10,7 @@ module.exports = function() {
       const [imageFileName, imageFileExt, imageSimilarity, imageSimilarityMax] = this.fs_session.getTestImageParms(parsedImageName);
       const imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
       const imageScore = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
-      const imageWaitTime = process.env.imageWaitTime || 5;
+      const imageWaitTime = process.env.imageWaitTime;
       browser.pause(500);
       const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime));
       var readTargetContent;
