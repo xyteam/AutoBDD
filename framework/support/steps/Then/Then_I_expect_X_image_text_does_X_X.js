@@ -2,7 +2,7 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?the "([^"]*)?" image text does( not)* (contain|equal|match) "(.*)?"$/,
+    /^I expect (?:that )?the "([^"]*)?" image does( not)* (contain|equal|match) the text "(.*)?"$/,
     {timeout: process.env.StepTimeoutInMS},
     function (imageName, falseCase, compareAction, expectedText) {
       const parsedImageName = parseExpectedText(imageName);
