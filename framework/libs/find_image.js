@@ -9,14 +9,15 @@ const imageWaitTime = argv.imageWaitTime || process.env.imageWaitTime || 1;
 const imageAction = argv.imageAction || 'none';
 const imageFindAll = argv.imageFindAll || 'false';
 const imageSimilarityMax = argv.imageSimilarityMax || 1;
+const imageMaxCount = argv.imageMaxCount || 1;
 const sikuliApiJarPath = (process.env.FrameworkPath) ? process.env.FrameworkPath + '/framework/libs' : '.'
 const notFoundStatus = {status: 'notFound'};
 // const screen_session = require(process.env.FrameworkPath + '/framework/libs/screen_session');
 
-const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, maxCount) => {
+const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount) => {
   const myImageSimilarity = parseFloat(imageSimilarity);
   const myImageWaitTime = parseFloat(imageWaitTime);
-  const myMaxCount = maxCount || 30;
+  const myImageMaxCount = imageMaxCount || 1;
     // Sikuli Property
     var sikuliApiJar;
     switch (process.env.ReleaseString) {
@@ -60,7 +61,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
       if (imageFindAll == 'true') {
         var find_results = findRegion.findAllSync(oneTarget);
         var matchCount = 0;
-        while (matchCount < myMaxCount && find_results.hasNextSync()) {
+        while (matchCount < myImageMaxCount && find_results.hasNextSync()) {
           const find_item = find_results.nextSync();
           var returnItem = {location: null, dimension: null, center: null, clicked: null};
           returnItem.score = Math.floor(find_item.getScoreSync()*1000000)/1000000;
@@ -115,7 +116,7 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
       return JSON.stringify(returnArray);
     }
   };
-console.log([onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax]);
-const findImage_result = findImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
+console.log([onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount]);
+const findImage_result = findImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount);
 console.log(findImage_result);
 
