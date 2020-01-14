@@ -72,6 +72,8 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
             returnItem.dimension = {width: find_item.w, height: find_item.h};
             returnItem.center = {x: find_item.x + Math.round(find_item.w / 2), y: find_item.y + Math.round(find_item.h / 2)};
             returnItem.text = find_item.textSync();
+            // uncomment this line to display call parms
+            // returnItem.parms = [onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount];
             returnArray.push(returnItem);
           }
         }
@@ -107,6 +109,8 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
           var clicked_target = find_item.getTargetSync();
           returnItem.clicked = {x: clicked_target.x, y: clicked_target.y}
         }
+        // uncomment this line to display call parms
+        // returnItem.parms = [onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount];
         returnArray.push(returnItem);
       }
       return JSON.stringify(returnArray);
