@@ -2,7 +2,7 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?the "([^"]*)?" image text does( not)* (contain|equal|match) "(.*)?"$/,
+    /^I expect (?:that )?the "([^"]*)?" image does( not)* (contain|equal|match) the text "(.*)?"$/,
     {timeout: process.env.StepTimeoutInMS},
     function (imageName, falseCase, compareAction, expectedText) {
       const parsedImageName = parseExpectedText(imageName);
@@ -10,7 +10,7 @@ module.exports = function() {
       const [imageFileName, imageFileExt, imageSimilarity, imageSimilarityMax] = this.fs_session.getTestImageParms(parsedImageName);
       const imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
       const imageScore = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
-      const imageWaitTime = process.env.imageWaitTime || 5;
+      const imageWaitTime = process.env.imageWaitTime;
       browser.pause(500);
       const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime));
       var readTargetContent;

@@ -10,10 +10,11 @@ module.exports = function() {
       const myCompareAction = compareAction || ((typeof falseCase == 'undefined') ? 'more than' : 'exactly');
       const [imageFileName, imageFileExt, imageSimilarity, imageSimilarityMax] = this.fs_session.getTestImageParms(parsedImageName);
       const imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
-      const imageScore = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
-      const imageWaitTime = process.env.imageWaitTime || 5;
+      const expectedImageSimilarity = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
+      const expectedImageNumberMax = myExpectedNumber;
+      const imageWaitTime = process.env.imageWaitTime;
       browser.pause(500);
-      const screenFindResult = JSON.parse(this.screen_session.screenFindAllImages(imagePathList, imageScore, imageWaitTime, null, true, imageSimilarityMax));
+      const screenFindResult = JSON.parse(this.screen_session.screenFindAllImages(imagePathList, expectedImageSimilarity, imageWaitTime, null, true, imageSimilarityMax, expectedImageNumberMax));
       var myScreenFindResult = [];
       if (screenFindResult.length == 0) {
         console.log('expected image does not show on screen');

@@ -11,7 +11,7 @@ robot.setKeyboardDelay(50);
 const defaultCPM = process.env.robotDefaultCPM || 600;
 
 module.exports = {
-  runFindImage: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax) {
+  runFindImage: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount) {
     var outputBuffer;
     var outputString;
     var returnVal;
@@ -23,7 +23,8 @@ module.exports = {
                         + ' --imageWaitTime=' + imageWaitTime
                         + ' --imageAction=' + imageAction
                         + ' --imageFindAll=' + imageFindAll
-                        + ' --imageSimilarityMax=' + imageSimilarityMax);
+                        + ' --imageSimilarityMax=' + imageSimilarityMax
+                        + ' --imageMaxCount=' + imageMaxCount);
       outputString = outputBuffer.toString('utf8');
       returnVal = outputString.substring(outputString.lastIndexOf('[{'), outputString.lastIndexOf('}]') + 2);
     } catch(e){
@@ -32,7 +33,7 @@ module.exports = {
     return returnVal;
   },
 
-  findImageFromList: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, listStrategy) {
+  findImageFromList: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount, listStrategy) {
     // listStrategy to be one of:
     // firstMatch, //default
     // bestMatch,
@@ -43,7 +44,7 @@ module.exports = {
     if (typeof(imagePath) === 'object') {
       for (let singlePath of imagePath) {
         console.log(singlePath);
-        runResultString = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
+        runResultString = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount);
         if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
           runResultJson = JSON.parse(runResultString);
         }
@@ -57,7 +58,7 @@ module.exports = {
         }
       };
     } else {
-      runResultString = this.runFindImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax);
+      runResultString = this.runFindImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount);
       if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
         runResultJson = JSON.parse(runResultString);
       }
@@ -72,8 +73,8 @@ module.exports = {
     return JSON.stringify(returnVal);
   },
 
-  screenFindAllImages: function (imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, null, true, imageSimilarityMax);
+  screenFindAllImages: function (imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount) {
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, null, true, imageSimilarityMax, imageMaxCount);
     return returnVal;
   },
 
