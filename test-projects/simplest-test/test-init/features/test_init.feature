@@ -1,4 +1,4 @@
-@INIT
+@Init
 Feature: test init
 
   As a QA Engineer
