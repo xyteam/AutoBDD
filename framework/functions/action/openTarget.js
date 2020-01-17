@@ -13,9 +13,9 @@ module.exports = (targetType, targetName) => {
      * @type {String}
      */
     var parsedTargetName = parseExpectedText(targetName);
-
     var fileTarget;
-    var urlTarget
+    var urlTarget;
+
     switch (targetType) {
         case "download file":
             fileTarget = getDownloadDir() + parsedTargetName.replace(/ /g, '\\ ');
@@ -24,7 +24,7 @@ module.exports = (targetType, targetName) => {
             browser.url(urlTarget);
             break;
         case "file":
-            fileTarget = parsedTargetName.replace(/ /g, '\ ');
+            fileTarget = parsedTargetName.replace(/^~\//, process.env.HOME + '/').replace(/ /g, '\ ');
             urlTarget = encodeURI('file://' + globSync(fileTarget)[0]); // we take the first match
             console.log(urlTarget)
             browser.url(urlTarget);
