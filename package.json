@@ -4,7 +4,6 @@
   "description": "BDD Automaiton",
   "main": "index.js",
   "dependencies": {
-    "bluebird": "^3.7.2",
     "bottleneck": ">=2.19.5",
     "child_process": ">=1.0.2",
     "chimpy": "^2.0.0",
