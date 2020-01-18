@@ -43,7 +43,7 @@
     "test-init": ". .autoPathrc.sh; cd ./test-projects/simplest-test/test-init; chimpy",
     "test-run": ". .autoPathrc.sh; rm -rf test-projects/simplest-test/bdd_reports/build-test; ./framework/scripts/autorunner.py --project simplest-test --reportpath build-test --movie 1 --argstring '--tags ~@Init --tags ~@Report'",
     "test-report": ". .autoPathrc.sh; cd ./test-projects/simplest-test/test-report; chimpy",
-    "test": "npm run download-sikuliapi; npm run test-init; npm run test-run; npm run test-build"
+    "test": "npm run download-sikuliapi; npm run test-init; npm run test-run; npm run test-report"
   },
   "repository": {
     "type": "git",
