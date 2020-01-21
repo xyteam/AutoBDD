@@ -10,7 +10,7 @@ const dragElement = require('../../functions/action/dragElement');
 const focusLastOpenedWindow = require('../../functions/action/focusLastOpenedWindow');
 const handleModal = require('../../functions/action/handleModal');
 const moveToElement = require('../../functions/action/moveToElement');
-const sleep = require('sleep');
+const pause = require('../../functions/action/pause');
 const pressButton = require('../../functions/action/pressButton');
 const scroll = require('../../functions/action/scroll');
 const selectOption = require('../../functions/action/selectOption');
@@ -72,9 +72,8 @@ module.exports = function() {
     );
 
     this.When(
-        /^I pause for (\d+)ms$/, (ms) => {
-            sleep.msleep(ms);
-        }
+        /^I pause for (\d+)ms$/,
+        pause
     );
 
     this.When(
