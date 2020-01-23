@@ -55,6 +55,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         python3-pip \
         rdesktop \
         rsync \
+        sshpass \
         tdsodbc \
         tree \
         unixodbc \
