@@ -1,20 +1,17 @@
 // cmdline_session.js provides functions to run test in command line
 
-const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const assert = require('assert');
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 
 // remote command
-const myPlatformIdSrc = process.env.HOME + '/Projects/xyPlatform/global/platform_id_rsa';
 const myPlatformIdDes = process.env.HOME + '/.ssh/platform_id_rsa';
-const cmd_copy_PlatformId = 'cp ' + myPlatformIdSrc + ' ' + myPlatformIdDes + ', chmod 0600 ' + myPlatformIdDes;
+const myPlatformKnownHosts = process.env.HOME + '/.ssh/known_hosts';
 
 module.exports = {
   runCmd: function(command) {
     var result;
     var exitcode;
-    var displayMsg = 'command: \n' + command + '\n\n';
-
     try {
         result = execSync(command, {shell: '/bin/bash'}).toString();
         exitcode = 0;
@@ -26,23 +23,38 @@ module.exports = {
     return {"output": result, "exitcode": exitcode}    
   },
 
-  remoteRunCmd: function(command, sshLogin, sshPort, keyFile) {
-    var mySshLogin = sshLogin || 'vagrant@localhost';
-    var mySshPort = sshPort || 22;
-    var myKeyFile = keyFile || process.env.HOME + '/.ssh/platform_id_rsa';
-    var myCommand = 'ssh ' + mySshLogin + ' -p ' + mySshPort
-                      + ' -o IdentityFile=' + myKeyFile
-                      + ' -o StrictHostKeyChecking=no '
-                      + command;
-  
+  correctHostKey: function(targetHost) {
+    const cmd_correct_hostKey = `ssh-keygen -f "${myPlatformKnownHosts}" -R "${targetHost}"`;
+    const runResult = this.runCmd(cmd_correct_hostKey);
+    assert.equal(runResult.exitcode, 0, `cannot remove ${targetHost} from ${myPlatformKnownHosts}`);
+  },
+
+  remoteRunCmd: function(runCommand, sshLogin, sshPort, sshPass, sshKeyFile) {
+    const mySshLogin = sshLogin || 'vagrant@localhost';
+    const mySshPort = sshPort || 22;
+    const myKeyFile = sshKeyFile || process.env.HOME + '/.ssh/id_rsa';
+    const myRunCommand = ' "' + runCommand + '"';
+    var mySshCommand;
+    if (typeof(sshPass) != 'undefined') {
+      process.env.SSHPASS = sshPass;
+      mySshCommand = 'sshpass -e'
+      + ' ssh ' + mySshLogin + ' -p ' + mySshPort
+      + ' -o StrictHostKeyChecking=no'
+      + myRunCommand;
+    } else {
+      mySshCommand = 'ssh ' + mySshLogin + ' -p ' + mySshPort
+      + ' -o IdentityFile=' + myKeyFile
+      + ' -o StrictHostKeyChecking=no'
+      + myRunCommand;
+    }
+
     var result;
     var exitcode;
 
     fs.existsSync(process.env.HOME + '/.ssh') || fs.mkdirSync(process.env.HOME + '/.ssh');
-    fs.existsSync(myPlatformIdDes) || execSync(cmd_copy_PlatformId);
 
     try {
-        result = execSync(myCommand).toString();
+        result = execSync(mySshCommand).toString();
         exitcode = 0;
     } catch(e) {
         result = e.stdout.toString();
