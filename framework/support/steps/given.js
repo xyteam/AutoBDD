@@ -1,3 +1,4 @@
+const announceMessage = require('../../functions/action/announceMessage');
 const checkContainsAnyTextOrValue = require('../../functions/check/checkContainsAnyTextOrValue');
 const checkElementTextValueIsEmpty = require('../../functions/check/checkElementTextValueIsEmpty');
 const checkCookieContent = require('../../functions/check/checkCookieContent');
@@ -20,6 +21,11 @@ const openTarget = require('../../functions/action/openTarget');
 const resizeScreenSize = require('../../functions/action/resizeScreenSize');
 
 module.exports = function() {
+    this.Given(
+        /^I announce message: "([^"]*)?"$/,
+        announceMessage
+    );
+
     this.Given(
         /^I open the (file|download file|path|url) "([^"]*)?"$/,
         openTarget

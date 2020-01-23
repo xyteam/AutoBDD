@@ -1,4 +1,3 @@
-const announceMessage = require('../../functions/action/announceMessage');
 const changeBrowserBackground = require('../../functions/action/changeBrowserBackground');
 const changeBrowserZoom = require('../../functions/action/changeBrowserZoom');
 const clearInputField = require('../../functions/action/clearInputField');
@@ -29,11 +28,6 @@ module.exports = function() {
     this.When(
         /^I (back|close|debug|forward|refresh|reload|reset) browser$/, {timeout: 3600*1000},
         browserAction
-    );
-
-    this.When(
-        /^I announce message: "([^"]*)?"$/,
-        announceMessage
     );
 
     this.When(
