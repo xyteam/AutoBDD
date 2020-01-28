@@ -3,6 +3,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const execSync = require('child_process').execSync;
+const spawn= require('child_process').spawn;
 
 // remote command
 const myPlatformIdDes = process.env.HOME + '/.ssh/platform_id_rsa';
@@ -24,6 +25,7 @@ module.exports = {
   },
 
   correctHostKey: function(targetHost) {
+    fs.existsSync(process.env.HOME + '/.ssh') || fs.mkdirSync(process.env.HOME + '/.ssh');
     const cmd_correct_hostKey = `ssh-keygen -f "${myPlatformKnownHosts}" -R "${targetHost}"`;
     const runResult = this.runCmd(cmd_correct_hostKey);
     assert.equal(runResult.exitcode, 0, `cannot remove ${targetHost} from ${myPlatformKnownHosts}`);
@@ -47,12 +49,8 @@ module.exports = {
       + ' -o StrictHostKeyChecking=no'
       + myRunCommand;
     }
-
     var result;
     var exitcode;
-
-    fs.existsSync(process.env.HOME + '/.ssh') || fs.mkdirSync(process.env.HOME + '/.ssh');
-
     try {
         result = execSync(mySshCommand).toString();
         exitcode = 0;
@@ -61,6 +59,27 @@ module.exports = {
         exitcode = e.status;
     }
     return {"output": result, "exitcode": exitcode}    
+  },
+
+  remoteConsole: function(sshLogin, sshPort, sshPass, sshKeyFile) {
+    const mySshLogin = sshLogin || 'vagrant@localhost';
+    const mySshPort = sshPort || 22;
+    const myKeyFile = sshKeyFile || process.env.HOME + '/.ssh/id_rsa';
+    var mySshCommand, mySshArgs, mySshArgsArray;
+    if (typeof(sshPass) != 'undefined') {
+      process.env.SSHPASS = sshPass;
+      mySshCommand = 'sshpass';
+      mySshArgs = '-e ssh ' + mySshLogin + ' -p ' + mySshPort + ' -o StrictHostKeyChecking=no -tt';
+    } else {
+      mySshCommand = 'ssh';
+      mySshArgs = mySshLogin + ' -p ' + mySshPort + ' -o IdentityFile=' + myKeyFile + ' -o StrictHostKeyChecking=no -tt';
+    }
+    mySshArgsArray = mySshArgs.split(' ');
+    const consoleSpawnOption = {
+      shell: true
+    };
+    const consoleProcess = spawn(mySshCommand, mySshArgsArray, consoleSpawnOption);
+    return consoleProcess;
   },
 
   runNewman: function(collection, environment) {
@@ -72,3 +91,4 @@ module.exports = {
     return newman_result;
   }
 }
+
