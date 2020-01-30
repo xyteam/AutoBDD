@@ -108,11 +108,6 @@ module.exports = {
     return returnVal;
   },
 
-  screenHoverCenter: function() {
-    var returnVal = this.findImageFromList('onScreen', 'center', null, null, 'hover');
-    return returnVal;
-  },
-
   keyTap: function(key, modifier) {
     var myKey = key || 'enter';
     var myModifier = modifier || null;
@@ -177,4 +172,5 @@ module.exports = {
     return robot.getXDisplayName();
   },
 }
+
 
