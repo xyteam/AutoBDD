@@ -141,15 +141,15 @@ module.exports = {
   },
 
   drag_and_drop(object, target) {
-    robot.moveMouse(object.x, object.y);
+    robot.moveMouseSmooth(object.x, object.y);
     robot.mouseToggle('down');
     robot.dragMouse(object.x+10, object.y);
     robot.dragMouse(target.x-10, target.y);
     robot.mouseToggle('up');
   },
 
-  moveMouse: function(xOffset, yOffset) {
-    robot.moveMouse(xOffset, yOffset);
+  moveMouseSmooth: function(xOffset, yOffset) {
+    robot.moveMouseSmooth(xOffset, yOffset);
   },
 
   dragMouse: function(xOffset, yOffset) {
@@ -172,5 +172,6 @@ module.exports = {
     return robot.getXDisplayName();
   },
 }
+
 
 

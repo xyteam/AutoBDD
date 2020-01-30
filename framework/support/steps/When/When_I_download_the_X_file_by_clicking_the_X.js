@@ -12,10 +12,10 @@ module.exports = function() {
     var imageWaitTime = process.env.imageWaitTime;
     var screenFindResult;
     // shake mouse to induce the display of PDF download icon
-    this.screen_session.moveMouse(0, 0);
-    this.screen_session.moveMouse(100, 100);
-    this.screen_session.moveMouse(0, 0);
-    this.screen_session.moveMouse(100, 100);
+    this.screen_session.moveMouseSmooth(0, 0);
+    this.screen_session.moveMouseSmooth(100, 100);
+    this.screen_session.moveMouseSmooth(0, 0);
+    this.screen_session.moveMouseSmooth(100, 100);
     screenFindResult = JSON.parse(this.screen_session.findImageFromList('onScreen', imageFullPath, imageSimilarity, imageWaitTime, 'single'));
     expect(screenFindResult.length).not.toEqual(0, 'failed to click PDF download icon');
     // click LinuxSave_button
@@ -27,3 +27,4 @@ module.exports = function() {
     expect(downloadFilePath).toContain(fileName + '.' + fileExt);
   });
 };
+
