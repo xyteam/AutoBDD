@@ -3,9 +3,9 @@
 var argv = require('minimist')(process.argv.slice(2));
 process.env.DISPLAY = process.env.DISPLAY || ':1';
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const sikuliApiJar = argv.sikulixApiJar || FrameworkPath + '/framework/libs/sikulixapi-2.0.1.jar';
-const sikuliApiUrl_2_0_1 = 'https://launchpad.net/sikuli/sikulix/2.0.1/+download/sikulixapi-2.0.1.jar';
-const sikuliApiUrl = argv.sikulixUrl || sikuliApiUrl_2_0_1;
+const sikuliApiJar = argv.sikulixApiJar || FrameworkPath + '/framework/libs/sikulixapi-2.0.2.jar';
+const sikuliApiUrl_2_0_2 = 'https://launchpad.net/sikuli/sikulix/2.0.2/+download/sikulixapi-2.0.2.jar';
+const sikuliApiUrl = argv.sikulixUrl || sikuliApiUrl_2_0_2;
 const fs = require('fs');
 const request = require('request');
 const java = require('java');
@@ -50,4 +50,5 @@ findJarStat(sikuliApiJar, sikuliApiUrl).then(function(jarStat) {
 }).catch(function(e) {
   console.log(e);
 });
+
 
