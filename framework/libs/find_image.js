@@ -28,7 +28,8 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
       default:
         // sikuliApiJar = sikuliApiJarPath + '/sikulixapi-1.1.4.jar';
         // sikuliApiJar = sikuliApiJarPath + '/sikulixapi-2.0.0.jar';
-        sikuliApiJar = sikuliApiJarPath + '/sikulixapi-2.0.1.jar';
+        // sikuliApiJar = sikuliApiJarPath + '/sikulixapi-2.0.1.jar';
+        sikuliApiJar = sikuliApiJarPath + '/sikulixapi-2.0.2.jar';
         break;
     }
     java.classpath.push(sikuliApiJar);
@@ -123,4 +124,5 @@ const findImage = (onArea, imagePath, imageSimilarity, imageWaitTime, imageActio
 console.log([onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount]);
 const findImage_result = findImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount);
 console.log(findImage_result);
+
 
