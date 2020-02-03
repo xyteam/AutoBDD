@@ -304,12 +304,6 @@ def parse_arguments():
         help="Run chimp on the given project. Default value: webtest-example")
 
     parser.add_argument(
-        "--runlevel", "--RUNLEVEL",
-        dest="RUNLEVEL",
-        default="Feature",
-        help="Run automation by 'Feature' or by 'Scenario' level. defalue value: Feature")
-
-    parser.add_argument(
         "--modulelist",
         "--MODULELIST",
         nargs='+',
@@ -403,7 +397,6 @@ class ChimpAutoRun:
         self.movie = arguments.MOVIE
         self.platform = arguments.PLATFORM
         self.browser = arguments.BROWSER
-        self.runlevel = arguments.RUNLEVEL
         self.debugmode = arguments.DEBUGMODE
         self.projectbase = arguments.PROJECTBASE if arguments.PROJECTBASE else 'test-projects'
         self.project = arguments.PROJECT
