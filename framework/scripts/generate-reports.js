@@ -27,7 +27,7 @@ optionHelp = `
 optionFlags = {
     reportType: {
         type: 'string',
-        default: 'cucumber, searchable'
+        default: 'searchable'
     },
     reportJson: {
         type: 'string',

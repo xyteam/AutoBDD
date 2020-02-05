@@ -49,12 +49,9 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         locales \
         lsof \
         lubuntu-core \
-        maven \
         net-tools \
         ntpdate \
-        python-dev \
         python3-dev \
-        python-pip \
         python3-pip \
         rdesktop \
         rsync \
