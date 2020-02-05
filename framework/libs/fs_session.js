@@ -43,10 +43,10 @@ module.exports = {
   getTestImageParms: function(imageName) {
     const imageName_extSplit = imageName.split(':')[0].split('.');
     const imageSimilarity = imageName.split(':')[1] || process.env.imageSimilarity || 0.8;
-    const imageSimilarityMax = imageName.split(':')[2] || process.env.imageSimilarityMax || 1;
+    const maxSimilarityOrText = imageName.split(':')[2] || process.env.maxSimilarityOrText || 1;
     const imageFileExt = (imageName_extSplit.length > 1 && supportedImageExt.includes(imageName_extSplit[imageName_extSplit.length - 1])) ? imageName_extSplit.pop() : null;
     const imageFileName = imageName_extSplit.join('.');
-    return [imageFileName, imageFileExt, imageSimilarity, imageSimilarityMax];
+    return [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText];
   },
 
   getTestImageList: function(filePath, fileName, fileExt) {
