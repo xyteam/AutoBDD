@@ -7,12 +7,11 @@ module.exports = function() {
     function (imageName, falseCase, compareAction, expectedText) {
       const parsedImageName = parseExpectedText(imageName);
       const parsedExpectedText = parseExpectedText(expectedText);
-      const [imageFileName, imageFileExt, imageSimilarity, imageSimilarityMax] = this.fs_session.getTestImageParms(parsedImageName);
+      const [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedImageName);
       const imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
       const imageScore = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
-      const imageWaitTime = process.env.imageWaitTime;
       browser.pause(500);
-      const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, imageWaitTime));
+      const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
       var readTargetContent;
       if (screenFindResult.length == 0) {
         console.log('expected image does not show on screen');
