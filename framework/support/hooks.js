@@ -23,7 +23,7 @@ const frameworkHooks = {
         try {
           var imageSimilarity = process.env.imageSimilarity;
           var imageWaitTime = 10;
-          screen_session.screenWaitImage(targetDesktopImage, imageSimilarity, imageWaitTime);
+          screen_session.screenWaitImage(targetDesktopImage, imageSimilarity, null, imageWaitTime);
           console.log('can see desktop');
         } catch(e) {
           console.log('cannot see desktop');

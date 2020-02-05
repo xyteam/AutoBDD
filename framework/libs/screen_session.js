@@ -11,20 +11,22 @@ robot.setKeyboardDelay(50);
 const defaultCPM = process.env.robotDefaultCPM || 600;
 
 module.exports = {
-  runFindImage: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount) {
+  runFindImage: function(onArea, imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount) {
     var outputBuffer;
     var outputString;
     var returnVal;
+    var runCommand = FrameworkPath + '/framework/libs/find_image.js'
+                    + ' --onArea=' + onArea
+                    + ' --imagePath=' + imagePath
+                    + ' --imageSimilarity=' + imageSimilarity
+                    + ' --maxSimilarityOrText=' + maxSimilarityOrText
+                    + ' --imageWaitTime=' + imageWaitTime
+                    + ' --imageAction=' + imageAction
+                    + ' --imageMaxCount=' + imageMaxCount;
     try {
-      outputBuffer = execSync(FrameworkPath + '/framework/libs/find_image.js'
-                        + ' --onArea=' + onArea
-                        + ' --imagePath=' + imagePath
-                        + ' --imageSimilarity=' + imageSimilarity
-                        + ' --imageWaitTime=' + imageWaitTime
-                        + ' --imageAction=' + imageAction
-                        + ' --imageFindAll=' + imageFindAll
-                        + ' --imageSimilarityMax=' + imageSimilarityMax
-                        + ' --imageMaxCount=' + imageMaxCount);
+      // display run command for debugging
+      console.log(runCommand);
+      outputBuffer = execSync(runCommand);
       outputString = outputBuffer.toString('utf8');
       returnVal = outputString.substring(outputString.lastIndexOf('[{'), outputString.lastIndexOf('}]') + 2);
     } catch(e){
@@ -33,7 +35,7 @@ module.exports = {
     return returnVal;
   },
 
-  findImageFromList: function(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount, listStrategy) {
+  findImageFromList: function(onArea, imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount, listStrategy) {
     // listStrategy to be one of:
     // firstMatch, //default
     // bestMatch,
@@ -44,7 +46,7 @@ module.exports = {
     if (typeof(imagePath) === 'object') {
       for (let singlePath of imagePath) {
         console.log(singlePath);
-        runResultString = this.runFindImage(onArea, singlePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount);
+        runResultString = this.runFindImage(onArea, singlePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
         if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
           runResultJson = JSON.parse(runResultString);
         }
@@ -58,7 +60,7 @@ module.exports = {
         }
       };
     } else {
-      runResultString = this.runFindImage(onArea, imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount);
+      runResultString = this.runFindImage(onArea, imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
       if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
         runResultJson = JSON.parse(runResultString);
       }
@@ -73,38 +75,38 @@ module.exports = {
     return JSON.stringify(returnVal);
   },
 
-  screenFindAllImages: function (imagePath, imageSimilarity, imageWaitTime, imageAction, imageFindAll, imageSimilarityMax, imageMaxCount) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, null, true, imageSimilarityMax, imageMaxCount);
+  screenFindAllImages: function (imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount) {
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
     return returnVal;
   },
 
-  screenFindImage: function(imagePath, imageSimilarity, imageWaitTime, imageAction) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, imageAction);
+  screenWaitImage: function (imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime) {
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, null, 1);
     return returnVal;
   },
 
-  screenWaitImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime);
+  screenFindImage: function (imagePath, imageSimilarity, maxSimilarityOrText) {
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, null, 1);
     return returnVal;
   },
 
-  screenHoverImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'hover');
+  screenHoverImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'hover', 1);
     return returnVal;
   },
 
-  screenClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'single');
+  screenClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'single', 1);
     return returnVal;
   },
 
-  screenDoubleClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'double');
+  screenDoubleClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'double', 1);
     return returnVal;
   },
 
-  screenRightClickImage: function(imagePath, imageSimilarity, imageWaitTime) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, imageWaitTime, 'right');
+  screenRightClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
+    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'right', 1);
     return returnVal;
   },
 
@@ -172,6 +174,3 @@ module.exports = {
     return robot.getXDisplayName();
   },
 }
-
-
-

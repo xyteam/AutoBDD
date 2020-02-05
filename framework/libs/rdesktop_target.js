@@ -21,7 +21,7 @@ if (start) {
     var targetImagePath = FrameworkPath + '/framework/support/images/windows10_startButton.png';
     var imageSimilarity = 0.8;
     var imageWaitTime = 10;
-    screen_session.screenWaitImage(targetImagePath, imageSimilarity, imageWaitTime);
+    screen_session.screenWaitImage(targetImagePath, imageSimilarity, null, imageWaitTime);
     console.log('can see desktop');
   } catch(e) {
     console.log('cannot see desktop');
