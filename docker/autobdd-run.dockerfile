@@ -49,7 +49,6 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         locales \
         lsof \
         lubuntu-core \
-        maven \
         net-tools \
         ntpdate \
         python3-dev \
@@ -79,7 +78,6 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     ldconfig; \
     update-ca-certificates; \
 # final autoremove
-    apt purge -y openjdk-11-jre-headless && \
     apt --purge autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold";
 
 # install nodejs 10.x
@@ -99,8 +97,7 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
     echo "{\"CommandLineFlagSecurityWarningsEnabled\": false}" > /etc/opt/chrome/policies/managed/managed_policies.json
 
 # run finishing set up
-RUN update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/jre/bin/java; \
-    update-alternatives --install /usr/bin/python python $(which $(readlink $(which python3))) 10; \
+RUN update-alternatives --install /usr/bin/python python $(which $(readlink $(which python3))) 10; \
     update-alternatives --install /usr/bin/pip pip $(which pip3) 10; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
     /usr/sbin/locale-gen "en_US.UTF-8"; echo LANG="en_US.UTF-8" > /etc/locale.conf; \
@@ -114,6 +111,8 @@ ADD . /${USER}/Projects/AutoBDD
 RUN cd /${USER}/Projects/AutoBDD && \
     pip install wheel setuptools tinydb && \
     npm config set script-shell "/bin/bash" && \
+    npm cache clean --force && \
+    npm --loglevel=error install -g node-gyp && \
     npm --loglevel=error install && \
     xvfb-run -a npm test && \
     rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/simplest-test/bdd_reports
