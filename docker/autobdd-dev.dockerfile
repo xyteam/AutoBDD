@@ -24,7 +24,6 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A6DCF7707EBC211F &&
         lxde \
         mesa-utils \
         openssh-server \
-        ttf-wqy-zenhei \
         vim-tiny \
         x11vnc \
         zenity \
