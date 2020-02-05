@@ -27,6 +27,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         autofs \
         binutils \
         build-essential \
+        default-jdk \
         dirmngr \
         ffmpeg \
         fonts-liberation \
@@ -98,9 +99,7 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
     echo "{\"CommandLineFlagSecurityWarningsEnabled\": false}" > /etc/opt/chrome/policies/managed/managed_policies.json
 
 # run finishing set up
-RUN apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    openjdk-8-jdk; \
-    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java; \
+RUN update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/jre/bin/java; \
     update-alternatives --install /usr/bin/python python $(which $(readlink $(which python3))) 10; \
     update-alternatives --install /usr/bin/pip pip $(which pip3) 10; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
