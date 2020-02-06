@@ -91,7 +91,7 @@ def run_test(FrameworkPath,
                 ' DEBUGMODE=' + debugmode + \
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
-                ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args=\"-screen 0 ' + display_size + 'x16\"' + \
+                ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args=\"-screen 0 ' + display_size + 'x24\"' + \
                 ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + feature_file + \
                 ' --plugin pretty --add-plugin json:' + run_result + \
                 ' 2>&1 > ' + run_report
@@ -107,7 +107,7 @@ def run_test(FrameworkPath,
                 ' DEBUGMODE=' + debugmode + \
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
-                ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x16"' + \
+                ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
                 ' chimpy ' + chimp_profile + ' ' + feature_file + \
                 ' --format=json:' + run_result + \
                 ' ' + argstring + \
@@ -138,7 +138,7 @@ def run_test(FrameworkPath,
                         ' PLATFORM=' + platform + \
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
-                        ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x16"' + \
+                        ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
                         ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + feature_file + \
                         ' --plugin pretty --add-plugin json:' + run_result + \
                         ' 2>&1 > ' + run_report
@@ -166,7 +166,7 @@ def run_test(FrameworkPath,
                         ' PLATFORM=' + platform + \
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
-                        ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x16"' + \
+                        ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
                         ' chimpy ' + chimp_profile + ' ' + feature_file + \
                         ' --format=json:' + run_result + \
                         ' ' + argstring + \
