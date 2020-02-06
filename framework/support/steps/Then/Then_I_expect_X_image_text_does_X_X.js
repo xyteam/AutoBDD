@@ -59,14 +59,14 @@ module.exports = function() {
           case 'equal':
               expect(readTargetContent).toEqual(
                 parsedExpectedText,
-                `target image text should equal tethe xt ` +
+                `target image text should equal the text ` +
                 `"${parsedExpectedText}"`
               );        
               break;
             case 'match':
               expect(readTargetContent).toMatch(
                 parsedExpectedText,
-                `target image text should match tethe xt ` +
+                `target image text should match the text ` +
                 `"${parsedExpectedText}"`
               );        
               break;
