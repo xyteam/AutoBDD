@@ -112,7 +112,6 @@ RUN cd /${USER}/Projects/AutoBDD && \
     pip install wheel setuptools tinydb && \
     npm config set script-shell "/bin/bash" && \
     npm cache clean --force && \
-    npm --loglevel=error install -g node-gyp && \
     npm --loglevel=error install && \
     xvfb-run -a npm test && \
     rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/simplest-test/bdd_reports

@@ -18,8 +18,6 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A6DCF7707EBC211F &&
     apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
         alsa-utils \
         arc-theme \
-        chromium-browser \
-        firefox \
         gnome-themes-standard \
         lxde \
         mesa-utils \
