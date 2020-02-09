@@ -9,7 +9,9 @@ const imageWaitTime = (argv.imageWaitTime != null && argv.imageWaitTime != 'unde
 const imageAction = (argv.imageAction != null && argv.imageAction != 'undefined') ? argv.imageAction : 'none';
 const maxSimilarityOrText = (argv.maxSimilarityOrText != null && argv.maxSimilarityOrText != 'undefined') ? argv.maxSimilarityOrText : 1;
 const imageMaxCount = (argv.imageMaxCount != null && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1;
+const SikulixApiVer = process.env.SikulixApiVer || '2.0.1';
 const sikuliApiJarPath = (process.env.FrameworkPath) ? process.env.FrameworkPath + '/framework/libs' : '.'
+const sikuliApiJar = `${sikuliApiJarPath}/sikulixapi-${SikulixApiVer}.jar`;
 const notFoundStatus = {status: 'notFound'};
 // const screen_session = require(process.env.FrameworkPath + '/framework/libs/screen_session');
 
@@ -20,7 +22,6 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimilarityOrText, imag
   const mySimilarityMax = (myImageText.length > 0) ? 1 : parseFloat(maxSimilarityOrText);
   const myImageMaxCount = imageMaxCount || 1;
   // Sikuli Property
-  var sikuliApiJar = sikuliApiJarPath + '/sikulixapi-2.0.2.jar';
   java.classpath.push(sikuliApiJar);
   // const App = java.import('org.sikuli.script.App');
   // const Region = java.import('org.sikuli.script.Region');
