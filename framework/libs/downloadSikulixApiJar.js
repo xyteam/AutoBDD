@@ -1,54 +1,45 @@
 #!/usr/bin/env node
 
-var argv = require('minimist')(process.argv.slice(2));
 process.env.DISPLAY = process.env.DISPLAY || ':1';
-const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const sikuliApiJar = argv.sikulixApiJar || FrameworkPath + '/framework/libs/sikulixapi-2.0.2.jar';
-const sikuliApiUrl_2_0_2 = 'https://launchpad.net/sikuli/sikulix/2.0.2/+download/sikulixapi-2.0.2.jar';
-const sikuliApiUrl = argv.sikulixUrl || sikuliApiUrl_2_0_2;
+const SikulixApiVer = process.env.SikulixApiVer || '2.0.1';
+const sikuliApiJar = `sikulixapi-${SikulixApiVer}.jar`;
+const sikuliApiJarPath = (process.env.FrameworkPath) ? `${process.env.FrameworkPath}/framework/libs/${sikuliApiJar}` : `./${sikuliApiJar}`
+const sikuliApiUrl = `https://launchpad.net/sikuli/sikulix/${SikulixApiVer}/+download/${sikuliApiJar}`;
+
 const fs = require('fs');
 const request = require('request');
 const java = require('java');
 
 const findJarStat = (filePath, getUrl) => {
-    return new Promise(async (resolve, reject) => {
-        if (fs.existsSync(filePath) && fs.statSync(filePath).size > 0) {
-            resolve(true);
-        } else {
-            const options = {
-                url: getUrl,
-	        encoding: null
-            }
-            await request.get(options, (err, res, body) => {
-                console.log('statusCode:', res.statusCode);
-                console.log('headers:', res.headers);
-                try {
-                    fs.writeFileSync(filePath, Buffer.from(body, 'utf8'));
-                } catch(e) {
-	            console.log(e);
-	            reject(false);
-                }
-	        resolve(true);
-          });
+  return new Promise(async (resolve, reject) => {
+    if (fs.existsSync(filePath) && fs.statSync(filePath).size > 10000) {
+      resolve(true);
+    } else {
+      const options = {
+        url: getUrl,
+        encoding: null
+      }
+      await request.get(options, (err, res, body) => {
+        console.log('statusCode:', res.statusCode);
+        console.log('headers:', res.headers);
+        try {
+          fs.writeFileSync(filePath, Buffer.from(body, 'utf8'));
+          resolve(true);
+        } catch(e) {
+          console.log(e);
+          reject(false);
         }
-    });
+      });
+    }
+  });
 }
 
-findJarStat(sikuliApiJar, sikuliApiUrl).then(function(jarStat) {
-  if (jarStat) {
-    java.classpath.push(sikuliApiJar);
-  } else {
-    throw Error (sikuliApiJar + ' jar file download error');
-  }
+findJarStat(sikuliApiJarPath, sikuliApiUrl).then(() => {
   try {
-    // test sikuli jar import
+    java.classpath.push(sikuliApiJarPath);
     const Screen = java.import('org.sikuli.script.Screen');
-    console.log(sikuliApiJar + ' jar file is good');
+    console.log(sikuliApiJarPath + ' jar file is good');
   } catch(e) {
-    throw Error (sikuliApiJar + ' jar import error: ' + e);
-  }
-}).catch(function(e) {
-  console.log(e);
-});
-
-
+    console.log(sikuliApiJarPath + ' jar file error: ' + e);
+  }  
+}, () => console.log('download failed: ' + sikuliApiUrl));
