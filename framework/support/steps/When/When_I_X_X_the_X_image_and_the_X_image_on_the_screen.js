@@ -1,7 +1,7 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function () {
-  this.When(/^I (click|rightclick|hover|wave|shake|circle) (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/, { timeout: process.env.StepTimeoutInMS }, function (mouseAction, targetType, imageNameOne, imageNameTwo) {
+  this.When(/^I (click|rightClick|hover|wave|shake|circle) (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/, { timeout: process.env.StepTimeoutInMS }, function (mouseAction, targetType, imageNameOne, imageNameTwo) {
     // re imageNameOne
     const parsedImageNameOne = parseExpectedText(imageNameOne);
     const [imageFileNameOne, imageFileExtOne, imageSimilarityOne, maxSimilarityOrTextOne] = this.fs_session.getTestImageParms(parsedImageNameOne);
@@ -28,7 +28,7 @@ module.exports = function () {
             this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
             this.screen_session.mouseClick();
             break;
-          case "rightclick":
+          case "rightClick":
             this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
             this.screen_session.mouseClick("right");
             break;
@@ -65,7 +65,7 @@ module.exports = function () {
           case "click":
             screenFindResult = JSON.parse(this.screen_session.screenClickImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
             break;
-          case "rightclick":
+          case "rightClick":
             screenFindResult = JSON.parse(this.screen_session.screenRightClickImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
             break;
           case "wave":
