@@ -10,7 +10,7 @@ const focusLastOpenedWindow = require('../../functions/action/focusLastOpenedWin
 const handleModal = require('../../functions/action/handleModal');
 const moveToElement = require('../../functions/action/moveToElement');
 const pause = require('../../functions/action/pause');
-const pressButton = require('../../functions/action/pressButton');
+const pressKeyTimes = require('../../functions/action/pressKeyTimes');
 const scroll = require('../../functions/action/scroll');
 const selectOption = require('../../functions/action/selectOption');
 const selectOptionByIndex = require('../../functions/action/selectOptionByIndex');
@@ -20,6 +20,7 @@ const setInputField = require('../../functions/action/setInputField');
 const setInputFieldWithEnvVars = require('../../functions/action/setInputFieldWithEnvVars');
 const setPromptText = require('../../functions/action/setPromptText');
 const submitForm = require('../../functions/action/submitForm');
+const typeText = require('../../functions/action/typeText');
 const waitAndActOnElement = require('../../functions/action/waitAndActOnElement');
 const waitFor = require('../../functions/action/waitFor');
 const waitForDownload = require('../../functions/action/waitForDownload');
@@ -86,8 +87,13 @@ module.exports = function() {
     );
 
     this.When(
-        /^I press "([^"]*)?"$/,
-        pressButton
+        /^I press "([^"]*)?" key(?: (\d+) time(?:s)?)?$/,
+        pressKeyTimes
+    );
+
+    this.When(
+        /^I type "(.*)?"$/,
+        typeText
     );
 
     this.When(

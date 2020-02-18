@@ -32,7 +32,8 @@ module.exports = {
     } catch(e){
       returnVal = '[{execSyncError: ' + e.message + '}]';
     }
-    return returnVal;
+    const returnString = JSON.stringify(returnVal);
+    return returnString;
   },
 
   findImageFromList: function(onArea, imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount, listStrategy) {
@@ -70,44 +71,44 @@ module.exports = {
     if (returnVal.length > 1) {
       returnVal.sort((a, b) => { return (a.score > b.score) ? -1 : (a.score < b.score) ? 1 : 0 })
     }
-    // console.log(JSON.stringify(runResultJson));
-    console.log(JSON.stringify(returnVal));
-    return JSON.stringify(returnVal);
+    const returnString = JSON.stringify(returnVal);
+    console.log(returnString);
+    return returnString;
   },
 
   screenFindAllImages: function (imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
-    return returnVal;
+    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
+    return returnString;
   },
 
   screenWaitImage: function (imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, null, 1);
-    return returnVal;
+    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, null, 1);
+    return returnString;
   },
 
   screenFindImage: function (imagePath, imageSimilarity, maxSimilarityOrText) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, null, 1);
-    return returnVal;
+    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, null, 1);
+    return returnString;
   },
 
   screenHoverImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'hover', 1);
-    return returnVal;
+    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'hover', 1);
+    return returnString;
   },
 
   screenClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'single', 1);
-    return returnVal;
+    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'single', 1);
+    return returnString;
   },
 
   screenDoubleClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'double', 1);
-    return returnVal;
+    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'double', 1);
+    return returnString;
   },
 
   screenRightClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
-    var returnVal = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'right', 1);
-    return returnVal;
+    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'right', 1);
+    return returnString;
   },
 
   keyTap: function(key, modifier) {
@@ -167,10 +168,16 @@ module.exports = {
   },
 
   getMousePos: function() {
-    return robot.getMousePos();
+    const returnVal = robot.getMousePos();
+    const returnString = JSON.stringify(returnVal);
+    console.log(returnString);
+    return returnString;
   },
 
   getXDisplayName: function() {
-    return robot.getXDisplayName();
+    const returnVal = robot.getXDisplayName();
+    const returnString = JSON.stringify(returnVal);
+    console.log(returnString);
+    return returnString;
   },
 }

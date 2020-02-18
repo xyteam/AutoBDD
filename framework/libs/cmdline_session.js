@@ -20,8 +20,12 @@ module.exports = {
         result = e.stdout.toString();
         exitcode = e.status;
     }
-
-    return {"output": result, "exitcode": exitcode}    
+    const returnVal = {output: result, exitcode: exitcode};
+    const returnString = JSON.stringify(returnVal);
+    let stringArray = returnString.split('\r');
+    let last5lines = stringArray.slice(Math.max(stringArray.length - 5, 0))
+    console.log(last5lines);
+    return returnString;
   },
 
   correctHostKey: function(targetHost) {
@@ -58,7 +62,12 @@ module.exports = {
         result = e.stdout.toString();
         exitcode = e.status;
     }
-    return {"output": result, "exitcode": exitcode}    
+    const returnVal = {output: result, exitcode: exitcode};
+    const returnString = JSON.stringify(returnVal);
+    let stringArray = returnString.split('\r');
+    let last5lines = stringArray.slice(Math.max(stringArray.length - 5, 0))
+    console.log(last5lines);
+    return returnString;
   },
 
   remoteConsole: function(sshLogin, sshPort, sshPass, sshKeyFile) {
@@ -79,7 +88,10 @@ module.exports = {
       shell: true
     };
     const consoleProcess = spawn(mySshCommand, mySshArgsArray, consoleSpawnOption);
-    return consoleProcess;
+    const returnVal = consoleProcess;
+    const returnString = JSON.stringify(returnVal);
+    console.log(returnString);
+    return returnString;
   },
 
   runNewman: function(collection, environment) {
@@ -88,7 +100,10 @@ module.exports = {
                          + environment;
     console.log(newman_command);
     var newman_result = this.runCmd(newman_command);
-    return newman_result;
+    const returnVal = newman_result;
+    const returnString = JSON.stringify(returnVal);
+    console.log(returnString);
+    return returnString;
   }
 }
 
