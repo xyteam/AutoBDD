@@ -32,7 +32,7 @@ module.exports = {
     } catch(e){
       returnVal = '[{execSyncError: ' + e.message + '}]';
     }
-    const returnString = JSON.stringify(returnVal);
+    const returnString = JSON.stringify(JSON.parse(returnVal));
     return returnString;
   },
 
