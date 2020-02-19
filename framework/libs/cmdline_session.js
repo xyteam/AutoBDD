@@ -23,8 +23,8 @@ module.exports = {
     const returnVal = {output: result, exitcode: exitcode};
     const returnString = JSON.stringify(returnVal);
     let stringArray = returnString.split('\r');
-    let last5lines = stringArray.slice(Math.max(stringArray.length - 5, 0)).join('');
-    console.log(last5lines);
+    let lastTenLines = stringArray.slice(Math.max(stringArray.length - 10, 0)).join('\n');
+    console.log(lastTenLines);
     return returnString;
   },
 
@@ -65,8 +65,8 @@ module.exports = {
     const returnVal = {output: result, exitcode: exitcode};
     const returnString = JSON.stringify(returnVal);
     let stringArray = returnString.split('\r');
-    let last5lines = stringArray.slice(Math.max(stringArray.length - 5, 0)).join('');
-    console.log(last5lines);
+    let lastTenLines = stringArray.slice(Math.max(stringArray.length - 10, 0)).join('\n');
+    console.log(lastTenLines);
     return returnString;
   },
 
