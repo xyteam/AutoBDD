@@ -14,7 +14,10 @@ module.exports = {
     var result;
     var exitcode;
     try {
-        result = execSync(command, {shell: '/bin/bash'}).toString();
+        let rawResult = execSync(command, {shell: '/bin/bash'}).toString();
+        let stringArray = rawResult.split('\r');
+        // reduce retracted result for display
+        result = stringArray.slice(Math.max(stringArray.length - 10, 0)).join('\n');    
         exitcode = 0;
     } catch(e) {
         result = e.stdout.toString();
@@ -22,9 +25,7 @@ module.exports = {
     }
     const returnVal = {output: result, exitcode: exitcode};
     const returnString = JSON.stringify(returnVal);
-    let stringArray = returnString.split('\r');
-    let lastTenLines = stringArray.slice(Math.max(stringArray.length - 10, 0)).join('\n');
-    console.log(lastTenLines);
+    console.log(returnString);
     return returnString;
   },
 
@@ -56,17 +57,18 @@ module.exports = {
     var result;
     var exitcode;
     try {
-        result = execSync(mySshCommand).toString();
-        exitcode = 0;
+      let rawResult = execSync(mySshCommand).toString();
+      let stringArray = rawResult.split('\r');
+      // reduce retracted result for display
+      result = stringArray.slice(Math.max(stringArray.length - 10, 0)).join('\n');    
+      exitcode = 0;
     } catch(e) {
-        result = e.stdout.toString();
-        exitcode = e.status;
+      result = e.stdout.toString();
+      exitcode = e.status;
     }
     const returnVal = {output: result, exitcode: exitcode};
     const returnString = JSON.stringify(returnVal);
-    let stringArray = returnString.split('\r');
-    let lastTenLines = stringArray.slice(Math.max(stringArray.length - 10, 0)).join('\n');
-    console.log(lastTenLines);
+    console.log(returnString);
     return returnString;
   },
 
@@ -88,21 +90,6 @@ module.exports = {
       shell: true
     };
     const consoleProcess = spawn(mySshCommand, mySshArgsArray, consoleSpawnOption);
-    const returnVal = consoleProcess;
-    const returnString = JSON.stringify(returnVal);
-    console.log(returnString);
-    return returnString;
-  },
-
-  runNewman: function(collection, environment) {
-    var newman_command = 'newman run -e ' + collection
-                         + ' '
-                         + environment;
-    console.log(newman_command);
-    var newman_result = this.runCmd(newman_command);
-    const returnVal = newman_result;
-    const returnString = JSON.stringify(returnVal);
-    console.log(returnString);
-    return returnString;
+    return consoleProcess;
   }
 }
