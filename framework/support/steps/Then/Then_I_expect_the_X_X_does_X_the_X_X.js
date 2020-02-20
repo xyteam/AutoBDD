@@ -2,9 +2,9 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?(?:the (\d+(?:st|nd|rd|th)|last) line of )?the "([^"]*)?" (image|area) does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
+    /^I expect (?:that )?(?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" (image|area) does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
     {timeout: process.env.StepTimeoutInMS},
-    function (lineNumber, targetName, targetType, falseCase, compareAction, expectType, expectedText) {
+    function (firstOrLast, lineCount, targetName, targetType, falseCase, compareAction, expectType, expectedText) {
       const parsedTargetName = parseExpectedText(targetName);
       const parsedExpectedText = parseExpectedText(expectedText);
       browser.pause(500);
@@ -24,10 +24,18 @@ module.exports = function() {
           break;
       }
       const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
-      let parsedLineNumber = parseInt(lineNumber);
       let lineArray = screenFindResult[0].text.split('\n');
-      let lastLine = lineArray.length - 1;
-      let lineText = (!lineNumber) ? screenFindResult[0].text : (parsedLineNumber) ? lineArray[parsedLineNumber - 1] : lineArray[lastLine];
+      var lineText;
+      switch(firstOrLast) {
+        case 'first':
+            lineText = lineArray.slice(0, lineCount).join('\n');
+          break;
+        case 'last':
+            lineText = lineArray.slice(lineArray.length - lineCount, lineArray.length).join('\n');
+          break;
+        default:
+          lineText = lineArray.join('\n');
+      }
 
       if (screenFindResult.length == 0) {
         console.log('expected image or text does not show on screen');
