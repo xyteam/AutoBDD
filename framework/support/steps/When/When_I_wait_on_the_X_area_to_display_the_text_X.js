@@ -2,9 +2,9 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function() {
   this.When(
-    /^I wait (?:(\d+)ms )?on the "([^"]*)?" (image|area) to( not)* display the (text|regex) "(.*)?"$/,
+    /^I wait (?:(\d+)ms )?on (?:the (\d+(?:st|nd|rd|th)|last) line of )?the "([^"]*)?" (image|area) to( not)* display the (text|regex) "(.*)?"$/,
     {timeout: 15*60*1000},
-    function (waitMs, targetName, targetType, falseState, expectType, expectedText) {
+    function (waitMs, lineNumber, targetName, targetType, falseState, expectType, expectedText) {
       const parsedTargetName = parseExpectedText(targetName);
       const parsedExpectedText = parseExpectedText(expectedText);
       browser.pause(500);
@@ -35,20 +35,27 @@ module.exports = function() {
 
       var keeyGoing = true;
       while (keeyGoing && !timeOut) {
-        let screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
+        const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
+        let parsedLineNumber = parseInt(lineNumber);
+        let lineArray = screenFindResult[0].text.split('\n');
+        let lastLine = lineArray.length - 1;
+        let lineText = (!lineNumber) ? screenFindResult[0].text : (parsedLineNumber) ? lineArray[parsedLineNumber - 1] : lineArray[lastLine];
         switch (expectType) {
           case 'regex':
             let myRegex = `/${parsedExpectedText}/i`;
-            keeyGoing = !screenFindResult[0].text.matche(myRegex);
+            keeyGoing = !lineText.matche(myRegex);
             break;
           case 'text':
           default:
-            keeyGoing = !screenFindResult[0].text.includes(parsedExpectedText);
+            keeyGoing = !lineText.includes(parsedExpectedText);
             break;
         }
         if (boolFalseState) {
           keeyGoing = !keeyGoing;
         } 
+        // console.log(`lineText: ${lineText}`);
+        // console.log(`expectedText: ${parsedExpectedText}`);
+        // console.log(`keepGoing: ${keeyGoing}`);
         browser.pause(3000);
       }
       clearInterval(handle);

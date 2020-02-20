@@ -2,9 +2,9 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?the "([^"]*)?" (image|area) does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
+    /^I expect (?:that )?(?:the (\d+(?:st|nd|rd|th)|last) line of )?the "([^"]*)?" (image|area) does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
     {timeout: process.env.StepTimeoutInMS},
-    function (targetName, targetType, falseCase, compareAction, expectType, expectedText) {
+    function (lineNumber, targetName, targetType, falseCase, compareAction, expectType, expectedText) {
       const parsedTargetName = parseExpectedText(targetName);
       const parsedExpectedText = parseExpectedText(expectedText);
       browser.pause(500);
@@ -24,35 +24,36 @@ module.exports = function() {
           break;
       }
       const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
+      let parsedLineNumber = parseInt(lineNumber);
+      let lineArray = screenFindResult[0].text.split('\n');
+      let lastLine = lineArray.length - 1;
+      let lineText = (!lineNumber) ? screenFindResult[0].text : (parsedLineNumber) ? lineArray[parsedLineNumber - 1] : lineArray[lastLine];
 
-      var readTargetContent;
       if (screenFindResult.length == 0) {
         console.log('expected image or text does not show on screen');
-        readTargetContent = '';
       } else {
         console.log(screenFindResult);
-        readTargetContent = screenFindResult[0].text;
       }
       let boolFalseCase = !!falseCase;
       let myRegex;
       if (boolFalseCase) {
         switch (compareAction) {
           case 'contain':
-            expect(readTargetContent).not.toContain(
+            expect(lineText).not.toContain(
               parsedExpectedText,
               `target image text should not contain the ${expectType} ` +
               `"${parsedExpectedText}"`
             );        
             break;
           case 'equal':
-            expect(readTargetContent).not.toEqual(
+            expect(lineText).not.toEqual(
               parsedExpectedText,
               `target image text should not equal the ${expectType} ` +
               `"${parsedExpectedText}"`
             );        
             break;
           case 'match':
-              expect(readTargetContent.toLowerCase()).not.toMatch(
+              expect(lineText.toLowerCase()).not.toMatch(
                 parsedExpectedText.toLowerCase(),
                 `target image text should match the ${expectType} ` +
                 `"${parsedExpectedText}"`
@@ -64,21 +65,21 @@ module.exports = function() {
       } else {
         switch (compareAction) {
             case 'contain':
-              expect(readTargetContent).toContain(
+              expect(lineText).toContain(
                 parsedExpectedText,
                 `target image text should contain the ${expectType} ` +
                 `"${parsedExpectedText}"`
               );        
               break;
           case 'equal':
-              expect(readTargetContent).toEqual(
+              expect(lineText).toEqual(
                 parsedExpectedText,
                 `target image text should equal the ${expectType} ` +
                 `"${parsedExpectedText}"`
               );        
               break;
             case 'match':
-              expect(readTargetContent.toLowerCase()).toMatch(
+              expect(lineText.toLowerCase()).toMatch(
                 parsedExpectedText.toLowerCase(),
                 `target image text should match the ${expectType} ` +
                 `"${parsedExpectedText}"`
