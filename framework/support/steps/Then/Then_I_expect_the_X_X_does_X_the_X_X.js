@@ -2,47 +2,61 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?the "([^"]*)?" image does( not)* (contain|equal|match) the text "(.*)?"$/,
+    /^I expect (?:that )?the "([^"]*)?" (image|area) does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
     {timeout: process.env.StepTimeoutInMS},
-    function (imageName, falseCase, compareAction, expectedText) {
-      const parsedImageName = parseExpectedText(imageName);
+    function (targetName, targetType, falseCase, compareAction, expectType, expectedText) {
+      const parsedTargetName = parseExpectedText(targetName);
       const parsedExpectedText = parseExpectedText(expectedText);
-      const [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedImageName);
-      const imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
-      const imageScore = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
       browser.pause(500);
+
+      var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
+      switch (targetType) {
+        case 'area':
+          imagePathList = parsedTargetName;
+          imageScore = 1;
+          maxSimilarityOrText = parsedExpectedText;
+          break;
+        case 'image':
+        default:
+          [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedTargetName);
+          imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
+          imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? this.lastImage.imageScore : imageSimilarity;
+          break;
+      }
       const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
+
       var readTargetContent;
       if (screenFindResult.length == 0) {
-        console.log('expected image does not show on screen');
+        console.log('expected image or text does not show on screen');
         readTargetContent = '';
       } else {
         console.log(screenFindResult);
         readTargetContent = screenFindResult[0].text;
       }
       let boolFalseCase = !!falseCase;
+      let myRegex;
       if (boolFalseCase) {
         switch (compareAction) {
           case 'contain':
             expect(readTargetContent).not.toContain(
               parsedExpectedText,
-              `target image text should not contthe ain text ` +
+              `target image text should not contain the ${expectType} ` +
               `"${parsedExpectedText}"`
             );        
             break;
           case 'equal':
             expect(readTargetContent).not.toEqual(
               parsedExpectedText,
-              `target image text should not equathe l text ` +
+              `target image text should not equal the ${expectType} ` +
               `"${parsedExpectedText}"`
             );        
             break;
           case 'match':
-            expect(readTargetContent).not.toMatch(
-              parsedExpectedText,
-              `target image text should not matcthe h text ` +
-              `"${parsedExpectedText}"`
-            );        
+              expect(readTargetContent.toLowerCase()).not.toMatch(
+                parsedExpectedText.toLowerCase(),
+                `target image text should match the ${expectType} ` +
+                `"${parsedExpectedText}"`
+              );        
             break;
           default:
             expect(false).toBe(true, `compareAction ${compareAction} should be one of contain, equal or match`);
@@ -52,21 +66,21 @@ module.exports = function() {
             case 'contain':
               expect(readTargetContent).toContain(
                 parsedExpectedText,
-                `target image text should contain the text ` +
+                `target image text should contain the ${expectType} ` +
                 `"${parsedExpectedText}"`
               );        
               break;
           case 'equal':
               expect(readTargetContent).toEqual(
                 parsedExpectedText,
-                `target image text should equal the text ` +
+                `target image text should equal the ${expectType} ` +
                 `"${parsedExpectedText}"`
               );        
               break;
             case 'match':
-              expect(readTargetContent).toMatch(
-                parsedExpectedText,
-                `target image text should match the text ` +
+              expect(readTargetContent.toLowerCase()).toMatch(
+                parsedExpectedText.toLowerCase(),
+                `target image text should match the ${expectType} ` +
                 `"${parsedExpectedText}"`
               );        
               break;
@@ -76,4 +90,4 @@ module.exports = function() {
       }
     }
   );
-};
+}
