@@ -2,9 +2,9 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function() {
   this.When(
-    /^I wait (?:(\d+)ms )?on (?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" (image|area) to( not)* display the (text|regex) "(.*)?"$/,
+    /^I wait (?:(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" (image|area) to( not)* display the (text|regex) "(.*)?"$/,
     {timeout: 15*60*1000},
-    function (waitMs, firstOrLast, lineCount, targetName, targetType, falseState, expectType, expectedText) {
+    function (waitMnt, firstOrLast, lineCount, targetName, targetType, falseState, expectType, expectedText) {
       const parsedTargetName = parseExpectedText(targetName);
       const parsedExpectedText = parseExpectedText(expectedText);
       browser.pause(500);
@@ -24,14 +24,14 @@ module.exports = function() {
           break;
       }
 
-      const myWaitMs = parseInt(waitMs) || 15*60*1000;
+      const myWaitMnt = parseInt(waitMnt) || 1;
       let boolFalseState = !!falseState;
   
       var timeOut = false;
       var handle = setInterval(() => {
-        console.log(`wait timeout: ${targetName}, ${myWaitMs} ms`);
+        console.log(`wait timeout: ${targetName}, ${myWaitMnt} minute(s)`);
         timeOut = true;
-      }, myWaitMs);
+      }, myWaitMnt*60*1000);
 
       var keeyGoing = true;
       while (keeyGoing && !timeOut) {
@@ -66,7 +66,7 @@ module.exports = function() {
         // console.log(`lineText: ${lineText}`);
         // console.log(`expectedText: ${parsedExpectedText}`);
         // console.log(`keepGoing: ${keeyGoing}`);
-        browser.pause(3000);
+        browser.pause(60*1000);
       }
       clearInterval(handle);
     }
