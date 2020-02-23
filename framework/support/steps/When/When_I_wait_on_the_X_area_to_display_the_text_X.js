@@ -13,7 +13,7 @@ module.exports = function() {
       switch (targetType) {
         case 'area':
           imagePathList = parsedTargetName;
-          imageScore = 1;
+          imageScore = 0.5;
           maxSimilarityOrText = parsedExpectedText;
           break;
         case 'image':
@@ -66,7 +66,7 @@ module.exports = function() {
         // console.log(`lineText: ${lineText}`);
         // console.log(`expectedText: ${parsedExpectedText}`);
         // console.log(`keepGoing: ${keeyGoing}`);
-        browser.pause(60*1000);
+        browser.pause(5*1000);
       }
       clearInterval(handle);
     }
