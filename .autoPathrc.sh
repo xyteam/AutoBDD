@@ -1,5 +1,6 @@
 # assig framework path
 export FrameworkPath=$(pwd)
+PATH=${PATH}:${FrameworkPath}/framework/scripts
 
 # strip all node_modules/.bin in PATH
 PATH=$(echo "${PATH//:/$'\n'}" | grep -v node_modules\/.bin | paste -sd ":" -)

@@ -1,6 +1,5 @@
 // screen_session.js provides functions to see the screen, to control keyboard and mouse
 
-const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const robot = require('robotjs');
 const execSync = require('child_process').execSync;
 
@@ -15,7 +14,7 @@ module.exports = {
     var outputBuffer;
     var outputString;
     var returnVal;
-    var runCommand = FrameworkPath + '/framework/libs/find_image.js'
+    var runCommand = 'findTargetImage'
                     + ' --onArea=' + onArea
                     + ' --imagePath=' + imagePath
                     + ' --imageSimilarity=' + imageSimilarity

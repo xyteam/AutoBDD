@@ -1,6 +1,14 @@
 #!/usr/bin/env node
 
 const java = require('java');
+const xysikulixapi = require('xysikulixapi');
+
+// Sikuli Property
+const App = xysikulixapi.App;
+const Region = xysikulixapi.Region;
+const Screen = xysikulixapi.Screen;
+const Pattern = xysikulixapi.Pattern;
+
 const argv = require('minimist')(process.argv.slice(2));
 const onArea = (argv.onArea != null && argv.onArea != 'undefined') ? argv.onArea : 'onScreen';
 const imagePath = (argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'center';
@@ -9,9 +17,6 @@ const imageWaitTime = (argv.imageWaitTime != null && argv.imageWaitTime != 'unde
 const imageAction = (argv.imageAction != null && argv.imageAction != 'undefined') ? argv.imageAction : 'none';
 const maxSimilarityOrText = (argv.maxSimilarityOrText != null && argv.maxSimilarityOrText != 'undefined') ? argv.maxSimilarityOrText : 1;
 const imageMaxCount = (argv.imageMaxCount != null && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1;
-const SikulixApiVer = process.env.SikulixApiVer || '2.0.1';
-const sikuliApiJarPath = (process.env.FrameworkPath) ? process.env.FrameworkPath + '/framework/libs' : '.'
-const sikuliApiJar = `${sikuliApiJarPath}/sikulixapi-${SikulixApiVer}.jar`;
 const notFoundStatus = {status: 'notFound'};
 // const screen_session = require(process.env.FrameworkPath + '/framework/libs/screen_session');
 
@@ -21,12 +26,6 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimilarityOrText, imag
   const myImageText = isNaN(maxSimilarityOrText) ? maxSimilarityOrText : '';
   const mySimilarityMax = (myImageText.length > 0) ? 1 : parseFloat(maxSimilarityOrText);
   const myImageMaxCount = imageMaxCount || 1;
-  // Sikuli Property
-  java.classpath.push(sikuliApiJar);
-  const App = java.import('org.sikuli.script.App');
-  const Region = java.import('org.sikuli.script.Region');
-  const Screen = java.import('org.sikuli.script.Screen');
-  const Pattern = java.import('org.sikuli.script.Pattern');
 
   var findRegion;
   switch (onArea) {
