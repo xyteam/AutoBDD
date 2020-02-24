@@ -11,6 +11,7 @@ Recording_*.mp4
 Passed_*.png
 Failed_*.png
 npm-debug.log
+hs_err_pid*.log
 sikulixapi*.jar
 package-lock.json
 .project
