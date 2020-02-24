@@ -13,7 +13,7 @@ module.exports = function() {
       switch (targetType) {
         case 'area':
           imagePathList = parsedTargetName;
-          imageScore = 1;
+          imageScore = 0.5;
           maxSimilarityOrText = parsedExpectedText;
           break;
         case 'image':
