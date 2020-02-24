@@ -23,7 +23,7 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimilarityOrText, imag
   const myImageMaxCount = imageMaxCount || 1;
   // Sikuli Property
   java.classpath.push(sikuliApiJar);
-  // const App = java.import('org.sikuli.script.App');
+  const App = java.import('org.sikuli.script.App');
   const Region = java.import('org.sikuli.script.Region');
   const Screen = java.import('org.sikuli.script.Screen');
   const Pattern = java.import('org.sikuli.script.Pattern');
@@ -41,19 +41,31 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimilarityOrText, imag
 
   try {
     var find_item;
-    var returnItem = {location: null, dimension: null, center: null, clicked: null, text: null};
+    var returnItem = {score: null, text: null, location: null, dimension: null, center: null, clicked: null};
     var returnArray = [];
+    const fillRectangleInfo = (rectItem) => {
+      location = {x: rectItem.x, y: rectItem.y};
+      dimension = {width: rectItem.w, height: rectItem.h};
+      center = {x: rectItem.x + Math.round(rectItem.w / 2), y: rectItem.y + Math.round(rectItem.h / 2)};
+      return [location, dimension, center];
+    }
     switch (imagePath) {
       case 'Screen':
       case 'screen':
         find_item = Region(findRegion.getBoundsSync());
         find_item.highlight(0.1);
-        returnItem.text = find_item.textSync();
-        returnItem.location = {x: find_item.x, y: find_item.y};
-        returnItem.dimension = {width: find_item.w, height: find_item.h};
-        returnItem.center = {x: find_item.x + Math.round(find_item.w / 2), y: find_item.y + Math.round(find_item.h / 2)};
+        returnItem.text = find_item.textSync();    
+        [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(find_item);
         returnArray.push(returnItem);
-      break;
+        break;
+      case 'Console':
+      case 'console':
+        find_item = Region(findRegion.getBoundsSync()).growSync(-100);
+        find_item.highlight(0.1);
+        returnItem.text = find_item.textSync();    
+        [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(find_item);
+        returnArray.push(returnItem);
+        break;
       default:
         const oneTarget = (new Pattern(imagePath)).similarSync(java.newFloat(myImageSimilarity));
         const find_results = findRegion.findAllSync(oneTarget);
@@ -61,41 +73,43 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimilarityOrText, imag
         while (matchCount < myImageMaxCount && find_results.hasNextSync()) {
           find_item = find_results.nextSync();
           returnItem.score = Math.floor(find_item.getScoreSync()*1000000)/1000000;
-          returnItem.text = find_item.textSync();
-          if (returnItem.score >= imageSimilarity && returnItem.score <= mySimilarityMax && returnItem.text.includes(myImageText)) {
+          returnItem.text = find_item.textSync();    
+          [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(find_item);
+          if (returnItem.score >= myImageSimilarity && returnItem.score <= mySimilarityMax && returnItem.text.includes(myImageText)) {
             matchCount += 1;
             find_item.highlight(0.1);
-            returnItem.location = {x: find_item.x, y: find_item.y};
-            returnItem.dimension = {width: find_item.w, height: find_item.h};
-            returnItem.center = {x: find_item.x + Math.round(find_item.w / 2), y: find_item.y + Math.round(find_item.h / 2)};
             returnArray.push(returnItem);
           }
         }
-        break;    
+        break;
     }
-    if (returnArray.length == 0) returnArray.push(notFoundStatus);
-    // process imageAction if any
-    var click_count = 0;
-    switch (imageAction) {
-      case 'single':
-        click_count = find_item.hoverSync();
-        click_count = find_item.clickSync();
-      break;
-      case 'double':
-        click_count = find_item.hoverSync();
-        click_count = find_item.doubleClickSync();
-      break;
-      case 'right':
-        click_count = find_item.hoverSync();
-        click_count = find_item.rightClickSync();
-      break;
-      case 'hover':
-        click_count = find_item.hoverSync();
-      break;
-    }
-    if (click_count > 0) {
-      var clicked_target = find_item.getTargetSync();
-      returnItem.clicked = {x: clicked_target.x, y: clicked_target.y}
+    if (returnArray.length == 0) {
+      returnArray.push(notFoundStatus)
+     } else {
+      // process imageAction if any
+      for (i=0; i<returnArray.length; i++) {
+        var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
+        switch (imageAction) {
+          case 'single':
+            clickRegion.hoverSync();
+            clickRegion.clickSync();
+            returnArray[i].clicked = returnArray[i].center;
+          break;
+          case 'double':
+            clickRegion.hoverSync();
+            clickRegion.doubleClickSync();
+            returnArray[i].clicked = returnArray[i].center;
+          break;
+          case 'right':
+            clickRegion.hoverSync();
+            clickRegion.rightClickSync();
+            returnArray[i].clicked = returnArray[i].center;
+          break;
+          case 'hover':
+            clickRegion.hoverSync();
+          break;
+        }
+      }
     }
   } catch(e) {
     console.log(e);
@@ -104,4 +118,4 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimilarityOrText, imag
   return JSON.stringify(returnArray);
 };
 const findImage_result = findImage(onArea, imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
-console.log(findImage_result);
+console.log(`fidnImage_result: ${findImage_result}`);
