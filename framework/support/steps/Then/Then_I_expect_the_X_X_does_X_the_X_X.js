@@ -24,7 +24,7 @@ module.exports = function() {
           break;
       }
       const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
-      let lineArray = screenFindResult[0].text.split('\n');
+      let lineArray = screenFindResult[0].text;
       var lineText;
       switch(firstOrLast) {
         case 'first':
