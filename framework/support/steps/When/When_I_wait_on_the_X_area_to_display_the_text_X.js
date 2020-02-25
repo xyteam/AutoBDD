@@ -33,12 +33,12 @@ module.exports = function() {
         timeOut = true;
       }, parsedWaitTimeoutMnt*60*1000);
 
-      var keeyGoing = true;
-      while (keeyGoing && !timeOut) {
+      var keepGoing = true;
+      while (keepGoing && !timeOut) {
         browser.pause(parsedWaitIntvSec*1000);
         // calculate lines of text
         const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
-        let lineArray = screenFindResult[0].text.split('\n');
+        let lineArray = screenFindResult[0].text;
         var lineText;
         switch(firstOrLast) {
           case 'first':
@@ -53,20 +53,20 @@ module.exports = function() {
 
         switch (expectType) {
           case 'regex':
-            let myRegex = `/${parsedExpectedText}/i`;
-            keeyGoing = !lineText.matche(myRegex);
+            let myRegex = new RegExp(parsedExpectedText, 'i');
+            keepGoing = !lineText.match(myRegex);
             break;
           case 'text':
           default:
-            keeyGoing = !lineText.includes(parsedExpectedText);
+            keepGoing = !lineText.includes(parsedExpectedText);
             break;
         }
         if (boolFalseState) {
-          keeyGoing = !keeyGoing;
+          keepGoing = !keepGoing;
         } 
-        // console.log(`lineText: ${lineText}`);
-        // console.log(`expectedText: ${parsedExpectedText}`);
-        // console.log(`keepGoing: ${keeyGoing}`);
+        console.log(`lineText: ${lineText}`);
+        console.log(`expectedText: ${parsedExpectedText}`);
+        console.log(`keepGoing: ${keepGoing}`);
       }
       clearInterval(handle);
     }
