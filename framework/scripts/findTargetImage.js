@@ -52,7 +52,7 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimilarityOrText, imag
       case 'screen':
         find_item = Region(findRegion.getBoundsSync());
         find_item.highlight(0.1);
-        returnItem.text = find_item.textSync();    
+        returnItem.text = find_item.textSync().split('\n');
         [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(find_item);
         returnArray.push(returnItem);
         break;
@@ -60,7 +60,7 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimilarityOrText, imag
       case 'console':
         find_item = Region(findRegion.getBoundsSync()).growSync(-100);
         find_item.highlight(0.1);
-        returnItem.text = find_item.textSync();    
+        returnItem.text = find_item.textSync().split('\n');
         [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(find_item);
         returnArray.push(returnItem);
         break;
@@ -71,9 +71,9 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimilarityOrText, imag
         while (matchCount < myImageMaxCount && find_results.hasNextSync()) {
           find_item = find_results.nextSync();
           returnItem.score = Math.floor(find_item.getScoreSync()*1000000)/1000000;
-          returnItem.text = find_item.textSync();    
+          returnItem.text = find_item.textSync().split('\n');
           [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(find_item);
-          if (returnItem.score >= myImageSimilarity && returnItem.score <= mySimilarityMax && returnItem.text.includes(myImageText)) {
+          if (returnItem.score >= myImageSimilarity && returnItem.score <= mySimilarityMax && returnItem.text.join('\n').includes(myImageText)) {
             matchCount += 1;
             find_item.highlight(0.1);
             returnArray.push(returnItem);
