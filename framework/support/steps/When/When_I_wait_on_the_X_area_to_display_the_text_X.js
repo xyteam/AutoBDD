@@ -4,10 +4,10 @@ module.exports = function() {
   this.When(
     /^I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" (image|area) to( not)* display the (text|regex) "(.*)?"$/,
     {timeout: 15*60*1000},
-    function (waitIntvSec, waitMnt, firstOrLast, lineCount, targetName, targetType, falseState, expectType, expectedText) {
+    function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, targetType, falseState, expectType, expectedText) {
       const parsedTargetName = parseExpectedText(targetName);
       const parsedExpectedText = parseExpectedText(expectedText);
-      const parsedWaitMnt = parseInt(waitMnt) || 1;
+      const parsedWaitTimeoutMnt = parseInt(waitTimeoutMnt) || 1;
       const parsedWaitIntvSec = parseInt(waitIntvSec) || 15;
 
       var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
@@ -29,9 +29,9 @@ module.exports = function() {
   
       var timeOut = false;
       var handle = setInterval(() => {
-        console.log(`wait timeout: ${targetName}, ${parsedWaitMnt} minute(s)`);
+        console.log(`wait timeout: ${targetName}, ${parsedWaitTimeoutMnt} minute(s)`);
         timeOut = true;
-      }, parsedWaitMnt*60*1000);
+      }, parsedWaitTimeoutMnt*60*1000);
 
       var keeyGoing = true;
       while (keeyGoing && !timeOut) {
