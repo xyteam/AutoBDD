@@ -18,7 +18,6 @@ const imageAction = (argv.imageAction != null && argv.imageAction != 'undefined'
 const maxSimilarityOrText = (argv.maxSimilarityOrText != null && argv.maxSimilarityOrText != 'undefined') ? argv.maxSimilarityOrText : 1;
 const imageMaxCount = (argv.imageMaxCount != null && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1;
 const notFoundStatus = {status: 'notFound'};
-// const screen_session = require(process.env.FrameworkPath + '/framework/libs/screen_session');
 
 const findImage = (onArea, imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount) => {
   const myImageSimilarity = parseFloat(imageSimilarity);
@@ -30,7 +29,7 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimilarityOrText, imag
   var findRegion;
   switch (onArea) {
     case 'onFocused':
-      findRegion = App.focusedWindowSync();
+      findRegion = new App.focusedWindowSync();
       break;
     case 'onScreen':
     default:

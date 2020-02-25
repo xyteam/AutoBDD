@@ -14,7 +14,7 @@ module.exports = {
     var outputBuffer;
     var outputString;
     var returnVal;
-    var runCommand = 'findTargetImage'
+    var runCommand = 'findTargetImage.js'
                     + ' --onArea=' + onArea
                     + ' --imagePath=' + imagePath
                     + ' --imageSimilarity=' + imageSimilarity
@@ -111,21 +111,24 @@ module.exports = {
   },
 
   keyTap: function(key, modifier) {
-    var myKey = key || 'enter';
-    var myModifier = modifier || null;
-
-    if (myModifier) {
-      robot.keyTap(myKey, myModifier);
+    const myKey = key || 'enter';
+    if (modifier) {
+      robot.keyTap(myKey, modifier);
     } else {
       robot.keyTap(myKey);
     }
   },
 
   keyToggle: function(key, keyUpDown, modifier) {
-    if (modifier) {
-      robot.keyToggle(key, keyUpDown, modifier);
+    const myKey = key || 'enter';
+    if (keyUpDown && modifier) {
+      robot.keyToggle(myKey, keyUpDown, modifier);
+    } else if (keyUpDown) {
+      robot.keyTap(myKey, keyUpDown);
+    } else if (modifier) {
+      robot.keyToggle(myKey, null, modifier);
     } else {
-      robot.keyToggle(key, keyUpDown);
+      robot.keyTap(myKey);
     }
   },
 
