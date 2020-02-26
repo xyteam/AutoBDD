@@ -1,13 +1,21 @@
 #!/usr/bin/env node
 
 const java = require('java');
-const xysikulixapi = require('xysikulixapi');
+java.options.push('-Xmx1024m');
 
-// Sikuli Property
+// use xysikulixapi property
+const xysikulixapi = require('xysikulixapi');
 const App = xysikulixapi.App;
 const Region = xysikulixapi.Region;
 const Screen = xysikulixapi.Screen;
 const Pattern = xysikulixapi.Pattern;
+
+// // use local sikulix
+// java.classpath.push(`${process.env.FrameworkPath}/framework/libs/sikulixapi-2.0.1.jar`);
+// const App = java.import('org.sikuli.script.App');
+// const Region = java.import('org.sikuli.script.Region');
+// const Screen = java.import('org.sikuli.script.Screen');
+// const Pattern = java.import('org.sikuli.script.Pattern');
 
 const argv = require('minimist')(process.argv.slice(2));
 const onArea = (argv.onArea != null && argv.onArea != 'undefined') ? argv.onArea : 'onScreen';
