@@ -87,12 +87,12 @@ module.exports = function() {
     );
 
     this.When(
-        /^I press "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
+        /^I press the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
         pressKeyTimes
     );
 
     this.When(
-        /^I type "(.*)?" to the screen$/,
+        /^I type the "(.*)?" string to the screen$/,
         typeText
     );
 

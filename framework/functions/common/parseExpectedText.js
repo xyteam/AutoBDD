@@ -10,10 +10,6 @@ const ModuleSupportPath = ModulePath + '/support';
 const glob = require("glob");
 
 module.exports = (expectedText) => {
-    /**
-     * The expected text to validate against
-     * @type {String}
-     */
     // ENV:MYENV
     const parseENV = (text) => {
         let textArray = text.split(' ');
@@ -100,7 +96,7 @@ module.exports = (expectedText) => {
         return textArray.join('');
     }
 
-    var parsedExpectedText = expectedText;
+    var parsedExpectedText = expectedText || '';
     var loopCount = 2;
     while ((parsedExpectedText.includes('ENV:') ||
             parsedExpectedText.includes('VAR:') ||

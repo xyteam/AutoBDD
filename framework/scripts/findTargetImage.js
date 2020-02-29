@@ -19,7 +19,7 @@ const imageMaxCount = (argv.imageMaxCount != null && argv.imageMaxCount != 'unde
 const notFoundStatus = {status: 'notFound'};
 
 const findImage = (onArea, imagePath, imageSimilarity, maxSimOrText, imageWaitTime, imageAction, imageMaxCount) => {
-  const myImageSimilarity = parseFloat(imageSimilarity);
+  const myImageSimilarity = parseFloat(imageSimilarity) - 0.0000001;
   const myImageWaitTime = parseFloat(imageWaitTime);
   const myImageText = isNaN(maxSimOrText) ? maxSimOrText : '';
   const mySimilarityMax = (myImageText.length > 0) ? 1 : parseFloat(maxSimOrText);
