@@ -1,7 +1,7 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function () {
-  this.When(/^I (click|rightClick|hover|wave|shake|circle) (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/, { timeout: process.env.StepTimeoutInMS }, function (mouseAction, targetType, imageNameOne, imageNameTwo) {
+  this.When(/^I (click|rightClick|doubleClick|hover|wave|shake|circle) (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/, { timeout: process.env.StepTimeoutInMS }, function (mouseAction, targetType, imageNameOne, imageNameTwo) {
     // re imageNameOne
     const parsedImageNameOne = parseExpectedText(imageNameOne);
     const [imageFileNameOne, imageFileExtOne, imageSimilarityOne, maxSimilarityOrTextOne] = this.fs_session.getTestImageParms(parsedImageNameOne);
@@ -31,6 +31,10 @@ module.exports = function () {
           case "rightClick":
             this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
             this.screen_session.mouseClick("right");
+            break;
+          case "doubleClick":
+            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.mouseClick("left", true);
             break;
           case "wave":
             this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
@@ -67,6 +71,9 @@ module.exports = function () {
             break;
           case "rightClick":
             screenFindResult = JSON.parse(this.screen_session.screenRightClickImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
+            break;
+          case "doubleClick":
+            screenFindResult = JSON.parse(this.screen_session.screenDoubleClickImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
             break;
           case "wave":
             screenFindResult = JSON.parse(this.screen_session.screenHoverImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));

@@ -1,30 +1,23 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
+const browser_session = require(process.env.FrameworkPath + '/framework/libs/browser_session.js');
+const stripAnsi = require('strip-ansi');
+
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?(?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" (image|area) does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
+    /^I expect (?:that )?(?:the (first|last) (\d+) line(?:s)? of )?the "(.*)?" console does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
     {timeout: process.env.StepTimeoutInMS},
-    function (firstOrLast, lineCount, targetName, targetType, falseCase, compareAction, expectType, expectedText) {
-      const parsedTargetName = parseExpectedText(targetName);
+    function (firstOrLast, lineCount, consoleName, falseCase, compareAction, expectType, expectedText) {
+      // parse input
+      const parsedConsoleName = parseExpectedText(consoleName);
       const parsedExpectedText = parseExpectedText(expectedText);
-      browser.pause(500);
 
-      var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
-      switch (targetType) {
-        case 'area':
-          imagePathList = parsedTargetName;
-          imageScore = 1;
-          maxSimilarityOrText = parsedExpectedText;
-          break;
-        case 'image':
-        default:
-          [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedTargetName);
-          imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
-          imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? this.lastImage.imageScore : imageSimilarity;
-          break;
-      }
-      const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
-      let lineArray = screenFindResult[0].text;
+      // get consoleData object set up by previous step
+      browser.pause(500);
+      const myConsoleData = this.myConsoleData;
+      let lineArray = stripAnsi(myConsoleData[parsedConsoleName].stdout).split(/[\r\n]+/);
+      browser_session.displayMessage(browser, lineArray.join('\n'));
+
       var lineText;
       switch(firstOrLast) {
         case 'first':
@@ -37,33 +30,27 @@ module.exports = function() {
           lineText = lineArray.join('\n');
       }
 
-      if (screenFindResult.length == 0) {
-        console.log('expected image or text does not show on screen');
-      } else {
-        console.log(screenFindResult);
-      }
-      
       let boolFalseCase = !!falseCase;
       if (boolFalseCase) {
         switch (compareAction) {
           case 'contain':
             expect(lineText).not.toContain(
               parsedExpectedText,
-              `target image text should not contain the ${expectType} ` +
+              `console should not contain the ${expectType} ` +
               `"${parsedExpectedText}"`
             );        
             break;
           case 'equal':
             expect(lineText).not.toEqual(
               parsedExpectedText,
-              `target image text should not equal the ${expectType} ` +
+              `console should not equal the ${expectType} ` +
               `"${parsedExpectedText}"`
             );        
             break;
           case 'match':
               expect(lineText.toLowerCase()).not.toMatch(
                 parsedExpectedText.toLowerCase(),
-                `target image text should match the ${expectType} ` +
+                `console should match the ${expectType} ` +
                 `"${parsedExpectedText}"`
               );        
             break;
@@ -75,21 +62,21 @@ module.exports = function() {
             case 'contain':
               expect(lineText).toContain(
                 parsedExpectedText,
-                `target image text should contain the ${expectType} ` +
+                `console should contain the ${expectType} ` +
                 `"${parsedExpectedText}"`
               );        
               break;
           case 'equal':
               expect(lineText).toEqual(
                 parsedExpectedText,
-                `target image text should equal the ${expectType} ` +
+                `console should equal the ${expectType} ` +
                 `"${parsedExpectedText}"`
               );        
               break;
             case 'match':
               expect(lineText.toLowerCase()).toMatch(
                 parsedExpectedText.toLowerCase(),
-                `target image text should match the ${expectType} ` +
+                `console should match the ${expectType} ` +
                 `"${parsedExpectedText}"`
               );        
               break;
