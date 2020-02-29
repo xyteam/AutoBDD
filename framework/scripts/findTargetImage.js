@@ -1,22 +1,13 @@
 #!/usr/bin/env node
 
+// jvm property
 const java = require('java');
 java.options.push('-Xmx1024m');
 
 // use xysikulixapi property
-const xysikulixapi = require('xysikulixapi');
-const App = xysikulixapi.App;
-const Region = xysikulixapi.Region;
-const Screen = xysikulixapi.Screen;
-const Pattern = xysikulixapi.Pattern;
+const sikulixapi = require('xysikulixapi');
 
-// // use local sikulix
-// java.classpath.push(`${process.env.FrameworkPath}/framework/libs/sikulixapi-2.0.1.jar`);
-// const App = java.import('org.sikuli.script.App');
-// const Region = java.import('org.sikuli.script.Region');
-// const Screen = java.import('org.sikuli.script.Screen');
-// const Pattern = java.import('org.sikuli.script.Pattern');
-
+// script property
 const argv = require('minimist')(process.argv.slice(2));
 const onArea = (argv.onArea != null && argv.onArea != 'undefined') ? argv.onArea : 'onScreen';
 const imagePath = (argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen';
@@ -37,15 +28,18 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimOrText, imageWaitTi
   var findRegion;
   switch (onArea) {
     case 'onFocused':
+      const App = sikulixapi.App;
       findRegion = new App.focusedWindowSync();
       break;
     case 'onScreen':
     default:
+      const Screen = sikulixapi.Screen;
       findRegion = new Screen();
   }
-  findRegion.setAutoWaitTimeout(myImageWaitTime);
+  findRegion.setAutoWaitTimeout(java.newFloat(myImageWaitTime));
 
   try {
+    const Region = sikulixapi.Region;
     var find_item;
     var returnItem = {score: null, text: null, location: null, dimension: null, center: null, clicked: null};
     var returnArray = [];
@@ -73,6 +67,7 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimOrText, imageWaitTi
         returnArray.push(returnItem);
         break;
       default:
+        const Pattern = sikulixapi.Pattern;
         const oneTarget = (new Pattern(imagePath)).similarSync(java.newFloat(myImageSimilarity));
         const find_results = findRegion.findAllSync(oneTarget);
         const myRegex = new RegExp(myImageText, 'i');
@@ -94,28 +89,30 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimOrText, imageWaitTi
       returnArray.push(notFoundStatus)
      } else {
       // process imageAction if any
-      for (i=0; i<returnArray.length; i++) {
-        var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
-        switch (imageAction) {
-          case 'single':
-            clickRegion.hoverSync();
-            clickRegion.clickSync();
-            returnArray[i].clicked = returnArray[i].center;
-          break;
-          case 'double':
-            clickRegion.hoverSync();
-            clickRegion.doubleClickSync();
-            returnArray[i].clicked = returnArray[i].center;
-          break;
-          case 'right':
-            clickRegion.hoverSync();
-            clickRegion.rightClickSync();
-            returnArray[i].clicked = returnArray[i].center;
-          break;
-          case 'hover':
-            clickRegion.hoverSync();
-          break;
-        }
+      if (imageAction && imageAction != 'none' && imageAction != 'null') {
+        for (i=0; i<returnArray.length; i++) {
+          var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
+          switch (imageAction) {
+            case 'single':
+              clickRegion.hoverSync();
+              clickRegion.clickSync();
+              returnArray[i].clicked = returnArray[i].center;
+            break;
+            case 'double':
+              clickRegion.hoverSync();
+              clickRegion.doubleClickSync();
+              returnArray[i].clicked = returnArray[i].center;
+            break;
+            case 'right':
+              clickRegion.hoverSync();
+              clickRegion.rightClickSync();
+              returnArray[i].clicked = returnArray[i].center;
+            break;
+            case 'hover':
+              clickRegion.hoverSync();
+            break;
+          }
+        }  
       }
     }
   } catch(e) {
