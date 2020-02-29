@@ -13,7 +13,7 @@ module.exports = function() {
       switch (targetType) {
         case 'area':
           imagePathList = parsedTargetName;
-          imageScore = 0.5;
+          imageScore = 1;
           maxSimilarityOrText = parsedExpectedText;
           break;
         case 'image':
@@ -42,8 +42,8 @@ module.exports = function() {
       } else {
         console.log(screenFindResult);
       }
+      
       let boolFalseCase = !!falseCase;
-      let myRegex;
       if (boolFalseCase) {
         switch (compareAction) {
           case 'contain':
