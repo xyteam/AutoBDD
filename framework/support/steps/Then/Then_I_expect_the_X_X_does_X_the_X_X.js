@@ -14,7 +14,7 @@ module.exports = function() {
         case 'area':
           imagePathList = parsedTargetName;
           imageScore = 1;
-          maxSimilarityOrText = parsedExpectedText;
+          maxSimilarityOrText = (expectType == 'text') ? parsedExpectedText : 1;
           break;
         case 'image':
         default:
