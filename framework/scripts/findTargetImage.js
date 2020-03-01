@@ -9,13 +9,13 @@ const sikulixapi = require('xysikulixapi');
 
 // script property
 const argv = require('minimist')(process.argv.slice(2));
-const onArea = (argv.onArea != null && argv.onArea != 'undefined') ? argv.onArea : 'onScreen';
-const imagePath = (argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen';
-const imageSimilarity = (argv.imageSimilarity != null && argv.imageSimilarity != 'undefined') ? argv.imageSimilarity : process.env.imageSimilarity || 0.8;
-const imageWaitTime = (argv.imageWaitTime != null && argv.imageWaitTime != 'undefined') ? argv.imageWaitTime : process.env.imageWaitTime || 1;
-const imageAction = (argv.imageAction != null && argv.imageAction != 'undefined') ? argv.imageAction : 'none';
-const maxSimOrText = (argv.maxSimOrText != null && argv.maxSimOrText != 'undefined') ? argv.maxSimOrText : 1;
-const imageMaxCount = (argv.imageMaxCount != null && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1;
+const onArea = (argv.onArea && argv.onArea != 'null' && argv.onArea != 'undefined') ? argv.onArea : 'onScreen';
+const imagePath = (argv.imagePath && argv.imagePath != 'null' && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen';
+const imageSimilarity = (argv.imageSimilarity && argv.imageSimilarity != 'null' && argv.imageSimilarity != 'undefined') ? argv.imageSimilarity : process.env.imageSimilarity || 0.8;
+const imageWaitTime = (argv.imageWaitTime && argv.imageWaitTime != 'null' && argv.imageWaitTime != 'undefined') ? argv.imageWaitTime : process.env.imageWaitTime || 1;
+const imageAction = (argv.imageAction && argv.imageAction != 'null' && argv.imageAction != 'undefined') ? argv.imageAction : 'none';
+const maxSimOrText = (argv.maxSimOrText && argv.maxSimOrText != 'null' && argv.maxSimOrText != 'undefined') ? argv.maxSimOrText : 1;
+const imageMaxCount = (argv.imageMaxCount && argv.imageMaxCount != 'null' && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1;
 const notFoundStatus = {status: 'notFound'};
 
 const findImage = (onArea, imagePath, imageSimilarity, maxSimOrText, imageWaitTime, imageAction, imageMaxCount) => {
