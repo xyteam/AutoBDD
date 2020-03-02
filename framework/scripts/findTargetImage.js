@@ -13,6 +13,7 @@ const onArea = (argv.onArea && argv.onArea != 'null' && argv.onArea != 'undefine
 const imagePath = (argv.imagePath && argv.imagePath != 'null' && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen';
 const imageSimilarity = (argv.imageSimilarity && argv.imageSimilarity != 'null' && argv.imageSimilarity != 'undefined') ? argv.imageSimilarity : process.env.imageSimilarity || 0.8;
 const imageWaitTime = (argv.imageWaitTime && argv.imageWaitTime != 'null' && argv.imageWaitTime != 'undefined') ? argv.imageWaitTime : process.env.imageWaitTime || 1;
+const imageScanRate = (argv.imageScanRate && argv.imageScanRate != 'null' && argv.imageScanRate != 'undefined') ? argv.imageScanRate : process.env.imageScanRate || 1;
 const imageAction = (argv.imageAction && argv.imageAction != 'null' && argv.imageAction != 'undefined') ? argv.imageAction : 'none';
 const maxSimOrText = (argv.maxSimOrText && argv.maxSimOrText != 'null' && argv.maxSimOrText != 'undefined') ? argv.maxSimOrText : 1;
 const imageMaxCount = (argv.imageMaxCount && argv.imageMaxCount != 'null' && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1;
@@ -37,6 +38,7 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimOrText, imageWaitTi
       findRegion = new Screen();
   }
   findRegion.setAutoWaitTimeout(java.newFloat(myImageWaitTime));
+  findRegion.setWaitScanRate(java.newFloat(imageScanRate));
 
   try {
     const Region = sikulixapi.Region;
@@ -89,7 +91,7 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimOrText, imageWaitTi
       returnArray.push(notFoundStatus)
      } else {
       // process imageAction if any
-      if (imageAction && imageAction != 'none' && imageAction != 'null') {
+      if (imageAction && imageAction != 'none') {
         for (i=0; i<returnArray.length; i++) {
           var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
           switch (imageAction) {
