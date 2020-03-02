@@ -30,7 +30,8 @@ module.exports = function() {
         // wait
         browser.pause(parsedWaitIntvSec*1000)
         // check
-        let lineArray = stripAnsi(myConsoleData[parsedConsoleName].stdout).split(/[\r\n]+/);
+        const lineArray = stripAnsi(myConsoleData[parsedConsoleName].stdout).split(/[\r\n]+/);
+        browser_session.displayMessage(browser, lineArray.join('\n'));
         var lineText;
         switch(firstOrLast) {
           case 'first':

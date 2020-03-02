@@ -15,7 +15,7 @@ module.exports = function() {
       // get consoleData object set up by previous step
       browser.pause(500);
       const myConsoleData = this.myConsoleData;
-      let lineArray = stripAnsi(myConsoleData[parsedConsoleName].stdout).split(/[\r\n]+/);
+      const lineArray = stripAnsi(myConsoleData[parsedConsoleName].stdout).split(/[\r\n]+/);
       browser_session.displayMessage(browser, lineArray.join('\n'));
 
       var lineText;
