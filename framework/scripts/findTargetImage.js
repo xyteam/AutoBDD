@@ -36,10 +36,14 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimOrText, imageWaitTi
     default:
       const Screen = sikulixapi.Screen;
       findRegion = new Screen();
+      // Hover away the mouse from last action position to left top absolute position
+      const LeftTop = sikulixapi.Region(0,0);
+      if (imageAction && imageAction != 'none')
+        findRegion.mouseMove(LeftTop)
   }
   findRegion.setAutoWaitTimeout(java.newFloat(myImageWaitTime));
   findRegion.setWaitScanRate(java.newFloat(imageScanRate));
-
+  
   try {
     const Region = sikulixapi.Region;
     var find_item;
