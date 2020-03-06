@@ -15,7 +15,6 @@ module.exports = function() {
 
       // get consoleData object set up by previous step
       const myConsoleData = this.myConsoleData;
-
       // prepare wait and timeout condition
       var boolFalseState = !!falseState;
       var keepWaiting = true;
@@ -30,9 +29,9 @@ module.exports = function() {
         // wait
         browser.pause(myWaitIntvSec*1000)
         // check
-        const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
-        // flush
-        myConsoleData[myConsoleName].stdout = '';
+        // only keep 10k text
+        const myReadIndex = Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240;
+        const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout.slice(myReadIndex)).split(/[\r\n]+/);
         this.browser_session.displayMessage(browser, lineArray.join('\n'));
         var lineText;
         switch(firstOrLast) {
