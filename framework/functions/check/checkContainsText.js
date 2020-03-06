@@ -20,7 +20,7 @@ module.exports = (elementType, element, falseCase, expectedText) => {
      * The expected text to validate against
      * @type {String}
      */
-    var parsedExpectedText = parseExpectedText(expectedText);
+    var myExpectedText = parseExpectedText(expectedText);
 
     /**
      * The command to perform on the browser object
@@ -48,15 +48,15 @@ module.exports = (elementType, element, falseCase, expectedText) => {
     const text = browser[command](parsedElement);
 
     if (typeof expectedText === 'undefined') {
-        parsedExpectedText = falseCase;
+        myExpectedText = falseCase;
         boolFalseCase = false;
     } else {
         boolFalseCase = (falseCase === ' not');
     }
 
     if (boolFalseCase) {
-        expect(text).not.toContain(parsedExpectedText);
+        expect(text).not.toContain(myExpectedText);
     } else {
-        expect(text).toContain(parsedExpectedText);
+        expect(text).toContain(myExpectedText);
     }
 };

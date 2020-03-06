@@ -6,7 +6,7 @@ module.exports = function() {
     {timeout: process.env.StepTimeoutInMS},
     function (firstOrLast, lineCount, targetName, targetType, falseCase, compareAction, expectType, expectedText) {
       const parsedTargetName = parseExpectedText(targetName);
-      const parsedExpectedText = parseExpectedText(expectedText);
+      const myExpectedText = parseExpectedText(expectedText);
       browser.pause(500);
 
       var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
@@ -14,7 +14,7 @@ module.exports = function() {
         case 'area':
           imagePathList = parsedTargetName;
           imageScore = 1;
-          maxSimilarityOrText = (expectType == 'text') ? parsedExpectedText : 1;
+          maxSimilarityOrText = (expectType == 'text') ? myExpectedText : 1;
           break;
         case 'image':
         default:
@@ -48,23 +48,23 @@ module.exports = function() {
         switch (compareAction) {
           case 'contain':
             expect(lineText).not.toContain(
-              parsedExpectedText,
+              myExpectedText,
               `target image text should not contain the ${expectType} ` +
-              `"${parsedExpectedText}"`
+              `"${myExpectedText}"`
             );        
             break;
           case 'equal':
             expect(lineText).not.toEqual(
-              parsedExpectedText,
+              myExpectedText,
               `target image text should not equal the ${expectType} ` +
-              `"${parsedExpectedText}"`
+              `"${myExpectedText}"`
             );        
             break;
           case 'match':
               expect(lineText.toLowerCase()).not.toMatch(
-                parsedExpectedText.toLowerCase(),
+                myExpectedText.toLowerCase(),
                 `target image text should match the ${expectType} ` +
-                `"${parsedExpectedText}"`
+                `"${myExpectedText}"`
               );        
             break;
           default:
@@ -74,23 +74,23 @@ module.exports = function() {
         switch (compareAction) {
             case 'contain':
               expect(lineText).toContain(
-                parsedExpectedText,
+                myExpectedText,
                 `target image text should contain the ${expectType} ` +
-                `"${parsedExpectedText}"`
+                `"${myExpectedText}"`
               );        
               break;
           case 'equal':
               expect(lineText).toEqual(
-                parsedExpectedText,
+                myExpectedText,
                 `target image text should equal the ${expectType} ` +
-                `"${parsedExpectedText}"`
+                `"${myExpectedText}"`
               );        
               break;
             case 'match':
               expect(lineText.toLowerCase()).toMatch(
-                parsedExpectedText.toLowerCase(),
+                myExpectedText.toLowerCase(),
                 `target image text should match the ${expectType} ` +
-                `"${parsedExpectedText}"`
+                `"${myExpectedText}"`
               );        
               break;
             default:

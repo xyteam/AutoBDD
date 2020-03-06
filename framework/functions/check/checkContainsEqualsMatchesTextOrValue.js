@@ -21,7 +21,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
      * The expected text to validate against
      * @type {String}
      */
-    var parsedExpectedText = parseExpectedText(expectedText);
+    var myExpectedText = parseExpectedText(expectedText);
 
     /**
      * The command to execute on the browser object
@@ -41,13 +41,13 @@ module.exports = (element, falseCase, action, type, expectedText) => {
     let boolFalseCase = !!falseCase;
 
     // Check for empty element
-    if (typeof parsedExpectedText === 'function') {
-        parsedExpectedText = '';
+    if (typeof myExpectedText === 'function') {
+        myExpectedText = '';
         boolFalseCase = !boolFalseCase;
     }
 
-    if (typeof parsedExpectedText === 'undefined' && typeof falseCase === 'undefined') {
-        parsedExpectedText = '';
+    if (typeof myExpectedText === 'undefined' && typeof falseCase === 'undefined') {
+        myExpectedText = '';
         boolFalseCase = true;
     }
 
@@ -59,25 +59,25 @@ module.exports = (element, falseCase, action, type, expectedText) => {
             case 'contain':
             case 'contains':
                 expect(retrivedValue).not.toContain(
-                    parsedExpectedText,
+                    myExpectedText,
                     `element "${parsedElement}" should not contain ${type} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'equal':
             case 'equals':
                 expect(retrivedValue).not.toEqual(
-                    parsedExpectedText,
+                    myExpectedText,
                     `element "${parsedElement}" should not equal ${type} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'match':
             case 'matches':
                 expect(retrivedValue).not.toMatch(
-                    parsedExpectedText,
+                    myExpectedText,
                     `element "${parsedElement}" should not match ${type} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             default:
@@ -88,25 +88,25 @@ module.exports = (element, falseCase, action, type, expectedText) => {
             case 'contain':
             case 'contains':
                 expect(retrivedValue).toContain(
-                    parsedExpectedText,
+                    myExpectedText,
                     `element "${parsedElement}" should contain ${type} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'equal':
             case 'equals':
                 expect(retrivedValue).toEqual(
-                    parsedExpectedText,
+                    myExpectedText,
                     `element "${parsedElement}" should equal ${type} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'match':
             case 'matches':
                 expect(retrivedValue).toMatch(
-                    parsedExpectedText,
+                    myExpectedText,
                     `element "${parsedElement}" should match ${type} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             default:

@@ -7,9 +7,9 @@ module.exports = function() {
     function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, targetType, falseState, expectType, expectedText) {
       // parse input
       const parsedTargetName = parseExpectedText(targetName);
-      const parsedExpectedText = parseExpectedText(expectedText);
-      const parsedWaitTimeoutMnt = parseInt(waitTimeoutMnt) || 1;
-      const parsedWaitIntvSec = parseInt(waitIntvSec) || 15;
+      const myExpectedText = parseExpectedText(expectedText);
+      const myWaitTimeoutMnt = parseInt(waitTimeoutMnt) || 1;
+      const myWaitIntvSec = parseInt(waitIntvSec) || 15;
 
       // process target before check
       var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
@@ -17,7 +17,7 @@ module.exports = function() {
         case 'area':
           imagePathList = parsedTargetName;
           imageScore = 1;
-          maxSimilarityOrText = parsedExpectedText;
+          maxSimilarityOrText = myExpectedText;
           break;
         case 'image':
         default:
@@ -32,15 +32,15 @@ module.exports = function() {
       var keepWaiting = true;
       var timeOut = false;
       var handle = setInterval(() => {
-        console.log(`wait timeout: ${targetName}, ${parsedWaitTimeoutMnt} minute(s)`);
+        console.log(`wait timeout: ${targetName}, ${myWaitTimeoutMnt} minute(s)`);
         timeOut = true;
-      }, parsedWaitTimeoutMnt*60*1000);
+      }, myWaitTimeoutMnt*60*1000);
 
       // wait and check loop
       var screenFindResult;
       do {
         // wait
-        browser.pause(parsedWaitIntvSec*1000)
+        browser.pause(myWaitIntvSec*1000)
         // check
         screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
         let lineArray = screenFindResult[0].text;
@@ -58,12 +58,12 @@ module.exports = function() {
         }
         switch (expectType) {
           case 'regex':
-            let myRegex = new RegExp(parsedExpectedText, 'i');
+            let myRegex = new RegExp(myExpectedText, 'i');
             keepWaiting = !lineText.match(myRegex);
             break;
           case 'text':
           default:
-            keepWaiting = !lineText.includes(parsedExpectedText);
+            keepWaiting = !lineText.includes(myExpectedText);
             break;
         }
         if (boolFalseState) {
@@ -71,7 +71,7 @@ module.exports = function() {
         }
         // loop decision
         console.log(`lineText: ${lineText}`);
-        console.log(`expectedText: ${parsedExpectedText}`);
+        console.log(`expectedText: ${myExpectedText}`);
         console.log(`keepWaiting: ${keepWaiting}`);
       } while (keepWaiting && !timeOut)
 

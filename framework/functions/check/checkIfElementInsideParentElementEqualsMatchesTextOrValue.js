@@ -28,7 +28,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
      * The expected text to validate against
      * @type {String}
      */
-    var parsedExpectedText = parseExpectedText(expectedText);
+    var myExpectedText = parseExpectedText(expectedText);
 
     /**
      * Whether to check if the content equals the given text or not
@@ -37,13 +37,13 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     let boolFalseCase = !!falseCase;
 
     // Check for empty element
-    if (typeof parsedExpectedText === 'function') {
-        parsedExpectedText = '';
+    if (typeof myExpectedText === 'function') {
+        myExpectedText = '';
         boolFalseCase = !boolFalseCase;
     }
 
-    if (typeof parsedExpectedText === 'undefined' && typeof falseCase === 'undefined') {
-        parsedExpectedText = '';
+    if (typeof myExpectedText === 'undefined' && typeof falseCase === 'undefined') {
+        myExpectedText = '';
         boolFalseCase = true;
     }
 
@@ -64,25 +64,25 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
             case 'contain':
             case 'contains':
                 expect(retrivedValue).not.toContain(
-                    parsedExpectedText,
+                    myExpectedText,
                     `target element "${targetElement}" inside parent element "${parentElement}" should not contain ${targetType} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'equal':
             case 'equals':
                 expect(retrivedValue).not.toEqual(
-                    parsedExpectedText,
+                    myExpectedText,
                     `target element "${targetElement}" inside parent element "${parentElement}" should not equal ${targetType} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'match':
             case 'matches':
                 expect(retrivedValue).not.toMatch(
-                    parsedExpectedText,
+                    myExpectedText,
                     `target element "${targetElement}" inside parent element "${parentElement}" should not match ${targetType} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             default:
@@ -93,25 +93,25 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
             case 'contain':
             case 'contains':
                 expect(retrivedValue).toContain(
-                    parsedExpectedText,
+                    myExpectedText,
                     `target element "${targetElement}" inside parent element "${parentElement}" should contain ${targetType} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'equal':
             case 'equals':
                 expect(retrivedValue).toEqual(
-                    parsedExpectedText,
+                    myExpectedText,
                     `target element "${targetElement}" inside parent element "${parentElement}" should equal ${targetType} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'match':
             case 'matches':
                 expect(retrivedValue).toMatch(
-                    parsedExpectedText,
+                    myExpectedText,
                     `target element "${targetElement}" inside parent element "${parentElement}" should match ${targetType} ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             default:
