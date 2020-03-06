@@ -27,12 +27,12 @@ module.exports = function() {
 
       // wait and check loop
       do {
-        // flush
-        myConsoleData[myConsoleName].stdout = '';
         // wait
         browser.pause(myWaitIntvSec*1000)
         // check
         const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
+        // flush
+        myConsoleData[myConsoleName].stdout = '';
         this.browser_session.displayMessage(browser, lineArray.join('\n'));
         var lineText;
         switch(firstOrLast) {
