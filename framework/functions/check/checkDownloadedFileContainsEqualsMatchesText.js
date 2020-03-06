@@ -25,7 +25,7 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
      * The expected text to validate against
      * @type {String}
      */
-    var parsedExpectedText = parseExpectedText(expectedText);
+    var myExpectedText = parseExpectedText(expectedText);
 
     switch (myFileExt) {
         case 'pdf':
@@ -69,13 +69,13 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
     let boolFalseCase = !!falseCase;
 
     // Check for empty element
-    if (typeof parsedExpectedText === 'function') {
-        parsedExpectedText = '';
+    if (typeof myExpectedText === 'function') {
+        myExpectedText = '';
         boolFalseCase = !boolFalseCase;
     }
 
-    if (typeof parsedExpectedText === 'undefined' && typeof falseCase === 'undefined') {
-        parsedExpectedText = '';
+    if (typeof myExpectedText === 'undefined' && typeof falseCase === 'undefined') {
+        myExpectedText = '';
         boolFalseCase = true;
     }
 
@@ -84,25 +84,25 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
             case 'contain':
             case 'contains':
                 expect(readTargetContent).not.toContain(
-                    parsedExpectedText,
+                    myExpectedText,
                     `file "${fileName}" should not contain text ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'equal':
             case 'equals':
                 expect(readTargetContent).not.toEqual(
-                    parsedExpectedText,
+                    myExpectedText,
                     `file "${fileName}" should not equal text ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'match':
             case 'matches':
                 expect(readTargetContent).not.toMatch(
-                    parsedExpectedText,
+                    myExpectedText,
                     `file "${fileName}" should not match text ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             default:
@@ -113,25 +113,25 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
             case 'contain':
             case 'contains':
                 expect(readTargetContent).toContain(
-                    parsedExpectedText,
+                    myExpectedText,
                     `file "${fileName}" should contain text ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'equal':
             case 'equals':
                 expect(readTargetContent).toEqual(
-                    parsedExpectedText,
+                    myExpectedText,
                     `file "${fileName}" should equal text ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             case 'match':
             case 'matches':
                 expect(readTargetContent).toMatch(
-                    parsedExpectedText,
+                    myExpectedText,
                     `file "${fileName}" should match text ` +
-                    `"${parsedExpectedText}"`
+                    `"${myExpectedText}"`
                 );        
                 break;
             default:

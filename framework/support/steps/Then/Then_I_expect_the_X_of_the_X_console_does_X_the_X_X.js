@@ -9,13 +9,13 @@ module.exports = function() {
     {timeout: process.env.StepTimeoutInMS},
     function (firstOrLast, lineCount, consoleName, falseCase, compareAction, expectType, expectedText) {
       // parse input
-      const parsedConsoleName = parseExpectedText(consoleName);
-      const parsedExpectedText = parseExpectedText(expectedText);
+      const myConsoleName = parseExpectedText(consoleName);
+      const myExpectedText = parseExpectedText(expectedText);
 
       // get consoleData object set up by previous step
       browser.pause(500);
       const myConsoleData = this.myConsoleData;
-      const lineArray = stripAnsi(myConsoleData[parsedConsoleName].stdout).split(/[\r\n]+/);
+      const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
       browser_session.displayMessage(browser, lineArray.join('\n'));
 
       var lineText;
@@ -35,23 +35,23 @@ module.exports = function() {
         switch (compareAction) {
           case 'contain':
             expect(lineText).not.toContain(
-              parsedExpectedText,
+              myExpectedText,
               `console should not contain the ${expectType} ` +
-              `"${parsedExpectedText}"`
+              `"${myExpectedText}"`
             );        
             break;
           case 'equal':
             expect(lineText).not.toEqual(
-              parsedExpectedText,
+              myExpectedText,
               `console should not equal the ${expectType} ` +
-              `"${parsedExpectedText}"`
+              `"${myExpectedText}"`
             );        
             break;
           case 'match':
               expect(lineText.toLowerCase()).not.toMatch(
-                parsedExpectedText.toLowerCase(),
+                myExpectedText.toLowerCase(),
                 `console should match the ${expectType} ` +
-                `"${parsedExpectedText}"`
+                `"${myExpectedText}"`
               );        
             break;
           default:
@@ -61,23 +61,23 @@ module.exports = function() {
         switch (compareAction) {
             case 'contain':
               expect(lineText).toContain(
-                parsedExpectedText,
+                myExpectedText,
                 `console should contain the ${expectType} ` +
-                `"${parsedExpectedText}"`
+                `"${myExpectedText}"`
               );        
               break;
           case 'equal':
               expect(lineText).toEqual(
-                parsedExpectedText,
+                myExpectedText,
                 `console should equal the ${expectType} ` +
-                `"${parsedExpectedText}"`
+                `"${myExpectedText}"`
               );        
               break;
             case 'match':
               expect(lineText.toLowerCase()).toMatch(
-                parsedExpectedText.toLowerCase(),
+                myExpectedText.toLowerCase(),
                 `console should match the ${expectType} ` +
-                `"${parsedExpectedText}"`
+                `"${myExpectedText}"`
               );        
               break;
             default:

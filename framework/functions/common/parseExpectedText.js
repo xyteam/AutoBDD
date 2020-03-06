@@ -96,19 +96,19 @@ module.exports = (expectedText) => {
         return textArray.join('');
     }
 
-    var parsedExpectedText = expectedText || '';
+    var myExpectedText = expectedText || '';
     var loopCount = 2;
-    while ((parsedExpectedText.includes('ENV:') ||
-            parsedExpectedText.includes('VAR:') ||
-            parsedExpectedText.includes('Env{') ||
-            parsedExpectedText.includes('Var{')) &&
+    while ((myExpectedText.includes('ENV:') ||
+            myExpectedText.includes('VAR:') ||
+            myExpectedText.includes('Env{') ||
+            myExpectedText.includes('Var{')) &&
            loopCount > 0) {
         loopCount--;
         // console.log(loopCount);
-        parsedExpectedText = parsedExpectedText.includes('ENV:') ? parseENV(parsedExpectedText) : parsedExpectedText;
-        parsedExpectedText = parsedExpectedText.includes('VAR:') ? parseVAR(parsedExpectedText) : parsedExpectedText;
-        parsedExpectedText = parsedExpectedText.includes('Env{') ? parseEnv(parsedExpectedText) : parsedExpectedText;
-        parsedExpectedText = parsedExpectedText.includes('Var{') ? parseVar(parsedExpectedText) : parsedExpectedText;
+        myExpectedText = myExpectedText.includes('ENV:') ? parseENV(myExpectedText) : myExpectedText;
+        myExpectedText = myExpectedText.includes('VAR:') ? parseVAR(myExpectedText) : myExpectedText;
+        myExpectedText = myExpectedText.includes('Env{') ? parseEnv(myExpectedText) : myExpectedText;
+        myExpectedText = myExpectedText.includes('Var{') ? parseVar(myExpectedText) : myExpectedText;
     }
-    return parsedExpectedText;
+    return myExpectedText;
 };

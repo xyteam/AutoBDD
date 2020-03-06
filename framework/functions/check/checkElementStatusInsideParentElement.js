@@ -29,8 +29,8 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     let boolFalseCase = !!falseCase;
 
     // Check for empty element
-    if (typeof parsedExpectedText === 'function') {
-        parsedExpectedText = '';
+    if (typeof myExpectedText === 'function') {
+        myExpectedText = '';
         boolFalseCase = !boolFalseCase;
     }
 
