@@ -2,7 +2,9 @@
 
 // jvm property
 const java = require('java');
-java.options.push('-Xmx1024m');
+java.options.push('-Xmx256m');
+java.options.push('-Xms16m');
+java.options.push('-Xss2m');
 
 // use xysikulixapi property
 const sikulixapi = require('xysikulixapi');
@@ -36,10 +38,14 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimOrText, imageWaitTi
     default:
       const Screen = sikulixapi.Screen;
       findRegion = new Screen();
+      // Hover away the mouse from last action position to left top absolute position
+      const LeftTop = sikulixapi.Region(0,0);
+      if (imageAction && imageAction != 'none')
+        findRegion.mouseMove(LeftTop)
   }
   findRegion.setAutoWaitTimeout(java.newFloat(myImageWaitTime));
   findRegion.setWaitScanRate(java.newFloat(imageScanRate));
-
+  
   try {
     const Region = sikulixapi.Region;
     var find_item;
