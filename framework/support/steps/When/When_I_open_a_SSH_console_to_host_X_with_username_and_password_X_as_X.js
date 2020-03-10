@@ -1,6 +1,6 @@
 const cmdline_session = require(process.env.FrameworkPath + '/framework/libs/cmdline_session.js');
 const parseExpectedText = require(process.env.FrameworkPath + '/framework/functions/common/parseExpectedText.js');
-
+const keycode = require('keycode');
 module.exports = function() {
     this.When(
         /^I open a SSH console to the host "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
@@ -26,6 +26,8 @@ module.exports = function() {
           this.myConsoles[consoleName] = myConsole;
           this.myConsoleData = {};
           this.myConsoleData[consoleName] = myConsoleData;
+          myConsole.stdin.write(keycode('enter'));
         }
     );
 }
+
