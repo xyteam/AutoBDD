@@ -2,9 +2,6 @@
 
 // jvm property
 const java = require('java');
-java.options.push('-Xmx256m');
-java.options.push('-Xms16m');
-java.options.push('-Xss2m');
 
 // use xysikulixapi property
 const sikulixapi = require('xysikulixapi');
