@@ -5,7 +5,7 @@ const stripAnsi = require('strip-ansi');
 module.exports = function() {
   this.When(
     /^I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" console to( not)* display the (text|regex) "(.*)?"$/,
-    {timeout: 30*60*1000},
+    {timeout: 60*60*1000},
     function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, consoleName, falseState, expectType, expectedText) {
       // parse input
       const myConsoleName = parseExpectedText(consoleName);
