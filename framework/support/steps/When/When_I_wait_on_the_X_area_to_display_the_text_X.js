@@ -3,7 +3,7 @@ const parseExpectedText = require(FrameworkPath + '/framework/functions/common/p
 module.exports = function() {
   this.When(
     /^I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" (image|area) to( not)* display the (text|regex) "(.*)?"$/,
-    {timeout: 15*60*1000},
+    {timeout: 60*60*1000},
     function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, targetType, falseState, expectType, expectedText) {
       // parse input
       const parsedTargetName = parseExpectedText(targetName);
