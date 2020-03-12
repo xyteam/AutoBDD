@@ -1,6 +1,5 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
-const browser_session = require(process.env.FrameworkPath + '/framework/libs/browser_session.js');
 const stripAnsi = require('strip-ansi');
 
 module.exports = function() {
@@ -15,8 +14,9 @@ module.exports = function() {
       // get consoleData object set up by previous step
       browser.pause(500);
       const myConsoleData = this.myConsoleData;
-      const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
-      browser_session.displayMessage(browser, lineArray.join('\n'));
+      const myReadIndex = Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240;
+      const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout.slice(myReadIndex)).split(/[\r\n]+/);
+      this.browser_session.displayMessage(browser, lineArray.join('\n'));
 
       var lineText;
       switch(firstOrLast) {
