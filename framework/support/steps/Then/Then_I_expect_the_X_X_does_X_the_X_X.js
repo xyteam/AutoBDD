@@ -19,7 +19,11 @@ module.exports = function() {
         case 'image':
         default:
           [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedTargetName);
-          imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
+          if (['screen', 'console'].includes(imageFileName.toLowerCase())) {
+            imagePathList = imageFileName;
+          } else {
+            imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
+          }
           imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? this.lastImage.imageScore : imageSimilarity;
           screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
           break;
