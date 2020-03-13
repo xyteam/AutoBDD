@@ -6,7 +6,7 @@ const uuid = require('uuid-random');
 
 const argv = require('minimist')(process.argv.slice(2));
 const imagePath = (argv.imagePath && argv.imagePath != 'null' && argv.imagePath != 'undefined') ? argv.imagePath : `/tmp/${uuid()}.png`;
-const saveScreenCmd = `import -display + ${process.env.DISPLAY} -window root ${imagePath}`;
+const saveScreenCmd = `import -display ${process.env.DISPLAY} -window root ${imagePath}`;
 const getTextCmd = `tesseract ${imagePath} -`;
 
 if (!argv.imagePath || argv.onArea == 'onScreen') execSync(saveScreenCmd, {shell: '/bin/bash'})
