@@ -66,7 +66,7 @@ module.exports = {
         args: [
           "--disable-infobars",
           "--no-first-run",
-          "--bypass-app-banner-engagement-checks",
+          // "--bypass-app-banner-engagement-checks",
           "--disable-gpu",
           "--no-sandbox",
           "--dbus-stub",
