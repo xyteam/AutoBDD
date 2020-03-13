@@ -9,3 +9,4 @@ Feature: test images
     And   I scroll to the element "#logo"
     Then  I should see the "chromeLogo" image on the screen
     And   I expect that the "chromeLogo" image does contain the text "chrome"
+    And   I expect that the "Screen" area does contain the text "Official Build"
