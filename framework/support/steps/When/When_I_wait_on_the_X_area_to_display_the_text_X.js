@@ -16,8 +16,6 @@ module.exports = function() {
       switch (targetType) {
         case 'area':
           imagePathList = parsedTargetName;
-          imageScore = 1;
-          maxSimilarityOrText = myExpectedText;
           break;
         case 'image':
         default:
@@ -42,7 +40,15 @@ module.exports = function() {
         // wait
         browser.pause(myWaitIntvSec*1000)
         // check
-        screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
+        switch (targetType) {
+          case 'area':
+            screenFindResult = JSON.parse(this.screen_session.screenGetText());
+            break;
+          case 'image':
+          default:
+            screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
+            break;
+        }
         let lineArray = screenFindResult[0].text;
         var lineText;
         switch(firstOrLast) {
