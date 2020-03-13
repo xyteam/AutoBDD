@@ -31,6 +31,7 @@ services:
     build:
       context: ~/Projects/AutoBDD
       dockerfile: docker/autobdd-run.dockerfile
+      shm_size: 128M
       args:
         AutoBDD_Ver: ${AutoBDD_Ver}
     image: "xyteam/autobdd-run:${AutoBDD_Ver}"
