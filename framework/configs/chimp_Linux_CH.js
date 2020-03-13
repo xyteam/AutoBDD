@@ -52,7 +52,8 @@ module.exports = {
   seleniumStandaloneOptions: {
     version: selenium_standalone_config.version,
     drivers: selenium_standalone_config.drivers,
-    baseURL: selenium_standalone_config.baseURL
+    baseURL: selenium_standalone_config.baseURL,
+    sessionTimeout: 4000 // more than 1 hour
   },
 
   // - - - - WEBDRIVER-IO  - - - -
@@ -65,7 +66,7 @@ module.exports = {
         args: [
           "--disable-infobars",
           "--no-first-run",
-          // "--bypass-app-banner-engagement-checks",
+          "--bypass-app-banner-engagement-checks",
           "--disable-gpu",
           "--no-sandbox",
           "--dbus-stub",

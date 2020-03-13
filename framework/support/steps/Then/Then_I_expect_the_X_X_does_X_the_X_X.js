@@ -10,20 +10,20 @@ module.exports = function() {
       browser.pause(500);
 
       var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
+      var screenFindResult
       switch (targetType) {
         case 'area':
           imagePathList = parsedTargetName;
-          imageScore = 1;
-          maxSimilarityOrText = (expectType == 'text') ? myExpectedText : 1;
+          screenFindResult = JSON.parse(this.screen_session.screenGetText());
           break;
         case 'image':
         default:
           [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedTargetName);
           imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
           imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? this.lastImage.imageScore : imageSimilarity;
+          screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
           break;
       }
-      const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
       let lineArray = screenFindResult[0].text;
       var lineText;
       switch(firstOrLast) {
@@ -31,7 +31,7 @@ module.exports = function() {
             lineText = lineArray.slice(0, lineCount).join('\n');
           break;
         case 'last':
-            lineText = lineArray.slice(lineArray.length - lineCount, lineArray.length).join('\n');
+            lineText = lineArray.slice(-lineCount, lineArray.length).join('\n');
           break;
         default:
           lineText = lineArray.join('\n');

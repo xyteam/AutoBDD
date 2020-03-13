@@ -4,7 +4,8 @@
   "description": "BDD Automaiton",
   "bin": {
     "autorunner.py": "./framework/scripts/autorunner.py",
-    "findTargetImage": "./framework/scripts/findTargetImage.js"
+    "findTargetImage": "./framework/scripts/findTargetImage.js",
+    "getImageText": "./framework/scripts/getImageText.js"
   },
   "main": "index.js",
   "dependencies": {
@@ -41,6 +42,7 @@
     "strip-ansi": "^6.0.0",
     "testrail-api": "^1.3.6",
     "url-parse": ">=1.4.7",
+    "uuid-random": "^1.3.0",
     "words-to-numbers": ">=1.5.1",
     "xlsx": ">=0.15.5",
     "xysikulixapi": "git+https://github.com/xyteam/xySikulixApi.git"

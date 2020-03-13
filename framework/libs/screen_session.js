@@ -110,6 +110,13 @@ module.exports = {
     return returnString;
   },
 
+  screenGetText: function() {
+    var runCommand = 'getImageText.js'
+    const outputString = execSync(runCommand).toString('utf8');
+    const returnString = outputString.substring(outputString.lastIndexOf('[{'), outputString.lastIndexOf('}]') + 2);
+    return returnString;
+  },
+
   keyTap: function(key, modifier) {
     const myKey = key || 'enter';
     if (modifier) {
