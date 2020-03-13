@@ -30,7 +30,7 @@ module.exports = function() {
         browser.pause(myWaitIntvSec*1000)
         // check
         // only keep 10k text
-        const myReadIndex = Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240;
+        const myReadIndex = ((Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240) > 0) ? Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240 : 0;
         const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout.slice(myReadIndex)).split(/[\r\n]+/);
         this.browser_session.displayMessage(browser, lineArray.join('\n'));
         var lineText;
