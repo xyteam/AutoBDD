@@ -19,7 +19,7 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A6DCF7707EBC211F &&
         alsa-utils \
         arc-theme \
         gnome-themes-standard \
-        lxde \
+        mate-desktop-environment-core \
         mesa-utils \
         openssh-server \
         vim-tiny \
