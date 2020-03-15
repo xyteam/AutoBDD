@@ -5,7 +5,7 @@
 # docker-compose run -d autobdd-run "--project=$BDD_PROJECT --parallel=1"
 # docker-compose logs -f autobdd-run
 
-FROM ubuntu:19.10
+FROM ubuntu:18.04
 USER root
 ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
@@ -28,13 +28,10 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         binutils \
         build-essential \
         default-jdk \
-        dirmngr \
         ffmpeg \
-        fonts-liberation \
         git \
         gpg-agent \
         imagemagick \
-        less \
         libappindicator3-1 \
         libatk-bridge2.0-0 \
         libgtk-3-0 \
@@ -46,25 +43,16 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         libpython3-stdlib \
         libxss1 \
         libxtst-dev \
-        locales \
-        lsof \
         net-tools \
         ntpdate \
         python3-dev \
         python3-pip \
-        python3-testresources \
         rdesktop \
         rsync \
         sshpass \
-        tdsodbc \
-        tree \
-        ubuntu-mate-core \
-        unixodbc \
-        unixodbc-dev \
         unzip \
         wmctrl \
         x11-xserver-utils \
-        xclip \
         xdg-utils \
         xdotool \
         xvfb \
@@ -80,9 +68,6 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     update-ca-certificates; \
 # final autoremove
     apt --purge autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold";
-
-# sudo issue workaround
-RUN echo "Set disable_coredump false" >> /etc/sudo.conf
 
 # install nodejs 10.x
 RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
