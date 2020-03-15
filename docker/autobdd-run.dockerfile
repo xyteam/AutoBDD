@@ -5,7 +5,7 @@
 # docker-compose run -d autobdd-run "--project=$BDD_PROJECT --parallel=1"
 # docker-compose logs -f autobdd-run
 
-FROM ubuntu:18.04
+FROM ubuntu:19.10
 USER root
 ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
@@ -48,16 +48,17 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         libxtst-dev \
         locales \
         lsof \
-        lubuntu-core \
         net-tools \
         ntpdate \
         python3-dev \
         python3-pip \
+        python3-testresources \
         rdesktop \
         rsync \
         sshpass \
         tdsodbc \
         tree \
+        ubuntu-mate-core \
         unixodbc \
         unixodbc-dev \
         unzip \
@@ -79,6 +80,9 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     update-ca-certificates; \
 # final autoremove
     apt --purge autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold";
+
+# sudo issue workaround
+RUN echo "Set disable_coredump false" >> /etc/sudo.conf
 
 # install nodejs 10.x
 RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
