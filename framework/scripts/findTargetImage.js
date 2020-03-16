@@ -27,6 +27,7 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimOrText, imageWaitTi
   // deal with tesseract-ocr issue
   process.env.LC_ALL = 'C';
   process.env.LC_CTYPE = 'C';
+  process.env.TESSDATA_PREFIX = '/usr/share/tesseract-ocr/4.00/tessdata';
 
   var findRegion;
   switch (onArea) {

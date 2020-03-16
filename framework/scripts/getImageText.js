@@ -7,7 +7,7 @@ const uuid = require('uuid-random');
 const argv = require('minimist')(process.argv.slice(2));
 const imagePath = (argv.imagePath && argv.imagePath != 'null' && argv.imagePath != 'undefined') ? argv.imagePath : `/tmp/${uuid()}.png`;
 const saveScreenCmd = `import -display ${process.env.DISPLAY} -window root ${imagePath}`;
-const getTextCmd = `LC_ALL=C LC_CTYPE=C tesseract ${imagePath} -`;
+const getTextCmd = `LC_ALL=C LC_CTYPE=C TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata tesseract ${imagePath} -`;
 
 if (!argv.imagePath || argv.onArea == 'onScreen') execSync(saveScreenCmd, {shell: '/bin/bash'})
 
