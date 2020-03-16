@@ -24,6 +24,9 @@ const findImage = (onArea, imagePath, imageSimilarity, maxSimOrText, imageWaitTi
   const myImageText = isNaN(maxSimOrText) ? maxSimOrText : '';
   const mySimilarityMax = (myImageText.length > 0) ? 1 : parseFloat(maxSimOrText);
   const myImageMaxCount = imageMaxCount || 1;
+  // deal with tesseract-ocr issue
+  process.env.LC_ALL = 'C';
+  process.env.LC_CTYPE = 'C';
 
   var findRegion;
   switch (onArea) {
