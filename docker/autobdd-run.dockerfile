@@ -28,13 +28,10 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         binutils \
         build-essential \
         default-jdk \
-        dirmngr \
         ffmpeg \
-        fonts-liberation \
         git \
         gpg-agent \
         imagemagick \
-        less \
         libappindicator3-1 \
         libatk-bridge2.0-0 \
         libgtk-3-0 \
@@ -46,9 +43,6 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         libpython3-stdlib \
         libxss1 \
         libxtst-dev \
-        locales \
-        lsof \
-        lubuntu-core \
         net-tools \
         ntpdate \
         python3-dev \
@@ -56,14 +50,9 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         rdesktop \
         rsync \
         sshpass \
-        tdsodbc \
-        tree \
-        unixodbc \
-        unixodbc-dev \
         unzip \
         wmctrl \
         x11-xserver-utils \
-        xclip \
         xdg-utils \
         xdotool \
         xvfb \
