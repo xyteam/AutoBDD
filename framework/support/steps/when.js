@@ -67,7 +67,7 @@ module.exports = function() {
     );
 
     this.When(
-        /^I pause for (\d+)ms$/,
+        /^I pause for (\d+)ms$/, {timeout: 3600*1000},
         pause
     );
 
