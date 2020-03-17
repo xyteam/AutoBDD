@@ -36,8 +36,7 @@ const frameworkHooks = {
   BeforeScenario: function(scenario) {
     var scenarioName = scenario.getName();
     browser.windowHandleMaximize();
-    // increase IE browser script execution time
-    if (process.env.BROWSER == 'IE') browser.timeouts('script', 60000);
+    browser.timeouts('script', 3600*1000);
     if (process.env.MOVIE == 1) framework_libs.startRecording(scenarioName);
   },
 
