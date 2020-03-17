@@ -14,8 +14,7 @@ module.exports = function() {
       // get consoleData object set up by previous step
       browser.pause(500);
       const myConsoleData = this.myConsoleData;
-      const myReadIndex = ((Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240) > 0) ? Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240 : 0;
-      const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout.slice(myReadIndex)).split(/[\r\n]+/);
+      const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
       this.browser_session.displayMessage(browser, lineArray.join('\n'));
 
       var lineText;
