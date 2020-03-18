@@ -22,40 +22,40 @@ module.exports = function () {
         targetLocation.y = (locationOne[0].center.y + locationTwo[0].center.y) / 2;
         switch (mouseAction) {
           case "hover":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             break;
           case "click":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             this.screen_session.mouseClick();
             break;
           case "rightClick":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             this.screen_session.mouseClick("right");
             break;
           case "doubleClick":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             this.screen_session.mouseClick("left", true);
             break;
           case "wave":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x - 5, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x + 5, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x - 50, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x + 50, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             break;
           case "shake":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y - 5);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y + 5);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y + 50);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             break;
           case "circle":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y - 5);
-            this.screen_session.moveMouseSmooth(targetLocation.x + 5, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y + 5);
-            this.screen_session.moveMouseSmooth(targetLocation.x - 5, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y - 5);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
+            this.screen_session.moveMouse(targetLocation.x + 50, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y + 50);
+            this.screen_session.moveMouse(targetLocation.x - 50, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             break;
         }
         break;
@@ -77,27 +77,27 @@ module.exports = function () {
             break;
           case "wave":
             screenFindResult = JSON.parse(this.screen_session.screenHoverImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x - 5, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x + 5, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x - 50, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x + 50, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
             break;
           case "shake":
             screenFindResult = JSON.parse(this.screen_session.screenHoverImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y - 5);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y + 5);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y - 50);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y + 50);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
             break;
           case "circle":
             screenFindResult = JSON.parse(this.screen_session.screenHoverImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y - 5);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x + 5, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y + 5);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x - 5, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y - 5);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y - 50);
+            this.screen_session.moveMouse(screenFindResult[0].center.x + 50, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y + 50);
+            this.screen_session.moveMouse(screenFindResult[0].center.x - 50, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y - 50);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
             break;
         }
         console.log(screenFindResult);
