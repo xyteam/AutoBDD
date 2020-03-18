@@ -163,6 +163,10 @@ module.exports = {
     robot.mouseToggle('up');
   },
 
+  moveMouse: function(xOffset, yOffset) {
+    robot.moveMouse(xOffset, yOffset);
+  },
+
   moveMouseSmooth: function(xOffset, yOffset) {
     robot.moveMouseSmooth(xOffset, yOffset);
   },
