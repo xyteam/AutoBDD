@@ -8,6 +8,11 @@ const Region = xysikulixapi.Region;
 const Screen = xysikulixapi.Screen;
 const Pattern = xysikulixapi.Pattern;
 
+// Tesseract-OCR Property
+process.env.LC_ALL = 'C';
+process.env.LC_CTYPE = 'C';
+process.env.TESSDATA_PREFIX = '/usr/share/tesseract-ocr/4.00/tessdata';
+
 const argv = require('minimist')(process.argv.slice(2));
 const imagePath = (argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen';
 const imageSimilarity = (argv.imageSimilarity != null && argv.imageSimilarity != 'undefined') ? argv.imageSimilarity : process.env.imageSimilarity || 0.8;
