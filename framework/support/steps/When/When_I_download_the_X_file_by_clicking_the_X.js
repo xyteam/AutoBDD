@@ -14,10 +14,10 @@ module.exports = function() {
     const imagePathListOne = this.fs_session.globalSearchImageList(__dirname, imageFileNameOne, imageFileExtOne);
 
     // shake mouse to induce the display of PDF download icon
-    this.screen_session.moveMouseSmooth(0, 0);
-    this.screen_session.moveMouseSmooth(100, 100);
-    this.screen_session.moveMouseSmooth(0, 0);
-    this.screen_session.moveMouseSmooth(100, 100);
+    this.screen_session.moveMouse(0, 0);
+    this.screen_session.moveMouse(100, 100);
+    this.screen_session.moveMouse(0, 0);
+    this.screen_session.moveMouse(100, 100);
     // click PDF download icon
     var screenActionResultOne;
     screenActionResultOne = JSON.parse(this.screen_session.screenClickImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
