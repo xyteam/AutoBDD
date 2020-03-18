@@ -24,7 +24,7 @@ module.exports = function() {
     expect(screenActionResultOne.length).not.toEqual(0, 'failed to click PDF download icon');
 
     // process FileSave_button
-    const parsedImageNameTwo = parseExpectedText('FileSave_button');
+    const parsedImageNameTwo = parseExpectedText('FileSave_button:save');
     const [imageFileNametwo, imageFileExtTwo, imageSimilarityTwo, maxSimilarityOrTextTwo] = this.fs_session.getTestImageParms(parsedImageNameTwo);
     const imagePathListTwo = this.fs_session.globalSearchImageList(__dirname, imageFileNametwo, imageFileExtTwo);
     // click FileSave_button
