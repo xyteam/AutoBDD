@@ -10,15 +10,18 @@ robot.setKeyboardDelay(50);
 const defaultCPM = process.env.robotDefaultCPM || 600;
 
 module.exports = {
-  runFindImage: function(onArea, imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount) {
+  runFindImage: function(imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount) {
+    const maxSimOrText = (maxSimilarityOrText && maxSimilarityOrText != 'null' && maxSimilarityOrText != 'undefined') ? maxSimilarityOrText : 1;
+    const maxSim = parseFloat(maxSimOrText) || 1;
+    const textHint = isNaN(maxSimOrText) ? maxSimOrText : '';
     var outputBuffer;
     var outputString;
     var returnVal;
     var runCommand = 'findTargetImage.js'
-                    + ' --onArea=' + onArea
                     + ' --imagePath=' + imagePath
                     + ' --imageSimilarity=' + imageSimilarity
-                    + ' --maxSimilarityOrText="' + maxSimilarityOrText + '"'
+                    + ' --maxSim=' + maxSim
+                    + ' --textHint="' + textHint + '"'
                     + ' --imageWaitTime=' + imageWaitTime
                     + ' --imageAction=' + imageAction
                     + ' --imageMaxCount=' + imageMaxCount;
@@ -35,7 +38,7 @@ module.exports = {
     return returnString;
   },
 
-  findImageFromList: function(onArea, imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount, listStrategy) {
+  findImageFromList: function(imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount, listStrategy) {
     // listStrategy to be one of:
     // firstMatch, //default
     // bestMatch,
@@ -46,7 +49,7 @@ module.exports = {
     if (typeof(imagePath) === 'object') {
       for (let singlePath of imagePath) {
         console.log(singlePath);
-        runResultString = this.runFindImage(onArea, singlePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
+        runResultString = this.runFindImage(singlePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
         if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
           runResultJson = JSON.parse(runResultString);
         }
@@ -60,7 +63,7 @@ module.exports = {
         }
       };
     } else {
-      runResultString = this.runFindImage(onArea, imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
+      runResultString = this.runFindImage(imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
       if (!runResultString.includes('notFound') && !runResultString.includes('execSyncError')) {
         runResultJson = JSON.parse(runResultString);
       }
@@ -76,37 +79,37 @@ module.exports = {
   },
 
   screenFindAllImages: function (imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount) {
-    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
+    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, imageAction, imageMaxCount);
     return returnString;
   },
 
   screenWaitImage: function (imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime) {
-    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, null, 1);
+    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, imageWaitTime, null, 1);
     return returnString;
   },
 
   screenFindImage: function (imagePath, imageSimilarity, maxSimilarityOrText) {
-    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, null, 1);
+    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, null, 1);
     return returnString;
   },
 
   screenHoverImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
-    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'hover', 1);
+    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, 'hover', 1);
     return returnString;
   },
 
   screenClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
-    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'single', 1);
+    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, 'single', 1);
     return returnString;
   },
 
   screenDoubleClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
-    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'double', 1);
+    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, 'double', 1);
     return returnString;
   },
 
   screenRightClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
-    const returnString = this.findImageFromList('onScreen', imagePath, imageSimilarity, maxSimilarityOrText, null, 'right', 1);
+    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, 'right', 1);
     return returnString;
   },
 
