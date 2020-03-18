@@ -2,27 +2,25 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function() {
   this.When(
-    /^I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" (image|area) to( not)* display the (text|regex) "(.*)?"$/,
+    /^I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" image|screen area) to( not)* display the (text|regex) "(.*)?"$/,
     {timeout: 60*60*1000},
-    function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, targetType, falseState, expectType, expectedText) {
+    function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, falseState, expectType, expectedText) {
       // parse input
-      const parsedTargetName = parseExpectedText(targetName);
       const myExpectedText = parseExpectedText(expectedText);
       const myWaitTimeoutMnt = parseInt(waitTimeoutMnt) || 1;
       const myWaitIntvSec = parseInt(waitIntvSec) || 15;
 
       // process target before check
       var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
-      switch (targetType) {
-        case 'area':
-          imagePathList = parsedTargetName;
-          break;
-        case 'image':
-        default:
-          [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedTargetName);
+      if (targetName) {
+        const parsedTargetName = parseExpectedText(targetName);
+        [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedTargetName);
+        if (imageFileName.includes('Screen')) {
+          imagePathList = imageFileName;
+        } else {
           imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
-          imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? this.lastImage.imageScore : imageSimilarity;
-          break;
+        }
+        imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? this.lastImage.imageScore : imageSimilarity;
       }
 
       // process wait and timeout condition
@@ -40,14 +38,10 @@ module.exports = function() {
         // wait
         browser.pause(myWaitIntvSec*1000)
         // check
-        switch (targetType) {
-          case 'area':
-            screenFindResult = JSON.parse(this.screen_session.screenGetText());
-            break;
-          case 'image':
-          default:
-            screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
-            break;
+        if (targetName) {
+          screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
+        } else {
+          screenFindResult = JSON.parse(this.screen_session.screenGetText());
         }
         let lineArray = screenFindResult[0].text;
         var lineText;
