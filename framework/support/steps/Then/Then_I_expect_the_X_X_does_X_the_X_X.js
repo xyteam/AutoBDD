@@ -18,7 +18,7 @@ module.exports = function() {
         } else {
           imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
         }
-        imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? this.lastImage.imageScore : imageSimilarity;
+        imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? (this.lastImage.imageScore - 0.000001) : imageSimilarity;
         screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
       } else {
         screenFindResult = JSON.parse(this.screen_session.screenGetText());
