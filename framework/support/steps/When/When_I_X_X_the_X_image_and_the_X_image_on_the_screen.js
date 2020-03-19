@@ -5,7 +5,12 @@ module.exports = function () {
     // re imageNameOne
     const parsedImageNameOne = parseExpectedText(imageNameOne);
     const [imageFileNameOne, imageFileExtOne, imageSimilarityOne, maxSimilarityOrTextOne] = this.fs_session.getTestImageParms(parsedImageNameOne);
-    const imagePathListOne = this.fs_session.globalSearchImageList(__dirname, imageFileNameOne, imageFileExtOne);
+    var imagePathListOne;
+    if (imageFileNameOne.includes('Screen')) {
+      imagePathListOne = imageFileNameOne;
+    } else {
+      imagePathListOne = this.fs_session.globalSearchImageList(__dirname, imageFileNameOne, imageFileExtOne);
+    }
     // re imageNameTwo
     const parsedImageNameTwo = parseExpectedText(imageNameTwo);
     const [imageFileNameTwo, imageFileExtTwo, imageSimilarityTwo, maxSimilarityOrTextTwo] = this.fs_session.getTestImageParms(parsedImageNameTwo);
