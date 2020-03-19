@@ -5,7 +5,7 @@ const execSync = require('child_process').execSync;
 
 // Robot Property
 robot.setXDisplayName(process.env.DISPLAY);
-robot.setMouseDelay(1000);
+robot.setMouseDelay(50);
 robot.setKeyboardDelay(50);
 const defaultCPM = process.env.robotDefaultCPM || 600;
 
@@ -156,7 +156,8 @@ module.exports = {
   },
 
   drag_and_drop(object, target) {
-    robot.moveMouseSmooth(object.x, object.y);
+    robot.setMouseDelay(1000);
+    robot.moveMouse(object.x, object.y);
     robot.mouseToggle('down');
     robot.dragMouse(object.x+10, object.y);
     robot.dragMouse(target.x-10, target.y);
