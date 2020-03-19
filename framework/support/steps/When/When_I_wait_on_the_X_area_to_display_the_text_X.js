@@ -20,7 +20,7 @@ module.exports = function() {
         } else {
           imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
         }
-        imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? this.lastImage.imageScore : imageSimilarity;
+        imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? (this.lastImage.imageScore - 0.000001) : imageSimilarity;
       }
 
       // process wait and timeout condition
