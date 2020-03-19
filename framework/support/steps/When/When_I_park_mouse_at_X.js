@@ -1,27 +1,39 @@
 module.exports = function() {
-  this.When(/^I (circle|expect|park|shake|wave) mouse at the (center|lowerLeft|lowerRight|previous|upperLeft|upperRight|\d+,\d+) position of the screen$/, {timeout: process.env.StepTimeoutInMS}, function (action, location) {
+  this.When(/^I (circle|click|expect|park|hover|shake|wave) mouse at the (center|centerLeft|centerRight|bottomCenter|bottomLeft|bottomRight|previous|topCenter|topLeft|topRight|\d+,\d+) position of the screen$/, {timeout: process.env.StepTimeoutInMS}, function (action, location) {
     const myDISPLAYSIZE = process.env.DISPLAYSIZE || '1920x1200';
     const [myScreenX, myScreenY] = myDISPLAYSIZE.split('x');
     var targetLocation = {x: 0, y: 0};
     switch (location) {
       case 'center':
         targetLocation = {x: myScreenX/2, y: myScreenY/2};
-        break;     
-      case 'lowerLeft':
-        targetLocation.y = myScreenY;
         break;
-      case 'lowerRight':
+      case 'centerLeft':
+        targetLocation = {x: 0, y: myScreenY/2};
+        break;
+      case 'centerRight':
+        targetLocation = {x: myScreenX, y: myScreenY/2};
+        break;
+      case 'bottomCenter':
+        targetLocation = {x: myScreenX/2, y: myScreenY};
+        break;
+      case 'bottomLeft':
+        targetLocation = {x: 0, y: myScreenY};
+        break;
+      case 'bottomRight':
         targetLocation = {x: myScreenX, y: myScreenY};
         break;
       case 'previous':
         const mousePos = JSON.parse(this.screen_session.getMousePos());
         targetLocation = {x: mousePos.x, y: mousePos.y};
         break;
-      case 'upperLeft':
+      case 'topCenter':
+        targetLocation = {x: myScreenX/2, y: 0};
+        break;
+      case 'topLeft':
         targetLocation = {x: 0, y: 0};
         break;
-      case 'upperRight':
-        targetLocation.x = myScreenX;
+      case 'topRight':
+        targetLocation = {x: myScreenX, y: 0};
         break;                                 
       default:
         [targetLocation.x, targetLocation.y] = location.split(',');
@@ -29,7 +41,6 @@ module.exports = function() {
     switch (action) {
       case "circle":
         const delta_50 =  50 / Math.sqrt(2);
-        this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
         this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
         this.screen_session.moveMouse(targetLocation.x + delta_50, targetLocation.y - delta_50);
         this.screen_session.moveMouse(targetLocation.x + 50, targetLocation.y);
@@ -39,8 +50,11 @@ module.exports = function() {
         this.screen_session.moveMouse(targetLocation.x - 50, targetLocation.y);
         this.screen_session.moveMouse(targetLocation.x - delta_50, targetLocation.y - delta_50);
         this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
-        this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
         break;
+      case 'click':
+        this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
+        this.screen_session.mouseClick('left');
+        break; 
       case 'expect':
         const mousePos = JSON.parse(this.screen_session.getMousePos());
         const deltaX = Math.abs(mousePos.x - targetLocation.x);
@@ -48,25 +62,25 @@ module.exports = function() {
         expect(deltaX).not.toBeGreaterThan(5);
         expect(deltaY).not.toBeGreaterThan(5);
         break;
-      case 'park':
-        console.log(`moving mouse to ${JSON.stringify(targetLocation)}`);
-        this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
+      case 'hover':
+        console.log(`hovering mouse to ${JSON.stringify(targetLocation)}`);
+        this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
         break;
+      case 'park':
+        console.log(`parking mouse to ${JSON.stringify(targetLocation)}`);
+        this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
+        break;    
       case "shake":
-        this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
         this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
         this.screen_session.moveMouse(targetLocation.x, targetLocation.y + 50);
         this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
         this.screen_session.moveMouse(targetLocation.x, targetLocation.y + 50);
-        this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
         break;
       case "wave":
-        this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
         this.screen_session.moveMouse(targetLocation.x - 50, targetLocation.y);
         this.screen_session.moveMouse(targetLocation.x + 50, targetLocation.y);
         this.screen_session.moveMouse(targetLocation.x - 50, targetLocation.y);
         this.screen_session.moveMouse(targetLocation.x + 50, targetLocation.y);
-        this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
         break;
     }
   });
