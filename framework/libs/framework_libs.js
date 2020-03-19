@@ -1,4 +1,3 @@
-const robot = require('robotjs');
 const fs = require('fs');
 const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
@@ -20,7 +19,6 @@ const myRELATIVEREPORTDIR = process.env.RELATIVEREPORTDIR;
 const myMODULE = process.env.ThisModule;
 
 // framework essential
-const FrameworkPath = process.env.FrameworkPath;
 const myBROWSER = process.env.BROWSER;
 const mySSHHOST = process.env.SSHHOST;
 const mySSHPORT = process.env.SSHPORT;
