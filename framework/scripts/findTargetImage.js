@@ -13,16 +13,17 @@ const Region = xysikulixapi.Region;
 const Screen = xysikulixapi.Screen;
 const Pattern = xysikulixapi.Pattern;
 const Settings = xysikulixapi.Settings;
+const Mouse = xysikulixapi.Mouse;
+const Button = xysikulixapi.Button;
 
 const argv = require('minimist')(process.argv.slice(2));
 const imagePath = (argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen';
 const imageSimilarity = (argv.imageSimilarity != null && argv.imageSimilarity != 'undefined') ? argv.imageSimilarity : process.env.imageSimilarity || 0.8;
-const imageWaitTime = (argv.imageWaitTime != null && argv.imageWaitTime != 'undefined') ? argv.imageWaitTime : process.env.imageWaitTime || 3;
+const imageWaitTime = (argv.imageWaitTime != null && argv.imageWaitTime != 'undefined') ? argv.imageWaitTime : process.env.imageWaitTime || 1;
 const imageAction = (argv.imageAction != null && argv.imageAction != 'undefined') ? argv.imageAction : 'none';
-const maxSimOrText = (argv.maxSimOrText && argv.maxSimOrText != 'null' && argv.maxSimOrText != 'undefined') ? argv.maxSimOrText : 1;
-const maxSim = parseFloat(maxSimOrText) || (argv.maxSim != null && argv.maxSim != 'undefined') ? argv.maxSim : 1;
+const maxSim = (argv.maxSim != null && argv.maxSim != 'undefined') ? argv.maxSim : 1;
 const textHint = (argv.textHint != null && argv.textHint != 'undefined') ? argv.textHint : '';
-const imageMaxCount = isNaN(maxSimOrText) ? maxSimOrText : (argv.imageMaxCount != null && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1 ;
+const imageMaxCount = (argv.imageMaxCount != null && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1;
 const notFoundStatus = {status: 'notFound'};
 
 const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount) => {
@@ -80,19 +81,26 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
           var mySettings = new Settings();
           switch (imageAction) {
             case 'single':
+            case 'click':
+              mySettings.ClickDelay = 0;
+              clickRegion.clickSync();
+              returnArray[i].clicked = returnArray[i].center;
+            break;
+            case 'hoverClick':
               clickRegion.hoverSync();
-              mySettings.ClickDelay = 0.05;
+              mySettings.ClickDelay = 0;
               clickRegion.clickSync();
               returnArray[i].clicked = returnArray[i].center;
             break;
             case 'double':
-              clickRegion.hoverSync();
+            case 'doubleClick':
+              mySettings.ClickDelay = 0;
               clickRegion.doubleClickSync();
               returnArray[i].clicked = returnArray[i].center;
             break;
             case 'right':
-              clickRegion.hoverSync();
-              mySettings.ClickDelay = 0.05;
+            case 'rightClick':
+              mySettings.ClickDelay = 0;
               clickRegion.rightClickSync();
               returnArray[i].clicked = returnArray[i].center;
             break;
