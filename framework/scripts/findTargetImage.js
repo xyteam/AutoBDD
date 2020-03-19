@@ -12,11 +12,12 @@ const xysikulixapi = require('xysikulixapi');
 const Region = xysikulixapi.Region;
 const Screen = xysikulixapi.Screen;
 const Pattern = xysikulixapi.Pattern;
+const Settings = xysikulixapi.Settings;
 
 const argv = require('minimist')(process.argv.slice(2));
 const imagePath = (argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen';
 const imageSimilarity = (argv.imageSimilarity != null && argv.imageSimilarity != 'undefined') ? argv.imageSimilarity : process.env.imageSimilarity || 0.8;
-const imageWaitTime = (argv.imageWaitTime != null && argv.imageWaitTime != 'undefined') ? argv.imageWaitTime : process.env.imageWaitTime || 1;
+const imageWaitTime = (argv.imageWaitTime != null && argv.imageWaitTime != 'undefined') ? argv.imageWaitTime : process.env.imageWaitTime || 3;
 const imageAction = (argv.imageAction != null && argv.imageAction != 'undefined') ? argv.imageAction : 'none';
 const maxSimOrText = (argv.maxSimOrText && argv.maxSimOrText != 'null' && argv.maxSimOrText != 'undefined') ? argv.maxSimOrText : 1;
 const maxSim = parseFloat(maxSimOrText) || (argv.maxSim != null && argv.maxSim != 'undefined') ? argv.maxSim : 1;
@@ -28,11 +29,11 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
   const myImageSimilarity = parseFloat(imageSimilarity);
   const myMaxSim = parseFloat(maxSim);
   const myTextHint = textHint;
-  const myImageWaitTime = parseFloat(imageWaitTime);
+  const myImageWaitTime = parseInt(imageWaitTime);
   const myImageMaxCount = imageMaxCount || 1;
 
   const findRegion = new Screen();
-  findRegion.setAutoWaitTimeout(myImageWaitTime);
+  // findRegion.setAutoWaitTimeout(java.newFloat(myImageWaitTime));
 
   try {
     var oneTarget;
@@ -76,9 +77,11 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
       if (imageAction && imageAction != 'none' && imageAction != 'null') {
         for (i=0; i<returnArray.length; i++) {
           var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
+          var mySettings = new Settings();
           switch (imageAction) {
             case 'single':
               clickRegion.hoverSync();
+              mySettings.ClickDelay = 0.05;
               clickRegion.clickSync();
               returnArray[i].clicked = returnArray[i].center;
             break;
@@ -89,6 +92,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
             break;
             case 'right':
               clickRegion.hoverSync();
+              mySettings.ClickDelay = 0.05;
               clickRegion.rightClickSync();
               returnArray[i].clicked = returnArray[i].center;
             break;
