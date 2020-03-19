@@ -99,17 +99,22 @@ module.exports = {
   },
 
   screenClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
-    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, 'single', 1);
+    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, 'click', 1);
+    return returnString;
+  },
+
+  screenHoverClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
+    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, 'hoverClick', 1);
     return returnString;
   },
 
   screenDoubleClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
-    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, 'double', 1);
+    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, 'doubleClick', 1);
     return returnString;
   },
 
   screenRightClickImage: function(imagePath, imageSimilarity, maxSimilarityOrText) {
-    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, 'right', 1);
+    const returnString = this.findImageFromList(imagePath, imageSimilarity, maxSimilarityOrText, null, 'rightClick', 1);
     return returnString;
   },
 
