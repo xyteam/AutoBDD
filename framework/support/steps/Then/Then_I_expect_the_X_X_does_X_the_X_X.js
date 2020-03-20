@@ -2,32 +2,28 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?(?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" (image|area) does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
+    /^I expect (?:that )?(?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" image|screen area) does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
     {timeout: process.env.StepTimeoutInMS},
-    function (firstOrLast, lineCount, targetName, targetType, falseCase, compareAction, expectType, expectedText) {
-      const parsedTargetName = parseExpectedText(targetName);
+    function (firstOrLast, lineCount, targetName, falseCase, compareAction, expectType, expectedText) {
       const myExpectedText = parseExpectedText(expectedText);
       browser.pause(500);
-
+      
       var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
       var screenFindResult
-      switch (targetType) {
-        case 'area':
-          imagePathList = parsedTargetName;
-          screenFindResult = JSON.parse(this.screen_session.screenGetText());
-          break;
-        case 'image':
-        default:
-          [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedTargetName);
-          if (['screen', 'console'].includes(imageFileName.toLowerCase())) {
-            imagePathList = imageFileName;
-          } else {
-            imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
-          }
-          imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? this.lastImage.imageScore : imageSimilarity;
-          screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
-          break;
+      if (targetName) {
+        const parsedTargetName = parseExpectedText(targetName);
+        [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedTargetName);
+        if (imageFileName.includes('Screen')) {
+          imagePathList = imageFileName;
+        } else {
+          imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
+        }
+        imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? (this.lastImage.imageScore - 0.000001) : imageSimilarity;
+        screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
+      } else {
+        screenFindResult = JSON.parse(this.screen_session.screenGetText());
       }
+
       let lineArray = screenFindResult[0].text;
       var lineText;
       switch(firstOrLast) {

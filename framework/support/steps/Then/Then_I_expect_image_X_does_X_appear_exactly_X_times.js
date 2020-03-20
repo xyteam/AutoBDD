@@ -10,7 +10,7 @@ module.exports = function() {
       const myCompareAction = compareAction || ((typeof falseCase == 'undefined') ? 'more than' : 'exactly');
       const [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedImageName);
       const imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
-      const expectedImageSimilarity = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
+      const expectedImageSimilarity = this.lastImage && this.lastImage.imageName == parsedImageName ? (this.lastImage.imageScore - 0.000001) : imageSimilarity;
       const expectedImageNumberMax = myExpectedNumber;
       const imageWaitTime = process.env.imageWaitTime;
       browser.pause(500);

@@ -1,11 +1,18 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 module.exports = function () {
-  this.When(/^I (click|rightClick|doubleClick|hover|wave|shake|circle) (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/, { timeout: process.env.StepTimeoutInMS }, function (mouseAction, targetType, imageNameOne, imageNameTwo) {
+  this.When(/^I (click|hoverClick|rightClick|doubleClick|hover|wave|shake|circle) (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/,
+  { timeout: process.env.StepTimeoutInMS },
+  function (mouseAction, targetType, imageNameOne, imageNameTwo) {
     // re imageNameOne
     const parsedImageNameOne = parseExpectedText(imageNameOne);
     const [imageFileNameOne, imageFileExtOne, imageSimilarityOne, maxSimilarityOrTextOne] = this.fs_session.getTestImageParms(parsedImageNameOne);
-    const imagePathListOne = this.fs_session.globalSearchImageList(__dirname, imageFileNameOne, imageFileExtOne);
+    var imagePathListOne;
+    if (imageFileNameOne.includes('Screen')) {
+      imagePathListOne = imageFileNameOne;
+    } else {
+      imagePathListOne = this.fs_session.globalSearchImageList(__dirname, imageFileNameOne, imageFileExtOne);
+    }
     // re imageNameTwo
     const parsedImageNameTwo = parseExpectedText(imageNameTwo);
     const [imageFileNameTwo, imageFileExtTwo, imageSimilarityTwo, maxSimilarityOrTextTwo] = this.fs_session.getTestImageParms(parsedImageNameTwo);
@@ -22,40 +29,40 @@ module.exports = function () {
         targetLocation.y = (locationOne[0].center.y + locationTwo[0].center.y) / 2;
         switch (mouseAction) {
           case "hover":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             break;
           case "click":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             this.screen_session.mouseClick();
             break;
           case "rightClick":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             this.screen_session.mouseClick("right");
             break;
           case "doubleClick":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             this.screen_session.mouseClick("left", true);
             break;
           case "wave":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x - 5, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x + 5, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x - 50, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x + 50, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             break;
           case "shake":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y - 5);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y + 5);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y + 50);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             break;
           case "circle":
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y - 5);
-            this.screen_session.moveMouseSmooth(targetLocation.x + 5, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y + 5);
-            this.screen_session.moveMouseSmooth(targetLocation.x - 5, targetLocation.y);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y - 5);
-            this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
+            this.screen_session.moveMouse(targetLocation.x + 50, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y + 50);
+            this.screen_session.moveMouse(targetLocation.x - 50, targetLocation.y);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
+            this.screen_session.moveMouse(targetLocation.x, targetLocation.y);
             break;
         }
         break;
@@ -69,6 +76,9 @@ module.exports = function () {
           case "click":
             screenFindResult = JSON.parse(this.screen_session.screenClickImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
             break;
+          case "hoverClick":
+            screenFindResult = JSON.parse(this.screen_session.screenHoverClickImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
+            break;
           case "rightClick":
             screenFindResult = JSON.parse(this.screen_session.screenRightClickImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
             break;
@@ -77,27 +87,27 @@ module.exports = function () {
             break;
           case "wave":
             screenFindResult = JSON.parse(this.screen_session.screenHoverImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x - 5, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x + 5, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x - 50, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x + 50, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
             break;
           case "shake":
             screenFindResult = JSON.parse(this.screen_session.screenHoverImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y - 5);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y + 5);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y - 50);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y + 50);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
             break;
           case "circle":
             screenFindResult = JSON.parse(this.screen_session.screenHoverImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y - 5);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x + 5, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y + 5);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x - 5, screenFindResult[0].center.y);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y - 5);
-            this.screen_session.moveMouseSmooth(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y - 50);
+            this.screen_session.moveMouse(screenFindResult[0].center.x + 50, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y + 50);
+            this.screen_session.moveMouse(screenFindResult[0].center.x - 50, screenFindResult[0].center.y);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y - 50);
+            this.screen_session.moveMouse(screenFindResult[0].center.x, screenFindResult[0].center.y);
             break;
         }
         console.log(screenFindResult);

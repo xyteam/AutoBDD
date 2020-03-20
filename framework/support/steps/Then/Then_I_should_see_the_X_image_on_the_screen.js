@@ -5,7 +5,7 @@ module.exports = function() {
     const parsedImageName = parseExpectedText(imageName);
     const [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedImageName);
     const imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
-    const imageScore = this.lastImage && this.lastImage.imageName == parsedImageName ? this.lastImage.imageScore : imageSimilarity;
+    const imageScore = this.lastImage && this.lastImage.imageName == parsedImageName ? (this.lastImage.imageScore - 0.000001) : imageSimilarity;
     browser.pause(500);
     var screenFindResult = JSON.parse(this.screen_session.screenFindAllImages(imagePathList, imageScore, maxSimilarityOrText));
     console.log(screenFindResult);
