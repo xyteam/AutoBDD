@@ -6,7 +6,8 @@ process.env.LC_CTYPE = 'C';
 process.env.TESSDATA_PREFIX = '/usr/share/tesseract-ocr/4.00/tessdata';
 
 const java = require('java');
-java.options.push('-Xmx128m');
+java.options.push('-Xms128m');
+java.options.push('-Xmx512m');
 const xysikulixapi = require('xysikulixapi');
 
 // Sikuli Property
@@ -85,19 +86,19 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
           switch (imageAction) {
             case 'single':
             case 'click':
-              if (process.env.DISPLAY.split(':')[1] < 9) {
-                clickRegion.clickSync();
-              } else {
+              if (process.env.DISPLAY.split(':')[1] > 9) {
                 clickRegion.doubleClickSync();
+              } else {
+                clickRegion.clickSync();
               }
               returnArray[i].clicked = returnArray[i].center;
             break;
             case 'hoverClick':
               clickRegion.hoverSync();
-              if (process.env.DISPLAY.split(':')[1] < 9) {
-                clickRegion.clickSync();
-              } else {
+              if (process.env.DISPLAY.split(':')[1] > 9) {
                 clickRegion.doubleClickSync();
+              } else {
+                clickRegion.clickSync();
               }
               returnArray[i].clicked = returnArray[i].center;
             break;
