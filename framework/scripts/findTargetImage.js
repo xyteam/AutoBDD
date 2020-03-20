@@ -6,6 +6,7 @@ process.env.LC_CTYPE = 'C';
 process.env.TESSDATA_PREFIX = '/usr/share/tesseract-ocr/4.00/tessdata';
 
 const java = require('java');
+java.options.push('-Xmx128m');
 const xysikulixapi = require('xysikulixapi');
 
 // Sikuli Property
@@ -34,7 +35,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
   const myImageMaxCount = imageMaxCount || 1;
 
   const findRegion = new Screen();
-  // findRegion.setAutoWaitTimeout(java.newFloat(myImageWaitTime));
+  findRegion.setAutoWaitTimeout(java.newFloat(myImageWaitTime));
 
   try {
     var oneTarget;
@@ -79,28 +80,34 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
         for (i=0; i<returnArray.length; i++) {
           var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
           var mySettings = new Settings();
+          mySettings.ClickDelay = 0;
+          clickRegion.mouseUpSync();
           switch (imageAction) {
             case 'single':
             case 'click':
-              mySettings.ClickDelay = 0;
-              clickRegion.clickSync();
+              if (process.env.DISPLAY.split(':')[1] < 9) {
+                clickRegion.clickSync();
+              } else {
+                clickRegion.doubleClickSync();
+              }
               returnArray[i].clicked = returnArray[i].center;
             break;
             case 'hoverClick':
               clickRegion.hoverSync();
-              mySettings.ClickDelay = 0;
-              clickRegion.clickSync();
+              if (process.env.DISPLAY.split(':')[1] < 9) {
+                clickRegion.clickSync();
+              } else {
+                clickRegion.doubleClickSync();
+              }
               returnArray[i].clicked = returnArray[i].center;
             break;
             case 'double':
             case 'doubleClick':
-              mySettings.ClickDelay = 0;
               clickRegion.doubleClickSync();
               returnArray[i].clicked = returnArray[i].center;
             break;
             case 'right':
             case 'rightClick':
-              mySettings.ClickDelay = 0;
               clickRegion.rightClickSync();
               returnArray[i].clicked = returnArray[i].center;
             break;
@@ -108,6 +115,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
               clickRegion.hoverSync();
             break;
           }
+          clickRegion.mouseUpSync();
         }  
       }
     }
