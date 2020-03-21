@@ -97,7 +97,8 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
             case 'hoverClick':
               clickRegion.hoverSync();
               if (process.env.DISPLAY.split(':')[1] > 9) {
-                clickRegion.doubleClickSync();
+                clickRegion.clickSync();
+                clickRegion.clickSync();
               } else {
                 clickRegion.clickSync();
               }
