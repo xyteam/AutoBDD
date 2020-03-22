@@ -82,7 +82,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
         for (i=0; i<returnArray.length; i++) {
           var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
           var mySettings = new Settings();
-          mySettings.ClickDelay = 0;
+          mySettings.ClickDelay = 0.1;
           clickRegion.mouseUpSync();
           switch (imageAction) {
             case 'single':
