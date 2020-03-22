@@ -3,7 +3,8 @@
 // Tesseract-OCR Property
 process.env.LC_ALL = 'C';
 process.env.LC_CTYPE = 'C';
-process.env.TESSDATA_PREFIX = '/usr/share/tesseract-ocr/4.00/tessdata';
+process.env.TESSDATA_PREFIX = process.env.TESSDATA_PREFIX || '/usr/share/tesseract-ocr/4.00/tessdata';
+process.env.OMP_THREAD_LIMIT = process.env.OMP_THREAD_LIMIT || 1;
 
 const java = require('java');
 java.options.push('-Xms128m');
@@ -81,7 +82,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
         for (i=0; i<returnArray.length; i++) {
           var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
           var mySettings = new Settings();
-          mySettings.ClickDelay = 0;
+          mySettings.ClickDelay = 0.1;
           clickRegion.mouseUpSync();
           switch (imageAction) {
             case 'single':
@@ -96,7 +97,8 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
             case 'hoverClick':
               clickRegion.hoverSync();
               if (process.env.DISPLAY.split(':')[1] > 9) {
-                clickRegion.doubleClickSync();
+                clickRegion.clickSync();
+                clickRegion.clickSync();
               } else {
                 clickRegion.clickSync();
               }

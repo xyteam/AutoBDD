@@ -1,6 +1,6 @@
 const execSync = require('child_process').execSync;
 const fs = require('fs');
-const cmd_get_screensize='xrandr --dryrun | grep "screen connected" | cut -d\+ -f1 | cut -d" " -f3';
+const cmd_get_screensize='xrandr --query | grep "screen connected" | cut -d\+ -f1 | cut -d" " -f3';
 process.env.PLATFORM = process.env.PLATFORM || 'Linux';
 process.env.BROWSER = process.env.BROWSER || 'CH';
 process.env.DISPLAYSIZE = process.env.DISPLAYSIZE || execSync(cmd_get_screensize).toString('utf8').trim();
@@ -10,6 +10,7 @@ process.env.REPORTDIR = process.env.REPORTDIR || '.';
 process.env.RELATIVEREPORTDIR = process.env.RELATIVEREPORTDIR || '.';
 process.env.MODULEPATH = process.env.MODULEPATH || '';
 process.env.DownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
+process.env.TESSDATA_PREFIX = '/usr/share/tesseract-ocr/4.00/tessdata';
 fs.existsSync(process.env.DownloadPathLocal) || fs.mkdirSync(process.env.DownloadPathLocal);
 
 process.env.imageSimilarity = process.env.imageSimilarity || 0.8;

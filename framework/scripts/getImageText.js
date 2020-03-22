@@ -3,7 +3,8 @@
 // Tesseract-OCR Property
 process.env.LC_ALL = 'C';
 process.env.LC_CTYPE = 'C';
-process.env.TESSDATA_PREFIX = '/usr/share/tesseract-ocr/4.00/tessdata';
+process.env.TESSDATA_PREFIX = process.env.TESSDATA_PREFIX || '/usr/share/tesseract-ocr/4.00/tessdata';
+process.env.OMP_THREAD_LIMIT = process.env.OMP_THREAD_LIMIT || 1;
 
 const fs = require('fs');
 const execSync = require('child_process').execSync;
@@ -12,7 +13,7 @@ const uuid = require('uuid-random');
 const argv = require('minimist')(process.argv.slice(2));
 const tmpImagePath = `/tmp/${uuid()}.png`;
 const saveScreenCmd = `import -display ${process.env.DISPLAY} -window root ${tmpImagePath}`;
-const getTextCmd = `LC_ALL=C LC_CTYPE=C TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata tesseract ${tmpImagePath} -`;
+const getTextCmd = `tesseract ${tmpImagePath} -`;
 
 if (argv.imagePath && argv.imagePath != 'null' && argv.imagePath != 'undefined') {
     fs.copyFileSync(argv.imagePath, tmpImagePath);
