@@ -81,37 +81,34 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
       if (imageAction && imageAction != 'none' && imageAction != 'null') {
         for (i=0; i<returnArray.length; i++) {
           var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
-          var mySettings = new Settings();
-          mySettings.ClickDelay = 0.1;
           clickRegion.mouseUpSync();
           switch (imageAction) {
             case 'single':
             case 'click':
               if (process.env.DISPLAY.split(':')[1] > 9) {
-                clickRegion.doubleClickSync();
+                clickRegion.doubleClick();
               } else {
-                clickRegion.clickSync();
+                clickRegion.click();
               }
               returnArray[i].clicked = returnArray[i].center;
             break;
             case 'hoverClick':
               clickRegion.hoverSync();
               if (process.env.DISPLAY.split(':')[1] > 9) {
-                clickRegion.clickSync();
-                clickRegion.clickSync();
+                clickRegion.doubleClick();
               } else {
-                clickRegion.clickSync();
+                clickRegion.click();
               }
               returnArray[i].clicked = returnArray[i].center;
             break;
             case 'double':
             case 'doubleClick':
-              clickRegion.doubleClickSync();
+              clickRegion.doubleClick();
               returnArray[i].clicked = returnArray[i].center;
             break;
             case 'right':
             case 'rightClick':
-              clickRegion.rightClickSync();
+              clickRegion.rightClick();
               returnArray[i].clicked = returnArray[i].center;
             break;
             case 'hover':
