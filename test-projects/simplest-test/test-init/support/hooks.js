@@ -32,5 +32,6 @@ module.exports = function() {
 
   this.After(function(scenario) {
     if (projectHooks) projectHooks.AfterScenarioResult(scenario);
+    browser.pause(1000);
   });
 }
