@@ -16,8 +16,8 @@ module.exports = (expectedText) => {
         for (i = 0; i < textArray.length; i++) {
             textArray[i] = textArray[i].startsWith('ENV:') ? eval('process.env.' + textArray[i].split(':')[1]) : textArray[i];
         }
-        // console.log(`ENV => ${textArray.join('')}`);
-        return textArray.join('');
+        // console.log(`ENV => ${textArray.join(' ')}`);
+        return textArray.join(' ');
     }
     // Env{MyEnv}
     const parseEnv = (text) => {
@@ -58,8 +58,8 @@ module.exports = (expectedText) => {
                 }
             }    
         }
-        // console.log(`VAR => ${textArray.join('')}`);
-        return textArray.join('');
+        // console.log(`VAR => ${textArray.join(' ')}`);
+        return textArray.join(' ');
     }
     // Var{MyVar}
     const parseVar = (text) => {
