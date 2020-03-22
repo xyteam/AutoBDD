@@ -22,7 +22,7 @@ const resizeScreenSize = require('../../functions/action/resizeScreenSize');
 
 module.exports = function() {
     this.Given(
-        /^I announce message: "([^"]*)?"$/,
+        /^I announce message(?: at (console|browser))?: "([^"]*)?"$/,
         announceMessage
     );
 
