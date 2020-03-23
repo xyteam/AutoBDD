@@ -23,6 +23,7 @@ const Pattern = xysikulixapi.Pattern;
 const Region = xysikulixapi.Region;
 const Settings = xysikulixapi.Settings;
 const Screen = xysikulixapi.Screen;
+OCR.globalOptionsSync().dataPath(process.env.TESSDATA_PREFIX);
 
 const argv = require('minimist')(process.argv.slice(2));
 const imagePath = (argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen';
@@ -35,7 +36,6 @@ const imageMaxCount = (argv.imageMaxCount != null && argv.imageMaxCount != 'unde
 const notFoundStatus = {status: 'notFound'};
 
 const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount) => {
-  OCR.globalOptions().dataPath(process.env.TESSDATA_PREFIX);
   const myImageSimilarity = parseFloat(imageSimilarity);
   const myMaxSim = parseFloat(maxSim);
   const myTextHint = textHint;
