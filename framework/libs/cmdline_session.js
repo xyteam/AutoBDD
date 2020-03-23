@@ -80,10 +80,10 @@ module.exports = {
     if (typeof(sshPass) != 'undefined') {
       process.env.SSHPASS = sshPass;
       mySshCommand = 'sshpass';
-      mySshArgs = '-e ssh ' + mySshLogin + ' -p ' + mySshPort + ' -o StrictHostKeyChecking=no -tt';
+      mySshArgs = '-e ssh ' + mySshLogin + ' -p ' + mySshPort + ' -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -tt';
     } else {
       mySshCommand = 'ssh';
-      mySshArgs = mySshLogin + ' -p ' + mySshPort + ' -o IdentityFile=' + myKeyFile + ' -o StrictHostKeyChecking=no -tt';
+      mySshArgs = mySshLogin + ' -p ' + mySshPort + ' -o IdentityFile=' + myKeyFile + ' -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -tt';
     }
     mySshArgsArray = mySshArgs.split(' ');
     const consoleSpawnOption = {
