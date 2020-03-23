@@ -1,0 +1,35 @@
+Notes for Windows 7-10:
+    1. For Windows 10 update to Version 1903, OS build 18362.476; Earlier Windows update to equivalent date.
+    2. Disable Hyper-V.
+    3. Enable Windows SymLink
+        Run gpedit.msc as Administrator
+            Computer configuration -> Windows Settings -> Security Settings -> Local Policies -> User Rights Assignment -> Create symbolic links
+            Confirm or Add:
+                Administrator
+                Local account and member of Administrators group
+        Run gpupdate /force
+    4. Enable VirtualBox SymLink
+        Run in Docker Quick Start terminal as Administrator
+        cd C:\Program Files\oracle\VirtualBox (or VirtualBox folder)
+            VBoxManage getextradata default enumerate
+        Confirm the below entry exists
+            Key: VBoxInternal2/SharedFolderEnableSymlinkCreate/c/Users, Value: 1
+        If the above entry does not exist, run command:
+            VBoxManage setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/c/Users 1
+    5. Reboot Windows
+    6. Add CPU and Memory to the default vm in VirtualBox:
+        Run in Docker Quick Start terminal as Administrator
+            docker-machine stop
+        Run VirtualBox application from Windows 10 desktop:
+            2 CPU with 3072 GB for system with 8 GB memory
+            4 CPU with 6144 GB for system with 16 GB memory
+            8 CPU with 10240 GB for system with 32 GB memory
+
+Note on docker-credentials-desktop not found:
+    1. download the latest windows version of Docker Credential Helpers https://github.com/docker/docker-credential-helpers/releases
+    2. copy docker-credentials-wincred.exe in your Docker Toolbox installation folder (usually C:\Program Files\Docker Toolbox)
+    3. rename docker-credentials-wincred.exe to docker-credential-desktop.exe
+
+Note on Windows docker-terminal:
+    When you run docker command inside Windows docker-terminal, you need to export USER.
+    export USER=$(whoami)
