@@ -83,7 +83,7 @@ module.exports = function () {
         break;
       case 'on':
       default:
-        var screenFindResult;
+        const screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
         var myTimesCount = timesCount || 1;
         while (myTimesCount > 0) {
           switch (mouseAction) {
