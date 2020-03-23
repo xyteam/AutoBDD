@@ -1,23 +1,28 @@
 #!/usr/bin/env node
 
+//use installed xysikulixapi
+const xysikulixapi = require('xysikulixapi');
+
 // Tesseract-OCR Property
 process.env.LC_ALL = 'C';
 process.env.LC_CTYPE = 'C';
 process.env.TESSDATA_PREFIX = process.env.TESSDATA_PREFIX || '/usr/share/tesseract-ocr/4.00/tessdata';
 process.env.OMP_THREAD_LIMIT = process.env.OMP_THREAD_LIMIT || 1;
 
+// java
 const java = require('java');
 java.options.push('-Xms128m');
 java.options.push('-Xmx512m');
-const xysikulixapi = require('xysikulixapi');
 
 // Sikuli Property
-const Region = xysikulixapi.Region;
-const Screen = xysikulixapi.Screen;
-const Pattern = xysikulixapi.Pattern;
-const Settings = xysikulixapi.Settings;
-const Mouse = xysikulixapi.Mouse;
+const App = xysikulixapi.App;
 const Button = xysikulixapi.Button;
+const Mouse = xysikulixapi.Mouse;
+const OCR = xysikulixapi.OCR;
+const Pattern = xysikulixapi.Pattern;
+const Region = xysikulixapi.Region;
+const Settings = xysikulixapi.Settings;
+const Screen = xysikulixapi.Screen;
 
 const argv = require('minimist')(process.argv.slice(2));
 const imagePath = (argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen';
@@ -30,6 +35,7 @@ const imageMaxCount = (argv.imageMaxCount != null && argv.imageMaxCount != 'unde
 const notFoundStatus = {status: 'notFound'};
 
 const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount) => {
+  OCR.globalOptions().dataPath(process.env.TESSDATA_PREFIX);
   const myImageSimilarity = parseFloat(imageSimilarity);
   const myMaxSim = parseFloat(maxSim);
   const myTextHint = textHint;
