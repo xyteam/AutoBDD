@@ -25,8 +25,11 @@ Notes for Windows 7-10:
             4 CPU with 6144 GB for system with 16 GB memory
             8 CPU with 10240 GB for system with 32 GB memory
 
-
 Note on docker-credentials-desktop not found:
     1. download the latest windows version of Docker Credential Helpers https://github.com/docker/docker-credential-helpers/releases
     2. copy docker-credentials-wincred.exe in your Docker Toolbox installation folder (usually C:\Program Files\Docker Toolbox)
     3. rename docker-credentials-wincred.exe to docker-credential-desktop.exe
+
+Note on Windows docker-terminal:
+    When you run docker command inside Windows docker-terminal, you need to export USER.
+    export USER=$(whoami)

@@ -14,6 +14,7 @@ Install docker-toolbox:
         Do Not install these components:
             Kitematic 0.17.7
             VirtualBox 5.2.20
+            
 Docker IP note:
     1. If you use docker-toolbox, when you bring up a container, your docker-machine IP may not be "127.0.0.1" (as other docker tool may be).
     2. Use docker-machine ip command to find out what your docker ip is, and apply this IP to docker commands that takes docker ip.
