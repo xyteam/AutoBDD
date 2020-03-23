@@ -1,0 +1,19 @@
+For systems without docker and docker-compose,
+Install docker and docker-compose supported by your system, or
+Install docker-toolbox:
+    1. Install VirtualBox
+        https://www.virtualbox.org/wiki/Downloads
+    2. Install VirtualBox Extension Pack v6.1.2 or corresponding version
+    3. Install docker-toolbox v19.03.1 or higher:
+        https://github.com/docker/toolbox/releases
+        Do Install these components:
+            docker 19.03.1
+            docker-machine 0.16.1
+            docker-compose 1.24.1
+            Boot2Docker ISO 19.03.1
+        Do Not install these components:
+            Kitematic 0.17.7
+            VirtualBox 5.2.20
+Docker IP note:
+    1. If you use docker-toolbox, when you bring up a container, your docker-machine IP may not be "127.0.0.1" (as other docker tool may be).
+    2. Use docker-machine ip command to find out what your docker ip is, and apply this IP to docker commands that takes docker ip.
