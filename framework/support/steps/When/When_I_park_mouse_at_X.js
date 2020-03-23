@@ -38,7 +38,7 @@ module.exports = function() {
         targetLocation = {x: myScreenX, y: 0};
         break;                                 
       default:
-        [targetLocation.x, targetLocation.y] = location.split(',');
+        [targetLocation.x, targetLocation.y] = screenLocation.split(',');
     }
     var myTimesCount = timesCount || 1;
     while (myTimesCount > 0) {
