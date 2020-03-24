@@ -8,7 +8,7 @@ module.exports = function() {
       // parse input
       const myExpectedText = parseExpectedText(expectedText);
       const myWaitTimeoutMnt = parseInt(waitTimeoutMnt) || 1;
-      const myWaitIntvSec = parseInt(waitIntvSec) || 15;
+      const myWaitIntvSec = parseInt(waitIntvSec) || 5;
 
       // process target before check
       var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;

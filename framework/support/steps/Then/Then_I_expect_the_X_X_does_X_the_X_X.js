@@ -9,7 +9,7 @@ module.exports = function() {
       browser.pause(500);
       
       var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
-      var screenFindResult
+      var screenFindResult;
       if (targetName) {
         const parsedTargetName = parseExpectedText(targetName);
         [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedTargetName);
