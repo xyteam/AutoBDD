@@ -2,6 +2,7 @@ const FrameworkPath = process.env.FrameworkPath;
 const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
+const changeBrowserZoom = require(FrameworkPath + '/framework/functions/action/changeBrowserZoom');
 
 const frameworkHooks = {
   BeforeFeature: function(feature) {
@@ -93,7 +94,9 @@ const frameworkHooks = {
     }
     
     // need to perform these steps before tear down RDP
-    screen_session.keyTap('0', 'control');
+    changeBrowserZoom(100);
+
+    // need this pause for screenshots to be renamed
     browser.pause(1000);
   },
 }
