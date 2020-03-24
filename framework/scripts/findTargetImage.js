@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-//use installed xysikulixapi
+// installed xysikulixapi
 const xysikulixapi = require('xysikulixapi');
 
 // Tesseract-OCR Property
@@ -25,6 +25,7 @@ const Settings = xysikulixapi.Settings;
 const Screen = xysikulixapi.Screen;
 OCR.globalOptionsSync().dataPath(process.env.TESSDATA_PREFIX);
 
+// process pargs
 const argv = require('minimist')(process.argv.slice(2));
 const imagePath = (argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen';
 const imageSimilarity = (argv.imageSimilarity != null && argv.imageSimilarity != 'undefined') ? argv.imageSimilarity : process.env.imageSimilarity || 0.8;
@@ -35,6 +36,7 @@ const textHint = (argv.textHint != null && argv.textHint != 'undefined') ? argv.
 const imageMaxCount = (argv.imageMaxCount != null && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1;
 const notFoundStatus = {status: 'notFound'};
 
+// defind findImage function
 const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount) => {
   const myImageSimilarity = parseFloat(imageSimilarity);
   const myMaxSim = parseFloat(maxSim);
@@ -131,5 +133,8 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
   }
   return JSON.stringify(returnArray);
 };
+
+// call findImage function
 const target_result = findImage(imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount);
+// display result to stdout
 console.log(`target_result: ${target_result}`);
