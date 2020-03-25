@@ -19,7 +19,24 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
 * Flexible - Runs on any local desktop, cloud system or CI/CD system, single thread or in parallel.
 * Easy-To-Use - Write test cases in plain English sentences, single command execution anywhere.
 
-### At a glance
+### AutoBDD Docker Images
+
+This project publishes two docker images :
+
+autobdd-run: AutoBDD running env. Run your BDD test anywhere (local desktop or cloud CI/CD).
+autobdd-dev: AutoBDD development env. Run this container on your PC to develop and run your BDD test locally.
+
+### Simple to use
+
+AutoBDD lets you focus on your test. You do not need to maintain the automation framework. Everything will workout for you automagically.
+
+Just download AutoBDD-example, rename it, and starting automating. This project pre-configured everything you need to download, run and use the two docker images.
+
+**[xyteam/AutoBDD-example](https://github.com/xyteam/AutoBDD-example)**
+
+### Under the hood:
+
+Anything mentioned you do not need to know for writting and running test with this framework, but knowing them will help you to write and run test with higher confidence.
 
 #### Platform:
 
@@ -55,20 +72,6 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
     * Jira
     * TestRail
     * TestLink
-
-### AutoBDD Docker Images
-
-This project publishes two docker images :
-
-autobdd-run: AutoBDD running env. Run your BDD test anywhere (local desktop or cloud CI/CD).
-autobdd-dev: AutoBDD development env. Run this container on your PC to develop and run your BDD test locally.
-
-### Simple to use
-
-AutoBDD lets you focus on your test. You do not need to maintain the automation framework. Everything will workout for you automagically.
-Just download AutoBDD-example, rename it, and starting automating. This project pre-configured everything you need to download, run and use the two docker images.
-
-**[xyteam/AutoBDD-example](https://github.com/xyteam/AutoBDD-example)**
 
 ### Special mentions
 
