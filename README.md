@@ -2,39 +2,25 @@
 
 ```
 mkdir -p ~/Projects; cd ~/Projects; \
-git clone https://github.com/xyteam/webtest-example.git; \
-cd webtest-example/docker; \
-docker-compose run --rm test-run "--tags @SmokeTest --movie=1"
+git clone https://github.com/xyteam/AutoBDD-example.git; \
+cd AutoBDD-example/docker; \
+docker-compose run --rm example-run "--tags @SmokeTest --movie=1"
 ```
-Open the HTML BDD test report in ~/Projects/webtest-example/bdd_reports/
+Open the HTML test report in ~/Projects/AutoBDD-example/bdd_reports/
+You will see BDD test report with screenshots and video.
 
 ## AutoBDD
+
 BDD Automation Framework
 
 Powerful, Flexible and Easy-to-Use BDD Automation Framework
 
-* Powerful - Automate anything you can see on a PC, local or remote, Web or non-Web
-* Flexible - Runs on any local desktop or cloud system, single thread or parallel
-* Easy-To-Use - Executabled docker, single command execution
-
-### Philosophy
-#### Low entry barriers
-
-  * **Given** any BDD test project
-  * **When**  you use the the AutoBDD framework
-  * **Then**  you can test anything on screen
-  * **And**   use over 150 pre-canned BDD test statements
-
-#### High capabilities
-
-  * **And** Your test project can:
-    * deploy anywhere
-    * run in parallel
-    * jenkins ready
-    * produce HTML test report with screenshots and movies
-    * import test results to TestRail
+* Powerful - Automate anything you can see and operate on any desktop, local or remote, Web or non-Web.
+* Flexible - Runs on any local desktop, cloud system or CI/CD system, single thread or in parallel.
+* Easy-To-Use - Write test cases in plain English sentences, single command execution anywhere.
 
 ### At a glance
+
 #### Platform:
 
   * Linux Base (Ubuntu 1804)
@@ -57,28 +43,35 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
   * Web Browser Libraries
     * webdriverio (js)
     * webdriver (java)
-  * Screen and Robot Libraries
-    * Sikulix (Screen)
+  * Screen, Keyboard and Mouse Libraries
+    * Sikulix (Screen and Text)
     * Robot-JS (Keyboard and Mouse)
+    * Tesseract-OCR (Image to Text)
   * Remote Access Libraries
     * CMD Shell
+    * SSH Console
     * File System
   * Easy 3rd Party Tools Integration
-    * Local Jenkins CI
-    * Jira/TestRail/TestLink
+    * Jira
+    * TestRail
+    * TestLink
 
-### Try out
+### AutoBDD Docker Images
 
-**[xyteam/webtest-example](https://github.com/xyteam/webtest-example)**
+This project publishes two docker images :
 
-### Build AutoBDD
-```
-cd docker
-docker-compose build autobdd-run
-docker-compose build autobdd-dev
-```
+autobdd-run: AutoBDD running env. Run your BDD test anywhere (local desktop or cloud CI/CD).
+autobdd-dev: AutoBDD development env. Run this container on your PC to develop and run your BDD test locally.
+
+### Simple to use
+
+AutoBDD lets you focus on your test. You do not need to maintain the automation framework. Everything will workout for you automagically.
+Just download AutoBDD-example, rename it, and starting automating. This project pre-configured everything you need to download, run and use the two docker images.
+
+**[xyteam/AutoBDD-example](https://github.com/xyteam/AutoBDD-example)**
 
 ### Special mentions
+
   * Demo-App application and Precanned Cucumber-JS Steps are taken from **[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)**
   * Image Regognizing library is taken from **[RaiMan/SikuliX1](https://github.com/RaiMan/SikuliX1)**
   * Keyboard and Mouse control library is taken from **[octalmage/robotjs](https://github.com/octalmage/robotjs)**
