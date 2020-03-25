@@ -23,14 +23,15 @@ Powerful, Flexible and Easy-to-Use BDD Automation Framework
 
 This project publishes two docker images :
 
-autobdd-run: AutoBDD running env. Run your BDD test anywhere (local desktop or cloud CI/CD).
-autobdd-dev: AutoBDD development env. Run this container on your PC to develop and run your BDD test locally.
+* autobdd-run - AutoBDD running env. Run your BDD test anywhere (local desktop or cloud CI/CD).
+
+* autobdd-dev - AutoBDD development env. Run this container on your PC to develop and run your BDD test locally.
 
 ### Simple to use
 
-AutoBDD lets you focus on your test. You do not need to maintain the automation framework. Everything will workout for you automagically.
+* AutoBDD lets you focus on your test. You do not need to maintain the automation framework. Everything will workout for you automagically.
 
-Just download AutoBDD-example, rename it, and starting automating. This project pre-configured everything you need to download, run and use the two docker images.
+* Just download AutoBDD-example, rename it, and starting automating. This project pre-configured everything you need to download, run and use the two docker images.
 
 **[xyteam/AutoBDD-example](https://github.com/xyteam/AutoBDD-example)**
 
