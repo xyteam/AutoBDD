@@ -1,11 +1,11 @@
 For systems without docker and docker-compose,
 Install docker and docker-compose supported by your system, or
 Install docker-toolbox:
-    1. Install VirtualBox
-        https://www.virtualbox.org/wiki/Downloads
-    2. Install VirtualBox Extension Pack v6.1.2 or corresponding version
+    1. Install VirtualBox v6.1.2 or higher:
+        https://www.virtualbox.org/wiki/Downloads.
+    2. Install VirtualBox Extension Pack v6.1.2 or corresponding version.
     3. Install docker-toolbox v19.03.1 or higher:
-        https://github.com/docker/toolbox/releases
+        https://github.com/docker/toolbox/releases,
         Do Install these components:
             docker 19.03.1
             docker-machine 0.16.1
@@ -16,7 +16,7 @@ Install docker-toolbox:
             VirtualBox 5.2.20 (already installed above)
 
 Notes on CPU and Memory for the default vm in VirtualBox:
-        Run in Docker Quick Start terminal as Administrator
+        Run in Docker Quick Start terminal as Administrator:
             docker-machine stop
         Run VirtualBox application from Windows 10 desktop:
             2 CPU with 3072 GB for system with 8 GB memory
