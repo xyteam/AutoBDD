@@ -63,6 +63,7 @@ module.exports = {
     var anyRegexWords = 'failed|rejected|unhandled|unauthorized|error|invalid';
     var msgRegex = RegExp(anyRegexWords);
     var targetLog = session.log('browser').value.filter(log => msgRegex.test(log.message.toLowerCase()) === true);
+    process.env.lastBrowserLog = targetLog;
     console.log(targetLog);
   },
   
