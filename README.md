@@ -25,7 +25,7 @@ This project publishes two docker images :
 
 * autobdd-run - AutoBDD running env. Run your BDD test anywhere (local desktop or cloud CI/CD).
 
-* autobdd-dev - AutoBDD development env. Run this container on your PC to develop and run your BDD test locally.
+* autobdd-dev - AutoBDD development env, and environment with GUI and all the automation tools pre-installed and pre-configured. It also pre-configured with your test development folders. You can update your test code in your own PC, and it will automatically reflected inside this container. Running your test inside this container allows you to visualize all aspect of your BDD test.
 
 ### Simple to use
 
