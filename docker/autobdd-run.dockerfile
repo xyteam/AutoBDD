@@ -27,6 +27,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         autofs \
         binutils \
         build-essential \
+        colorized-logs \
         default-jdk \
         ffmpeg \
         git \
