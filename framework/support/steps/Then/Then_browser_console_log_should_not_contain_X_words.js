@@ -7,7 +7,6 @@ module.exports = function() {
     const targetLogArray = (last) ? JSON.parse(process.env.LastBrowserLog) : browser.log('browser').value.filter(log => msgRegex.test(log.message.toLowerCase()) === true);
     process.env.LastBrowserLog = JSON.stringify(targetLogArray);
     console.log(process.env.LastBrowserLog);
-    this.browser_session.displayMessage(browser, process.env.LastBrowserLog);
     if (falseCase) {
       expect(targetLogArray.length).not.toBeGreaterThan(0);
     } else {
