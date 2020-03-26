@@ -1,5 +1,5 @@
 module.exports = function() {
-  this.Then(/^(the last )*browser console log should( not)* contain "([^"]*)" words$/,
+  this.Then(/^the( last)* browser console log should( not)* contain "([^"]*)" words$/,
   function (last, falseCase, regexWords) {
     const myRegexWords = regexWords.toLowerCase();
     const anyRegexWords = 'failed|rejected|unhandled|unauthorized|error|invalid';
