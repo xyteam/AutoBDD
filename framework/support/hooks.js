@@ -77,15 +77,16 @@ const frameworkHooks = {
       framework_libs.takeScreenshot(scenarioName);
     }
     
-    var image_tag, video_tag;
+    var image_tag, video_tag, runlog_tag;
     if (scenario.isSuccessful()) {
       framework_libs.renamePassedFailed(scenarioName, 'Passed');
-      [image_tag, video_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Passed');
+      [image_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Passed');
     } else {
       framework_libs.renamePassedFailed(scenarioName, 'Failed');
-      [image_tag, video_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Failed');
+      [image_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Failed');
     }
 
+    scenario.attach(runlog_tag, 'text/html');
     if (process.env.MOVIE == 1) {
       scenario.attach(image_tag, 'text/html');
       scenario.attach(video_tag, 'text/html');
