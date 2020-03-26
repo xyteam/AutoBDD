@@ -238,8 +238,10 @@ module.exports = {
     const scenario_base = this.getScenarioNameBase(scenarioName);
     const scenario_mp4 = scenario_base + '.mp4';
     const scenario_png = scenario_base + '.png';
-    const image_tag = '<img src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_png) + '"style="max-width: 100%; height: auto;" alt="' + scenarioResult + '_' + scenario_png + '">';
-    const video_tag = '<video src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_mp4) + '"style="max-width: 100%; height: auto;" controls poster="' + scenarioResult + '_' + scenario_png + '"/>Your browser does not support the video tag.</video>'; 
-    return [image_tag, video_tag];
+    const feature_runlog = process.env.RUNREPORT;
+    const image_tag = '<img src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_png) + '" style="max-width: 100%; height: auto;" alt="' + scenarioResult + '_' + scenario_png + '">';
+    const video_tag = '<video src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_mp4) + '" style="max-width: 100%; height: auto;" controls poster="' + scenarioResult + '_' + scenario_png + '"/>Your browser does not support the video tag.</video>'; 
+    const runlog_tag = '<a href="' + myRELATIVEREPORTDIR + '/' + feature_runlog + '.html" style="max-width: 100%; height: auto;"/>' + feature_runlog + '</a>';
+    return [image_tag, video_tag, runlog_tag];
   }
 }
