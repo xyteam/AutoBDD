@@ -91,10 +91,12 @@ def run_test(FrameworkPath,
                 ' DEBUGMODE=' + debugmode + \
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
+                ' RUNREPORT=' + os.path.basename(run_report) + \
                 ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args=\"-screen 0 ' + display_size + 'x24\"' + \
                 ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + feature_file + \
                 ' --plugin pretty --add-plugin json:' + run_result + \
-                ' 2>&1 > ' + run_report
+                ' 2>&1 > ' + run_report + ';' + \
+                ' cat ' + run_report + ' | ansi2html > ' + run_report + '.html'
         else: #isChimpy on Linux
             cmd = 'cd ' + module_full_path + ';' + \
                 ' PROJECTBASE=' + project_base + \
@@ -107,12 +109,13 @@ def run_test(FrameworkPath,
                 ' DEBUGMODE=' + debugmode + \
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
+                ' RUNREPORT=' + os.path.basename(run_report) + \
                 ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
                 ' chimpy ' + chimp_profile + ' ' + feature_file + \
                 ' --format=json:' + run_result + \
                 ' ' + argstring + \
-                ' 2>&1 > ' + run_report
-
+                ' 2>&1 > ' + run_report + ';' + \
+                ' cat ' + run_report + ' | ansi2html > ' + run_report + '.html'
     elif platform == 'Win7' or platform == 'Win10':
         if isMaven: #isMaven on Windows
             for rdp in host:
@@ -138,10 +141,12 @@ def run_test(FrameworkPath,
                         ' PLATFORM=' + platform + \
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
+                        ' RUNREPORT=' + os.path.basename(run_report) + \
                         ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
                         ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + feature_file + \
                         ' --plugin pretty --add-plugin json:' + run_result + \
-                        ' 2>&1 > ' + run_report
+                        ' 2>&1 > ' + run_report + ';' + \
+                        ' cat ' + run_report + ' | ansi2html > ' + run_report + '.html'
                     break
         else: #isChimpy on Windows
             for rdp in host:
@@ -166,11 +171,13 @@ def run_test(FrameworkPath,
                         ' PLATFORM=' + platform + \
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
+                        ' RUNREPORT=' + os.path.basename(run_report) + \
                         ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
                         ' chimpy ' + chimp_profile + ' ' + feature_file + \
                         ' --format=json:' + run_result + \
                         ' ' + argstring + \
-                        ' 2>&1 > ' + run_report
+                        ' 2>&1 > ' + run_report + ';' + \
+                        ' cat ' + run_report + ' | ansi2html > ' + run_report + '.html'
                     break
     else:
         assert False, 'Can not process on {}'.format(platform)
