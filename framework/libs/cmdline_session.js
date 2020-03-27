@@ -41,6 +41,10 @@ module.exports = {
     const mySshPort = sshPort || 22;
     const myKeyFile = sshKeyFile || process.env.HOME + '/.ssh/id_rsa';
     const myRunCommand = ' "' + runCommand + '"';
+
+    const mySshHost = sshLogin.split('@')[1];
+    this.correctHostKey(mySshHost);
+
     var mySshCommand;
     if (typeof(sshPass) != 'undefined') {
       process.env.SSHPASS = sshPass;
@@ -76,6 +80,10 @@ module.exports = {
     const mySshLogin = sshLogin || 'vagrant@localhost';
     const mySshPort = sshPort || 22;
     const myKeyFile = sshKeyFile || process.env.HOME + '/.ssh/id_rsa';
+
+    const mySshHost = sshLogin.split('@')[1];
+    this.correctHostKey(mySshHost);
+
     var mySshCommand, mySshArgs, mySshArgsArray;
     if (typeof(sshPass) != 'undefined') {
       process.env.SSHPASS = sshPass;
