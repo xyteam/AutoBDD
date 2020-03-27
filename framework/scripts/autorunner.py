@@ -501,8 +501,7 @@ class ChimpAutoRun:
                 hostinfo = item.strip().split()
                 if len(hostinfo) > 1:
                     hostdict = dict(zip(headarray, hostinfo))
-                    if hostdict[
-                            'Status'] == 'on':  # and hostdict['Platform'] == self.platform:
+                    if hostdict['Status'] == 'on':  # and hostdict['Platform'] == self.platform:
                         self.thread_count += int(hostdict['Thread'])
                         self.host.append(hostdict)
                         print(self.host)
