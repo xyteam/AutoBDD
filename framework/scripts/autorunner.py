@@ -307,7 +307,7 @@ def parse_arguments():
         "--project",
         "--PROJECT",
         dest="PROJECT",
-        default="simplest-test",
+        default="simple-test",
         help="Run chimp on the given project. Default value: webtest-example")
 
     parser.add_argument(

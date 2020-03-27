@@ -1,6 +1,6 @@
 # controls what test-projects to be included in the framework
 test-projects/*
-!test-projects/simplest-test/
+!test-projects/simple-test/
 
 # files to ignore
 *.run

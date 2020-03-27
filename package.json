@@ -48,9 +48,9 @@
     "xysikulixapi": "git+https://github.com/xyteam/xySikulixApi.git"
   },
   "scripts": {
-    "postinstall": ". .autoPathrc.sh; cd ./test-projects/simplest-test/test-init; chimpy",
-    "test-run": ". .autoPathrc.sh; rm -rf test-projects/simplest-test/bdd_reports/build-test; autorunner.py --project simplest-test --reportpath build-test --movie 1 --argstring '--tags ~@Init --tags ~@Report'; cat test-projects/simplest-test/bdd_reports/build-test/*/*.run",
-    "test-report": ". .autoPathrc.sh; cd ./test-projects/simplest-test/test-report; chimpy",
+    "postinstall": ". .autoPathrc.sh; cd ./test-projects/simple-test/test-init; chimpy",
+    "test-run": ". .autoPathrc.sh; rm -rf test-projects/simple-test/bdd_reports/build-test; autorunner.py --project simple-test --reportpath build-test --movie 1 --argstring '--tags ~@Init --tags ~@Report'; cat test-projects/simple-test/bdd_reports/build-test/*/*.run",
+    "test-report": ". .autoPathrc.sh; cd ./test-projects/simple-test/test-report; chimpy",
     "test": "npm run postinstall; npm run test-run; npm run test-report"
   },
   "repository": {
