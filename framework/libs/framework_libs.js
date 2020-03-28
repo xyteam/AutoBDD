@@ -235,9 +235,9 @@ module.exports = {
     const scenario_mp4 = scenario_base + '.mp4';
     const scenario_png = scenario_base + '.png';
     const feature_runlog = process.env.RUNREPORT;
-    const image_tag = '<img src="' + myRELATIVEREPORTDIR + '/' + filePrefix + '_' + encodeURIComponent(scenario_png) + '" style="max-width: 100%; height: auto;" alt="' + filePrefix + '_' + scenario_png + '">';
-    const video_tag = '<video src="' + myRELATIVEREPORTDIR + '/' + filePrefix + '_' + encodeURIComponent(scenario_mp4) + '" style="max-width: 100%; height: auto;" controls poster="' + filePrefix + '_' + scenario_png + '"/>Your browser does not support the video tag.</video>'; 
-    const runlog_tag = '<a href="' + myRELATIVEREPORTDIR + '/' + feature_runlog + '.html" style="max-width: 100%; height: auto;"/>' + feature_runlog + '</a>';
+    const image_tag = `<img src="${myRELATIVEREPORTDIR}/${filePrefix}_${encodeURIComponent(scenario_png)}" style="max-width: 100%; height: auto;" alt="${filePrefix}_${scenario_png}">`;
+    const video_tag = `<video src="${myRELATIVEREPORTDIR}/${filePrefix}_${encodeURIComponent(scenario_mp4)}" style="max-width: 100%; height: auto;" controls poster="${myRELATIVEREPORTDIR}/${filePrefix}_${scenario_png}"/>Your browser does not support the video tag.</video>`; 
+    const runlog_tag = `<a href="${myRELATIVEREPORTDIR}/${feature_runlog}.html" style="max-width: 100%; height: auto;"/>${feature_runlog}</a>`;
     return [image_tag, video_tag, runlog_tag];
   }
 }
