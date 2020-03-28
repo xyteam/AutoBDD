@@ -57,7 +57,7 @@ const frameworkHooks = {
     if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
     // start screenshot
     if ((process.env.SCREENSHOT == 2) && currentStepNumber == 1) {
-      framework_libs.takeScreenshot(currentScenarioName, 'BeforeScenario');
+      framework_libs.takeScreenshot(currentScenarioName, '', `step_${currentStepNumber}`);
     }
     if (process.env.BROWSERLOG == 1) {
       browser_session.showErrorLog(browser);
@@ -82,11 +82,11 @@ const frameworkHooks = {
   // expect scenario.isSuccessful(), should be called with After(scenario)
   AfterScenarioResult: function(scenario) {
     var scenarioName = scenario.getName();
-    var beforeScenarioImage_tag, afterScenarioImage_tag, video_tag, runlog_tag;
+    var stepOneImage_tag, afterScenarioImage_tag, video_tag, runlog_tag;
     if (process.env.MOVIE == 1) {
       framework_libs.stopRecording(scenarioName);
     }
-    beforeScenarioImage_tag = framework_libs.getHtmlReportTags(scenarioName, 'BeforeScenario')[0];
+    stepOneImage_tag = framework_libs.getHtmlReportTags(scenarioName, '', 'step_1')[0];
     if (scenario.isSuccessful()) {
       if (process.env.MOVIE == 1) {
         framework_libs.takeScreenshot(scenarioName, 'Passed');
@@ -114,7 +114,7 @@ const frameworkHooks = {
     if (process.env.SCREENSHOT == 1) {
       scenario.attach(afterScenarioImage_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 2) {
-      scenario.attach(beforeScenarioImage_tag, 'text/html');
+      scenario.attach(stepOneImage_tag, 'text/html');
       scenario.attach(afterScenarioImage_tag, 'text/html');
     }
     
