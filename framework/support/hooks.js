@@ -55,7 +55,7 @@ const frameworkHooks = {
   AfterStep: function(step) {
     // var stepName = step.getName();
     // take screenshot after the first step
-    if (process.env.SCREENSHOT >= 1 && currentStepNumber == 1) {
+    if ((process.env.SCREENSHOT >= 1 || process.env.MOVIE == 1) && currentStepNumber == 1) {
       framework_libs.takeScreenshot(currentScenarioName, 'BeforeScenario');
     }
     if (process.env.BROWSERLOG == 1) {
@@ -108,8 +108,8 @@ const frameworkHooks = {
 
     scenario.attach(runlog_tag, 'text/html');
     if (process.env.MOVIE == 1) {
+      scenario.attach(beforeScenarioImage_tag, 'text/html');
       scenario.attach(video_tag, 'text/html');
-      scenario.attach(afterScenarioImage_tag, 'text/html');
     } else if (process.env.SCREENSHOT >= 1) {
       scenario.attach(beforeScenarioImage_tag, 'text/html');
       scenario.attach(afterScenarioImage_tag, 'text/html');
