@@ -47,17 +47,16 @@ const frameworkHooks = {
   },
 
   BeforeStep: function(step) {
-    currentStepNumber++;
-    // var stepName = step.getName();
+    // only count real steps (do not count After steps)
+    if(step.getName()) currentStepNumber++;
   },
 
   AfterStep: function(step) {
-    // var stepName = step.getName();
     // start recording
     if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
     // start screenshot
     if ((process.env.SCREENSHOT == 2) && currentStepNumber == 1) {
-      framework_libs.takeScreenshot(currentScenarioName, '', `step_${currentStepNumber}`);
+      framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber);
     }
     if (process.env.BROWSERLOG == 1) {
       browser_session.showErrorLog(browser);
@@ -86,25 +85,25 @@ const frameworkHooks = {
     if (process.env.MOVIE == 1) {
       framework_libs.stopRecording(scenarioName);
     }
-    stepOneImage_tag = framework_libs.getHtmlReportTags(scenarioName, '', 'step_1')[0];
+    stepOneImage_tag = framework_libs.getHtmlReportTags(scenarioName, 'Step', '1')[0];
     if (scenario.isSuccessful()) {
       if (process.env.MOVIE == 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Passed');
-        framework_libs.renameRecording(scenarioName, 'Passed');
+        framework_libs.takeScreenshot(scenarioName, 'Passed', currentStepNumber);
+        framework_libs.renameRecording(scenarioName, 'Passed', currentStepNumber);
       } else if (process.env.SCREENSHOT >= 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Passed');
+        framework_libs.takeScreenshot(scenarioName, 'Passed', currentStepNumber);
       }
-      [afterScenarioImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Passed');
+      [afterScenarioImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Passed', currentStepNumber);
     } else {
       console.log('browser error log:');
       browser_session.showErrorLog(browser);  
       if (process.env.MOVIE == 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Failed');
-        framework_libs.renameRecording(scenarioName, 'Failed');
+        framework_libs.takeScreenshot(scenarioName, 'Failed', currentStepNumber);
+        framework_libs.renameRecording(scenarioName, 'Failed', currentStepNumber);
       } else if (process.env.SCREENSHOT >= 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Failed');
+        framework_libs.takeScreenshot(scenarioName, 'Failed', currentStepNumber);
       }
-      [afterScenarioImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Failed');
+      [afterScenarioImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Failed', currentStepNumber);
     }
 
     scenario.attach(runlog_tag, 'text/html');

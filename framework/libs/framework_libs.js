@@ -204,10 +204,10 @@ module.exports = {
         return false;
       }
   },
-  renameRecording: function(scenarioName, filePrefix) {
+  renameRecording: function(scenarioName, resultPrefix) {
     const scenario_mp4 = this.convertScenarioNameToFileBase(scenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
-    const finalFile_fullPath = myREPORTDIR + '/' + filePrefix + '_' + scenario_mp4;
+    const finalFile_fullPath = myREPORTDIR + '/' + resultPrefix + '_' + scenario_mp4;
     const cmd_rename_movie = 'mv ' + recordingFile_fullPath + ' ' + finalFile_fullPath;
     while (this.recordingRunning(scenarioName)) {
       browser.pause(1000);
@@ -219,10 +219,10 @@ module.exports = {
       return false;
     }
   },
-  takeScreenshot: function(scenarioName, filePrefix) {
-    const scenario_png = this.convertScenarioNameToFileBase(scenarioName) + '.png';
+  takeScreenshot: function(scenarioName, resultPrefix, stepPostfix) {
+    const scenario_png = `${this.convertScenarioNameToFileBase(scenarioName)}.${stepPostfix}.png`;
     const cmd_take_screenshot = 'import -display ' + myDISPLAY + ' -window root '
-        + myREPORTDIR + '/' + filePrefix + '_' + scenario_png;
+        + myREPORTDIR + '/' + resultPrefix + '_' + scenario_png;
     if (scenarioName) {
       execSync(cmd_take_screenshot);
     } else {
@@ -230,13 +230,13 @@ module.exports = {
       return false;
     }
   },
-  getHtmlReportTags: function(scenarioName, filePrefix) {
+  getHtmlReportTags: function(scenarioName, resultPrefix, stepPostfix) {
     const scenario_base = this.convertScenarioNameToFileBase(scenarioName);
-    const scenario_mp4 = scenario_base + '.mp4';
-    const scenario_png = scenario_base + '.png';
+    const scenario_mp4 = `${scenario_base}.mp4`;
+    const scenario_png = `${scenario_base}.${stepPostfix}.png`;
     const feature_runlog = process.env.RUNREPORT;
-    const image_tag = `<img src="${myRELATIVEREPORTDIR}/${filePrefix}_${encodeURIComponent(scenario_png)}" style="max-width: 100%; height: auto;" alt="${filePrefix}_${scenario_png}">`;
-    const video_tag = `<video src="${myRELATIVEREPORTDIR}/${filePrefix}_${encodeURIComponent(scenario_mp4)}" style="max-width: 100%; height: auto;" controls/>Your browser does not support the video tag.</video>`; 
+    const image_tag = `<img src="${myRELATIVEREPORTDIR}/${resultPrefix}_${encodeURIComponent(scenario_png)}" style="max-width: 100%; height: auto;" alt="${resultPrefix}_${scenario_png}">`;
+    const video_tag = `<video src="${myRELATIVEREPORTDIR}/${resultPrefix}_${encodeURIComponent(scenario_mp4)}" style="max-width: 100%; height: auto;" controls/>Your browser does not support the video tag.</video>`; 
     const runlog_tag = `<a href="${myRELATIVEREPORTDIR}/${feature_runlog}.html" style="max-width: 100%; height: auto;"/>${feature_runlog}</a>`;
     return [image_tag, video_tag, runlog_tag];
   }
