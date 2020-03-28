@@ -152,9 +152,7 @@ module.exports = {
     var myCharArray = string.split('');
     // chars require shift
     var myShiftCharArray = ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+',
-                            '{', '}', '|',
-                            ':', '"',
-                            '<', '>', '?'];
+                            '{', '}', '|', ':', '>', '?'];
     myCharArray.forEach(function(myChar) {
       if (myShiftCharArray.indexOf(myChar) >= 0) {
         robot.keyTap(myChar, 'shift');
