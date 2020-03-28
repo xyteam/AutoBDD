@@ -2,6 +2,7 @@ const fs = require('fs');
 const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
 const cmd = require('node-cmd');
+const uuid = require('uuid-random');
 
 // general and system
 const spaceChar_regex = /\s+/g;
@@ -146,14 +147,20 @@ module.exports = {
   },
 
   // movie and screenshot
-  getScenarioNameBase: function(scenarioName) {
+  convertScenarioNameToFileBase: function(scenarioName) {
     var fileBase = (myPLATFORM + '_' + myBROWSER + '_' + myMODULE + '_' + scenarioName)
                       .replace(spaceChar_regex, '_')
                       .replace(invalidFileNameChar_regex, '');
     return fileBase;
   },
+  convertScenarioStepNameToFileBase: function(scenarioName, stepIndex, stepName) {
+    var fileBase = `${scenarioName}.${stepIndex}.${stepName}`
+                      .replace(spaceChar_regex, '_')
+                      .replace(invalidFileNameChar_regex, '');
+    return fileBase;
+  },
   recordingRunning: function(scenarioName) {
-    const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
+    const scenario_mp4 = this.convertScenarioNameToFileBase(scenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
     const cmd_check_recording = `pgrep -f "ffmpeg .*${recordingFile_fullPath}"`;
     var pidCount = execSync(cmd_check_recording).toString().split('\n').filter(Boolean).length
@@ -164,7 +171,7 @@ module.exports = {
     }
   },
   startRecording: function(scenarioName) {
-    const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
+    const scenario_mp4 = this.convertScenarioNameToFileBase(scenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
     const cmd_start_recording = 'ffmpeg -y -s ' + myDISPLAYSIZE
         + ' -f x11grab -an -nostdin -r ' + myMOVIEFR
@@ -181,50 +188,39 @@ module.exports = {
     }
   },
   stopRecording: function(scenarioName) {
-    const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
+    const scenario_mp4 = this.convertScenarioNameToFileBase(scenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
-    const cmd_stop_recording = `sleep 1; pkill -f "ffmpeg .*${recordingFile_fullPath}"`;
-    const cmd_wait_recording_end = 'while lsof '
-        + recordingFile_fullPath
-        + '; do sleep 1; done;'
-        + 'sleep 1;'
-        + 'while [ ! -f '
-        + recordingFile_fullPath
-        + ' ]; do sleep 1; done;'
+    const cmd_stop_recording = `sleep 1; pkill -INT -f "ffmpeg .*${recordingFile_fullPath}"; sleep 1`;
     if (scenarioName) {
       if (this.recordingRunning(scenarioName))
         try {
           // this command will kill self and always return error, thus must put in a try block
           execSync(cmd_stop_recording);
         } catch(e) {
-          console.log(e);
-        }      
+          console.log(e.stderr.toString());
+        }
       } else {
         console.log('stopRecording: scenarioName can not be empty');
         return false;
       }
   },
   renameRecording: function(scenarioName, filePrefix) {
-    const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
+    const scenario_mp4 = this.convertScenarioNameToFileBase(scenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
     const finalFile_fullPath = myREPORTDIR + '/' + filePrefix + '_' + scenario_mp4;
-    const cmd_wait_recording_end = 'while lsof '
-        + recordingFile_fullPath
-        + '; do sleep 1; done;'
-        + 'sleep 1;'
-        + 'while [ ! -f '
-        + recordingFile_fullPath
-        + ' ]; do sleep 1; done;'
     const cmd_rename_movie = 'mv ' + recordingFile_fullPath + ' ' + finalFile_fullPath;
+    while (this.recordingRunning(scenarioName)) {
+      browser.pause(1000);
+    }
     try{
-      execSync(cmd_wait_recording_end + cmd_rename_movie);
+      execSync(cmd_rename_movie);
     } catch(e) {
       console.log(e);
       return false;
     }
   },
   takeScreenshot: function(scenarioName, filePrefix) {
-    const scenario_png = this.getScenarioNameBase(scenarioName) + '.png';
+    const scenario_png = this.convertScenarioNameToFileBase(scenarioName) + '.png';
     const cmd_take_screenshot = 'import -display ' + myDISPLAY + ' -window root '
         + myREPORTDIR + '/' + filePrefix + '_' + scenario_png;
     if (scenarioName) {
@@ -235,7 +231,7 @@ module.exports = {
     }
   },
   getHtmlReportTags: function(scenarioName, filePrefix) {
-    const scenario_base = this.getScenarioNameBase(scenarioName);
+    const scenario_base = this.convertScenarioNameToFileBase(scenarioName);
     const scenario_mp4 = scenario_base + '.mp4';
     const scenario_png = scenario_base + '.png';
     const feature_runlog = process.env.RUNREPORT;
