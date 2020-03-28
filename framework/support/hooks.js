@@ -3,9 +3,13 @@ const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs')
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 const changeBrowserZoom = require(FrameworkPath + '/framework/functions/action/changeBrowserZoom');
+var currentScenarioName;
+var currentStepNumber;
 
 const frameworkHooks = {
   BeforeFeature: function(feature) {
+    currentScenarioName = '';
+    currentStepNumber = 0;
     // start RDP and sshfs
     if (process.env.SSHHOST && process.env.SSHPORT) {
       // these start functions will prevent double running
@@ -36,17 +40,29 @@ const frameworkHooks = {
 
   BeforeScenario: function(scenario) {
     var scenarioName = scenario.getName();
+    currentScenarioName = scenarioName;
+    currentStepNumber = 0;
     browser.windowHandleMaximize();
     browser.timeouts('script', 3600*1000);
     if (process.env.MOVIE == 1) framework_libs.startRecording(scenarioName);
   },
 
   BeforeStep: function(step) {
+    currentStepNumber++;
     // var stepName = step.getName();
   },
 
   AfterStep: function(step) {
     // var stepName = step.getName();
+    // take screenshot after the first step
+    if (process.env.SCREENSHOT == 1 && currentStepNumber == 1) {
+      framework_libs.takeScreenshot(currentScenarioName, 'BeforeScenario');
+    }
+    if (process.env.STEPSCREENSHOT == 1) {
+        framework_libs.takeScreenshot(currentScenarioName, 'AfterStep');
+        const afterStepImage_tag = framework_libs.getHtmlReportTags(scenarioName, 'AfterStep')[0];
+        step.attach(afterStepImage_tag, 'text/html');
+    }
     if (process.env.BROWSERLOG == 1) {
       browser_session.showErrorLog(browser);
     }
@@ -54,6 +70,8 @@ const frameworkHooks = {
 
   AfterScenario: function(scenario) {
     // var scenarioName = scenario.getName();
+    var scenarioName = scenario.getName();    
+    if (process.env.MOVIE == 1) framework_libs.stopRecording(scenarioName);
   },
 
   AfterFeature: function(feature) {
@@ -68,30 +86,36 @@ const frameworkHooks = {
 
   // expect scenario.isSuccessful(), should be called with After(scenario)
   AfterScenarioResult: function(scenario) {
-    var scenarioName = scenario.getName();
-
-    if (process.env.MOVIE == 1) {
-      framework_libs.takeScreenshot(scenarioName);
-      framework_libs.stopRecording(scenarioName);
-    } else if (process.env.SCREENSHOT == 1) {
-      framework_libs.takeScreenshot(scenarioName);
-    }
-    
-    var image_tag, video_tag, runlog_tag;
+    var scenarioName = scenario.getName();    
+    var beforeScenarioImage_tag, afterScenarioImage_tag, video_tag, runlog_tag;
+    beforeScenarioImage_tag = framework_libs.getHtmlReportTags(scenarioName, 'BeforeScenario')[0];
     if (scenario.isSuccessful()) {
-      framework_libs.renamePassedFailed(scenarioName, 'Passed');
-      [image_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Passed');
+      if (process.env.MOVIE == 1) {
+        framework_libs.takeScreenshot(scenarioName, 'Passed');
+        framework_libs.renameRecording(scenarioName, 'Passed');
+      } else if (process.env.SCREENSHOT == 1) {
+        framework_libs.takeScreenshot(scenarioName, 'Passed');
+      }
+      [afterScenarioImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Passed');
     } else {
-      framework_libs.renamePassedFailed(scenarioName, 'Failed');
-      [image_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Failed');
+      console.log('browser error log:');
+      browser_session.showErrorLog(browser);  
+      if (process.env.MOVIE == 1) {
+        framework_libs.takeScreenshot(scenarioName, 'Failed');
+        framework_libs.renameRecording(scenarioName, 'Failed');
+      } else if (process.env.SCREENSHOT == 1) {
+        framework_libs.takeScreenshot(scenarioName, 'Failed');
+      }
+      [afterScenarioImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Failed');
     }
 
     scenario.attach(runlog_tag, 'text/html');
     if (process.env.MOVIE == 1) {
-      scenario.attach(image_tag, 'text/html');
       scenario.attach(video_tag, 'text/html');
+      scenario.attach(afterScenarioImage_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 1) {
-      scenario.attach(image_tag, 'text/html');
+      scenario.attach(beforeScenarioImage_tag, 'text/html');
+      scenario.attach(afterScenarioImage_tag, 'text/html');
     }
     
     // need to perform these steps before tear down RDP

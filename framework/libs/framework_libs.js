@@ -154,9 +154,8 @@ module.exports = {
   },
   recordingRunning: function(scenarioName) {
     const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
-    const cmd_check_recording = 'pgrep -f "ffmpeg .*'
-        + myREPORTDIR + '/Recording_' + scenario_mp4
-        + '"';
+    const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
+    const cmd_check_recording = `pgrep -f "ffmpeg .*${recordingFile_fullPath}"`;
     var pidCount = execSync(cmd_check_recording).toString().split('\n').filter(Boolean).length
     if (pidCount >= 2) {
       return true;
@@ -166,11 +165,12 @@ module.exports = {
   },
   startRecording: function(scenarioName) {
     const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
+    const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
     const cmd_start_recording = 'ffmpeg -y -s ' + myDISPLAYSIZE
         + ' -f x11grab -an -nostdin -r ' + myMOVIEFR
         + ' -i ' + myDISPLAY
         + ' -filter:v "setpts=' + myMOVIERR + '*PTS" '
-        + myREPORTDIR + '/Recording_' + scenario_mp4
+        + recordingFile_fullPath
         + ' 2> /dev/null &';
     if (scenarioName) {
       if (this.recordingRunning(scenarioName)) this.stopRecording(scenarioName);
@@ -182,33 +182,51 @@ module.exports = {
   },
   stopRecording: function(scenarioName) {
     const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
-    const cmd_stop_recording = 'sleep 1; pkill -f "ffmpeg .*'
-        + myREPORTDIR + '/Recording_' + scenario_mp4
-        + '"';
+    const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
+    const cmd_stop_recording = `sleep 1; pkill -f "ffmpeg .*${recordingFile_fullPath}"`;
     const cmd_wait_recording_end = 'while lsof '
-        + myREPORTDIR + '/Recording_' + scenario_mp4
+        + recordingFile_fullPath
         + '; do sleep 1; done;'
         + 'sleep 1;'
         + 'while [ ! -f '
-        + myREPORTDIR + '/Recording_' + scenario_mp4
+        + recordingFile_fullPath
         + ' ]; do sleep 1; done;'
-
     if (scenarioName) {
       if (this.recordingRunning(scenarioName))
         try {
           // this command will kill self and always return error, thus must put in a try block
           execSync(cmd_stop_recording);
-          execSync(cmd_wait_recording_end);
-        } catch(e) {}      
+        } catch(e) {
+          console.log(e);
+        }      
       } else {
         console.log('stopRecording: scenarioName can not be empty');
         return false;
       }
   },
-  takeScreenshot: function(scenarioName) {
+  renameRecording: function(scenarioName, filePrefix) {
+    const scenario_mp4 = this.getScenarioNameBase(scenarioName) + '.mp4';
+    const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
+    const finalFile_fullPath = myREPORTDIR + '/' + filePrefix + '_' + scenario_mp4;
+    const cmd_wait_recording_end = 'while lsof '
+        + recordingFile_fullPath
+        + '; do sleep 1; done;'
+        + 'sleep 1;'
+        + 'while [ ! -f '
+        + recordingFile_fullPath
+        + ' ]; do sleep 1; done;'
+    const cmd_rename_movie = 'mv ' + recordingFile_fullPath + ' ' + finalFile_fullPath;
+    try{
+      execSync(cmd_wait_recording_end + cmd_rename_movie);
+    } catch(e) {
+      console.log(e);
+      return false;
+    }
+  },
+  takeScreenshot: function(scenarioName, filePrefix) {
     const scenario_png = this.getScenarioNameBase(scenarioName) + '.png';
     const cmd_take_screenshot = 'import -display ' + myDISPLAY + ' -window root '
-        + myREPORTDIR + '/Captured_' + scenario_png;
+        + myREPORTDIR + '/' + filePrefix + '_' + scenario_png;
     if (scenarioName) {
       execSync(cmd_take_screenshot);
     } else {
@@ -216,31 +234,13 @@ module.exports = {
       return false;
     }
   },
-  renamePassedFailed: function(scenarioName, scenarioResult) {
-    const scenario_base = this.getScenarioNameBase(scenarioName);
-    const scenario_mp4 = scenario_base + '.mp4';
-    const scenario_png = scenario_base + '.png';
-    const cmd_rename_screenshot = 'mv ' + myREPORTDIR + '/Captured_' + scenario_png
-                                  + ' ' + myREPORTDIR + '/' + scenarioResult + '_' + scenario_png;
-    const cmd_rename_movie = 'mv ' + myREPORTDIR + '/Recording_' + scenario_mp4
-                             + ' ' + myREPORTDIR + '/' + scenarioResult + '_' + scenario_mp4;
-    if (mySCREENSHOT == 1 || myMOVIE == 1) execSync(cmd_rename_screenshot);
-    if (myMOVIE == 1) {
-      try {
-        execSync(cmd_rename_movie);
-      } catch(e) {
-        this.stopRecording(scenarioName);
-        execSync(cmd_rename_movie);
-      }
-    }
-  },
-  getHtmlReportTags: function(scenarioName, scenarioResult) {
+  getHtmlReportTags: function(scenarioName, filePrefix) {
     const scenario_base = this.getScenarioNameBase(scenarioName);
     const scenario_mp4 = scenario_base + '.mp4';
     const scenario_png = scenario_base + '.png';
     const feature_runlog = process.env.RUNREPORT;
-    const image_tag = '<img src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_png) + '" style="max-width: 100%; height: auto;" alt="' + scenarioResult + '_' + scenario_png + '">';
-    const video_tag = '<video src="' + myRELATIVEREPORTDIR + '/' + scenarioResult + '_' + encodeURIComponent(scenario_mp4) + '" style="max-width: 100%; height: auto;" controls poster="' + scenarioResult + '_' + scenario_png + '"/>Your browser does not support the video tag.</video>'; 
+    const image_tag = '<img src="' + myRELATIVEREPORTDIR + '/' + filePrefix + '_' + encodeURIComponent(scenario_png) + '" style="max-width: 100%; height: auto;" alt="' + filePrefix + '_' + scenario_png + '">';
+    const video_tag = '<video src="' + myRELATIVEREPORTDIR + '/' + filePrefix + '_' + encodeURIComponent(scenario_mp4) + '" style="max-width: 100%; height: auto;" controls poster="' + filePrefix + '_' + scenario_png + '"/>Your browser does not support the video tag.</video>'; 
     const runlog_tag = '<a href="' + myRELATIVEREPORTDIR + '/' + feature_runlog + '.html" style="max-width: 100%; height: auto;"/>' + feature_runlog + '</a>';
     return [image_tag, video_tag, runlog_tag];
   }
