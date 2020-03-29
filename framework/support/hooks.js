@@ -58,6 +58,9 @@ const frameworkHooks = {
     if ((process.env.SCREENSHOT == 2) && currentStepNumber == 1) {
       framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber);
     }
+    if (step.getName() && (process.env.SCREENSHOT == 3)) {
+      framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber);
+    }
     if (process.env.BROWSERLOG == 1) {
       browser_session.showErrorLog(browser);
     }
@@ -81,7 +84,7 @@ const frameworkHooks = {
   // expect scenario.isSuccessful(), should be called with After(scenario)
   AfterScenarioResult: function(scenario) {
     var scenarioName = scenario.getName();
-    var stepOneImage_tag, afterScenarioImage_tag, video_tag, runlog_tag;
+    var stepOneImage_tag, lastRunStepImage_tag, video_tag, runlog_tag;
     if (process.env.MOVIE == 1) {
       framework_libs.stopRecording(scenarioName);
     }
@@ -93,7 +96,7 @@ const frameworkHooks = {
       } else if (process.env.SCREENSHOT >= 1) {
         framework_libs.takeScreenshot(scenarioName, 'Passed', currentStepNumber);
       }
-      [afterScenarioImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Passed', currentStepNumber);
+      [lastRunStepImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Passed', currentStepNumber);
     } else {
       console.log('browser error log:');
       browser_session.showErrorLog(browser);  
@@ -103,7 +106,7 @@ const frameworkHooks = {
       } else if (process.env.SCREENSHOT >= 1) {
         framework_libs.takeScreenshot(scenarioName, 'Failed', currentStepNumber);
       }
-      [afterScenarioImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Failed', currentStepNumber);
+      [lastRunStepImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Failed', currentStepNumber);
     }
 
     scenario.attach(runlog_tag, 'text/html');
@@ -111,10 +114,15 @@ const frameworkHooks = {
       scenario.attach(video_tag, 'text/html');
     }
     if (process.env.SCREENSHOT == 1) {
-      scenario.attach(afterScenarioImage_tag, 'text/html');
+      scenario.attach(lastRunStepImage_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 2) {
       scenario.attach(stepOneImage_tag, 'text/html');
-      scenario.attach(afterScenarioImage_tag, 'text/html');
+      scenario.attach(lastRunStepImage_tag, 'text/html');
+    } else if (process.env.SCREENSHOT == 3) {
+      for (stepIndex = 1; stepIndex <= currentStepNumber; stepIndex++) {
+        const stepImage_tag = framework_libs.getHtmlReportTags(scenarioName, 'Step', stepIndex)[0];
+        scenario.attach(stepImage_tag, 'text/html');
+      }
     }
     
     // need to perform these steps before tear down RDP
