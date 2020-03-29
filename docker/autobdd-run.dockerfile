@@ -24,6 +24,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     dpkg-reconfigure -f noninteractive tzdata; \
 # install standard linux tools needed for automation framework
     apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+        aosd_cat \
         autofs \
         binutils \
         build-essential \
