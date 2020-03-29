@@ -219,16 +219,26 @@ module.exports = {
       return false;
     }
   },
-  takeScreenshot: function(scenarioName, resultPrefix, stepPostfix) {
+  takeScreenshot: function(scenarioName, resultPrefix, stepPostfix, text, textColor) {
     const scenario_png = `${this.convertScenarioNameToFileBase(scenarioName)}.${stepPostfix}.png`;
     const cmd_take_screenshot = 'import -silent -display ' + myDISPLAY + ' -window root '
         + myREPORTDIR + '/' + resultPrefix + '_' + scenario_png;
     if (scenarioName) {
+      if (text.length > 0 ) this.screenDisplayText(text, textColor);
+      browser.pause(500);
       execSync(cmd_take_screenshot);
+      browser.pause(500);
     } else {
       console.log('takeScreenshot: scenarioName can not be empty');
       return false;
     }
+  },
+  screenDisplayText: function(text, textColor, textPosition, fontSize) {
+    const myFontSize = fontSize || 20;
+    const myTextColor = textColor || 'green';
+    const myTextPosition = textPosition || 6; // 9 positions: 0, 1, 2, 3, 4, 5, 6, 7, 8
+    cmd_aosd_cat_text = `(echo ${text} | aosd_cat -p ${myTextPosition} -n ${myFontSize} -R ${myTextColor} -e 0 -f 0 -u 1000 -o 0)`;
+    exec(cmd_aosd_cat_text);
   },
   getHtmlReportTags: function(scenarioName, resultPrefix, stepPostfix) {
     const scenario_base = this.convertScenarioNameToFileBase(scenarioName);

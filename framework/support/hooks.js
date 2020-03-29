@@ -56,10 +56,10 @@ const frameworkHooks = {
     if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
     // start screenshot
     if ((process.env.SCREENSHOT == 2) && currentStepNumber == 1) {
-      framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber);
+      framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, `${currentScenarioName}.${currentStepNumber}: ${step.getName()}`);
     }
     if (step.getName() && (process.env.SCREENSHOT == 3)) {
-      framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber);
+      framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, `${currentScenarioName}.${currentStepNumber}: ${step.getName()}`);
     }
     if (process.env.BROWSERLOG == 1) {
       browser_session.showErrorLog(browser);
@@ -74,7 +74,7 @@ const frameworkHooks = {
   AfterFeature: function(feature) {
     if (process.env.SSHHOST && process.env.SSHPORT) {
       try {
-        if (process.env.MOVIE == 1 || process.env.SCREENSHOT >= 1) framework_libs.stopRdesktop();
+        framework_libs.stopRdesktop();
         framework_libs.stopSshFs();
         framework_libs.stopSshTunnel();
       } catch(e) {}
@@ -91,20 +91,20 @@ const frameworkHooks = {
     stepOneImage_tag = framework_libs.getHtmlReportTags(scenarioName, 'Step', '1')[0];
     if (scenario.isSuccessful()) {
       if (process.env.MOVIE == 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Passed', currentStepNumber);
+        framework_libs.takeScreenshot(scenarioName, 'Passed', currentStepNumber, `Passed: ${currentScenarioName}`, 'green');
         framework_libs.renameRecording(scenarioName, 'Passed', currentStepNumber);
       } else if (process.env.SCREENSHOT >= 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Passed', currentStepNumber);
+        framework_libs.takeScreenshot(scenarioName, 'Passed', currentStepNumber, `Passed: ${currentScenarioName}`, 'green');
       }
       [lastRunStepImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Passed', currentStepNumber);
     } else {
       console.log('browser error log:');
-      browser_session.showErrorLog(browser);  
+      browser_session.showErrorLog(browser);
       if (process.env.MOVIE == 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Failed', currentStepNumber);
+        framework_libs.takeScreenshot(scenarioName, 'Failed', currentStepNumber, `Failed: ${currentScenarioName}`, 'red');
         framework_libs.renameRecording(scenarioName, 'Failed', currentStepNumber);
       } else if (process.env.SCREENSHOT >= 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Failed', currentStepNumber);
+        framework_libs.takeScreenshot(scenarioName, 'Failed', currentStepNumber, `Failed: ${currentScenarioName}`, 'red');
       }
       [lastRunStepImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Failed', currentStepNumber);
     }
