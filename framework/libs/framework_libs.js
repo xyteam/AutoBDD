@@ -221,7 +221,7 @@ module.exports = {
   },
   takeScreenshot: function(scenarioName, resultPrefix, stepPostfix) {
     const scenario_png = `${this.convertScenarioNameToFileBase(scenarioName)}.${stepPostfix}.png`;
-    const cmd_take_screenshot = 'import -display ' + myDISPLAY + ' -window root '
+    const cmd_take_screenshot = 'import -silent -display ' + myDISPLAY + ' -window root '
         + myREPORTDIR + '/' + resultPrefix + '_' + scenario_png;
     if (scenarioName) {
       execSync(cmd_take_screenshot);

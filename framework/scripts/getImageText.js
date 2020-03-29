@@ -12,7 +12,7 @@ const uuid = require('uuid-random');
 
 const argv = require('minimist')(process.argv.slice(2));
 const tmpImagePath = `/tmp/${uuid()}.png`;
-const saveScreenCmd = `import -display ${process.env.DISPLAY} -window root ${tmpImagePath}`;
+const saveScreenCmd = `import -silent -display ${process.env.DISPLAY} -window root ${tmpImagePath}`;
 const getTextCmd = `tesseract ${tmpImagePath} -`;
 
 if (argv.imagePath && argv.imagePath != 'null' && argv.imagePath != 'undefined') {
