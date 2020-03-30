@@ -234,10 +234,11 @@ module.exports = {
     }
   },
   screenDisplayText: function(text, textColor, fontSize, textPosition) {
-    const myFontSize = fontSize || 20;
+    const myText = text.replace(invalidFileNameChar_regex, '');
     const myTextColor = textColor || 'green';
+    const myFontSize = fontSize || 20;
     const myTextPosition = textPosition || 6; // 9 positions (3 x 3): 0, 1, 2, 3, 4, 5, 6, 7, 8
-    cmd_aosd_cat_text = `echo "${text}" | aosd_cat -p ${myTextPosition} -n ${myFontSize} -R ${myTextColor} -B black -b 120 -e 0 -f 0 -u 500 -o 0`;
+    cmd_aosd_cat_text = `echo "${myText}" | aosd_cat -p ${myTextPosition} -n ${myFontSize} -R ${myTextColor} -B gray -b 120 -e 0 -f 0 -u 500 -o 0`;
     exec(cmd_aosd_cat_text);
   },
   getHtmlReportTags: function(scenarioName, resultPrefix, stepPostfix) {
