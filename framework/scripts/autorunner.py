@@ -66,6 +66,7 @@ def run_test(FrameworkPath,
               feature_file,
               movie,
               screenshot,
+              screenremark,
               debugmode,
               display_size,
               chimp_profile,
@@ -87,6 +88,7 @@ def run_test(FrameworkPath,
                 ' RELATIVEREPORTDIR=' + report_dir_relative + \
                 ' MOVIE=' + movie + \
                 ' SCREENSHOT=' + screenshot + \
+                ' SCREENREMARK=' + screenremark + \
                 ' BROWSER=' + browser + \
                 ' DEBUGMODE=' + debugmode + \
                 ' DISPLAYSIZE=' + display_size + \
@@ -105,6 +107,7 @@ def run_test(FrameworkPath,
                 ' RELATIVEREPORTDIR=' + report_dir_relative + \
                 ' MOVIE=' + movie + \
                 ' SCREENSHOT=' + screenshot + \
+                ' SCREENREMARK=' + screenremark + \
                 ' BROWSER=' + browser + \
                 ' DEBUGMODE=' + debugmode + \
                 ' DISPLAYSIZE=' + display_size + \
@@ -135,6 +138,7 @@ def run_test(FrameworkPath,
                         ' RELATIVEREPORTDIR=' + report_dir_relative + \
                         ' MOVIE=' + movie + \
                         ' SCREENSHOT=' + screenshot + \
+                        ' SCREENREMARK=' + screenremark + \
                         ' DEBUGMODE=' + debugmode + \
                         ' BROWSER=' + browser + \
                         ' DISPLAYSIZE=' + display_size + \
@@ -165,6 +169,7 @@ def run_test(FrameworkPath,
                         ' RELATIVEREPORTDIR=' + report_dir_relative + \
                         ' MOVIE=' + movie + \
                         ' SCREENSHOT=' + screenshot + \
+                        ' SCREENREMARK=' + screenremark + \
                         ' DEBUGMODE=' + debugmode + \
                         ' BROWSER=' + browser + \
                         ' DISPLAYSIZE=' + display_size + \
@@ -257,7 +262,14 @@ def parse_arguments():
         "--SCREENSHOT",
         dest="SCREENSHOT",
         default="1",
-        help="record screent shot when chimp finished. Default value: 1")
+        help="take screenshots. 0: no screenshot, 1: last screenshot, 2: first and last, 3: every step. Default value: 1")
+
+    parser.add_argument(
+        "--screenremark",
+        "--SCREENREMARK",
+        dest="SCREENREMARK",
+        default="1",
+        help="remark test information to screenshots. 0: no, 1: yes. Default value: 1")
 
     parser.add_argument(
         "--movie",
@@ -401,6 +413,7 @@ class ChimpAutoRun:
         self.runtime_stamp = arguments.TIMESTAMP if arguments.TIMESTAMP else time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
         self.parallel = arguments.PARALLEL
         self.screenshot = arguments.SCREENSHOT
+        self.screenremark = arguments.SCREENREMARK
         self.movie = arguments.MOVIE
         self.platform = arguments.PLATFORM
         self.browser = arguments.BROWSER
@@ -656,6 +669,7 @@ class ChimpAutoRun:
                                                     feature_path,
                                                     self.movie,
                                                     self.screenshot,
+                                                    self.screenremark,
                                                     self.debugmode,
                                                     self.display_size,
                                                     self.chimp_profile,
