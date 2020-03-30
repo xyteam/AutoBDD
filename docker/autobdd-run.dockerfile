@@ -92,7 +92,6 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
 RUN update-alternatives --install /usr/bin/python python $(which $(readlink $(which python3))) 10; \
     update-alternatives --install /usr/bin/pip pip $(which pip3) 10; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
-    /usr/sbin/locale-gen "en_US.UTF-8"; echo "LANG=\"en_US.UTF-8\"" > /etc/locale.conf; \
     mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \
     mkdir -p /${USER}/Projects
 
