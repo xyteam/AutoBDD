@@ -3,7 +3,7 @@ const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs')
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 const changeBrowserZoom = require(FrameworkPath + '/framework/functions/action/changeBrowserZoom');
-var currentScenarioName;
+var currentScenarioName, currentScenarioStatus;
 var currentStepNumber;
 
 const frameworkHooks = {
@@ -51,18 +51,39 @@ const frameworkHooks = {
     if(step.getName()) currentStepNumber++;
   },
 
-  AfterStep: function(step) {
-    // start recording
-    if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
-    // start screenshot
-    if ((process.env.SCREENSHOT == 2) && currentStepNumber == 1) {
-      framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, `${currentScenarioName}.${currentStepNumber}: ${step.getName()}`);
-    }
-    if (step.getName() && (process.env.SCREENSHOT == 3)) {
-      framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, `${currentScenarioName}.${currentStepNumber}: ${step.getName()}`);
-    }
-    if (process.env.BROWSERLOG == 1) {
-      browser_session.showErrorLog(browser);
+  AfterStep: function(step, result) {
+    if (step.getName()) {
+      // to be done for real steps
+      const remarkScenarioName = (currentScenarioName <= 40) ? currentScenarioName : `${currentScenarioName.slice(0, 30)}...${currentScenarioName.slice(currentScenarioName.length - 10, currentScenarioName.length)}`;
+      const stepName = step.getName();
+      const remarkStepName = stepName;
+      var remarkText, remarkColor;
+      switch (result) {
+        case 'passed':
+          remarkText = `${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
+          remarkColor = 'green';
+          break;
+        case 'failed':
+          remarkText = `Step Failed: ${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
+          remarkColor = 'red';
+          break;
+        case 'skipped':
+          remarkText = `Step Skipped: ${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
+          remarkColor = 'orange';
+          break;
+      }      
+      // start recording
+      if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
+      // start screenshot
+      if ((process.env.SCREENSHOT == 2) && currentStepNumber == 1) {
+        framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
+      }
+      if (result != 'skipped' && process.env.SCREENSHOT == 3) {
+        framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
+      }
+      if (process.env.BROWSERLOG == 1) {
+        browser_session.showErrorLog(browser);
+      }  
     }
   },
 
@@ -90,24 +111,22 @@ const frameworkHooks = {
     }
     stepOneImage_tag = framework_libs.getHtmlReportTags(scenarioName, 'Step', '1')[0];
     if (scenario.isSuccessful()) {
-      if (process.env.MOVIE == 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Passed', currentStepNumber, `Passed: ${currentScenarioName}`, 'green');
-        framework_libs.renameRecording(scenarioName, 'Passed', currentStepNumber);
-      } else if (process.env.SCREENSHOT >= 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Passed', currentStepNumber, `Passed: ${currentScenarioName}`, 'green');
-      }
-      [lastRunStepImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Passed', currentStepNumber);
+      currentScenarioStatus = 'Passed';
     } else {
+      currentScenarioStatus = 'Failed'
       console.log('browser error log:');
       browser_session.showErrorLog(browser);
-      if (process.env.MOVIE == 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Failed', currentStepNumber, `Failed: ${currentScenarioName}`, 'red');
-        framework_libs.renameRecording(scenarioName, 'Failed', currentStepNumber);
-      } else if (process.env.SCREENSHOT >= 1) {
-        framework_libs.takeScreenshot(scenarioName, 'Failed', currentStepNumber, `Failed: ${currentScenarioName}`, 'red');
-      }
-      [lastRunStepImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, 'Failed', currentStepNumber);
     }
+
+    const remarkText = `${currentScenarioStatus}: ${currentScenarioName}`;
+    const remarkColor = (currentScenarioStatus == 'Failed') ? 'red' : 'green';
+    if (process.env.MOVIE == 1) {
+      framework_libs.takeScreenshot(scenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
+      framework_libs.renameRecording(scenarioName, currentScenarioStatus, currentStepNumber);
+    } else if (process.env.SCREENSHOT >= 1) {
+      framework_libs.takeScreenshot(scenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
+    }
+    [lastRunStepImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, currentScenarioStatus, currentStepNumber);
 
     scenario.attach(runlog_tag, 'text/html');
     if (process.env.MOVIE == 1) {
