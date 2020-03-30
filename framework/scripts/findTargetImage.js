@@ -2,6 +2,9 @@
 
 // installed xysikulixapi
 const xysikulixapi = require('xysikulixapi');
+const quote = require('shell-quote').quote;
+const parse = require('shell-quote').parse;
+const safeQuote = (str) => { return (str) ? quote(parse(str)) : undefined };
 
 // Tesseract-OCR Property
 process.env.LC_ALL = 'C';
