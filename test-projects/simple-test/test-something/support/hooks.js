@@ -20,7 +20,7 @@ module.exports = function() {
 
   this.StepResult(function(stepResult) {
     const step = stepResult.getStep();
-    const result = stepResult.getStatus()
+    const result = stepResult.getStatus();
     if (projectHooks) projectHooks.AfterStep(step, result);
   });
 
