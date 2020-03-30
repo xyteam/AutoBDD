@@ -128,7 +128,6 @@ const frameworkHooks = {
     const remarkText = (process.env.SCREENREMARK == 0) ? '' : `Scenario ${currentScenarioStatus}: ${currentScenarioName}`;
     const remarkColor = (currentScenarioStatus == 'Failed') ? 'red' : 'green';
     if (process.env.MOVIE == 1) {
-      framework_libs.takeScreenshot(scenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
       framework_libs.renameRecording(scenarioName, currentScenarioStatus, currentStepNumber);
     } else if (process.env.SCREENSHOT >= 1) {
       framework_libs.takeScreenshot(scenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
