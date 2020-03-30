@@ -58,22 +58,23 @@ const frameworkHooks = {
                                                                                      currentScenarioName.slice(currentScenarioName.length - 10,
                                                                                                                currentScenarioName.length);
       const remarkStepName = step.getName();
+      const remarkTextBase = `${remarkScenarioName}... Step ${currentStepNumber} : ${remarkStepName}`;
       var remarkText, remarkColor;
       switch (result) {
         case 'passed':
-          remarkText = `${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
+          remarkText = remarkTextBase;
           remarkColor = 'green';
           break;
         case 'failed':
-          remarkText = `Step Failed: ${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
+          remarkText = `Step Failed: ${remarkTextBase}`;
           remarkColor = 'red';
           break;
         case 'undefined':
-          remarkText = `Step Undefined: ${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
+          remarkText = `Step Undefined: ${remarkTextBase}`;
           remarkColor = 'orange';
           break;
         case 'skipped':
-          remarkText = `Step Undefined: ${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
+          remarkText = `Step Undefined: ${remarkTextBase}`;
           remarkColor = 'blue';
           break;  
       }
@@ -124,7 +125,7 @@ const frameworkHooks = {
       browser_session.showErrorLog(browser);
     }
 
-    const remarkText = (process.env.SCREENREMARK == 0) ? '' : `${currentScenarioStatus}: ${currentScenarioName}`;
+    const remarkText = (process.env.SCREENREMARK == 0) ? '' : `Scenario ${currentScenarioStatus}: ${currentScenarioName}`;
     const remarkColor = (currentScenarioStatus == 'Failed') ? 'red' : 'green';
     if (process.env.MOVIE == 1) {
       framework_libs.takeScreenshot(scenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
