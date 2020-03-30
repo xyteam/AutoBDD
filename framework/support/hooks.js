@@ -54,7 +54,9 @@ const frameworkHooks = {
   AfterStep: function(step, result) {
     if (step.getName()) {
       // to be done for real steps
-      const remarkScenarioName = (currentScenarioName <= 40) ? currentScenarioName : `${currentScenarioName.slice(0, 30)}...${currentScenarioName.slice(currentScenarioName.length - 10, currentScenarioName.length)}`;
+      const remarkScenarioName = (currentScenarioName.length <= 40) ? currentScenarioName : currentScenarioName.slice(0, 30) + '...' +
+                                                                                     currentScenarioName.slice(currentScenarioName.length - 10,
+                                                                                                               currentScenarioName.length);
       const remarkStepName = step.getName();
       var remarkText, remarkColor;
       switch (result) {
