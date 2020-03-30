@@ -19,8 +19,8 @@ const projectHooks = {
     if (frameworkHooks) frameworkHooks.BeforeStep(step);
   },
 
-  AfterStep: function(step) {
-    if (frameworkHooks) frameworkHooks.AfterStep(step);
+  AfterStep: function(step, result) {
+    if (frameworkHooks) frameworkHooks.AfterStep(step, result);
   },
 
   AfterScenario: function(scenario) {

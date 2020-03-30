@@ -18,8 +18,10 @@ module.exports = function() {
     if (projectHooks) projectHooks.BeforeStep(step);
   });
 
-  this.AfterStep(function(step) {
-    if (projectHooks) projectHooks.AfterStep(step);
+  this.StepResult(function(stepResult) {
+    const step = stepResult.getStep();
+    const result = stepResult.getStatus()
+    if (projectHooks) projectHooks.AfterStep(step, result);
   });
 
   this.AfterScenario(function(scenario) {
