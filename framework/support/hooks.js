@@ -74,7 +74,8 @@ const frameworkHooks = {
           remarkText = `Step Undefined: ${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
           remarkColor = 'blue';
           break;  
-      }      
+      }
+      if (process.env.SCREENREMARK == 0) remarkText = '';
       // start recording
       if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
       // start screenshot
@@ -121,7 +122,7 @@ const frameworkHooks = {
       browser_session.showErrorLog(browser);
     }
 
-    const remarkText = `${currentScenarioStatus}: ${currentScenarioName}`;
+    const remarkText = (process.env.SCREENREMARK == 0) ? '' : `${currentScenarioStatus}: ${currentScenarioName}`;
     const remarkColor = (currentScenarioStatus == 'Failed') ? 'red' : 'green';
     if (process.env.MOVIE == 1) {
       framework_libs.takeScreenshot(scenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
