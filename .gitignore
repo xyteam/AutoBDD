@@ -10,6 +10,7 @@ Failed_*.mp4
 Recording_*.mp4
 Passed_*.png
 Failed_*.png
+Step_*.png
 npm-debug.log
 hs_err_pid*.log
 sikulixapi*.jar
