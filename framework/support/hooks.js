@@ -55,8 +55,7 @@ const frameworkHooks = {
     if (step.getName()) {
       // to be done for real steps
       const remarkScenarioName = (currentScenarioName <= 40) ? currentScenarioName : `${currentScenarioName.slice(0, 30)}...${currentScenarioName.slice(currentScenarioName.length - 10, currentScenarioName.length)}`;
-      const stepName = step.getName();
-      const remarkStepName = stepName;
+      const remarkStepName = step.getName();
       var remarkText, remarkColor;
       switch (result) {
         case 'passed':
@@ -67,10 +66,14 @@ const frameworkHooks = {
           remarkText = `Step Failed: ${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
           remarkColor = 'red';
           break;
-        case 'skipped':
-          remarkText = `Step Skipped: ${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
+        case 'undefined':
+          remarkText = `Step Undefined: ${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
           remarkColor = 'orange';
           break;
+        case 'skipped':
+          remarkText = `Step Undefined: ${remarkScenarioName}... ${currentStepNumber} : ${remarkStepName}`;
+          remarkColor = 'blue';
+          break;  
       }      
       // start recording
       if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
