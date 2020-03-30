@@ -2,11 +2,11 @@ const fs = require('fs');
 const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
 const cmd = require('node-cmd');
-const uuid = require('uuid-random');
 
 // general and system
 const spaceChar_regex = /\s+/g;
 const invalidFileNameChar_regex = /[\:\;\,\(\)\/\'\"\.\&\%\<\>\-]/g;
+const invalidEchoChar_regex = /[\(\)\<\>]/g;
 const myHOME = process.env.HOME;
 const myDISPLAY = process.env.DISPLAY;
 
@@ -234,11 +234,11 @@ module.exports = {
     }
   },
   screenDisplayText: function(text, textColor, fontSize, textPosition) {
-    const myText = text.replace(invalidFileNameChar_regex, '');
+    const myText = text.replace(invalidEchoChar_regex, '');
     const myTextColor = textColor || 'green';
     const myFontSize = fontSize || 20;
     const myTextPosition = textPosition || 6; // 9 positions (3 x 3): 0, 1, 2, 3, 4, 5, 6, 7, 8
-    cmd_aosd_cat_text = `echo "${myText}" | aosd_cat -p ${myTextPosition} -n ${myFontSize} -R ${myTextColor} -B gray -b 120 -e 0 -f 0 -u 500 -o 0`;
+    const cmd_aosd_cat_text = `echo "${myText}" | aosd_cat -p ${myTextPosition} -n ${myFontSize} -R ${myTextColor} -B gray -b 120 -e 0 -f 0 -u 500 -o 0`;
     exec(cmd_aosd_cat_text);
   },
   getHtmlReportTags: function(scenarioName, resultPrefix, stepPostfix) {
