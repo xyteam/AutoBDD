@@ -1,16 +1,22 @@
 #!/usr/bin/env node
 
-// installed xysikulixapi
-const xysikulixapi = require('xysikulixapi');
+// prepare for safeQuote
 const quote = require('shell-quote').quote;
 const parse = require('shell-quote').parse;
 const safeQuote = (str) => { return (str) ? quote(parse(str)) : undefined };
 
-// Tesseract-OCR Property
+// all external env vars should be parsed or quoted
+process.env.imageSimilarity = parseFloat(process.env.imageSimilarity) || 0.8;
+process.env.imageWaitTime = parseInt(process.env.imageWaitTime) || 1;
+process.env.TESSDATA_PREFIX = safeQuote(process.env.TESSDATA_PREFIX) || '/usr/share/tesseract-ocr/4.00/tessdata';
+process.env.OMP_THREAD_LIMIT = parseInt(process.env.OMP_THREAD_LIMIT) || 1;
+// needed for Tesseract-OCR property
 process.env.LC_ALL = 'C';
 process.env.LC_CTYPE = 'C';
-process.env.TESSDATA_PREFIX = process.env.TESSDATA_PREFIX || '/usr/share/tesseract-ocr/4.00/tessdata';
-process.env.OMP_THREAD_LIMIT = process.env.OMP_THREAD_LIMIT || 1;
+const myDISPLAY = ':' + parseInt(process.env.DISPLAY.split(':')[1]) || ':1';
+
+// installed xysikulixapi
+const xysikulixapi = require('xysikulixapi');
 
 // java
 const java = require('java');
@@ -30,22 +36,27 @@ OCR.globalOptionsSync().dataPath(process.env.TESSDATA_PREFIX);
 
 // process pargs
 const argv = require('minimist')(process.argv.slice(2));
-const imagePath = (argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen';
-const imageSimilarity = (argv.imageSimilarity != null && argv.imageSimilarity != 'undefined') ? argv.imageSimilarity : process.env.imageSimilarity || 0.8;
-const imageWaitTime = (argv.imageWaitTime != null && argv.imageWaitTime != 'undefined') ? argv.imageWaitTime : process.env.imageWaitTime || 1;
-const imageAction = (argv.imageAction != null && argv.imageAction != 'undefined') ? argv.imageAction : 'none';
-const maxSim = (argv.maxSim != null && argv.maxSim != 'undefined') ? argv.maxSim : 1;
-const textHint = (argv.textHint != null && argv.textHint != 'undefined') ? argv.textHint : '';
-const imageMaxCount = (argv.imageMaxCount != null && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1;
+const imagePath = safeQuote((argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen');
+const imageSimilarity = parseFloat((argv.imageSimilarity != null && argv.imageSimilarity != 'undefined') ? argv.imageSimilarity : process.env.imageSimilarity || 0.8);
+const imageWaitTime = parseInt((argv.imageWaitTime != null && argv.imageWaitTime != 'undefined') ? argv.imageWaitTime : process.env.imageWaitTime || 1);
+const imageAction = safeQuote((argv.imageAction != null && argv.imageAction != 'undefined') ? argv.imageAction : 'none');
+const maxSim = parseFloat((argv.maxSim != null && argv.maxSim != 'undefined') ? argv.maxSim : 1);
+const textHint = safeQuote((argv.textHint != null && argv.textHint != 'undefined') ? argv.textHint : '');
+const imageMaxCount = parseInt((argv.imageMaxCount != null && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1);
+
+// default output
 const notFoundStatus = {status: 'notFound'};
 
 // defind findImage function
 const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount) => {
+  // all input vars should be parsed or quoted
+  const myImagePath = safeQuote(imagePath);
   const myImageSimilarity = parseFloat(imageSimilarity);
   const myMaxSim = parseFloat(maxSim);
-  const myTextHint = textHint;
+  const myTextHint = safeQuote(textHint);
   const myImageWaitTime = parseInt(imageWaitTime);
-  const myImageMaxCount = imageMaxCount || 1;
+  const myImageAction = safeQuote(imageAction);
+  const myImageMaxCount = parseInt(imageMaxCount || 1);
 
   const findRegion = new Screen();
   findRegion.setAutoWaitTimeout(java.newFloat(myImageWaitTime));
@@ -60,15 +71,15 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
       center = {x: rectItem.x + Math.round(rectItem.w / 2), y: rectItem.y + Math.round(rectItem.h / 2)};
       return [location, dimension, center];
     }
-    if (imagePath.includes('Screen')) {
-      const screenMargin = imagePath.includes('-') ? parseInt(imagePath.split('-')[1]) : 1;
+    if (myImagePath.includes('Screen')) {
+      const screenMargin = myImagePath.includes('-') ? parseInt(myImagePath.split('-')[1]) : 1;
       oneTarget = Region(findRegion.getBoundsSync()).growSync(-screenMargin);
       returnItem.text = oneTarget.textSync().split('\n');
       [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(oneTarget);
       oneTarget.highlight(0.1);
       returnArray.push(returnItem);
     } else {
-      const oneSample = (new Pattern(imagePath)).similarSync(java.newFloat(myImageSimilarity));
+      const oneSample = (new Pattern(myImagePath)).similarSync(java.newFloat(myImageSimilarity));
       const findTargets = findRegion.findAllSync(oneSample);
       const myRegex = new RegExp(myTextHint, 'i');
       var matchCount = 0;
@@ -88,15 +99,15 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
     if (returnArray.length == 0) {
       returnArray.push(notFoundStatus)
      } else {
-      // process imageAction if any
-      if (imageAction && imageAction != 'none' && imageAction != 'null') {
+      // process myImageAction if any
+      if (myImageAction && myImageAction != 'none' && myImageAction != 'null') {
         for (i=0; i<returnArray.length; i++) {
           var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
           clickRegion.mouseUpSync();
-          switch (imageAction) {
+          switch (myImageAction) {
             case 'single':
             case 'click':
-              if (process.env.DISPLAY.split(':')[1] > 9) {
+              if (myDISPLAY.split(':')[1] > 9) {
                 clickRegion.doubleClick();
               } else {
                 clickRegion.click();
@@ -105,7 +116,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
             break;
             case 'hoverClick':
               clickRegion.hoverSync();
-              if (process.env.DISPLAY.split(':')[1] > 9) {
+              if (myDISPLAY.split(':')[1] > 9) {
                 clickRegion.doubleClick();
               } else {
                 clickRegion.click();
