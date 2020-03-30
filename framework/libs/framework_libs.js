@@ -224,7 +224,7 @@ module.exports = {
     const cmd_take_screenshot = 'import -silent -display ' + myDISPLAY + ' -window root '
         + myREPORTDIR + '/' + resultPrefix + '_' + scenario_png;
     if (scenarioName) {
-      if (text.length > 0 ) this.screenDisplayText(text, textColor, fontSize);
+      if (text && text.length > 0 ) this.screenDisplayText(text, textColor, fontSize);
       browser.pause(250);
       exec(cmd_take_screenshot);
       browser.pause(500);
