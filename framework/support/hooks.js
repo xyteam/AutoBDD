@@ -52,11 +52,12 @@ const frameworkHooks = {
   },
 
   AfterStep: function(step, result) {
-    if (step.getName()) {
       // to be done for real steps
-      const remarkScenarioName = (currentScenarioName.length <= 40) ? currentScenarioName : currentScenarioName.slice(0, 30) + '...' +
-                                                                                     currentScenarioName.slice(currentScenarioName.length - 10,
-                                                                                                               currentScenarioName.length);
+      if (step.getName()) {
+      const currentScenarioNameArray = currentScenarioName.split(' ');
+      const remarkScenarioName = (currentScenarioNameArray.length <= 10) ? currentScenarioName : currentScenarioNameArray.slice(0, 6).join(' ') +
+                                 ' ... ' +
+                                 currentScenarioNameArray.slice(currentScenarioNameArray.length - 3).join(' ');
       const remarkStepName = step.getName();
       const remarkTextBase = `${remarkScenarioName}... Step ${currentStepNumber} : ${remarkStepName}`;
       var remarkText, remarkColor;
@@ -74,18 +75,19 @@ const frameworkHooks = {
           remarkColor = 'orange';
           break;
         case 'skipped':
-          remarkText = `Step Undefined: ${remarkTextBase}`;
+          remarkText = `Step Skipped: ${remarkTextBase}`;
           remarkColor = 'blue';
           break;  
       }
+      // in the case of SCREENREMARK=0 do not print remark text
       if (process.env.SCREENREMARK == 0) remarkText = '';
       // start recording
       if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
       // start screenshot
-      if ((process.env.SCREENSHOT == 2) && currentStepNumber == 1) {
+      if (process.env.SCREENSHOT == 2 && currentStepNumber == 1) {
         framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
       }
-      if (result != 'skipped' && process.env.SCREENSHOT == 3) {
+      if (process.env.SCREENSHOT == 3 && result != 'skipped') {
         framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
       }
       if (process.env.BROWSERLOG == 1) {
@@ -126,7 +128,7 @@ const frameworkHooks = {
     }
 
     const remarkText = (process.env.SCREENREMARK == 0) ? '' : `Scenario ${currentScenarioStatus}: ${currentScenarioName}`;
-    const remarkColor = (currentScenarioStatus == 'Failed') ? 'red' : 'green';
+    const remarkColor = (currentScenarioStatus == 'Passed') ? 'green' : 'red';
     if (process.env.MOVIE == 1) {
       framework_libs.renameRecording(scenarioName, currentScenarioStatus, currentStepNumber);
     } else if (process.env.SCREENSHOT >= 1) {
@@ -144,10 +146,11 @@ const frameworkHooks = {
       scenario.attach(stepOneImage_tag, 'text/html');
       scenario.attach(lastRunStepImage_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 3) {
-      for (stepIndex = 1; stepIndex <= currentStepNumber; stepIndex++) {
+      for (stepIndex = 1; stepIndex <= currentStepNumber - 1; stepIndex++) {
         const stepImage_tag = framework_libs.getHtmlReportTags(scenarioName, 'Step', stepIndex)[0];
         scenario.attach(stepImage_tag, 'text/html');
       }
+      scenario.attach(lastRunStepImage_tag, 'text/html');
     }
     
     // need to perform these steps before tear down RDP
