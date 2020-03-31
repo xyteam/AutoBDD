@@ -113,11 +113,11 @@ const frameworkHooks = {
 
   // expect scenario.isSuccessful(), should be called with After(scenario)
   AfterScenarioResult: function(scenario) {
-    var stepOneImage_tag, lastRunStepImage_tag, video_tag, runlog_tag;
+    var scenarioBeginImage_tag, scenarioEndImage_tag, video_tag, runlog_tag;
     if (process.env.MOVIE == 1) {
       framework_libs.stopRecording(currentScenarioName);
     }
-    stepOneImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', '1')[0];
+    scenarioBeginImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', '1')[0];
     if (scenario.isSuccessful()) {
       currentScenarioStatus = 'Passed';
     } else {
@@ -133,23 +133,23 @@ const frameworkHooks = {
     } else if (process.env.SCREENSHOT >= 1) {
       framework_libs.takeScreenshot(currentScenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
     }
-    [lastRunStepImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(currentScenarioName, currentScenarioStatus, currentStepNumber);
+    [scenarioEndImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(currentScenarioName, currentScenarioStatus, currentStepNumber);
 
     scenario.attach(runlog_tag, 'text/html');
     if (process.env.MOVIE == 1) {
       scenario.attach(video_tag, 'text/html');
     }
     if (process.env.SCREENSHOT == 1) {
-      scenario.attach(lastRunStepImage_tag, 'text/html');
+      scenario.attach(scenarioEndImage_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 2) {
-      scenario.attach(stepOneImage_tag, 'text/html');
-      scenario.attach(lastRunStepImage_tag, 'text/html');
+      scenario.attach(scenarioBeginImage_tag, 'text/html');
+      scenario.attach(scenarioEndImage_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 3) {
-      for (stepIndex = 1; stepIndex <= currentStepNumber - 1; stepIndex++) {
+      for (stepIndex = 1; stepIndex <= currentStepNumber; stepIndex++) {
         const stepImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', stepIndex)[0];
         scenario.attach(stepImage_tag, 'text/html');
       }
-      scenario.attach(lastRunStepImage_tag, 'text/html');
+      scenario.attach(scenarioEndImage_tag, 'text/html');
     }
     
     // need to perform these steps before tear down RDP
