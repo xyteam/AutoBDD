@@ -113,12 +113,11 @@ const frameworkHooks = {
 
   // expect scenario.isSuccessful(), should be called with After(scenario)
   AfterScenarioResult: function(scenario) {
-    var scenarioName = scenario.getName();
     var stepOneImage_tag, lastRunStepImage_tag, video_tag, runlog_tag;
     if (process.env.MOVIE == 1) {
-      framework_libs.stopRecording(scenarioName);
+      framework_libs.stopRecording(currentScenarioName);
     }
-    stepOneImage_tag = framework_libs.getHtmlReportTags(scenarioName, 'Step', '1')[0];
+    stepOneImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', '1')[0];
     if (scenario.isSuccessful()) {
       currentScenarioStatus = 'Passed';
     } else {
@@ -130,11 +129,11 @@ const frameworkHooks = {
     const remarkText = (process.env.SCREENREMARK == 0) ? '' : `Scenario ${currentScenarioStatus}: ${currentScenarioName}`;
     const remarkColor = (currentScenarioStatus == 'Passed') ? 'green' : 'red';
     if (process.env.MOVIE == 1) {
-      framework_libs.renameRecording(scenarioName, currentScenarioStatus, currentStepNumber);
+      framework_libs.renameRecording(currentScenarioName, currentScenarioStatus, currentStepNumber);
     } else if (process.env.SCREENSHOT >= 1) {
-      framework_libs.takeScreenshot(scenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
+      framework_libs.takeScreenshot(currentScenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
     }
-    [lastRunStepImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(scenarioName, currentScenarioStatus, currentStepNumber);
+    [lastRunStepImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(currentScenarioName, currentScenarioStatus, currentStepNumber);
 
     scenario.attach(runlog_tag, 'text/html');
     if (process.env.MOVIE == 1) {
@@ -147,7 +146,7 @@ const frameworkHooks = {
       scenario.attach(lastRunStepImage_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 3) {
       for (stepIndex = 1; stepIndex <= currentStepNumber - 1; stepIndex++) {
-        const stepImage_tag = framework_libs.getHtmlReportTags(scenarioName, 'Step', stepIndex)[0];
+        const stepImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', stepIndex)[0];
         scenario.attach(stepImage_tag, 'text/html');
       }
       scenario.attach(lastRunStepImage_tag, 'text/html');
