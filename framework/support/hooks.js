@@ -130,7 +130,8 @@ const frameworkHooks = {
     const remarkColor = (currentScenarioStatus == 'Passed') ? 'green' : 'red';
     if (process.env.MOVIE == 1) {
       framework_libs.renameRecording(currentScenarioName, currentScenarioStatus, currentStepNumber);
-    } else if (process.env.SCREENSHOT >= 1) {
+    }
+    if (process.env.SCREENSHOT >= 1) {
       framework_libs.takeScreenshot(currentScenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
     }
     [scenarioEndImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(currentScenarioName, currentScenarioStatus, currentStepNumber);
