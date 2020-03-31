@@ -1,22 +1,32 @@
 #!/usr/bin/env node
 
-// Tesseract-OCR Property
+// prepare for safeQuote
+const safeQuote = require('../libs/safequote');
+
+// all external env vars should be parsed or quoted
+process.env.TESSDATA_PREFIX = safeQuote(process.env.TESSDATA_PREFIX) || '/usr/share/tesseract-ocr/4.00/tessdata';
+process.env.OMP_THREAD_LIMIT = parseInt(process.env.OMP_THREAD_LIMIT) || 1;
+const myDISPLAY = ':' + parseInt(process.env.DISPLAY.split(':')[1]) || ':1';
+
+// needed for Tesseract-OCR property
 process.env.LC_ALL = 'C';
 process.env.LC_CTYPE = 'C';
-process.env.TESSDATA_PREFIX = process.env.TESSDATA_PREFIX || '/usr/share/tesseract-ocr/4.00/tessdata';
-process.env.OMP_THREAD_LIMIT = process.env.OMP_THREAD_LIMIT || 1;
 
+// all args should be parsed or quoted to const
+const argv = require('minimist')(process.argv.slice(2));
+const myImagePath = safeQuote(argv.imagePath);
+
+// require stuff
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 const uuid = require('uuid-random');
 
-const argv = require('minimist')(process.argv.slice(2));
 const tmpImagePath = `/tmp/${uuid()}.png`;
-const saveScreenCmd = `import -silent -display ${process.env.DISPLAY} -window root ${tmpImagePath}`;
+const saveScreenCmd = `import -silent -display ${myDISPLAY} -window root ${tmpImagePath}`;
 const getTextCmd = `tesseract ${tmpImagePath} -`;
 
-if (argv.imagePath && argv.imagePath != 'null' && argv.imagePath != 'undefined') {
-    fs.copyFileSync(argv.imagePath, tmpImagePath);
+if (myImagePath && myImagePath != 'null' && myImagePath != 'undefined') {
+    fs.copyFileSync(myImagePath, tmpImagePath);
 } else {
     execSync(saveScreenCmd, {shell: '/bin/bash'});
 }
