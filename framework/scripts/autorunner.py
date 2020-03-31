@@ -453,7 +453,7 @@ class ChimpAutoRun:
                 os.remove('/tmp/' + item)
 
         self.host = []
-        self.thread_count = 0
+        self.available_pool_number = 0
         self.end_time = time.strftime("%Y%m%d_%H%M%S%Z", time.gmtime())
         self.get_available_host()
 
@@ -515,7 +515,7 @@ class ChimpAutoRun:
                 if len(hostinfo) > 1:
                     hostdict = dict(zip(headarray, hostinfo))
                     if hostdict['Status'] == 'on':  # and hostdict['Platform'] == self.platform:
-                        self.thread_count += int(hostdict['Thread'])
+                        self.available_pool_number += int(hostdict['Thread'])
                         self.host.append(hostdict)
                         print(self.host)
 
@@ -618,27 +618,27 @@ class ChimpAutoRun:
 
         '''
         # set sub process pool number
-        pool_number = None
+        used_pool_number = None
         if self.parallel == 'MAX':
             # using all available rdp host in config file
-            pool_number = int(self.thread_count)
+            used_pool_number = int(self.available_pool_number)
         elif self.parallel == 'CPU':
             # using cpu count
             cpu_count = multiprocessing.cpu_count()
             if self.movie == '1':
-                pool_number = cpu_count / 2
+                used_pool_number = cpu_count / 2
             else:
-                pool_number = cpu_count
-            if pool_number < 1:
-                pool_number = 1
+                used_pool_number = cpu_count
+            if used_pool_number < 1:
+                used_pool_number = 1
         else:
-            pool_number = min(int(self.thread_count), int(self.parallel))
+            used_pool_number = min(int(self.available_pool_number), int(self.parallel))
         
-        pool_number = int(pool_number)
-        self.parallel = str(pool_number)
-        pool = multiprocessing.Pool(pool_number)
+        used_pool_number = int(used_pool_number)
+        self.parallel = str(used_pool_number)
+        pool = multiprocessing.Pool(used_pool_number)
 
-        print('POOL NUMBER: {}'.format(pool_number))
+        print('USED POOL NUMBER: {}'.format(used_pool_number))
 
         db = TinyDB(dbfile, sort_keys=True, indent=4, separators=(',', ': '))
 
