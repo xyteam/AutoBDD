@@ -157,14 +157,14 @@ module.exports = {
 
   // movie and screenshot
   convertScenarioNameToFileBase: function(scenarioName) {
-    const myScenarioName = safeQuote(scenarioName);
+    const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const fileBase = (myPLATFORM + '_' + myBROWSER + '_' + myMODULE + '_' + myScenarioName)
                       .replace(spaceChar_regex, '_')
                       .replace(invalidFileNameChar_regex, '');
     return fileBase;
   },
   convertScenarioStepNameToFileBase: function(scenarioName, stepIndex, stepName) {
-    const myScenarioName = safeQuote(scenarioName);
+    const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const myStepIndex = parseInt(stepIndex);
     const myStepName = safeQuote(stepName);
     const fileBase = `${myScenarioName}.${myStepIndex}.${myStepName}`
@@ -173,7 +173,7 @@ module.exports = {
     return fileBase;
   },
   recordingRunning: function(scenarioName) {
-    const myScenarioName = safeQuote(scenarioName);
+    const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
     const cmd_check_recording = `pgrep -f "ffmpeg .*${recordingFile_fullPath}"`;
@@ -185,7 +185,7 @@ module.exports = {
     }
   },
   startRecording: function(scenarioName) {
-    const myScenarioName = safeQuote(scenarioName);
+    const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
     const cmd_start_recording = 'ffmpeg -y -s ' + myDISPLAYSIZE
@@ -203,7 +203,7 @@ module.exports = {
     }
   },
   stopRecording: function(scenarioName) {
-    const myScenarioName = safeQuote(scenarioName);
+    const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
     const cmd_stop_recording = `sleep 1; pkill -INT -f "ffmpeg .*${recordingFile_fullPath}"; sleep 1`;
@@ -221,7 +221,7 @@ module.exports = {
       }
   },
   renameRecording: function(scenarioName, resultPrefix) {
-    const myScenarioName = safeQuote(scenarioName);
+    const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const myResultPrefix = safeQuote(resultPrefix);
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
@@ -238,7 +238,7 @@ module.exports = {
     }
   },
   takeScreenshot: function(scenarioName, resultPrefix, stepIndex, text, textColor, fontSize) {
-    const myScenarioName = safeQuote(scenarioName);
+    const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const myResultPrefix = safeQuote(resultPrefix);
     const myStepIndex = parseInt(stepIndex);
     const myText = safeQuote(text);
@@ -273,7 +273,7 @@ module.exports = {
     return childProcess;
   },
   getHtmlReportTags: function(scenarioName, resultPrefix, stepIndex) {
-    const myScenarioName = safeQuote(scenarioName);
+    const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const myResultPrefix = safeQuote(resultPrefix);
     const myStepIndex = parseInt(stepIndex);
     const scenario_base = this.convertScenarioNameToFileBase(myScenarioName);

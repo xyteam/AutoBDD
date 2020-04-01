@@ -56,10 +56,10 @@ const frameworkHooks = {
       if (step.getName()) {
       const currentScenarioNameArray = currentScenarioName.split(' ');
       const remarkScenarioName = (currentScenarioNameArray.length <= 10) ? currentScenarioName : currentScenarioNameArray.slice(0, 6).join(' ') +
-                                 ' ... ' +
+                                 ' .. ' +
                                  currentScenarioNameArray.slice(currentScenarioNameArray.length - 3).join(' ');
       const remarkStepName = step.getName();
-      const remarkTextBase = `${remarkScenarioName}... Step ${currentStepNumber} : ${remarkStepName}`;
+      const remarkTextBase = `${remarkScenarioName} ... Step ${currentStepNumber} : ${remarkStepName}`;
       var remarkText, remarkColor;
       switch (result) {
         case 'passed':
