@@ -165,8 +165,8 @@ module.exports = {
   },
   convertScenarioStepNameToFileBase: function(scenarioName, stepIndex, stepName) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
-    const myStepIndex = (stepIndex) ? parseInt(stepIndex) : 0;
-    const myStepName = safeQuote(stepName);
+    const myStepIndex = parseInt(stepIndex) || 0;
+    const myStepName = safeQuote(stepName) || '';
     const fileBase = `${myScenarioName}.${myStepIndex}.${myStepName}`
                       .replace(spaceChar_regex, '_')
                       .replace(invalidFileNameChar_regex, '');
@@ -239,10 +239,10 @@ module.exports = {
   },
   takeScreenshot: function(scenarioName, resultPrefix, stepIndex, text, textColor, fontSize) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
-    const myResultPrefix = safeQuote(resultPrefix);
-    const myStepIndex = (stepIndex) ? parseInt(stepIndex) : 0;
-    const myText = (text) ? safeQuote(text) : '';
-    const myTextColor = (textColor) ? safeQuote(textColor) : 'green';
+    const myResultPrefix = safeQuote(resultPrefix) || '';
+    const myStepIndex = parseInt(stepIndex) || 0;
+    const myText = safeQuote(text) || '';
+    const myTextColor = safeQuote(textColor) || 'green';
     const myFontSize = parseInt(fontSize) || 20;
     const scenario_png = `${this.convertScenarioNameToFileBase(myScenarioName)}.${myStepIndex}.png`;
     const cmd_take_screenshot = `import -silent -display ${myDISPLAY} -window root ${myREPORTDIR}/${myResultPrefix}_${scenario_png}`;
@@ -265,7 +265,7 @@ module.exports = {
   },
   screenDisplayText: function(text, textColor, fontSize, textPosition) {
     const myText = safeQuote(text).replace(invalidEchoChar_regex, '');
-    const myTextColor = (textColor) ? safeQuote(textColor) : 'green';
+    const myTextColor = safeQuote(textColor) || 'green';
     const myFontSize = parseInt(fontSize) || 20;
     const myTextPosition = parseInt(textPosition) || 6; // 9 positions (3 x 3): 0, 1, 2, 3, 4, 5, 6, 7, 8
     const cmd_aosd_cat_text = `echo ${myText} | aosd_cat -p ${myTextPosition} -n ${myFontSize} -R ${myTextColor} -B gray -b 120 -e 0 -f 0 -u 800 -o 0`;
@@ -275,7 +275,7 @@ module.exports = {
   getHtmlReportTags: function(scenarioName, resultPrefix, stepIndex) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const myResultPrefix = safeQuote(resultPrefix);
-    const myStepIndex = (stepIndex) ? parseInt(stepIndex) : 0;
+    const myStepIndex = parseInt(stepIndex) || 0;
     const scenario_base = this.convertScenarioNameToFileBase(myScenarioName);
     const scenario_mp4 = `${scenario_base}.mp4`;
     const scenario_png = `${scenario_base}.${myStepIndex}.png`;
