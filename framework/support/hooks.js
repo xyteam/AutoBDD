@@ -52,8 +52,12 @@ const frameworkHooks = {
   },
 
   AfterStep: function(step, result) {
-      // to be done for real steps
-      if (step.getName()) {
+    // to be done for real steps
+    if (step.getName()) {
+      // start recording
+      if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
+
+      // prepare display text
       const currentScenarioNameArray = currentScenarioName.split(' ');
       const remarkScenarioName = (currentScenarioNameArray.length <= 10) ? currentScenarioName : currentScenarioNameArray.slice(0, 6).join(' ') +
                                  ' .. ' +
@@ -79,10 +83,10 @@ const frameworkHooks = {
           remarkColor = 'blue';
           break;  
       }
+
       // in the case of SCREENREMARK=0 do not print remark text
       if (process.env.SCREENREMARK == 0) remarkText = '';
-      // start recording
-      if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
+      
       // start screenshot
       if (process.env.SCREENSHOT == 2 && currentStepNumber == 1) {
         framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
@@ -90,6 +94,8 @@ const frameworkHooks = {
       if (process.env.SCREENSHOT == 3 && result != 'skipped') {
         framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
       }
+
+      // show browser log
       if (process.env.BROWSERLOG == 1) {
         browser_session.showErrorLog(browser);
       }  
@@ -113,11 +119,7 @@ const frameworkHooks = {
 
   // expect scenario.isSuccessful(), should be called with After(scenario)
   AfterScenarioResult: function(scenario) {
-    var scenarioBeginImage_tag, scenarioEndImage_tag, video_tag, runlog_tag;
-    if (process.env.MOVIE == 1) {
-      framework_libs.stopRecording(currentScenarioName);
-    }
-    scenarioBeginImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', 1)[0];
+    // scenario status
     if (scenario.isSuccessful()) {
       currentScenarioStatus = 'Passed';
     } else {
@@ -125,27 +127,36 @@ const frameworkHooks = {
       console.log('browser error log:');
       browser_session.showErrorLog(browser);
     }
-
     const remarkText = (process.env.SCREENREMARK == 0) ? '' : `Scenario ${currentScenarioStatus}: ${currentScenarioName}`;
     const remarkColor = (currentScenarioStatus == 'Passed') ? 'green' : 'red';
-    if (process.env.MOVIE == 1) {
-      framework_libs.renameRecording(currentScenarioName, currentScenarioStatus, currentStepNumber);
-    }
+
+    // final screenshot and end movie with it
     if (process.env.SCREENSHOT >= 1) {
       framework_libs.takeScreenshot(currentScenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
     }
-    [scenarioEndImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(currentScenarioName, currentScenarioStatus, currentStepNumber);
-
-    scenario.attach(runlog_tag, 'text/html');
     if (process.env.MOVIE == 1) {
+      framework_libs.stopRecording(currentScenarioName);
+    }
+    if (process.env.MOVIE == 1) {
+      framework_libs.renameRecording(currentScenarioName, currentScenarioStatus, currentStepNumber);
+    }
+
+    // process tags for report attachement
+    var scenarioBeginImage_tag, scenarioEndImage_tag, video_tag, runlog_tag;
+    scenarioBeginImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', 1)[0];
+    [scenarioEndImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(currentScenarioName, currentScenarioStatus, currentStepNumber);
+    scenario.attach(runlog_tag, 'text/html');
+    
+    if (process.env.MOVIE == 1) { // MOVIE == 1 attach movie
       scenario.attach(video_tag, 'text/html');
     }
-    if (process.env.SCREENSHOT == 1) {
+    
+    if (process.env.SCREENSHOT == 1) { // SCREESHOT == 1 attach final screenshot
       scenario.attach(scenarioEndImage_tag, 'text/html');
-    } else if (process.env.SCREENSHOT == 2) {
+    } else if (process.env.SCREENSHOT == 2) { // SCREESHOT == 2 attach first and final screenshots
       scenario.attach(scenarioBeginImage_tag, 'text/html');
       scenario.attach(scenarioEndImage_tag, 'text/html');
-    } else if (process.env.SCREENSHOT == 3) {
+    } else if (process.env.SCREENSHOT == 3) { // SCREESHOT == 3 attach all step screenshots, skipped steps will get empty refernce
       for (stepIndex = 1; stepIndex <= currentStepNumber; stepIndex++) {
         const stepImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', stepIndex)[0];
         scenario.attach(stepImage_tag, 'text/html');
@@ -156,7 +167,7 @@ const frameworkHooks = {
     // need to perform these steps before tear down RDP
     changeBrowserZoom(100);
 
-    // need this pause for screenshots to be renamed
+    // need this pause for screenshots rename procss to finish
     browser.pause(1000);
   },
 }
