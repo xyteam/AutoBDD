@@ -117,7 +117,7 @@ const frameworkHooks = {
     if (process.env.MOVIE == 1) {
       framework_libs.stopRecording(currentScenarioName);
     }
-    scenarioBeginImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', '1')[0];
+    scenarioBeginImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', 1)[0];
     if (scenario.isSuccessful()) {
       currentScenarioStatus = 'Passed';
     } else {
