@@ -250,7 +250,7 @@ module.exports = {
       var childProcess;
       if (myText && myText.length > 0 ) {
         childProcess = this.screenDisplayText(myText, myTextColor, myFontSize);
-        const cmd_wait_display_start  = `while ! test -d /proc/${childProcess.pid}; do sleep 0.2; done`;
+        const cmd_wait_display_start  = `while ! test -d /proc/${childProcess.pid}; do sleep 0.2; done; sleep 0.2`;
         execSync(cmd_wait_display_start);
       }
       exec(cmd_take_screenshot);
@@ -268,7 +268,7 @@ module.exports = {
     const myTextColor = safeQuote(textColor) || 'green';
     const myFontSize = parseInt(fontSize) || 20;
     const myTextPosition = parseInt(textPosition) || 6; // 9 positions (3 x 3): 0, 1, 2, 3, 4, 5, 6, 7, 8
-    const cmd_aosd_cat_text = `echo ${myText} | aosd_cat -p ${myTextPosition} -n ${myFontSize} -R ${myTextColor} -B gray -b 120 -e 0 -f 0 -u 500 -o 0`;
+    const cmd_aosd_cat_text = `echo ${myText} | aosd_cat -p ${myTextPosition} -n ${myFontSize} -R ${myTextColor} -B gray -b 120 -e 0 -f 0 -u 800 -o 0`;
     childProcess = exec(cmd_aosd_cat_text);
     return childProcess;
   },
