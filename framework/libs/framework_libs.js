@@ -245,13 +245,19 @@ module.exports = {
     const myTextColor = safeQuote(textColor);
     const myFontSize = parseInt(fontSize) || 20;
     const scenario_png = `${this.convertScenarioNameToFileBase(myScenarioName)}.${myStepIndex}.png`;
-    const cmd_take_screenshot = 'import -silent -display ' + myDISPLAY + ' -window root '
-        + myREPORTDIR + '/' + myResultPrefix + '_' + scenario_png;
+    const cmd_take_screenshot = `import -silent -display ${myDISPLAY} -window root ${myREPORTDIR}/${myResultPrefix}_${scenario_png}`;
     if (myScenarioName) {
-      if (myText && myText.length > 0 ) this.screenDisplayText(myText, myTextColor, myFontSize);
-      
+      var childProcess;
+      if (myText && myText.length > 0 ) {
+        childProcess = this.screenDisplayText(myText, myTextColor, myFontSize);
+        const cmd_wait_display_start  = `while ! test -d /proc/${childProcess.pid}; do sleep 0.2; done`;
+        execSync(cmd_wait_display_start);
+      }
       exec(cmd_take_screenshot);
-      browser.pause(500);
+      if (myText && myText.length > 0 ) {
+        const cmd_wait_display_stop  = `while test -d /proc/${childProcess.pid}; do sleep 0.2; if ps -p ${childProcess.pid} | grep defunct; then break; fi; done`;
+        execSync(cmd_wait_display_stop);
+      }
     } else {
       console.log('takeScreenshot: scenarioName can not be empty');
       return false;
@@ -263,7 +269,8 @@ module.exports = {
     const myFontSize = parseInt(fontSize) || 20;
     const myTextPosition = parseInt(textPosition) || 6; // 9 positions (3 x 3): 0, 1, 2, 3, 4, 5, 6, 7, 8
     const cmd_aosd_cat_text = `echo ${myText} | aosd_cat -p ${myTextPosition} -n ${myFontSize} -R ${myTextColor} -B gray -b 120 -e 0 -f 0 -u 500 -o 0`;
-    exec(cmd_aosd_cat_text);
+    childProcess = exec(cmd_aosd_cat_text);
+    return childProcess;
   },
   getHtmlReportTags: function(scenarioName, resultPrefix, stepIndex) {
     const myScenarioName = safeQuote(scenarioName);
