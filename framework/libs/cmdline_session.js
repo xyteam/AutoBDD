@@ -33,7 +33,7 @@ module.exports = {
     fs.existsSync(process.env.HOME + '/.ssh') || fs.mkdirSync(process.env.HOME + '/.ssh');
     const cmd_correct_hostKey = `ssh-keygen -f "${myPlatformKnownHosts}" -R "${targetHost}"`;
     const runResult = this.runCmd(cmd_correct_hostKey);
-    assert.equal(runResult.exitcode, 0, `cannot remove ${targetHost} from ${myPlatformKnownHosts}`);
+    // assert.equal(runResult.exitcode, 0, `cannot remove ${targetHost} from ${myPlatformKnownHosts}`);
   },
 
   remoteRunCmd: function(runCommand, sshLogin, sshPort, sshPass, sshKeyFile) {
