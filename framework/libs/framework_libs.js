@@ -1,50 +1,59 @@
+const safeQuote = require('../libs/safequote');
 const fs = require('fs');
 const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
 const cmd = require('node-cmd');
 
-// general and system
+// safe quote env vars - general and system
 const spaceChar_regex = /\s+/g;
 const invalidFileNameChar_regex = /[\:\;\,\(\)\/\'\"\.\&\%\<\>\-]/g;
 const invalidEchoChar_regex = /[\(\)\<\>]/g;
-const myHOME = process.env.HOME;
-const myDISPLAY = process.env.DISPLAY;
+const myHOME = safeQuote(process.env.HOME);
+const myDISPLAY = safeQuote(process.env.DISPLAY);
 
-// test related
-const myPLATFORM = process.env.PLATFORM;
-const myDISPLAYSIZE = process.env.DISPLAYSIZE;
-const myMOVIE = process.env.MOVIE;
-const mySCREENSHOT = process.env.SCREENSHOT;
-const myREPORTDIR = process.env.REPORTDIR;
-const myRELATIVEREPORTDIR = process.env.RELATIVEREPORTDIR;
-const myMODULE = process.env.ThisModule;
+// safe quote env vars - test related
+const myPLATFORM = safeQuote(process.env.PLATFORM);
+const myDISPLAYSIZE = safeQuote(process.env.DISPLAYSIZE);
+const myMOVIE = safeQuote(process.env.MOVIE);
+const mySCREENSHOT = safeQuote(process.env.SCREENSHOT);
+const myREPORTDIR = safeQuote(process.env.REPORTDIR);
+const myRELATIVEREPORTDIR = safeQuote(process.env.RELATIVEREPORTDIR);
+const myMODULE = safeQuote(process.env.ThisModule);
+const myRUNREPORT = safeQuote(process.env.RUNREPORT);
 
-// framework essential
-const myBROWSER = process.env.BROWSER;
-const mySSHHOST = process.env.SSHHOST;
-const mySSHPORT = process.env.SSHPORT;
-const mySSHUSER = process.env.SSHUSER;
-const mySSHPASS = process.env.SSHPASS;
-const mySELHOST = process.env.SELHOST;
-const mySELPORT = process.env.SELPORT;
-const myRDPHOST = process.env.RDPHOST;
-const myRDPPORT = process.env.RDPPORT;
-const myRDPUSER = process.env.RDPUSER || mySSHUSER;
-const myRDPPASS = process.env.RDPPASS || mySSHPASS;
-const myMOVIEFR = process.env.MOVIEFR || '8';
-const myMOVIERR = process.env.MOVIERR || '1';
+// safe quote env vars - framework essential
+const myBROWSER = safeQuote(process.env.BROWSER);
+const mySSHHOST = safeQuote(process.env.SSHHOST);
+const mySSHPORT = safeQuote(process.env.SSHPORT);
+const mySSHUSER = safeQuote(process.env.SSHUSER);
+const mySSHPASS = safeQuote(process.env.SSHPASS);
+const mySELHOST = safeQuote(process.env.SELHOST);
+const mySELPORT = safeQuote(process.env.SELPORT);
+const myRDPHOST = safeQuote(process.env.RDPHOST);
+const myRDPPORT = safeQuote(process.env.RDPPORT);
+const myRDPUSER = safeQuote(process.env.RDPUSER) || mySSHUSER;
+const myRDPPASS = safeQuote(process.env.RDPPASS) || mySSHPASS;
+const myMOVIEFR = safeQuote(process.env.MOVIEFR) || '8';
+const myMOVIERR = safeQuote(process.env.MOVIERR) || '1';
 
-// framework deducted
+// safe quote env vars - framework deducted
+const myDownloadPathLocal = safeQuote(process.env.DownloadPathLocal) || '/tmp/download_' + myDISPLAY.substr(1);
+
+// there should be no process.env vars this line
+
+// additional framework deducted
 const mySSHConnString = mySSHUSER + '@' + mySSHHOST + ' -p ' + mySSHPORT;
 const myRDPConnString = myRDPHOST + ':' + myRDPPORT + ' -u ' + myRDPUSER + ' -p ' + myRDPPASS;
 const mySELPortMapString = ' -L' + mySELPORT + ':' + mySELHOST + ':' + 4444;
 const myRDPPortMapString = ' -L' + myRDPPORT + ':' + myRDPHOST + ':' + 3389;
+// TODO: In xyPlatform project we use vagrant to pre-install platform key to a cluster of test clients.
+// Here we copy that key and allow AutoBDD to remote drive this cluster of test clients.
+// It was working pretty well, should consider re-testing.
 const myPlatformIdSrc = myHOME + '/Projects/xyPlatform/global/platform_id_rsa';
 const myPlatformIdDes = myHOME + '/.ssh/platform_id_rsa';
 
 // ssh_tunnel
 const cmd_copy_PlatformId = 'cp ' + myPlatformIdSrc + ' ' + myPlatformIdDes + ', chmod 0600 ' + myPlatformIdDes;
-const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
 const mySSHFSConnString = mySSHUSER + '@' + mySSHHOST + ':Downloads/ ' + myDownloadPathLocal + ' -p ' + mySSHPORT;
 const cmd_check_ssh_tunnel = 'pgrep -f "ssh .*' + mySSHConnString + '"';
 const cmd_start_ssh_tunnel = 'ssh -N '
@@ -148,19 +157,24 @@ module.exports = {
 
   // movie and screenshot
   convertScenarioNameToFileBase: function(scenarioName) {
-    var fileBase = (myPLATFORM + '_' + myBROWSER + '_' + myMODULE + '_' + scenarioName)
+    const myScenarioName = safeQuote(scenarioName);
+    const fileBase = (myPLATFORM + '_' + myBROWSER + '_' + myMODULE + '_' + myScenarioName)
                       .replace(spaceChar_regex, '_')
                       .replace(invalidFileNameChar_regex, '');
     return fileBase;
   },
   convertScenarioStepNameToFileBase: function(scenarioName, stepIndex, stepName) {
-    var fileBase = `${scenarioName}.${stepIndex}.${stepName}`
+    const myScenarioName = safeQuote(scenarioName);
+    const myStepIndex = parseInt(stepIndex);
+    const myStepName = safeQuote(stepName);
+    const fileBase = `${myScenarioName}.${myStepIndex}.${myStepName}`
                       .replace(spaceChar_regex, '_')
                       .replace(invalidFileNameChar_regex, '');
     return fileBase;
   },
   recordingRunning: function(scenarioName) {
-    const scenario_mp4 = this.convertScenarioNameToFileBase(scenarioName) + '.mp4';
+    const myScenarioName = safeQuote(scenarioName);
+    const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
     const cmd_check_recording = `pgrep -f "ffmpeg .*${recordingFile_fullPath}"`;
     var pidCount = execSync(cmd_check_recording).toString().split('\n').filter(Boolean).length
@@ -171,7 +185,8 @@ module.exports = {
     }
   },
   startRecording: function(scenarioName) {
-    const scenario_mp4 = this.convertScenarioNameToFileBase(scenarioName) + '.mp4';
+    const myScenarioName = safeQuote(scenarioName);
+    const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
     const cmd_start_recording = 'ffmpeg -y -s ' + myDISPLAYSIZE
         + ' -f x11grab -an -nostdin -r ' + myMOVIEFR
@@ -179,8 +194,8 @@ module.exports = {
         + ' -filter:v "setpts=' + myMOVIERR + '*PTS" '
         + recordingFile_fullPath
         + ' 2> /dev/null &';
-    if (scenarioName) {
-      if (this.recordingRunning(scenarioName)) this.stopRecording(scenarioName);
+    if (myScenarioName) {
+      if (this.recordingRunning(myScenarioName)) this.stopRecording(myScenarioName);
       exec(cmd_start_recording);
     } else {
       console.log('startRecording: scenarioName can not be empty');
@@ -188,11 +203,12 @@ module.exports = {
     }
   },
   stopRecording: function(scenarioName) {
-    const scenario_mp4 = this.convertScenarioNameToFileBase(scenarioName) + '.mp4';
+    const myScenarioName = safeQuote(scenarioName);
+    const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
     const cmd_stop_recording = `sleep 1; pkill -INT -f "ffmpeg .*${recordingFile_fullPath}"; sleep 1`;
-    if (scenarioName) {
-      if (this.recordingRunning(scenarioName))
+    if (myScenarioName) {
+      if (this.recordingRunning(myScenarioName))
         try {
           // this command will kill self and always return error, thus must put in a try block
           execSync(cmd_stop_recording);
@@ -205,11 +221,13 @@ module.exports = {
       }
   },
   renameRecording: function(scenarioName, resultPrefix) {
-    const scenario_mp4 = this.convertScenarioNameToFileBase(scenarioName) + '.mp4';
+    const myScenarioName = safeQuote(scenarioName);
+    const myResultPrefix = safeQuote(resultPrefix);
+    const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
     const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
-    const finalFile_fullPath = myREPORTDIR + '/' + resultPrefix + '_' + scenario_mp4;
+    const finalFile_fullPath = myREPORTDIR + '/' + myResultPrefix + '_' + scenario_mp4;
     const cmd_rename_movie = 'mv ' + recordingFile_fullPath + ' ' + finalFile_fullPath;
-    while (this.recordingRunning(scenarioName)) {
+    while (this.recordingRunning(myScenarioName)) {
       browser.pause(1000);
     }
     try{
@@ -219,13 +237,19 @@ module.exports = {
       return false;
     }
   },
-  takeScreenshot: function(scenarioName, resultPrefix, stepPostfix, text, textColor, fontSize) {
-    const scenario_png = `${this.convertScenarioNameToFileBase(scenarioName)}.${stepPostfix}.png`;
+  takeScreenshot: function(scenarioName, resultPrefix, stepIndex, text, textColor, fontSize) {
+    const myScenarioName = safeQuote(scenarioName);
+    const myResultPrefix = safeQuote(resultPrefix);
+    const myStepIndex = parseInt(stepIndex);
+    const myText = safeQuote(text);
+    const myTextColor = safeQuote(textColor);
+    const myFontSize = parseInt(fontSize) || 20;
+    const scenario_png = `${this.convertScenarioNameToFileBase(myScenarioName)}.${myStepIndex}.png`;
     const cmd_take_screenshot = 'import -silent -display ' + myDISPLAY + ' -window root '
-        + myREPORTDIR + '/' + resultPrefix + '_' + scenario_png;
-    if (scenarioName) {
-      if (text && text.length > 0 ) this.screenDisplayText(text, textColor, fontSize);
-      browser.pause(250);
+        + myREPORTDIR + '/' + myResultPrefix + '_' + scenario_png;
+    if (myScenarioName) {
+      if (myText && myText.length > 0 ) this.screenDisplayText(myText, myTextColor, myFontSize);
+      
       exec(cmd_take_screenshot);
       browser.pause(500);
     } else {
@@ -234,20 +258,23 @@ module.exports = {
     }
   },
   screenDisplayText: function(text, textColor, fontSize, textPosition) {
-    const myText = text.replace(invalidEchoChar_regex, '');
-    const myTextColor = textColor || 'green';
-    const myFontSize = fontSize || 20;
-    const myTextPosition = textPosition || 6; // 9 positions (3 x 3): 0, 1, 2, 3, 4, 5, 6, 7, 8
-    const cmd_aosd_cat_text = `echo "${myText}" | aosd_cat -p ${myTextPosition} -n ${myFontSize} -R ${myTextColor} -B gray -b 120 -e 0 -f 0 -u 500 -o 0`;
+    const myText = safeQuote(text).replace(invalidEchoChar_regex, '');
+    const myTextColor = safeQuote(textColor) || 'green';
+    const myFontSize = parseInt(fontSize) || 20;
+    const myTextPosition = parseInt(textPosition) || 6; // 9 positions (3 x 3): 0, 1, 2, 3, 4, 5, 6, 7, 8
+    const cmd_aosd_cat_text = `echo ${myText} | aosd_cat -p ${myTextPosition} -n ${myFontSize} -R ${myTextColor} -B gray -b 120 -e 0 -f 0 -u 500 -o 0`;
     exec(cmd_aosd_cat_text);
   },
-  getHtmlReportTags: function(scenarioName, resultPrefix, stepPostfix) {
-    const scenario_base = this.convertScenarioNameToFileBase(scenarioName);
+  getHtmlReportTags: function(scenarioName, resultPrefix, stepIndex) {
+    const myScenarioName = safeQuote(scenarioName);
+    const myResultPrefix = safeQuote(resultPrefix);
+    const myStepIndex = parseInt(stepIndex);
+    const scenario_base = this.convertScenarioNameToFileBase(myScenarioName);
     const scenario_mp4 = `${scenario_base}.mp4`;
-    const scenario_png = `${scenario_base}.${stepPostfix}.png`;
-    const feature_runlog = process.env.RUNREPORT;
-    const image_tag = `<img src="${myRELATIVEREPORTDIR}/${resultPrefix}_${encodeURIComponent(scenario_png)}" style="max-width: 100%; height: auto;" alt="${resultPrefix}_${scenario_png}">`;
-    const video_tag = `<video src="${myRELATIVEREPORTDIR}/${resultPrefix}_${encodeURIComponent(scenario_mp4)}" style="max-width: 100%; height: auto;" controls/>Your browser does not support the video tag.</video>`; 
+    const scenario_png = `${scenario_base}.${myStepIndex}.png`;
+    const feature_runlog = myRUNREPORT;
+    const image_tag = `<img src="${myRELATIVEREPORTDIR}/${myResultPrefix}_${encodeURIComponent(scenario_png)}" style="max-width: 100%; height: auto;" alt="${myResultPrefix}_${scenario_png}">`;
+    const video_tag = `<video src="${myRELATIVEREPORTDIR}/${myResultPrefix}_${encodeURIComponent(scenario_mp4)}" style="max-width: 100%; height: auto;" controls/>Your browser does not support the video tag.</video>`; 
     const runlog_tag = `<a href="${myRELATIVEREPORTDIR}/${feature_runlog}.html" style="max-width: 100%; height: auto;"/>${feature_runlog}</a>`;
     return [image_tag, video_tag, runlog_tag];
   }
