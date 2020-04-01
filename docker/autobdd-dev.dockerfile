@@ -23,7 +23,6 @@ RUN apt install -q -y --allow-unauthenticated --fix-missing --no-install-recomme
         gnome-themes-standard \
         lxde \
         mesa-utils \
-        openssh-server \
         vim-tiny \
         x11vnc \
         zenity \

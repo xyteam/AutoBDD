@@ -48,6 +48,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         libxtst-dev \
         net-tools \
         ntpdate \
+        openssh-server \
         python3-dev \
         python3-pip \
         rdesktop \
