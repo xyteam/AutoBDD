@@ -89,15 +89,15 @@ module.exports = function() {
           break;
         case "circle":
           const delta_50 =  50 / Math.sqrt(2);
-          this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
-          this.screen_session.moveMouse(targetLocation.x + delta_50, targetLocation.y - delta_50);
-          this.screen_session.moveMouse(targetLocation.x + 50, targetLocation.y);
-          this.screen_session.moveMouse(targetLocation.x + delta_50, targetLocation.y + delta_50);
-          this.screen_session.moveMouse(targetLocation.x, targetLocation.y + 50);
-          this.screen_session.moveMouse(targetLocation.x - delta_50, targetLocation.y + delta_50);
-          this.screen_session.moveMouse(targetLocation.x - 50, targetLocation.y);
-          this.screen_session.moveMouse(targetLocation.x - delta_50, targetLocation.y - delta_50);
-          this.screen_session.moveMouse(targetLocation.x, targetLocation.y - 50);
+          this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y - 50);
+          this.screen_session.moveMouseSmooth(targetLocation.x + delta_50, targetLocation.y - delta_50);
+          this.screen_session.moveMouseSmooth(targetLocation.x + 50, targetLocation.y);
+          this.screen_session.moveMouseSmooth(targetLocation.x + delta_50, targetLocation.y + delta_50);
+          this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y + 50);
+          this.screen_session.moveMouseSmooth(targetLocation.x - delta_50, targetLocation.y + delta_50);
+          this.screen_session.moveMouseSmooth(targetLocation.x - 50, targetLocation.y);
+          this.screen_session.moveMouseSmooth(targetLocation.x - delta_50, targetLocation.y - delta_50);
+          this.screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y - 50);
           break;
       }
       myTimesCount--;
