@@ -102,23 +102,8 @@ const frameworkHooks = {
     }
   },
 
-  AfterScenario: function(scenario) {
-    // NOTE: AfterScenario gets run after everyting ends, so do not use it to control recording.
-    // var scenarioName = scenario.getName();
-  },
-
-  AfterFeature: function(feature) {
-    if (process.env.SSHHOST && process.env.SSHPORT) {
-      try {
-        framework_libs.stopRdesktop();
-        framework_libs.stopSshFs();
-        framework_libs.stopSshTunnel();
-      } catch(e) {}
-    }
-  },
-
   // expect scenario.isSuccessful(), should be called with After(scenario)
-  AfterScenarioResult: function(scenario) {
+  AfterScenario: function(scenario) {
     // scenario status
     if (scenario.isSuccessful()) {
       currentScenarioStatus = 'Passed';
@@ -170,6 +155,16 @@ const frameworkHooks = {
     // need this pause for screenshots rename procss to finish
     browser.pause(1000);
   },
+  
+  AfterFeature: function(feature) {
+    if (process.env.SSHHOST && process.env.SSHPORT) {
+      try {
+        framework_libs.stopRdesktop();
+        framework_libs.stopSshFs();
+        framework_libs.stopSshTunnel();
+      } catch(e) {}
+    }
+  }
 }
 
 module.exports = frameworkHooks;
