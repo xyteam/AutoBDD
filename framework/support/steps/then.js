@@ -8,7 +8,6 @@ const checkDownloadedFileContainsNumOfLines = require('../../functions/check/che
 const checkDownloadedFileContainsRowsAndColumns = require('../../functions/check/checkDownloadedFileContainsRowsAndColumns');
 const checkDownloadedFileContainsEqualsMatchesText = require('../../functions/check/checkDownloadedFileContainsEqualsMatchesText');
 const checkFocus = require('../../functions/check/checkFocus');
-const checkInURLPath = require('../../functions/check/checkInURLPath');
 const checkIsOpenedInNewWindow = require('../../functions/check/checkIsOpenedInNewWindow');
 const checkModal = require('../../functions/check/checkModal');
 const checkModalText = require('../../functions/check/checkModalText');
@@ -19,7 +18,6 @@ const checkFontProperty = require('../../functions/check/checkFontProperty');
 const checkTitle = require('../../functions/check/checkTitle');
 const checkTitleContains = require('../../functions/check/checkTitleContains');
 const checkURL = require('../../functions/check/checkURL');
-const checkURLPath = require('../../functions/check/checkURLPath');
 const checkWithinViewport = require('../../functions/check/checkWithinViewport');
 const compareText = require('../../functions/check/compareText');
 const isEnabled = require('../../functions/check/isEnabled');
@@ -80,18 +78,8 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the url is( not)* "([^"]*)?"$/,
+        /^I expect the (full URL|URL protocol|URL host|URL host port|URL path) to( not)* (be|contain|matche) "(.*)?"$/,
         checkURL
-    );
-
-    this.Then(
-        /^I expect (?:that )?the path is( not)* "([^"]*)?"$/,
-        checkURLPath
-    );
-
-    this.Then(
-        /^I expect (?:that )?the url to( not)* contain "([^"]*)?"$/,
-        checkInURLPath
     );
 
     this.Then(

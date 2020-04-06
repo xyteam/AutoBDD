@@ -1,24 +1,95 @@
 /**
  * Check the URL of the given browser window
- * @param  {String}   falseCase   Whether to check if the URL matches the
- *                                expected value or not
- * @param  {String}   expectedUrl The expected URL to check against
+ * @param  {String}   action        is, contains or matches
+ * @param  {String}   falseCase     Whether to check if the value of the
+ *                                  attribute matches or not
+ * @param  {String}   expectedText The value to match against
  */
-module.exports = (falseCase, expectedUrl) => {
+const parseExpectedText = require('../common/parseExpectedText');
+module.exports = (target, falseCase, action, expectedText) => {
+    const myExpectedText = parseExpectedText(expectedText);
     /**
-     * The current browser window's URL
+     * The URL of the current browser window
      * @type {String}
      */
-    const currentUrl = browser.url().value;
-    var myExpectedUrl = (expectedUrl.match('^http[s]*://')) ? expectedUrl : browser.options.baseUrl + expectedUrl
+    const currentUrl = browser.getUrl();
+    console.log(currentUrl);
+    const currentUrlProtocol = currentUrl.split('://')[0];
+    const currentUrlHost = currentUrl.split('://')[1].split('/')[0].split(':')[0];
+    const currentUrlHostPort = currentUrl.split('://')[1].split('/')[0].split(':')[1];
+    const currentUrlPath = '/' + currentUrl.split('://')[1].split('/').slice(1).join('');
 
+    var myTestTarget;
+    switch (target) {
+        case 'full URL':
+            myTestTarget = currentUrl;
+            break;
+        case 'URL protocol':
+            myTestTarget = currentUrlProtocol;
+            break;
+        case 'URL host':
+            myTestTarget = currentUrlHost;
+            break;
+        case 'URL host port':
+            myTestTarget = currentUrlHostPort;
+            break;    
+        case 'URL path':
+            myTestTarget = currentUrlPath;
+            break;
+    }
     if (falseCase) {
-        expect(currentUrl).not.toEqual(myExpectedUrl, `expected url not to be "${currentUrl}"`);
+        switch (action) {
+            case 'be':
+            case 'is':
+                expect(myTestTarget).not.toEqual(
+                    myExpectedText,
+                    `The current ${target} should not be ` +
+                    `"${myExpectedText}"`
+                );        
+                break;
+            case 'contain':
+            case 'contains':
+                expect(myTestTarget).not.toContain(
+                    myExpectedText,
+                    `The current ${target} should not contain ` +
+                    `"${myExpectedText}"`
+                );        
+                break;
+            case 'match':
+            case 'matches':
+                expect(myTestTarget).not.toMatch(
+                    myExpectedText,
+                    `The current ${target} should not match ` +
+                    `"${myExpectedText}"`
+                );        
+                break;
+        }
     } else {
-        expect(currentUrl).toEqual(
-            myExpectedUrl,
-                `expected url to be "${myExpectedUrl}" but found ` +
-                `"${currentUrl}"`
-            );
+        switch (action) {
+            case 'be':
+            case 'is':
+                expect(myTestTarget).toEqual(
+                    myExpectedText,
+                    `The current ${target} should be ` +
+                    `"${myExpectedText}"`
+                );        
+                break;
+            case 'contain':
+            case 'contains':
+                expect(myTestTarget).toContain(
+                    myExpectedText,
+                    `The current ${target} should contain ` +
+                    `"${myExpectedText}"`
+                );        
+                break;
+            case 'match':
+            case 'matches':
+                expect(myTestTarget).toMatch(
+                    myExpectedText,
+                    `The current ${target} should match ` +
+                    `"${myExpectedText}"`
+                );        
+                break;
+        }
     }
 };

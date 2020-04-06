@@ -88,7 +88,9 @@ module.exports = function() {
 
     this.Given(
         /^the page url is( not)* "([^"]*)?"$/,
-        checkUrl
+        (falseCase, value) => {
+            checkUrl('full URL', falseCase, 'is', value);
+        }
     );
 
     this.Given(

@@ -6,4 +6,4 @@ Feature: test init
 
   Scenario: download drivers
     When  I open the path "/"
-    Then  I expect the url to contain "version"
+    Then  I expect the full URL to contain "version"
