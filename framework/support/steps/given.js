@@ -1,4 +1,5 @@
 const announceMessage = require('../../functions/action/announceMessage');
+const bypassChromeSafetyWarning = require('../../functions/action/bypassChromeSafetyWarning');
 const checkContainsAnyTextOrValue = require('../../functions/check/checkContainsAnyTextOrValue');
 const checkElementTextValueIsEmpty = require('../../functions/check/checkElementTextValueIsEmpty');
 const checkCookieContent = require('../../functions/check/checkCookieContent');
@@ -24,6 +25,11 @@ module.exports = function() {
     this.Given(
         /^I announce message(?: at (console|browser))?: "([^"]*)?"$/,
         announceMessage
+    );
+
+    this.Given(
+        /^I bypass chrome safety warning if presented$/,
+        bypassChromeSafetyWarning
     );
 
     this.Given(
@@ -62,11 +68,6 @@ module.exports = function() {
     );
 
     this.Given(
-        /^the title is( not)* "([^"]*)?"$/,
-        checkTitle
-    );
-
-    this.Given(
         /^the element "([^"]*)?" contains( not)* the same text as element "([^"]*)?"$/,
         compareText
     );
@@ -91,6 +92,11 @@ module.exports = function() {
         (falseCase, value) => {
             checkUrl('full URL', falseCase, 'is', value);
         }
+    );
+
+    this.Given(
+        /^the page title does( not)* (contain|equal|matche) the (text|value) "(.*)?"$/,
+        checkTitle
     );
 
     this.Given(

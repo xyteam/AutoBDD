@@ -16,7 +16,6 @@ const checkOffset = require('../../functions/check/checkOffset');
 const checkProperty = require('../../functions/check/checkProperty');
 const checkFontProperty = require('../../functions/check/checkFontProperty');
 const checkTitle = require('../../functions/check/checkTitle');
-const checkTitleContains = require('../../functions/check/checkTitleContains');
 const checkURL = require('../../functions/check/checkURL');
 const checkWithinViewport = require('../../functions/check/checkWithinViewport');
 const compareText = require('../../functions/check/compareText');
@@ -28,13 +27,8 @@ const checkIfElementInsideParentElementEqualsMatchesTextOrValue = require('../..
 
 module.exports = function() {
     this.Then(
-        /^I expect (?:that )?the title is( not)* "([^"]*)?"$/,
+        /^I expect (?:that )?the page title does( not)* (contain|equal|matche) the (text|value) "(.*)?"$/,
         checkTitle
-    );
-
-    this.Then(
-        /^I expect (?:that )?the title( not)* contains "([^"]*)?"$/,
-        checkTitleContains
     );
 
     this.Then(
