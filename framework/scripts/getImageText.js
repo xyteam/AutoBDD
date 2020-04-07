@@ -21,15 +21,21 @@ const fs = require('fs');
 const execSync = require('child_process').execSync;
 const uuid = require('uuid-random');
 
-const tmpImagePath = `/tmp/${uuid()}.png`;
-const saveScreenCmd = `import -silent -display ${myDISPLAY} -window root ${tmpImagePath}`;
-const getTextCmd = `tesseract ${tmpImagePath} -`;
+const imageExt = 'png';
+const tmpUUID = uuid();
+const tmpOriginalImagePath = `/tmp/${tmpUUID}.orig.${imageExt}`;
+const tmpConvertedImagePath = `/tmp/${tmpUUID}.convt.${imageExt}`;
+const takeScreenCmd = `import -silent -display ${myDISPLAY} -window root ${tmpOriginalImagePath}`;
+const convertImageCmd = `convert ${tmpOriginalImagePath} -colorspace Gray ${tmpConvertedImagePath}`;
+const getTextCmd = `tesseract ${tmpConvertedImagePath} -`;
 
 if (myImagePath && myImagePath != 'null' && myImagePath != 'undefined') {
-    fs.copyFileSync(myImagePath, tmpImagePath);
+    fs.copyFileSync(myImagePath, tmpOriginalImagePath);
 } else {
-    execSync(saveScreenCmd, {shell: '/bin/bash'});
+    execSync(takeScreenCmd, {shell: '/bin/bash'});
 }
+
+execSync(convertImageCmd, {shell: '/bin/bash'});
 
 var result;
 var exitcode;
@@ -44,6 +50,6 @@ try {
 const returnVal = [{text: result, exitcode: exitcode}];
 const returnString = JSON.stringify(returnVal);
 console.log(returnString);
-fs.unlinkSync(tmpImagePath)
+fs.unlinkSync(tmpOriginalImagePath);
+fs.unlinkSync(tmpConvertedImagePath);
 return returnString;
-
