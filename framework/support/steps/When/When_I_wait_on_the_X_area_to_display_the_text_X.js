@@ -20,7 +20,7 @@ module.exports = function() {
         } else {
           imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
         }
-        imageScore = this.lastImage && this.lastImage.imageName == parsedTargetName ? (this.lastImage.imageScore - 0.000001) : imageSimilarity;
+        imageScore = this.lastSeen_screenFindResult && this.lastSeen_screenFindResult.name == parsedTargetName ? (this.lastSeen_screenFindResult.score - 0.000001) : imageSimilarity;
       }
 
       // process wait and timeout condition
@@ -43,6 +43,7 @@ module.exports = function() {
         } else {
           screenFindResult = JSON.parse(this.screen_session.screenGetText());
         }
+        this.lastSeen_screenFindResult = screenFindResult;
         let lineArray = screenFindResult[0].text;
         var lineText;
         switch(firstOrLast) {
