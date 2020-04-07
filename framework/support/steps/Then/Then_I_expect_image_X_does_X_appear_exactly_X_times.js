@@ -13,7 +13,7 @@ module.exports = function() {
       var imagePathList, expectedImageSimilarity, expectedImageNumberMax;
       var screenFindResult;
       
-      if (imageName && imageName == 'the last seen') {
+      if (imageName && imageName == 'last-seen') {
         screenFindResult = this.lastSeen_screenFindResult;
       } else {
         [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedImageName);
@@ -22,7 +22,7 @@ module.exports = function() {
         expectedImageNumberMax = myExpectedNumber;
         screenFindResult = JSON.parse(this.screen_session.screenFindAllImages(imagePathList, expectedImageSimilarity, maxSimilarityOrText, null, null, expectedImageNumberMax));  
       }
-
+      this.lastSeen_screenFindResult = screenFindResult;
       if (screenFindResult.length == 0) {
         console.log('expected image does not show on screen');
       } else {

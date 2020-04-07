@@ -84,7 +84,7 @@ module.exports = function () {
       case 'on':
       default:
         var screenFindResult;
-        if (imageNameOne && imageNameOne == 'the last seen') {
+        if (imageNameOne && imageNameOne == 'last-seen') {
           screenFindResult = this.lastSeen_screenFindResult;
         } else {
           screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));

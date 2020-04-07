@@ -6,12 +6,9 @@ module.exports = function() {
     {timeout: process.env.StepTimeoutInMS},
     function (firstOrLast, lineCount, targetName, targetArea, falseCase, compareAction, expectType, expectedText) {
       const myExpectedText = parseExpectedText(expectedText);
-      browser.pause(500);
-      
       var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
-
       var screenFindResult;
-      if (targetName && targetName == 'the last seen') {
+      if (targetName && targetName == 'last-seen') {
         screenFindResult = this.lastSeen_screenFindResult;
       } else if (targetName && targetArea == 'image') {
         const parsedTargetName = parseExpectedText(targetName);
@@ -26,6 +23,7 @@ module.exports = function() {
       } else {
         screenFindResult = JSON.parse(this.screen_session.screenGetText());
       }  
+      this.lastSeen_screenFindResult = screenFindResult;
 
       let lineArray = screenFindResult[0].text;
       var lineText;
