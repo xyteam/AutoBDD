@@ -48,6 +48,7 @@ OCR.globalOptionsSync().dataPath(process.env.TESSDATA_PREFIX);
 const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount) => {
   // all input vars should be parsed or quoted
   const myImagePath = safeQuote(imagePath);
+  const myImageName = myImagePath.substring(myImagePath.lastIndexOf('/') + 1);
   const myImageSimilarity = parseFloat(imageSimilarity);
   const myMaxSim = parseFloat(maxSim);
   const myTextHint = safeQuote(textHint);
@@ -60,7 +61,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
 
   try {
     var oneTarget;
-    var returnItem = {score: null, text: null, location: null, dimension: null, center: null, clicked: null};
+    var returnItem = {name: myImageName, score: null, text: null, location: null, dimension: null, center: null, clicked: null};
     var returnArray = [];
     const fillRectangleInfo = (rectItem) => {
       location = {x: rectItem.x, y: rectItem.y};
