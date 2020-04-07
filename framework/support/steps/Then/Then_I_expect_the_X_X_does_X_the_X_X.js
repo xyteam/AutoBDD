@@ -32,7 +32,7 @@ module.exports = function() {
             lineText = lineArray.slice(0, lineCount).join('\n');
           break;
         case 'last':
-            lineText = lineArray.slice(-lineCount, lineArray.length).join('\n');
+            lineText = lineArray.slice(-lineCount).join('\n');
           break;
         default:
           lineText = lineArray.join('\n');
