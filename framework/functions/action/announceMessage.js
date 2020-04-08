@@ -1,6 +1,5 @@
-const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
-const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
+const browser_session = require('../../libs/browser_session');
+const parseExpectedText = require('../common/parseExpectedText');
 module.exports = (target, message) => {
     const myMessage = parseExpectedText(message);
     if (target) {
