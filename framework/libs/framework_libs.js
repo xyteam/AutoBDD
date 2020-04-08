@@ -6,7 +6,7 @@ const cmd = require('node-cmd');
 
 // safe quote env vars - general and system
 const spaceChar_regex = /\s+/g;
-const invalidFileNameChar_regex = /[\:\;\,\(\)\/\'\"\.\&\%\<\>\#\-]/g;
+const invalidFileNameChar_regex = /[\:\;\,\(\)\/\'\"\.\&\%\<\>\#\-\=]/g;
 const invalidEchoChar_regex = /[\(\)\<\>]/g;
 const myHOME = safeQuote(process.env.HOME);
 const myDISPLAY = safeQuote(process.env.DISPLAY);
