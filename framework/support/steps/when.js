@@ -20,6 +20,7 @@ const setInputField = require('../../functions/action/setInputField');
 const setInputFieldWithEnvVars = require('../../functions/action/setInputFieldWithEnvVars');
 const setPromptText = require('../../functions/action/setPromptText');
 const submitForm = require('../../functions/action/submitForm');
+const switchIframe = require('../../functions/action/switchIframe');
 const typeText = require('../../functions/action/typeText');
 const waitAndActOnElement = require('../../functions/action/waitAndActOnElement');
 const waitFor = require('../../functions/action/waitFor');
@@ -134,6 +135,11 @@ module.exports = function() {
     this.When(
         /^I select the option with the (name|value|text) "([^"]*)?" for element "([^"]*)?"$/,
         selectOption
+    );
+
+    this.When(
+        /^I switch to the(?: (parent|\d+(?:st|nd|rd|th)))? iframe(?: with the name "([^"]*)?")?$/,
+        switchIframe
     );
 
     this.When(
