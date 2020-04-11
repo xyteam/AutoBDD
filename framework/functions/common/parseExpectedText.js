@@ -2,11 +2,10 @@
  * Return variables in VAR:varName form by look up varFile.json in the order of Module, Project and Framework
  */
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const FrameworkSupportPath = FrameworkPath + '/framework/support';
+const FrameworkTestfilesPath = FrameworkPath + '/framework/testfiles';
 const ProjectPath = process.env.PROJECTRUNPATH;
-const ProjectSupportPath = ProjectPath + '/project/support';
-const ModulePath = ProjectPath + '/' + process.env.ThisModule;
-const ModuleSupportPath = ModulePath + '/support';
+const ProjectTestfilesPath = ProjectPath + '/project/testfiles';
+const ModuleTestfilesPath = ProjectPath + '/' + process.env.ThisModule + '/testfiles';
 const glob = require("glob");
 
 module.exports = (expectedText) => {
@@ -45,9 +44,9 @@ module.exports = (expectedText) => {
                     lookupFile = '*.js';
                     lookupVar = lookupText;
                 }
-                lookupFileList = glob.sync(ModuleSupportPath + '/testfiles/' + lookupFile);    
-                lookupFileList = lookupFileList.concat(glob.sync(ProjectSupportPath + '/testfiles/' + lookupFile));
-                lookupFileList = lookupFileList.concat(glob.sync(FrameworkSupportPath + '/testfiles/' + lookupFile));
+                lookupFileList = glob.sync(ModuleTestfilesPath + '/' + lookupFile);    
+                lookupFileList = lookupFileList.concat(glob.sync(ProjectTestfilesPath + '/' + lookupFile));
+                lookupFileList = lookupFileList.concat(glob.sync(FrameworkTestfilesPath + '/' + lookupFile));
                 for (let targetFile of lookupFileList) {
                     let varData = require(targetFile);
                     let targetVar = eval('varData.' + lookupVar);
@@ -79,9 +78,9 @@ module.exports = (expectedText) => {
                     lookupFile = '*.js';
                     lookupVar = lookupText;
                 }
-                lookupFileList = glob.sync(ModuleSupportPath + '/testfiles/' + lookupFile);    
-                lookupFileList = lookupFileList.concat(glob.sync(ProjectSupportPath + '/testfiles/' + lookupFile));
-                lookupFileList = lookupFileList.concat(glob.sync(FrameworkSupportPath + '/testfiles/' + lookupFile));
+                lookupFileList = glob.sync(ModuleTestfilesPath + '/testfiles/' + lookupFile);    
+                lookupFileList = lookupFileList.concat(glob.sync(ProjectTestfilesPath + '/testfiles/' + lookupFile));
+                lookupFileList = lookupFileList.concat(glob.sync(FrameworkTestfilesPath + '/testfiles/' + lookupFile));
                 for (let targetFile of lookupFileList) {
                     let varData = require(targetFile);
                     let targetVar = eval('varData.' + lookupVar);

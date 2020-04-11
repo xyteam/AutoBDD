@@ -6,13 +6,15 @@
  * @param  {String}   falseCase    Whether to check if the given element is enabled
  *                                 or not
  */
+const parseExpectedText = require('../common/parseExpectedText');
 module.exports = (partOf, element, waitAction, falseCase) => {
+    const myElement = parseExpectedText(element);
     const myPartOf = partOf || 'some';
     if (waitAction == 'becomes') {
         const ms = 10000;
-        browser.waitForEnabled(element, ms, !!falseCase);    
+        browser.waitForEnabled(myElement, ms, !!falseCase);    
     }
-    var isEnabled = browser.isEnabled(element);
+    var isEnabled = browser.isEnabled(myElement);
     if (typeof isEnabled != 'boolean') {
         switch (myPartOf) {
             default:
@@ -26,8 +28,8 @@ module.exports = (partOf, element, waitAction, falseCase) => {
     }
 
     if (falseCase) {
-        expect(isEnabled).not.toEqual(true, `Expected ${myPartOf} of element "${element}" not to be enabled`);
+        expect(isEnabled).not.toEqual(true, `Expected ${myPartOf} of element "${myElement}" not to be enabled`);
     } else {
-        expect(isEnabled).toEqual(true, `Expected ${myPartOf} of element "${element}" to be enabled`);
+        expect(isEnabled).toEqual(true, `Expected ${myPartOf} of element "${myElement}" to be enabled`);
     }
 };

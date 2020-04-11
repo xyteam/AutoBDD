@@ -1,10 +1,13 @@
 // fs_session.js provides functions to read and write the Downlaods folder of the target system (local or remote)
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const FrameworkSupportPath = FrameworkPath + '/framework/support';
+const FrameworkTestimagesPath = FrameworkPath + '/framework/testimages';
+const FrameworkTestfilesPath = FrameworkPath + '/framework/testfiles';
 const ProjectPath = process.env.PROJECTRUNPATH;
-const ProjectSupportPath = ProjectPath + '/project/support';
+const ProjectTestimagesPath = ProjectPath + '/project/testimages';
+const ProjectTestfilesPath = ProjectPath + '/project/testfiles';
 const ModulePath = ProjectPath + '/' + process.env.ThisModule;
-const ModuleSupportPath = ModulePath + '/support';
+const ModuleTestimagesPath = ModulePath + '/testimages';
+const ModuleTestfilesPath = ModulePath + '/testfiles';
 const DownloadPathLocal = process.env.DownloadPathLocal;
 const fs = require('fs');
 const glob = require("glob");
@@ -18,22 +21,22 @@ module.exports = {
     var testFileExt = (fileExt) ? [fileExt] : ['json'];
     var testFileFullPath = null;
 
-    // Search order: Module, Project, Support, will return null if not found
+    // Search order: Module, Project, Framework, will return null if not found
     if (testFileFullPath == null && process.env.PROJECTNAME && process.env.ThisModule) {
       testFileExt.some(function(ext) {
-        var filePath = ModuleSupportPath + '/testfiles/' + fileName + '.' + ext;
+        var filePath = ModuleTestfilesPath + '/' + fileName + '.' + ext;
         if (fs.existsSync(filePath)) testFileFullPath = filePath;
       })
     }
     if (testFileFullPath == null && process.env.PROJECTNAME) {
       testFileExt.some(function(ext) {
-        var filePath = ProjectSupportPath + '/testfiles/' + fileName + '.' + ext;
+        var filePath = ProjectTestfilesPath + '/' + fileName + '.' + ext;
         if (fs.existsSync(filePath)) testFileFullPath = filePath;
       })
     }
     if (testFileFullPath == null && process.env.FrameworkPath) {
       testFileExt.some(function(ext) {
-        var filePath = FrameworkSupportPath + '/testfiles/' + fileName + '.' + ext;
+        var filePath = FrameworkTestfilesPath + '/' + fileName + '.' + ext;
         if (fs.existsSync(filePath)) testFileFullPath = filePath;
       })
     }
@@ -68,25 +71,25 @@ module.exports = {
   },
 
   getModuleImageList: function(fileName, fileExt) {
-    var targetPath = ModuleSupportPath + '/testimages';
+    var targetPath = ModuleTestimagesPath;
     var imageList = this.getTestImageList(targetPath, fileName, fileExt);
     return imageList;
   },
 
   getProjectImageList: function(fileName, fileExt) {
-    var targetPath = ProjectSupportPath + '/testimages';
+    var targetPath = ProjectTestimagesPath;
     var imageList = this.getTestImageList(targetPath, fileName, fileExt);
     return imageList;
   },
 
   getFrameworkImageList: function(fileName, fileExt) {
-    var targetPath = FrameworkSupportPath + '/testimages';
+    var targetPath = FrameworkTestimagesPath;
     var imageList = this.getTestImageList(targetPath, fileName, fileExt);
     return imageList;
   },  
 
   globalSearchImageList: function(filePath, fileName, fileExt) {
-    // Search order: current, Module, Project, Support, will return [] if not found
+    // Search order: current, Module, Project, Framework, will return [] if not found
     var imageList = this.getTestImageList(filePath, fileName, fileExt);
     if (imageList.length == 0) {
       imageList = this.getModuleImageList(fileName, fileExt);
