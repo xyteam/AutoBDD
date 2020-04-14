@@ -28,10 +28,10 @@ module.exports = function() {
     );
 
     this.Given(
-        /^I bypass chrome safety warning if presented$/,
+        /^I (wait and )*bypass chrome safety warning(| if presented)$/,
         bypassChromeSafetyWarning
-    );
-
+      );
+    
     this.Given(
         /^I open the (file|download file|path|url) "([^"]*)?"$/,
         openTarget
