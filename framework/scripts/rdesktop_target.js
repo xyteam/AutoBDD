@@ -18,13 +18,12 @@ if (start) {
   execSync('sleep 5');
   framework_libs.startRdesktop();
   try {
-    var targetImagePath = FrameworkPath + '/framework/support/images/windows10_startButton.png';
+    var targetImagePath = FrameworkPath + '/framework/testimages/windows10_startButton.png';
     var imageSimilarity = 0.8;
     var imageWaitTime = 10;
-    screen_session.screenWaitImage(targetImagePath, imageSimilarity, null, imageWaitTime);
-    console.log('can see desktop');
+    const result = JSON.parse(screen_session.screenWaitImage(targetImagePath, imageSimilarity, null, imageWaitTime));
+    console.log(result.toString());
   } catch(e) {
-    console.log('cannot see desktop');
   }
 }
 
