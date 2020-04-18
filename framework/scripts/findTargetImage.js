@@ -32,6 +32,7 @@ const notFoundStatus = {status: 'notFound'};
 const java = require('java');
 java.options.push('-Xms128m');
 java.options.push('-Xmx512m');
+const fuzz = require('fuzzball');
 
 // Sikuli Property
 const App = xysikulixapi.App;
@@ -61,7 +62,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
 
   try {
     var oneTarget;
-    var returnItem = {name: myImageName, score: null, text: null, location: null, dimension: null, center: null, clicked: null};
+    var returnItem = {name: myImageName, score: null, text: null, textScore: null, location: null, dimension: null, center: null, clicked: null};
     var returnArray = [];
     const fillRectangleInfo = (rectItem) => {
       location = {x: rectItem.x, y: rectItem.y};
@@ -79,15 +80,17 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
     } else {
       const oneSample = (new Pattern(myImagePath)).similarSync(java.newFloat(myImageSimilarity));
       const findTargets = findRegion.findAllSync(oneSample);
-      const myRegex = new RegExp(myTextHint, 'i');
       var matchCount = 0;
       while (matchCount < myImageMaxCount && findTargets.hasNextSync()) {
         const oneMatch = findTargets.nextSync();
         returnItem.score = Math.floor(oneMatch.getScoreSync()*1000000)/1000000;
         [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(oneMatch);
         oneTarget = Region(oneMatch);
-        returnItem.text = oneTarget.textSync().split('\n');
-        if (returnItem.score >= myImageSimilarity && returnItem.score <= myMaxSim && returnItem.text.join('\n').match(myRegex)) {
+        const targetImageText = oneTarget.textSync();
+        const textScore = (myTextHint && myTextHint.length > 0) ? fuzz.partial_ratio(targetImageText, myTextHint) : 100;
+        returnItem.text = targetImageText.split('\n');
+        returnItem.textScore = textScore;
+        if (returnItem.score >= myImageSimilarity && returnItem.score <= myMaxSim && textScore >= 60) {
           matchCount += 1;
           oneTarget.highlight(0.1);
           returnArray.push(returnItem);
