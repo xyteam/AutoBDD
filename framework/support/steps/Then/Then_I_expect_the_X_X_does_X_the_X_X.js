@@ -1,8 +1,9 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
+const fuzz = require('fuzzball');
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?(?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" )?(image|screen area) does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
+    /^I expect (?:that )?(?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" )?(image|screen area) does( not)* (contain|equal|mimic|match) the (text|regex) "(.*)?"$/,
     {timeout: process.env.StepTimeoutInMS},
     function (firstOrLast, lineCount, targetName, targetArea, falseCase, compareAction, expectType, expectedText) {
       const myExpectedText = parseExpectedText(expectedText);
@@ -38,6 +39,8 @@ module.exports = function() {
           lineText = lineArray.join('\n');
       }
 
+      const mimicScore = (myExpectedText && myExpectedText.length > 0) ? fuzz.partial_ratio(lineText, myExpectedText) : 100;
+
       if (screenFindResult.length == 0) {
         console.log('expected image or text does not show on screen');
       } else {
@@ -59,12 +62,18 @@ module.exports = function() {
               myExpectedText,
               `target image text should not equal the ${expectType} ` +
               `"${myExpectedText}"`
-            );        
+            );
             break;
-          case 'match':
+            case 'mimic':
+              expect(mimicScore).not.toBeGreaterThanOrEqual(60,
+                `target image text should not mimic the ${expectType} ` +
+                `"${myExpectedText}"`
+              );        
+            break;
+            case 'match':
               expect(lineText.toLowerCase()).not.toMatch(
                 myExpectedText.toLowerCase(),
-                `target image text should match the ${expectType} ` +
+                `target image text should not match the ${expectType} ` +
                 `"${myExpectedText}"`
               );        
             break;
@@ -87,15 +96,21 @@ module.exports = function() {
                 `"${myExpectedText}"`
               );        
               break;
-            case 'match':
-              expect(lineText.toLowerCase()).toMatch(
-                myExpectedText.toLowerCase(),
-                `target image text should match the ${expectType} ` +
-                `"${myExpectedText}"`
-              );        
-              break;
-            default:
-              expect(false).toBe(true, `compareAction ${compareAction} should be one of contain, equal or match`);
+          case 'mimic':
+            expect(mimicScore).toBeGreaterThanOrEqual(60,
+              `target image text should mimic the ${expectType} ` +
+              `"${myExpectedText}"`
+            );        
+            break;
+          case 'match':
+            expect(lineText.toLowerCase()).toMatch(
+              myExpectedText.toLowerCase(),
+              `target image text should match the ${expectType} ` +
+              `"${myExpectedText}"`
+            );        
+            break;
+          default:
+            expect(false).toBe(true, `compareAction ${compareAction} should be one of contain, equal or match`);
         }
       }
     }
