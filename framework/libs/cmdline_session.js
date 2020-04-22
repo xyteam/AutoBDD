@@ -70,7 +70,7 @@ module.exports = {
       result = e.stdout.toString();
       exitcode = e.status;
     }
-    const returnVal = {output: result, exitcode: exitcode};
+    const returnVal = {cmd: runCommand, output: result, exitcode: exitcode};
     const returnString = JSON.stringify(returnVal);
     console.log(returnString);
     return returnString;
