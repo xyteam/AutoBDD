@@ -4,6 +4,7 @@ const assert = require('assert');
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 const spawn= require('child_process').spawn;
+const stripAnsi = require('strip-ansi');
 
 // remote command
 const myPlatformIdDes = process.env.HOME + '/.ssh/platform_id_rsa';
@@ -97,7 +98,22 @@ module.exports = {
     const consoleSpawnOption = {
       shell: true
     };
-    const consoleProcess = spawn(mySshCommand, mySshArgsArray, consoleSpawnOption);
-    return consoleProcess;
+
+    var myConsoleData = {stdout: '', stderr: ''};
+    const myConsole = spawn(mySshCommand, mySshArgsArray, consoleSpawnOption);
+    myConsole.stdout.on('data', function (data) {
+      myConsoleData.stdout += stripAnsi(data.toString());
+      console.log('stdout: ' + myConsoleData.stdout);
+    });
+    myConsole.stderr.on('data', function (data) {
+      myConsoleData.stderr += stripAnsi(data.toString());
+      console.log('stderr: ' + myConsoleData.stderr);
+    });
+    myConsole.on('close', function (code) {
+      myConsoleData.stdout += `\n** SSH console closed with code: ${code}**\n`;
+      console.log('child process exited with code ' + code);
+    });
+
+    return [myConsole, myConsoleData];
   }
 }
