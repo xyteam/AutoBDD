@@ -21,9 +21,9 @@ const checkWithinViewport = require('../../functions/check/checkWithinViewport')
 const compareText = require('../../functions/check/compareText');
 const isEnabled = require('../../functions/check/isEnabled');
 const isVisible = require('../../functions/check/isVisible');
-const checkElementStatusInsideParentElement = require('../../functions/check/checkElementStatusInsideParentElement');
 const checkIfElementExistsInsideParentElement = require('../../functions/check/checkIfElementExistsInsideParentElement');
 const checkIfElementInsideParentElementEqualsMatchesTextOrValue = require('../../functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue');
+const checkIfElementInsideParentElementEqualsMatchesTextOrValue2 = require('../../functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue2');
 
 module.exports = function() {
     this.Then(
@@ -36,14 +36,19 @@ module.exports = function() {
         checkIfElementExistsInsideParentElement
     );
 
-    this.Then(
-        /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? is( not)* (displayed|checked|enabled|selected)$/,
-        checkElementStatusInsideParentElement
-    );
+    // this.Then(
+    //     /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? is( not)* (displayed|checked|enabled|selected)$/,
+    //     checkElementStatusInsideParentElement
+    // );
 
     this.Then(
         /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?( not)* (contains|equals|matches) the (text|regex|value) "(.*)?"$/,
         checkIfElementInsideParentElementEqualsMatchesTextOrValue
+    );
+
+    this.Then(
+        /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? (?:is|does)( not)* (displayed|checked|enabled|selected|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
+        checkIfElementInsideParentElementEqualsMatchesTextOrValue2
     );
 
     this.Then(
