@@ -142,7 +142,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
             browser.elements(parentElement).value.forEach((pElement, pIndex) => {
                 const parentElementId = pElement.ELEMENT;
                 targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
-                checkElement(targetElementId, targetElementIndex, targetElement, pIndex, parentElement, boolFalseCase, action, targetType, myExpectedText);    
+                checkElement(targetElementId, targetElementIndex, targetElement, pIndex + 1, parentElement, boolFalseCase, action, targetType, myExpectedText);    
             });
         }
     } else {
