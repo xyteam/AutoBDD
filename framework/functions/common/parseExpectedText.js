@@ -91,7 +91,7 @@ module.exports = (expectedText) => {
                 }
             }    
         }
-        console.log(`Var => ${textArray.join('')}`);
+        // console.log(`Var => ${textArray.join('')}`);
         return textArray.join('');
     }
 
