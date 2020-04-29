@@ -27,7 +27,7 @@ const checkIfElementInsideParentElementEqualsMatchesTextOrValue2 = require('../.
 
 module.exports = function() {
     this.Then(
-        /^I expect (?:that )?the page title does( not)* (contain|equal|matche) the (text|value) "(.*)?"$/,
+        /^I expect (?:that )?the page title does( not)* (contain|equal|match) the (text|value|regex) "(.*)?"$/,
         checkTitle
     );
 
@@ -77,7 +77,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect the (full URL|URL protocol|URL host|URL host port|URL path) to( not)* (be|contain|matche) "(.*)?"$/,
+        /^I expect the (full URL|URL protocol|URL host|URL host port|URL path) to( not)* (be|contain|match) "(.*)?"$/,
         checkURL
     );
 
@@ -97,7 +97,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?"(?: at (?:line|row) (\d+)(?: and column (\d+))?)?( not)* (contains|equals|matches) the text "(.*)?"$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?"(?: at (?:line|row) (\d+)(?: and column (\d+))?)? does( not)* (contain|equal|match) the (?:text|value|regex) "(.*)?"$/,
         checkDownloadedFileContainsEqualsMatchesText
     );
 

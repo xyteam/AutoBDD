@@ -41,7 +41,7 @@ module.exports = (expectedText) => {
                     lookupVarArray.shift();
                     lookupVar = lookupVarArray.join('.');
                 } else {
-                    lookupFile = '*.js';
+                    lookupFile = 'testVars.js';
                     lookupVar = lookupText;
                 }
                 lookupFileList = glob.sync(ModuleTestfilesPath + '/' + lookupFile);    
@@ -75,12 +75,12 @@ module.exports = (expectedText) => {
                     lookupVarArray.shift();
                     lookupVar = lookupVarArray.join('.');
                 } else {
-                    lookupFile = '*.js';
+                    lookupFile = 'testVars.js';
                     lookupVar = lookupText;
                 }
-                lookupFileList = glob.sync(ModuleTestfilesPath + '/testfiles/' + lookupFile);    
-                lookupFileList = lookupFileList.concat(glob.sync(ProjectTestfilesPath + '/testfiles/' + lookupFile));
-                lookupFileList = lookupFileList.concat(glob.sync(FrameworkTestfilesPath + '/testfiles/' + lookupFile));
+                lookupFileList = glob.sync(ModuleTestfilesPath + '/' + lookupFile);    
+                lookupFileList = lookupFileList.concat(glob.sync(ProjectTestfilesPath + '/' + lookupFile));
+                lookupFileList = lookupFileList.concat(glob.sync(FrameworkTestfilesPath + '/' + lookupFile));
                 for (let targetFile of lookupFileList) {
                     let varData = require(targetFile);
                     let targetVar = eval('varData.' + lookupVar);
@@ -91,7 +91,7 @@ module.exports = (expectedText) => {
                 }
             }    
         }
-        // console.log(`Var => ${textArray.join('')}`);
+        console.log(`Var => ${textArray.join('')}`);
         return textArray.join('');
     }
 
