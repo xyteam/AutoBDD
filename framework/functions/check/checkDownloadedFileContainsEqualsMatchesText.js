@@ -85,24 +85,21 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
             case 'contains':
                 expect(readTargetContent).not.toContain(
                     myExpectedText,
-                    `file "${fileName}" should not contain text ` +
-                    `"${myExpectedText}"`
+                    `file "${fileName}" should not contain text "${myExpectedText}"`
                 );        
                 break;
             case 'equal':
             case 'equals':
                 expect(readTargetContent).not.toEqual(
                     myExpectedText,
-                    `file "${fileName}" should not equal text ` +
-                    `"${myExpectedText}"`
+                    `file "${fileName}" should not equal text "${myExpectedText}"`
                 );        
                 break;
             case 'match':
             case 'matches':
                 expect(readTargetContent).not.toMatch(
                     myExpectedText,
-                    `file "${fileName}" should not match text ` +
-                    `"${myExpectedText}"`
+                    `file "${fileName}" should not match text "${myExpectedText}"`
                 );        
                 break;
             default:
@@ -114,24 +111,21 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
             case 'contains':
                 expect(readTargetContent).toContain(
                     myExpectedText,
-                    `file "${fileName}" should contain text ` +
-                    `"${myExpectedText}"`
+                    `file "${fileName}" should contain text "${myExpectedText}"`
                 );        
                 break;
             case 'equal':
             case 'equals':
                 expect(readTargetContent).toEqual(
                     myExpectedText,
-                    `file "${fileName}" should equal text ` +
-                    `"${myExpectedText}"`
+                    `file "${fileName}" should equal text "${myExpectedText}"`
                 );        
                 break;
             case 'match':
             case 'matches':
                 expect(readTargetContent).toMatch(
                     myExpectedText,
-                    `file "${fileName}" should match text ` +
-                    `"${myExpectedText}"`
+                    `file "${fileName}" should match text "${myExpectedText}"`
                 );        
                 break;
             default:

@@ -44,19 +44,17 @@ module.exports = (fileName, expectedNumOfRows, expectedNumOfColumns) => {
 
     if (expectedNumOfRows) {
         let parsedExpectedNumOfRows = parseInt(expectedNumOfRows);
-        expect(countedNumOfRows).toEqual(
+        expect(countedNumOfRows).toBe(
             parsedExpectedNumOfRows,
-            `file ${fileName} should contain ` +
-            `${parsedExpectedNumOfRows} rows`
+            `file ${fileName} should contain ${parsedExpectedNumOfRows} rows`
         );    
     }
 
     if (expectedNumOfColumns) {
         let parsedExpectedNumOfColumns = parseInt(expectedNumOfColumns);
-        expect(countedNumOfColumns).toEqual(
+        expect(countedNumOfColumns).toBe(
             parsedExpectedNumOfColumns,
-            `file ${fileName} should contain ` +
-            `${parsedExpectedNumOfColumns} columns`
+            `file ${fileName} should contain ${parsedExpectedNumOfColumns} columns`
         );    
     }
 }

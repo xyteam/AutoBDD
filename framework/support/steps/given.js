@@ -73,7 +73,7 @@ module.exports = function() {
     );
 
     this.Given(
-        /^the element "([^"]*)?"( not)* (contains|equals|matches) the (text|value) "(.*)?"$/,
+        /^the element "([^"]*)?"( not)* (contains|equals|matches) the (text|value|regex) "(.*)?"$/,
         checkContainsEqualsMatchesTextOrValue
     );
 
@@ -95,7 +95,7 @@ module.exports = function() {
     );
 
     this.Given(
-        /^the page title does( not)* (contain|equal|matche) the (text|value) "(.*)?"$/,
+        /^the page title does( not)* (contain|equal|match) the (text|value|regex) "(.*)?"$/,
         checkTitle
     );
 
