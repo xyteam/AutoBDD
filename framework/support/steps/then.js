@@ -87,12 +87,12 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?" contains( not)* (exactly|more than|less than) (\d+) line(?:s)?$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?" contains((?: exactly)?|(?: no)? more than|(?: no)? less than) (\d+) line(?:s)?$/,
         checkDownloadedFileContainsNumOfLines
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?" contains (\d+) row(?:s)?(?: and (\d+) column(?:s)?)?$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?" contains((?: exactly)?|(?: no)? more than|(?: no)? less than) (\d+) row(?:s)?(?: and((?: exactly)?|(?: no)? more than|(?: no)? less than) (\d+) column(?:s)?)?$/,
         checkDownloadedFileContainsRowsAndColumns
     );
 
