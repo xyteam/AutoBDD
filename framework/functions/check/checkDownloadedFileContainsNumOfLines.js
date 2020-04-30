@@ -9,7 +9,7 @@ const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
 
-module.exports = (fileName, falseCase, compareAction, expectedNumOfLines) => {
+module.exports = (fileName, compareAction, expectedNumOfLines) => {
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
@@ -37,21 +37,13 @@ module.exports = (fileName, falseCase, compareAction, expectedNumOfLines) => {
      */
     let parsedExpectedNumOfLines = parseInt(expectedNumOfLines);
 
-    /**
-     * Whether to check if the content equals the given text or not
-     * @type {Boolean}
-     */
-    let boolFalseCase = !!falseCase;
-
     // Check for empty element
     if (typeof parsedExpectedNumOfLines === 'function') {
         parsedExpectedNumOfLines = '';
-        boolFalseCase = !boolFalseCase;
     }
 
     if (typeof parsedExpectedNumOfLines === 'undefined' && typeof falseCase === 'undefined') {
         parsedExpectedNumOfLines = '';
-        boolFalseCase = true;
     }
 
     const retrivedValue = countedNumOfLines;
