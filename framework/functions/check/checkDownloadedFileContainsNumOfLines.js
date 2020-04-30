@@ -1,7 +1,6 @@
 /**
  * Check if the given elements text is the same as the given text
  * @param  {String}   fileName            File name
- * @param  {String}   falseCase           Whether to check if the content equals the given text or not
  * @param  {String}   compareAction       exactly, more than, less than
  * @param  {String}   expectedNumOfLines  The text to validate against
  */
@@ -58,58 +57,37 @@ module.exports = (fileName, falseCase, compareAction, expectedNumOfLines) => {
     const retrivedValue = countedNumOfLines;
     // console.log(`text : ${retrivedValue}`)
 
-    let compareAction_instruction = `compareAction ${compareAction} should be one of exactly, more than or less than`;
-    if (boolFalseCase) {
-        switch (compareAction) {
-            case 'exactly':
-                expect(retrivedValue).not.toEqual(
-                    parsedExpectedNumOfLines,
-                    `file "${fileName}" should not contain text ` +
-                    `"${parsedExpectedNumOfLines}"`
-                );        
-                break;
-            case 'more than':
-                expect(retrivedValue).not.toBeGreaterThan(
-                    parsedExpectedNumOfLines,
-                    `file "${fileName}" should not equal text ` +
-                    `"${parsedExpectedNumOfLines}"`
-                );        
-                break;
-            case 'less than':
-                expect(retrivedValue).not.toBeLessThan(
-                    parsedExpectedNumOfLines,
-                    `file "${fileName}" should not match text ` +
-                    `"${parsedExpectedNumOfLines}"`
-                );        
-                break;
-            default:
-                expect(false).toBe(true, compareAction_instruction);
-        }
-    } else {
-        switch (compareAction) {
-            case 'exactly':
-                expect(retrivedValue).toEqual(
-                    parsedExpectedNumOfLines,
-                    `file "${fileName}" should contain text ` +
-                    `"${parsedExpectedNumOfLines}"`
-                );        
-                break;
-            case 'more than':
-                expect(retrivedValue).toBeGreaterThan(
-                    parsedExpectedNumOfLines,
-                    `file "${fileName}" should equal text ` +
-                    `"${parsedExpectedNumOfLines}"`
-                );        
-                break;
-            case 'less than':
-                expect(retrivedValue).toBeLessThan(
-                    parsedExpectedNumOfLines,
-                    `file "${fileName}" should match text ` +
-                    `"${parsedExpectedNumOfLines}"`
-                );        
-                break;
-            default:
-                expect(false).toBe(true, compareAction_instruction);
-        }
+    switch (compareAction.trim()) {
+        case 'more than':
+            expect(retrivedValue).toBeGreaterThan(
+                parsedExpectedNumOfLines,
+                `file "${fileName}" should contain more than "${parsedExpectedNumOfLines}" lines`
+            );        
+            break;
+        case 'no more than':
+            expect(retrivedValue).not.toBeGreaterThan(
+                parsedExpectedNumOfLines,
+                `file "${fileName}" should contain no more than "${parsedExpectedNumOfLines}" lines`
+            );        
+            break;
+        case 'less than':
+            expect(retrivedValue).toBeLessThan(
+                parsedExpectedNumOfLines,
+                `file "${fileName}" should contain less than "${parsedExpectedNumOfLines}" lines`
+            );        
+            break;
+        case 'no less than':
+            expect(retrivedValue).not.toBeLessThan(
+                parsedExpectedNumOfLines,
+                `file "${fileName}" should contain no less than "${parsedExpectedNumOfLines}" lines`
+            );        
+            break;
+        case 'exactly':
+        default:
+            expect(retrivedValue).toBe(
+                parsedExpectedNumOfLines,
+                `file "${fileName}" should contain exactly "${parsedExpectedNumOfLines}" lines`
+            );        
+            break;
     }
 }

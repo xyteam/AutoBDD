@@ -1,7 +1,9 @@
 /**
  * Check if the given elements text is the same as the given text
  * @param  {String}   fileName             File name
+ * @param  {String}   rowCompareAction     exactly, more than, less than
  * @param  {String}   expectedNumOfRows    Expected number of rows
+ * @param  {String}   colCompareAction     exactly, more than, less than
  * @param  {String}   expectedNumOfColumns Expected number of columns
  */
 const fs = require('fs');
@@ -9,7 +11,7 @@ const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
 
-module.exports = (fileName, expectedNumOfRows, expectedNumOfColumns) => {
+module.exports = (fileName, rowCompareAction, expectedNumOfRows, colCompareAction, expectedNumOfColumns) => {
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
@@ -44,17 +46,74 @@ module.exports = (fileName, expectedNumOfRows, expectedNumOfColumns) => {
 
     if (expectedNumOfRows) {
         let parsedExpectedNumOfRows = parseInt(expectedNumOfRows);
-        expect(countedNumOfRows).toBe(
-            parsedExpectedNumOfRows,
-            `file ${fileName} should contain ${parsedExpectedNumOfRows} rows`
-        );    
+        switch (rowCompareAction.trim()) {
+            case 'more than':
+                expect(countedNumOfRows).toBeGreaterThan(
+                    parsedExpectedNumOfRows,
+                    `file ${fileName} should contain more than ${parsedExpectedNumOfRows} rows`
+                );    
+                break;
+            case 'no more than':
+                expect(countedNumOfRows).not.toBeGreaterThan(
+                    parsedExpectedNumOfRows,
+                    `file ${fileName} should contain no more than ${parsedExpectedNumOfRows} rows`
+                );    
+                break;
+            case 'less than':
+                expect(countedNumOfRows).toBeLessThan(
+                    parsedExpectedNumOfRows,
+                    `file ${fileName} should contain less than ${parsedExpectedNumOfRows} rows`
+                );
+                break;
+            case 'no less than':
+                expect(countedNumOfRows).not.toBeLessThan(
+                    parsedExpectedNumOfRows,
+                    `file ${fileName} should contain no less than ${parsedExpectedNumOfRows} rows`
+                );
+                break;
+            case 'exactly':
+            default:
+                expect(countedNumOfRows).toBe(
+                    parsedExpectedNumOfRows,
+                    `file ${fileName} should contain ${parsedExpectedNumOfRows} rows`
+                );
+                break;
+        }
     }
 
     if (expectedNumOfColumns) {
         let parsedExpectedNumOfColumns = parseInt(expectedNumOfColumns);
-        expect(countedNumOfColumns).toBe(
-            parsedExpectedNumOfColumns,
-            `file ${fileName} should contain ${parsedExpectedNumOfColumns} columns`
-        );    
+        switch (colCompareAction.trim()) {
+            case 'more than':
+                expect(countedNumOfColumns).toBeGreaterThan(
+                    parsedExpectedNumOfRows,
+                    `file ${fileName} should contain more than ${parsedExpectedNumOfColumns} rows`
+                );    
+                break;
+            case 'no more than':
+                expect(countedNumOfColumns).not.toBeGreaterThan(
+                    parsedExpectedNumOfRows,
+                    `file ${fileName} should contain no more than ${parsedExpectedNumOfColumns} rows`
+                );    
+                break;    
+            case 'less than':
+                expect(countedNumOfColumns).toBeLessThan(
+                    parsedExpectedNumOfColumns,
+                    `file ${fileName} should contain less than ${parsedExpectedNumOfColumns} rows`
+                );
+            case 'no less than':
+                expect(countedNumOfColumns).not.toBeLessThan(
+                    parsedExpectedNumOfColumns,
+                    `file ${fileName} should contain no less than ${parsedExpectedNumOfColumns} rows`
+                );
+                break;
+            case 'exactly':
+            default:
+                expect(countedNumOfColumns).toBe(
+                    parsedExpectedNumOfColumns,
+                    `file ${fileName} should contain ${parsedExpectedNumOfColumns} rows`
+                );
+                break;
+        }
     }
 }
