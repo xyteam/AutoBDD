@@ -3,10 +3,12 @@ const parseExpectedText = require(FrameworkPath + '/framework/functions/common/p
 const fuzz = require('fuzzball');
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?(?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" )?(image|screen area) does( not)* (contain|equal|mimic|match) the (text|regex) "(.*)?"$/,
+    /^I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the (?:"([^"]*)?" )?(image|screen area) does( not)* (contain|equal|mimic|match) the (text|regex) "(.*)?"$/,
     {timeout: process.env.StepTimeoutInMS},
     function (firstOrLast, lineCount, targetName, targetArea, falseCase, compareAction, expectType, expectedText) {
       const myExpectedText = parseExpectedText(expectedText);
+      const myFirstOrLast = firstOrLast || '';
+
       var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
       var screenFindResult;
       if (targetName && targetName == 'last-seen') {
@@ -28,7 +30,7 @@ module.exports = function() {
 
       let lineArray = screenFindResult[0].text;
       var lineText;
-      switch(firstOrLast) {
+      switch(myFirstOrLast.trim()) {
         case 'first':
             lineText = lineArray.slice(0, lineCount).join('\n');
           break;
@@ -36,8 +38,12 @@ module.exports = function() {
             lineText = lineArray.slice(-lineCount).join('\n');
           break;
         default:
-          lineText = lineArray.join('\n');
-      }
+            if (lineCount) {
+              lineText = lineArray[lineCount - 1];
+            } else {
+              lineText = lineArray.join('\n');
+            }
+          }
 
       const mimicScore = (myExpectedText && myExpectedText.length > 0) ? fuzz.partial_ratio(lineText, myExpectedText) : 100;
 

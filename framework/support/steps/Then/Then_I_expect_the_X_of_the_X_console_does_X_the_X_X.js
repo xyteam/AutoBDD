@@ -4,12 +4,13 @@ const stripAnsi = require('strip-ansi');
 
 module.exports = function() {
   this.Then(
-    /^I expect (?:that )?(?:the (first|last) (\d+) line(?:s)? of )?the "(.*)?" console does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
+    /^I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the "(.*)?" console does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
     {timeout: process.env.StepTimeoutInMS},
     function (firstOrLast, lineCount, consoleName, falseCase, compareAction, expectType, expectedText) {
       // parse input
       const myConsoleName = parseExpectedText(consoleName);
       const myExpectedText = parseExpectedText(expectedText);
+      const myFirstOrLast = firstOrLast || '';
 
       // get consoleData object set up by previous step
       browser.pause(500);
@@ -18,7 +19,7 @@ module.exports = function() {
       this.browser_session.displayMessage(browser, lineArray.join('\n'));
 
       var lineText;
-      switch(firstOrLast) {
+      switch(myFirstOrLast.trim()) {
         case 'first':
             lineText = lineArray.slice(0, lineCount).join('\n');
           break;
@@ -26,7 +27,11 @@ module.exports = function() {
             lineText = lineArray.slice(-lineCount).join('\n');
           break;
         default:
-          lineText = lineArray.join('\n');
+          if (lineCount) {
+            lineText = lineArray[lineCount - 1];
+          } else {
+            lineText = lineArray.join('\n');
+          }
       }
 
       let boolFalseCase = !!falseCase;
