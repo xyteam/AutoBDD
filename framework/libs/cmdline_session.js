@@ -102,12 +102,14 @@ module.exports = {
     var myConsoleData = {stdout: '', stderr: ''};
     const myConsole = spawn(mySshCommand, mySshArgsArray, consoleSpawnOption);
     myConsole.stdout.on('data', function (data) {
-      myConsoleData.stdout += stripAnsi(data.toString());
-      console.log('stdout: ' + myConsoleData.stdout);
+      const myData = stripAnsi(data.toString());
+      myConsoleData.stdout += myData;
+      console.log('stdout: ' + myData);
     });
     myConsole.stderr.on('data', function (data) {
-      myConsoleData.stderr += stripAnsi(data.toString());
-      console.log('stderr: ' + myConsoleData.stderr);
+      const myData = stripAnsi(data.toString());
+      myConsoleData.stdout += myData;
+      console.log('stderr: ' + myData);
     });
     myConsole.on('close', function (code) {
       myConsoleData.stdout += `\n** SSH console closed with code: ${code}**\n`;

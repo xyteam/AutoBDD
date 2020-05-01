@@ -7,8 +7,17 @@
  * @param  {String}   state                    State to check for (default
  *                                             existence)
  */
+
+const parseExpectedText = require('../common/parseExpectedText');
+
 module.exports =
 (elem, ms, falseState, state) => {
+    /**
+     * Parsed element selector
+     * @type {String}
+     */
+    const myElem = parseExpectedText(elem);
+    
     /**
      * Maximum number of milliseconds to wait, default 3000
      * @type {Int}
@@ -52,7 +61,7 @@ module.exports =
             command = `waitFor${parsedState[0].toUpperCase()}` + `${parsedState.slice(1)}`;
         }
     }
-    // console.log(elem);
+    // console.log(myElem);
     // console.log(command);
-    browser[command](elem, intMs, boolFalseState);
+    browser[command](myElem, intMs, boolFalseState);
 };
