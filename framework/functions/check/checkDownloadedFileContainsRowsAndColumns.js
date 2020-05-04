@@ -86,32 +86,32 @@ module.exports = (fileName, rowCompareAction, expectedNumOfRows, colCompareActio
         switch (colCompareAction.trim()) {
             case 'more than':
                 expect(countedNumOfColumns).toBeGreaterThan(
-                    parsedExpectedNumOfRows,
-                    `file ${fileName} should contain more than ${parsedExpectedNumOfColumns} rows`
+                    parsedExpectedNumOfColumns,
+                    `file ${fileName} should contain more than ${parsedExpectedNumOfColumns} columns`
                 );    
                 break;
             case 'no more than':
                 expect(countedNumOfColumns).not.toBeGreaterThan(
-                    parsedExpectedNumOfRows,
-                    `file ${fileName} should contain no more than ${parsedExpectedNumOfColumns} rows`
+                    parsedExpectedNumOfColumns,
+                    `file ${fileName} should contain no more than ${parsedExpectedNumOfColumns} columns`
                 );    
                 break;    
             case 'less than':
                 expect(countedNumOfColumns).toBeLessThan(
                     parsedExpectedNumOfColumns,
-                    `file ${fileName} should contain less than ${parsedExpectedNumOfColumns} rows`
+                    `file ${fileName} should contain less than ${parsedExpectedNumOfColumns} columns`
                 );
             case 'no less than':
                 expect(countedNumOfColumns).not.toBeLessThan(
                     parsedExpectedNumOfColumns,
-                    `file ${fileName} should contain no less than ${parsedExpectedNumOfColumns} rows`
+                    `file ${fileName} should contain no less than ${parsedExpectedNumOfColumns} columns`
                 );
                 break;
             case 'exactly':
             default:
                 expect(countedNumOfColumns).toBe(
                     parsedExpectedNumOfColumns,
-                    `file ${fileName} should contain ${parsedExpectedNumOfColumns} rows`
+                    `file ${fileName} should contain ${parsedExpectedNumOfColumns} columns`
                 );
                 break;
         }
