@@ -21,7 +21,7 @@ module.exports = (expectedText) => {
     // Env{MyEnv}
     const parseEnv = (text) => {
         let textArray = text.split('Env{');
-        for (i = 0; i < textArray.length; i++) {
+        for (i = 1; i < textArray.length; i++) {
             textArray[i] = textArray[i].includes('}') ? eval('process.env.' + textArray[i].split('}')[0]) + textArray[i].split('}')[1] : textArray[i];
         }
         // console.log(`Env => ${textArray.join('')}`);
@@ -63,7 +63,7 @@ module.exports = (expectedText) => {
     // Var{MyVar}
     const parseVar = (text) => {
         let textArray = text.split('Var{');
-        for (i = 0; i < textArray.length; i++) {
+        for (i = 1; i < textArray.length; i++) {
             if (textArray[i].includes('}')) {
                 let lookupText = textArray[i].split('}')[0];
                 let remainText = textArray[i].split('}')[1];
