@@ -8,8 +8,10 @@ const fs = require('fs');
 const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
+const parseExpectedText = require('../common/parseExpectedText');
 
 module.exports = (fileName, compareAction, expectedNumOfLines) => {
+    const myExpectedNumber = (expectedNumOfLines) ? parseInt(parseExpectedText(expectedNumOfLines)) : 0;
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
@@ -31,54 +33,39 @@ module.exports = (fileName, compareAction, expectedNumOfLines) => {
         default:
             countedNumOfLines = fs.readFileSync(myFilePath).toString().split('\n').length;
     }
-    /**
-     * The expected text to validate against
-     * @type {String}
-     */
-    let parsedExpectedNumOfLines = parseInt(expectedNumOfLines);
-
-    // Check for empty element
-    if (typeof parsedExpectedNumOfLines === 'function') {
-        parsedExpectedNumOfLines = '';
-    }
-
-    if (typeof parsedExpectedNumOfLines === 'undefined' && typeof falseCase === 'undefined') {
-        parsedExpectedNumOfLines = '';
-    }
-
     const retrivedValue = countedNumOfLines;
     // console.log(`text : ${retrivedValue}`)
 
     switch (compareAction.trim()) {
         case 'more than':
             expect(retrivedValue).toBeGreaterThan(
-                parsedExpectedNumOfLines,
-                `file "${fileName}" should contain more than "${parsedExpectedNumOfLines}" lines`
+                myExpectedNumber,
+                `file "${fileName}" should contain more than "${myExpectedNumber}" lines`
             );        
             break;
         case 'no more than':
             expect(retrivedValue).not.toBeGreaterThan(
-                parsedExpectedNumOfLines,
-                `file "${fileName}" should contain no more than "${parsedExpectedNumOfLines}" lines`
+                myExpectedNumber,
+                `file "${fileName}" should contain no more than "${myExpectedNumber}" lines`
             );        
             break;
         case 'less than':
             expect(retrivedValue).toBeLessThan(
-                parsedExpectedNumOfLines,
-                `file "${fileName}" should contain less than "${parsedExpectedNumOfLines}" lines`
+                myExpectedNumber,
+                `file "${fileName}" should contain less than "${myExpectedNumber}" lines`
             );        
             break;
         case 'no less than':
             expect(retrivedValue).not.toBeLessThan(
-                parsedExpectedNumOfLines,
-                `file "${fileName}" should contain no less than "${parsedExpectedNumOfLines}" lines`
+                myExpectedNumber,
+                `file "${fileName}" should contain no less than "${myExpectedNumber}" lines`
             );        
             break;
         case 'exactly':
         default:
             expect(retrivedValue).toBe(
-                parsedExpectedNumOfLines,
-                `file "${fileName}" should contain exactly "${parsedExpectedNumOfLines}" lines`
+                myExpectedNumber,
+                `file "${fileName}" should contain exactly "${myExpectedNumber}" lines`
             );        
             break;
     }

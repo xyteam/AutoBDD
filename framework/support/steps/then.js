@@ -32,7 +32,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
+        /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|no less than) ([^\s]+) time(?:s)?)?$/,
         checkIfElementExistsInsideParentElement
     );
 
@@ -87,12 +87,12 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?" contains((?: exactly)?|(?: no)? more than|(?: no)? less than) (\d+) line(?:s)?$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?" contains((?: exactly)?|(?: no)? more than|(?: no)? less than) ([^\s]+) line(?:s)?$/,
         checkDownloadedFileContainsNumOfLines
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?" contains((?: exactly)?|(?: no)? more than|(?: no)? less than) (\d+) row(?:s)?(?: and((?: exactly)?|(?: no)? more than|(?: no)? less than) (\d+) column(?:s)?)?$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?" contains((?: exactly)?|(?: no)? more than|(?: no)? less than) ([^\s]+) row(?:s)?(?: and((?: exactly)?|(?: no)? more than|(?: no)? less than) ([^\s]+) column(?:s)?)?$/,
         checkDownloadedFileContainsRowsAndColumns
     );
 

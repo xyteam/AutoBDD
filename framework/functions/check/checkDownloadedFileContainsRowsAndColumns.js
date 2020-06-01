@@ -10,6 +10,7 @@ const fs = require('fs');
 const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
+const parseExpectedText = require('../common/parseExpectedText');
 
 module.exports = (fileName, rowCompareAction, expectedNumOfRows, colCompareAction, expectedNumOfColumns) => {
     const fileName_extSplit = fileName.split('.');
@@ -45,7 +46,7 @@ module.exports = (fileName, rowCompareAction, expectedNumOfRows, colCompareActio
     }
 
     if (expectedNumOfRows) {
-        let parsedExpectedNumOfRows = parseInt(expectedNumOfRows);
+        const parsedExpectedNumOfRows = (expectedNumOfRows) ? parseInt(parseExpectedText(expectedNumOfRows)) : 0;
         switch (rowCompareAction.trim()) {
             case 'more than':
                 expect(countedNumOfRows).toBeGreaterThan(
@@ -82,7 +83,7 @@ module.exports = (fileName, rowCompareAction, expectedNumOfRows, colCompareActio
     }
 
     if (expectedNumOfColumns) {
-        let parsedExpectedNumOfColumns = parseInt(expectedNumOfColumns);
+        let parsedExpectedNumOfColumns = (expectedNumOfColumns) ? parseInt(parseExpectedText(expectedNumOfColumns)) : 0;
         switch (colCompareAction.trim()) {
             case 'more than':
                 expect(countedNumOfColumns).toBeGreaterThan(

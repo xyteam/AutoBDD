@@ -2,6 +2,7 @@ const changeBrowserBackground = require('../../functions/action/changeBrowserBac
 const changeBrowserZoom = require('../../functions/action/changeBrowserZoom');
 const clearInputField = require('../../functions/action/clearInputField');
 const clickElementInsideParentElement = require('../../functions/action/clickElementInsideParentElement');
+const clickToCondition = require('../../functions/action/clickToCondition');
 const closeLastOpenedWindow = require('../../functions/action/closeLastOpenedWindow');
 const deleteCookie = require('../../functions/action/deleteCookie');
 const browserAction = require('../../functions/action/browserAction');
@@ -42,6 +43,11 @@ module.exports = function() {
         clickElementInsideParentElement
     );
 
+    this.When(
+        /^I click the element "([^"]*)?"(?: up to (\d+) time(?:s)?)? until the element "([^"]*)?" becomes(?: (not))? (enabled|existing|selected|visible)$/,
+        clickToCondition
+    );
+    
     this.When(
         /^I (add|set) "([^"]*)?" to the inputfield "([^"]*)?"$/,
         setInputField
