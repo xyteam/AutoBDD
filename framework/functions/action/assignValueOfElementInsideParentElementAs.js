@@ -1,5 +1,6 @@
 /**
  * Assign text of an element to a env string
+ * @param  {String}  type               text or value
  * @param  {String}  targetElementIndex The nth element start from 1st,2nd,3rd,4th
  * @param  {String}  targetElement      target element selector
  * @param  {String}  parentElementIndex The nth parent element start from 1st,2nd,3rd,4th
@@ -8,7 +9,7 @@
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, varName) => {
+module.exports = (type, targetElementIndex, targetElement, parentElementIndex, parentElement, varName) => {
     // Check for empty element
     if (typeof myExpectedText === 'undefined') {
         myExpectedText = '';
@@ -33,7 +34,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
         targetElementId = browser.elements(targetElement).value[targetElementIndexInt].ELEMENT;
     }
     retrivedValue = browser.elementIdText(targetElementId).value;
-    process.env[varName] = retrivedValue;
-    console.log(`assigned "${process.env[varName]}" to process.env.${varName}`);
+    process.env[varName] = (type == 'number') ? retrivedValue.match(/\d+/)[0] : retrivedValue;
+    console.log(`assigned "${process.env[varName]}" to ENV:${varName}`);
 };
 
