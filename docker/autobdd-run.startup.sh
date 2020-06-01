@@ -34,5 +34,5 @@ npm config set script-shell /bin/bash
 END_bash_profile
 
 # run test by taking autorun.py parameters
-sudo -E su $USER -m -c "cd $HOME/Projects/AutoBDD && . .autoPathrc.sh && ./framework/scripts/autorunner.py $@"
+sudo -E su $USER -lm -s bash -c "cd $HOME/Projects/AutoBDD && . .autoPathrc.sh && ./framework/scripts/autorunner.py $@"
 
