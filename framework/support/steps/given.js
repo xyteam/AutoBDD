@@ -1,4 +1,5 @@
 const announceMessage = require('../../functions/action/announceMessage');
+const assignValueOfElementInsideParentElementAs = require('../../functions/action/assignValueOfElementInsideParentElementAs');
 const bypassChromeSafetyWarning = require('../../functions/action/bypassChromeSafetyWarning');
 const checkContainsAnyTextOrValue = require('../../functions/check/checkContainsAnyTextOrValue');
 const checkElementTextValueIsEmpty = require('../../functions/check/checkElementTextValueIsEmpty');
@@ -25,6 +26,11 @@ module.exports = function() {
     this.Given(
         /^I announce message(?: at (console|browser))?: "([^"]*)?"$/,
         announceMessage
+    );
+
+    this.Given(
+        /^I assign the (text|number) from the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? as "(.*)?"$/,
+        assignValueOfElementInsideParentElementAs
     );
 
     this.Given(
