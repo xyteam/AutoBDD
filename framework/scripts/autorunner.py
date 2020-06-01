@@ -484,7 +484,7 @@ class ChimpAutoRun:
         
     def update_tinydb(self, tinyrundb_json, run_json, rerunWhat):
         db = TinyDB(tinyrundb_json, sort_keys=True, indent=4, separators=(',', ': '))
-        db.purge_table('_default')
+        db.drop_table('_default')
         query = Query()
         runcases = json.loads(open(run_json).read(), encoding='utf-8')
         for case in runcases:
@@ -541,7 +541,7 @@ class ChimpAutoRun:
 
         # generate cucumber report json file
         db = TinyDB(dbfile, sort_keys=True, indent=4, separators=(',', ': '))
-        db.purge_table('_default')
+        db.drop_table('_default')
         query = Query()
         cucumber_report_json = []
         for table in db.tables():
