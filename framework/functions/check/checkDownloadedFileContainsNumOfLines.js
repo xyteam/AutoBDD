@@ -28,7 +28,7 @@ module.exports = (fileName, compareAction, expectedNumOfLines) => {
         case 'XLSX':
         case 'csv':
         case 'CSV':
-            countedNumOfLines = fs_session.readXlsData(myFilePath).toString().split('\n').length;
+            countedNumOfLines = fs_session.readXlsData(myFilePath).filter(row => row.length > 0).length;
             break;
         default:
             countedNumOfLines = fs.readFileSync(myFilePath).toString().split('\n').length;
