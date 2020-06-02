@@ -92,7 +92,7 @@ module.exports = function() {
     );
 
     this.Then(
-        /^I expect (?:that )?the downloaded file "([^"]*)?" contains((?: exactly)?|(?: no)? more than|(?: no)? less than) ([^\s]+) row(?:s)?(?: and((?: exactly)?|(?: no)? more than|(?: no)? less than) ([^\s]+) column(?:s)?)?$/,
+        /^I expect (?:that )?the downloaded file "([^"]*)?" contains((?: exactly)?|(?: no)? more than|(?: no)? less than) ([^\s]+) (row|data row)(?:s)?(?: and((?: exactly)?|(?: no)? more than|(?: no)? less than) ([^\s]+) (column|data column)(?:s)?)?$/,
         checkDownloadedFileContainsRowsAndColumns
     );
 

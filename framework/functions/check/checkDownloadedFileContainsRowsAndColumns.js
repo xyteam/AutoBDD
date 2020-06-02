@@ -12,7 +12,7 @@ const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (fileName, rowCompareAction, expectedNumOfRows, colCompareAction, expectedNumOfColumns) => {
+module.exports = (fileName, rowCompareAction, expectedNumOfRows, rowType, colCompareAction, expectedNumOfColumns, columnType) => {
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
@@ -32,8 +32,10 @@ module.exports = (fileName, rowCompareAction, expectedNumOfRows, colCompareActio
         case 'CSV':
             // need the filter statement to filter empty lines
             const xlsData = fs_session.readXlsData(myFilePath).filter(row => row.length > 0);
-            countedNumOfRows = xlsData.length - 1; // -1 to do not count header row
+            countedNumOfRows = xlsData.length;
+            if (rowType.includes('data')) countedNumOfRows -= 1; // reduce by 1 for data row (without header row)
             countedNumOfColumns = (countedNumOfRows > 0) ? xlsData[0].length : 0;
+            if (columnType.includes('data')) countedNumOfColumns -= 1; // reduce by 1 for data column (without lead column)
             break;
         case 'json':
         case 'JSON':
