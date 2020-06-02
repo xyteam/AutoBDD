@@ -32,7 +32,7 @@ module.exports = (fileName, rowCompareAction, expectedNumOfRows, colCompareActio
         case 'CSV':
             // need the filter statement to filter empty lines
             const xlsData = fs_session.readXlsData(myFilePath).filter(row => row.length > 0);
-            countedNumOfRows = xlsData.length;
+            countedNumOfRows = xlsData.length - 1; // -1 to do not count header row
             countedNumOfColumns = (countedNumOfRows > 0) ? xlsData[0].length : 0;
             break;
         case 'json':
