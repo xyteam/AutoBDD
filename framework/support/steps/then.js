@@ -4,6 +4,7 @@ const checkElementTextValueIsEmpty = require('../../functions/check/checkElement
 const checkCookieContent = require('../../functions/check/checkCookieContent');
 const checkCookieExists = require('../../functions/check/checkCookieExists');
 const checkDimension = require('../../functions/check/checkDimension');
+const checkDownloadedJsonFileConformsTemplateFile = require('../../functions/check/checkDownloadedJsonFileConformsTemplateFile');
 const checkDownloadedFileContainsNumOfLines = require('../../functions/check/checkDownloadedFileContainsNumOfLines');
 const checkDownloadedFileContainsRowsAndColumns = require('../../functions/check/checkDownloadedFileContainsRowsAndColumns');
 const checkDownloadedFileContainsEqualsMatchesText = require('../../functions/check/checkDownloadedFileContainsEqualsMatchesText');
@@ -84,6 +85,11 @@ module.exports = function() {
     this.Then(
         /^I expect (?:that )?the( css)* attribute "([^"]*)?" from element "([^"]*)?" (is|contains|matches)( not)* "(.*)?"$/,
         checkProperty
+    );
+
+    this.Then(
+        /^I expect (?:that )?all data entries in the downloaded json file "([^"]*)?" conform to the template file "([^"]*)?"$/,
+        checkDownloadedJsonFileConformsTemplateFile
     );
 
     this.Then(
