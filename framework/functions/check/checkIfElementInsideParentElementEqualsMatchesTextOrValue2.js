@@ -134,7 +134,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
 
     var targetElementId;
     if (parentElement) {
-        if (parentElementIndex >= 0) {
+        if (parentElementIndexInt >= 0) {
             const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT;
             targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
             checkElement(targetElementId, targetElementIndex, targetElement, parentElementIndex, parentElement, boolFalseCase, action, targetType, myExpectedText);
@@ -147,7 +147,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
         }
     } else {
         targetElementId = browser.elements(targetElement).value[targetElementIndexInt].ELEMENT;
-        checkElement(targetElementId, targetElementIndex, targetElement, 0, null, boolFalseCase, action, targetType, myExpectedText);
+        checkElement(targetElementId, targetElementIndex, targetElement, parentElementIndex, null, boolFalseCase, action, targetType, myExpectedText);
     }
 };
 
