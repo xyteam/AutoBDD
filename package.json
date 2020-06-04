@@ -9,6 +9,7 @@
   },
   "main": "index.js",
   "dependencies": {
+    "ajv": "^6.12.2",
     "assert": "^2.0.0",
     "bottleneck": ">=2.19.5",
     "child_process": ">=1.0.2",
