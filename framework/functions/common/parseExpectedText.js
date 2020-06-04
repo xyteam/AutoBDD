@@ -22,7 +22,7 @@ module.exports = (expectedText) => {
     const parseEnv = (text) => {
         let textArray = text.split('Env{');
         for (i = 1; i < textArray.length; i++) {
-            textArray[i] = textArray[i].includes('}') ? eval('process.env.' + textArray[i].split('}')[0]) + textArray[i].split('}')[1] : textArray[i];
+            textArray[i] = textArray[i].includes('}') ? eval('process.env.' + textArray[i].split('}')[0]) + textArray[i].split('}').slice(1).join('}') : textArray[i];
         }
         // console.log(`Env => ${textArray.join('')}`);
         return textArray.join('');
@@ -66,7 +66,7 @@ module.exports = (expectedText) => {
         for (i = 1; i < textArray.length; i++) {
             if (textArray[i].includes('}')) {
                 let lookupText = textArray[i].split('}')[0];
-                let remainText = textArray[i].split('}')[1];
+                let remainText = textArray[i].split('}').slice(1).join('}');
                 let lookupFile, lookupVar;
                 let lookupFileList = [];
                 if (lookupText.split('.').length > 1) {
