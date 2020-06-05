@@ -139,9 +139,8 @@ module.exports = {
   },
 
   readJsonData: function(jsonFullPath) {
-    const dataBuffer = fs.readFileSync(jsonFullPath);
-    const jsonData = JSON.parse(dataBuffer);
-    return jsonData;
+    const jsonString = fs.readFileSync(jsonFullPath).toString().trim();
+    return jsonString;
   }
 
 }
