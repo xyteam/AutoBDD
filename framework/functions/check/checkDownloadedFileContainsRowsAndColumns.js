@@ -39,9 +39,10 @@ module.exports = (fileName, rowCompareAction, expectedNumOfRows, rowType, colCom
             break;
         case 'json':
         case 'JSON':
-            const jsonData = fs_session.readJsonData(myFilePath);
-            countedNumOfRows = Object.keys(jsonData).length;
-            countedNumOfColumns = (countedNumOfRows > 0) ? Object.keys(jsonData[0]).length : 0;
+            const jsonString = fs_session.readJsonData(myFilePath);
+            const jsonData = JSON.parse(jsonString);
+            countedNumOfRows = (jsonData.items) ? jsonData.items.length : Object.keys(jsonData).length;
+            countedNumOfColumns = (countedNumOfRows > 0) ? (jsonData.header) ? jsonData.header.length : Object.keys(jsonData[0]).length : 0;
             break;
         default:
             countedNumOfRows = fs.readFileSync(myFilePath).toString().split('\n').length;
