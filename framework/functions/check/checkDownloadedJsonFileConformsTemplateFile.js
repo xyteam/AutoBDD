@@ -13,6 +13,7 @@ const FrameworkTestfilesPath = FrameworkPath + '/framework/testfiles';
 const ProjectPath = process.env.PROJECTRUNPATH;
 const ProjectTestfilesPath = ProjectPath + '/project/testfiles';
 const ModuleTestfilesPath = ProjectPath + '/' + process.env.ThisModule + '/testfiles';
+const fs_session = require('../../libs/fs_session');
 const getDownloadDir = require('../common/getDownloadDir');
 const parseExpectedText = require('../common/parseExpectedText');
 
@@ -25,16 +26,17 @@ module.exports = (jsonFileName, templateFileName) => {
         || glob.sync(ProjectTestfilesPath + '/' + templateFileName)[0]
         || glob.sync(FrameworkTestfilesPath + '/' + templateFileName)[0];
     console.log(templateFilePath);
-    const jsonData = JSON.parse(fs.readFileSync(myJsonFilePath).toString());
-    const jsonSchemaOrigString = fs.readFileSync(templateFilePath).toString();
+    const jsonData = JSON.parse(fs_session.readJsonData(myJsonFilePath));
+    const jsonSchemaOrigString = fs_session.readJsonData(templateFilePath);
     const jsonSchemaParsedString = parseExpectedText(jsonSchemaOrigString);
     const jsonSchemaEscapedString = jsonSchemaParsedString.replace(/\\/g, "\\\\");
     console.log(jsonSchemaEscapedString);
     const jsonSchema = JSON.parse(jsonSchemaEscapedString);
     const ajv = new Ajv();
     const validate = ajv.compile(jsonSchema);
-    jsonData.forEach(data => {
+    const checkData = (jsonData.items) ? jsonData.items : jsonData; 
+    checkData.forEach(data => {
         let valid = validate(data);
         expect(valid).toBe(true, `Invalid data entry:\ndata:\n${JSON.stringify(data)}\nerror:\n${ajv.errorsText(validate.errors)}`);
-    })
+    })    
 }
