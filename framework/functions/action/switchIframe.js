@@ -16,9 +16,9 @@ module.exports = (index, name) => {
         const iFrameName = (name) ? parseExpectedText(name) : '';
         var iFrameElement;
         if (iFrameName.length > 0) {
-            iFrameElement = browser.elements(`iframe[name="${iFrameName}"]`).value[iFrameIndex].value;
+            iFrameElement = browser.$$(`iframe[name="${iFrameName}"]`).value[iFrameIndex].value;
         } else {
-            iFrameElement = browser.elements('iframe').value[iFrameIndex].value;
+            iFrameElement = browser.$$('iframe').value[iFrameIndex].value;
         }
         browser.frame(iFrameElement);    
     }

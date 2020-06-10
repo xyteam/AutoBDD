@@ -2,8 +2,8 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 const stripAnsi = require('strip-ansi');
 
-module.exports = function() {
-  this.When(
+const { When } = require('cucumber');
+When(
     /^I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" console to( not)* display the (text|regex) "(.*)?"$/,
     {timeout: 60*60*1000},
     function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, consoleName, falseState, expectType, expectedText) {
@@ -70,4 +70,4 @@ module.exports = function() {
       clearInterval(handle);
     }
   );
-}
+

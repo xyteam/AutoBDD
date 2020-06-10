@@ -22,18 +22,18 @@ module.exports = (type, targetElementIndex, targetElement, parentElementIndex, p
     var targetElementId, retrivedValue;
     if (parentElement) {
         if (parentElementIndex >= 0) {
-            const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT;
+            const parentElementId = browser.$$(parentElement)[parentElementIndexInt].elementId;
             targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
         } else {
-            browser.elements(parentElement).value.forEach((pElement, pIndex) => {
+            browser.$$(parentElement).value.forEach((pElement, pIndex) => {
                 const parentElementId = pElement.ELEMENT;
                 targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
             });
         }
     } else {
-        targetElementId = browser.elements(targetElement).value[targetElementIndexInt].ELEMENT;
+        targetElementId = browser.$$(targetElement)[targetElementIndexInt].elementId;
     }
-    retrivedValue = browser.elementIdText(targetElementId).value;
+    retrivedValue = browser.getElementText(targetElementId);
     process.env[varName] = (type == 'number') ? retrivedValue.match(/\d+/)[0] : retrivedValue;
     console.log(`assigned "${process.env[varName]}" to ENV:${varName}`);
 };

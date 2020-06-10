@@ -1,5 +1,5 @@
-module.exports = function() {
-  this.When(/^I download the (XLS|PDF) file by going to URL "([^"]*)"$/, {timeout: process.env.StepTimeoutInMS * 2}, function (fileType, downloadUrl) {
+const { When } = require('cucumber');
+When(/^I download the (XLS|PDF) file by going to URL "([^"]*)"$/, {timeout: 60*1000 * 2}, function (fileType, downloadUrl) {
     // delete previous download file
     var fileName = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.')));
     var fileExt = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('.') + 1));
@@ -12,4 +12,5 @@ module.exports = function() {
     // pass download Url for steps after
     this.downloadUrl = downloadUrl;
   });
-};
+
+

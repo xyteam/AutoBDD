@@ -1,5 +1,5 @@
-module.exports = function() {
-  this.Given(/^I have a java cucumber project "([^"]*)"$/, function (projectName) {
+const { Given } = require('cucumber');
+Given(/^I have a java cucumber project "([^"]*)"$/, function (projectName) {
     this.javacucumber_project = projectName;
     var result = this.javacucumber_session.runMvnCleanProject(this.javacucumber_project);
     // console.log(result.output);
@@ -10,4 +10,5 @@ module.exports = function() {
     this.javacucumber_result = result.output;
     this.javacucumber_runcode = result.exitcode;
   });
-};
+
+

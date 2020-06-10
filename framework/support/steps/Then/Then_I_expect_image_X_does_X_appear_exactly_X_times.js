@@ -1,9 +1,9 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
-module.exports = function() {
-  this.Then(
+const { Then } = require('cucumber');
+Then(
     /^I expect (?:that )?the "([^"]*)?" image does( not)* appear(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
-    {timeout: process.env.StepTimeoutInMS},
+    { timeout: 60*1000 },
     function (imageName, falseCase, compareAction, expectedNumber) {
       const parsedImageName = parseExpectedText(imageName);
       const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 0;
@@ -53,4 +53,5 @@ module.exports = function() {
       }    
     }
   );
-};
+
+

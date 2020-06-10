@@ -5,14 +5,15 @@
 # docker-compose run -d autobdd-run "--project=$BDD_PROJECT --parallel=1"
 # docker-compose logs -f autobdd-run
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 USER root
 ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
 ARG AutoBDD_Ver
 
 # switch to faster ubuntu archive
-RUN sed -i 's#http://archive.ubuntu.com/#http://tw.archive.ubuntu.com/#' /etc/apt/sources.list;
+# RUN sed -i 's#http://archive.ubuntu.com/#http://tw.archive.ubuntu.com/#' /etc/apt/sources.list;
+RUN sed -i 's#http://archive.ubuntu.com/#http://mirror.math.princeton.edu/pub/#' /etc/apt/sources.list;
 
 # apt install essential tools for apt install/upgrade
 RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; \
@@ -62,7 +63,6 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         xvfb \
         zlib1g-dev; \
 # install newer tesseract-ocr
-    add-apt-repository ppa:alex-p/tesseract-ocr -y && \
     apt-get update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" && \
     apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
         tesseract-ocr \
@@ -73,13 +73,13 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
 # final autoremove
     apt --purge autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold";
 
-# install nodejs 10.x
-RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
+# install nodejs 12.x
+RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - && \
     apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
     apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
     nodejs
 
-# instal google-chrome
+# install google-chrome
 RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
     echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
     wget -qO- --no-check-certificate https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \

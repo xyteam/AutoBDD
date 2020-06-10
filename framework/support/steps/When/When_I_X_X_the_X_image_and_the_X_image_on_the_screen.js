@@ -1,8 +1,8 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
-module.exports = function () {
-  this.When(/^I (click|hoverClick|rightClick|doubleClick|hover|wave|shake|circle)(?: (\d+) times)? (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/,
-  { timeout: process.env.StepTimeoutInMS },
+const { When } = require('cucumber');
+When(/^I (click|hoverClick|rightClick|doubleClick|hover|wave|shake|circle)(?: (\d+) times)? (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/,
+  { timeout: 60*1000 },
   function (mouseAction, timesCount, targetType, imageNameOne, imageNameTwo) {
     // re imageNameOne
     const parsedImageNameOne = parseExpectedText(imageNameOne);
@@ -147,6 +147,7 @@ module.exports = function () {
         break;
     }
   });
-};
+
+
 
 

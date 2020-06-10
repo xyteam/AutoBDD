@@ -22,7 +22,7 @@ optionHelp = `
         --testThreads, the parallel test threads
         --testStartTime, the start timestamp
         --testRunDuration, how long it took to run the entire test
-        --testRunArgs, the run arguments used for running the test, i.e., --modulelist moduleA module B, --tags @SmokeTest, etc. 
+        --testRunnerArgs, the run arguments used for running the test, i.e., --modulelist moduleA module B, --tags @SmokeTest, etc. 
 `;
 optionFlags = {
     reportType: {
@@ -47,7 +47,7 @@ optionFlags = {
     },
     testPlatformVer: {
         type: 'string',
-        default: 'Ubuntu 18.04'
+        default: 'Ubuntu 20.04'
     },
     testDevice: {
         type: 'string',
@@ -72,7 +72,7 @@ optionFlags = {
     testRerunPath: {
         type: 'string'
     },
-    testRunArgs: {
+    testRunnerArgs: {
         type: 'string'
     }
 }
@@ -90,7 +90,7 @@ var testBrowserVer = cli.flags.testBrowserVer;
 var testThreads = cli.flags.testThreads;
 var testStartTime = cli.flags.testStartTime;
 var testRunDuration = cli.flags.testRunDuration;
-var testRunArgs = cli.flags.testRunArgs;
+var testRunnerArgs = cli.flags.testRunnerArgs;
 
 var bootStrapHtmlReporter_options = {
     launchReport: false,
@@ -106,7 +106,7 @@ var bootStrapHtmlReporter_options = {
         "Run Threads": testThreads,
         "Start Time": testStartTime,
         "Run Duration": testRunDuration,
-        "Run Args": testRunArgs
+        "Run Args": testRunnerArgs
     }
 };
 
@@ -128,7 +128,7 @@ var searchableHtmlReporter_options = {
             {label: 'Run Threads', value: testThreads},
             {label: 'Start Time', value: testStartTime},
             {label: 'Run Duration', value: testRunDuration},
-            {label: 'Run Args', value: testRunArgs}
+            {label: 'Run Args', value: testRunnerArgs}
         ]
     }    
 };

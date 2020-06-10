@@ -19,7 +19,7 @@ const checkElement = (targetElementId, targetElementIndex, targetElement, parent
             break;
         case 'text':
         case 'regex':
-            retrivedValue = browser.elementIdText(targetElementId).value;
+            retrivedValue = browser.getElementText(targetElementId);
     }
     if (boolFalseCase) {
         switch (action) {
@@ -135,18 +135,18 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     var targetElementId;
     if (parentElement) {
         if (parentElementIndexInt >= 0) {
-            const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT;
+            const parentElementId = browser.$$(parentElement)[parentElementIndexInt].elementId;
             targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
             checkElement(targetElementId, targetElementIndex, targetElement, parentElementIndex, parentElement, boolFalseCase, action, targetType, myExpectedText);
         } else {
-            browser.elements(parentElement).value.forEach((pElement, pIndex) => {
+            browser.$$(parentElement).value.forEach((pElement, pIndex) => {
                 const parentElementId = pElement.ELEMENT;
                 targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
                 checkElement(targetElementId, targetElementIndex, targetElement, pIndex + 1, parentElement, boolFalseCase, action, targetType, myExpectedText);    
             });
         }
     } else {
-        targetElementId = browser.elements(targetElement).value[targetElementIndexInt].ELEMENT;
+        targetElementId = browser.$$(targetElement)[targetElementIndexInt].elementId;
         checkElement(targetElementId, targetElementIndex, targetElement, parentElementIndex, null, boolFalseCase, action, targetType, myExpectedText);
     }
 };

@@ -1,7 +1,7 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
-module.exports = function() {
-  this.When(/^I drag "([^"]*)" and drop to "([^"]*)"$/, function (imageNameOne, imageNameTwo) {
+const { When } = require('cucumber');
+When(/^I drag "([^"]*)" and drop to "([^"]*)"$/, function (imageNameOne, imageNameTwo) {
     const parsedImageNameOne = parseExpectedText(imageNameOne);
     const [imageFileNameOne, imageFileExtOne, imageSimilarityOne, maxSimilarityOrTextOne] = this.fs_session.getTestImageParms(parsedImageNameOne);
     const imagePathListOne = this.fs_session.globalSearchImageList(__dirname, imageFileNameOne, imageFileExtOne);
@@ -17,4 +17,5 @@ module.exports = function() {
     this.screen_session.drag_and_drop(locationOne[0].center, locationTwo[0].center);
     browser.pause(1000);
   });
-};
+
+

@@ -16,10 +16,10 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     
     var targetElementId;
     if (parentElement) {
-        const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT;
+        const parentElementId = browser.$$(parentElement)[parentElementIndexInt].elementId;
         targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
     } else {
-        targetElementId = browser.elements(targetElement).value[targetElementIndexInt].ELEMENT;
+        targetElementId = browser.$$(targetElement)[targetElementIndexInt].elementId;
     }
 
     /**

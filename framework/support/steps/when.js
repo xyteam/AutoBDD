@@ -1,3 +1,5 @@
+const { When } = require('cucumber');
+
 const changeBrowserBackground = require('../../functions/action/changeBrowserBackground');
 const changeBrowserZoom = require('../../functions/action/changeBrowserZoom');
 const clearInputField = require('../../functions/action/clearInputField');
@@ -27,156 +29,153 @@ const waitAndActOnElement = require('../../functions/action/waitAndActOnElement'
 const waitFor = require('../../functions/action/waitFor');
 const waitForDownload = require('../../functions/action/waitForDownload');
 
-module.exports = function() {
-    this.When(
-        /^I (back|close|debug|forward|refresh|reload|reset) browser$/, {timeout: 3600*1000},
-        browserAction
-    );
+When(
+    /^I (back|close|debug|forward|refresh|reload|reset) browser$/, {timeout: 3600*1000},
+    browserAction
+);
 
-    this.When(
-        /^I (?:wait (?:(\d+)ms )?and )?((?:left |middle |right |double )?click|hover) on the (\S*) "([^"]*)?"$/,
-        waitAndActOnElement
-    );
+When(
+    /^I (?:wait (?:(\d+)ms )?and )?((?:left |middle |right |double )?click|hover) on the (\S*) "([^"]*)?"$/,
+    waitAndActOnElement
+);
 
-    this.When(
-        /^I (clear|click|tryClick|deepClick|moveTo) the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?$/,
-        clickElementInsideParentElement
-    );
+When(
+    /^I (clear|click|tryClick|deepClick|moveTo) the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?$/,
+    clickElementInsideParentElement
+);
 
-    this.When(
-        /^I click the element "([^"]*)?"(?: up to (\d+) time(?:s)?)? until the element "([^"]*)?" becomes(?: (not))? (enabled|existing|selected|visible)$/,
-        clickToCondition
-    );
-    
-    this.When(
-        /^I (add|set) "([^"]*)?" to the inputfield "([^"]*)?"$/,
-        setInputField
-    );
+When(
+    /^I click the element "([^"]*)?"(?: up to (\d+) time(?:s)?)? until the element "([^"]*)?" becomes(?: (not))? (enabled|existing|selected|visible)$/,
+    clickToCondition
+);
 
-    this.When(
-        /^I (add|set) env var "([^"]*)?" to the inputfield "([^"]*)?"$/,
-        setInputFieldWithEnvVars
-    );
+When(
+    /^I (add|set) "([^"]*)?" to the inputfield "([^"]*)?"$/,
+    setInputField
+);
 
-    this.When(
-        /^I clear the inputfield "([^"]*)?"$/,
-        clearInputField
-    );
+When(
+    /^I (add|set) env var "([^"]*)?" to the inputfield "([^"]*)?"$/,
+    setInputFieldWithEnvVars
+);
 
-    this.When(
-        /^I drag element "([^"]*)?" to element "([^"]*)?"$/,
-        dragElement
-    );
+When(
+    /^I clear the inputfield "([^"]*)?"$/,
+    clearInputField
+);
 
-    this.When(
-        /^I submit the form "([^"]*)?"$/,
-        submitForm
-    );
+When(
+    /^I drag element "([^"]*)?" to element "([^"]*)?"$/,
+    dragElement
+);
 
-    this.When(
-        /^I pause for (\d+)ms$/, {timeout: 3600*1000},
-        pause
-    );
+When(
+    /^I submit the form "([^"]*)?"$/,
+    submitForm
+);
 
-    this.When(
-        /^I set a cookie "([^"]*)?" with the content "([^"]*)?"$/,
-        setCookie
-    );
+When(
+    /^I pause for (\d+)ms$/, {timeout: 3600*1000},
+    pause
+);
 
-    this.When(
-        /^I select the "([^"]*)?" file from the download folder$/, {timeout: process.env.StepTimeoutInMS},
-        selectFileFromDownloadFolder
-    );
+When(
+    /^I set a cookie "([^"]*)?" with the content "([^"]*)?"$/,
+    setCookie
+);
 
-    this.When(
-        /^I delete the cookie "([^"]*)?"$/,
-        deleteCookie
-    );
+When(
+    /^I select the "([^"]*)?" file from the download folder$/, {timeout: 30*1000},
+    selectFileFromDownloadFolder
+);
 
-    this.When(
-        /^I press the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
-        pressKeyTimes
-    );
+When(
+    /^I delete the cookie "([^"]*)?"$/,
+    deleteCookie
+);
 
-    this.When(
-        /^I type the "(.*)?" string to the screen$/,
-        typeText
-    );
+When(
+    /^I press the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
+    pressKeyTimes
+);
 
-    this.When(
-        /^I (accept|dismiss) the (alertbox|confirmbox|prompt)$/,
-        handleModal
-    );
+When(
+    /^I type the "(.*)?" string to the screen$/,
+    typeText
+);
 
-    this.When(
-        /^I enter "([^"]*)?" into the prompt$/,
-        setPromptText
-    );
+When(
+    /^I (accept|dismiss) the (alertbox|confirmbox|prompt)$/,
+    handleModal
+);
 
-    this.When(
-        /^I scroll to the element "([^"]*)?"$/,
-        scroll
-    );
+When(
+    /^I enter "([^"]*)?" into the prompt$/,
+    setPromptText
+);
 
-    this.When(
-        /^I close the last opened (window|tab)$/,
-        closeLastOpenedWindow
-    );
+When(
+    /^I scroll to the element "([^"]*)?"$/,
+    scroll
+);
 
-    this.When(
-        /^I focus the last opened (window|tab)$/,
-        focusLastOpenedWindow
-    );
+When(
+    /^I close the last opened (window|tab)$/,
+    closeLastOpenedWindow
+);
 
-    this.When(
-        /^I move to element "([^"]*)?"(?: with an offset of (\d+),(\d+))*$/,
-        moveToElement
-    );
+When(
+    /^I focus the last opened (window|tab)$/,
+    focusLastOpenedWindow
+);
 
-    this.When(
-        /^I select the (\d+)(st|nd|rd|th) option for element "([^"]*)?"$/,
-        selectOptionByIndex
-    );
+When(
+    /^I move to element "([^"]*)?"(?: with an offset of (\d+),(\d+))*$/,
+    moveToElement
+);
 
-    this.When(
-        /^I select the option with the (name|value|text) "([^"]*)?" for element "([^"]*)?"$/,
-        selectOption
-    );
+When(
+    /^I select the (\d+)(st|nd|rd|th) option for element "([^"]*)?"$/,
+    selectOptionByIndex
+);
 
-    this.When(
-        /^I switch to the(?: (parent|\d+(?:st|nd|rd|th)))? iframe(?: with the name "([^"]*)?")?$/,
-        switchIframe
-    );
+When(
+    /^I select the option with the (name|value|text) "([^"]*)?" for element "([^"]*)?"$/,
+    selectOption
+);
 
-    this.When(
-        /^I set browser background color to "([^"]*)?"$/,
-        changeBrowserBackground
-    );
+When(
+    /^I switch to the(?: (parent|\d+(?:st|nd|rd|th)))? iframe(?: with the name "([^"]*)?")?$/,
+    switchIframe
+);
 
-    this.When(
-        /^I wait on download file "([^"]*)?"(?: for (\d+)ms)* to( not)* exist$/,
-        {
-            wrapperOptions: {
-                retry: 3,
-            },
+When(
+    /^I set browser background color to "([^"]*)?"$/,
+    changeBrowserBackground
+);
+
+When(
+    /^I wait on download file "([^"]*)?"(?: for (\d+)ms)* to( not)* exist$/,
+    {
+        wrapperOptions: {
+            retry: 3,
         },
-        waitForDownload
-    );
+    },
+    waitForDownload
+);
 
-    this.When(
-        /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to( not)* (be checked|be enabled|be selected|be visible|contain a text|contain a value|exist))*$/,
-        {
-            timeout: 3600*1000,
-            wrapperOptions: {
-                retry: 3,
-            },
+When(
+    /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to( not)* (be checked|be enabled|be selected|be visible|contain a text|contain a value|exist))*$/,
+    {
+        timeout: 3600*1000,
+        wrapperOptions: {
+            retry: 3,
         },
-        waitFor
-    );
+    },
+    waitFor
+);
 
-    this.When(
-        /^I zoom browser to "([^"]*)?"$/,
-        changeBrowserZoom
-    );
-
-}
+When(
+    /^I zoom browser to "([^"]*)?"$/,
+    changeBrowserZoom
+);

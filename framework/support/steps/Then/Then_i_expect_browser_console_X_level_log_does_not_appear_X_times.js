@@ -1,5 +1,5 @@
-module.exports = function() {
-  this.Then(/^I expect the( last)* browser console (SEVERE) level log does( not)* appear(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
+const { Then } = require('cucumber');
+Then(/^I expect the( last)* browser console (SEVERE) level log does( not)* appear(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
   function (last, logLevel, falseCase, compareAction, expectedNumber) {
     const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 0;
     const myCompareAction = compareAction || ((typeof falseCase == 'undefined') ? 'more than' : 'exactly');
@@ -32,4 +32,5 @@ module.exports = function() {
           break;
     }
   });
-};
+
+

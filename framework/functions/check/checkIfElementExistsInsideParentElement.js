@@ -17,10 +17,10 @@ module.exports = (targetElement, parentElementIndex, parentElement, falseCase, c
 
     var appearanceNumber;
     if (parentElement) {
-        const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT;
+        const parentElementId = browser.$$(parentElement)[parentElementIndexInt].elementId;
         appearanceNumber = browser.elementIdElements(parentElementId, targetElement).value.length;
     } else {
-        appearanceNumber = browser.elements(targetElement).value.length;
+        appearanceNumber = browser.$$(targetElement).value.length;
     }
 
     switch (myCompareAction) {

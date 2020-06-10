@@ -5,5 +5,5 @@ Feature: test init
   I want to initialize my automation test environment
 
   Scenario: download drivers
-    When  I open the path "/"
+    Given I open the path "/"
     Then  I expect the full URL to contain "version"

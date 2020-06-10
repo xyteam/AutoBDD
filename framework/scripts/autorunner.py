@@ -21,182 +21,11 @@ from tinydb import TinyDB, Query
 import shlex
 from pprint import pprint
 
-def definepath (case, project_name, report_dir_base):
-    uri_array = case['uri'].split('/')
-    del uri_array[:len(uri_array) - uri_array[::-1].index(project_name)]   # remove any path before project_name inclusive
-    run_feature = '/'.join(uri_array)
-
-    # use /features/ as the divider between module_path and feature_path
-    module_path_array = uri_array[:uri_array.index('features')]
-    feature_path_array = uri_array[uri_array.index('features'):]
-
-    # clear extra path typically for Java projects
-    if 'src' in module_path_array: module_path_array.remove('src')              # remove src
-    if 'main' in module_path_array: module_path_array.remove('main')            # remove main
-    if 'test' in module_path_array: module_path_array.remove('test')            # remove test
-    if 'resources' in module_path_array: module_path_array.remove('resources')  # remove resources
-
-    module_path = '/'.join(module_path_array)   # relative path to module
-    module_name = module_path_array[0]          # module_name is the first level of module path
-    feature_path = '/'.join(feature_path_array) # relative path to feature including feature file
-    feature_name = feature_path_array[-1]       # feature file name
-
-    report_dir_relative = module_path
-    report_dir_full = path.join(report_dir_base, report_dir_relative)
-
-    if not path.exists(report_dir_full):
-        os.makedirs(report_dir_full)
-    
-    run_result = path.join(report_dir_full, re.sub('[^A-Za-z0-9\-\.]+', '_', feature_path)) + '.subjson'
-    run_report = path.join(report_dir_full, re.sub('[^A-Za-z0-9\-\.]+', '_', feature_path)) + '.run'
-
-    # Handle space in feature_file
-    run_feature = run_feature.replace(' ', '\ ')
-
-    # print(module_path, module_name, feature_path, feature_name, run_result, run_report, report_dir_relative)
-    return module_path, module_name, feature_path, feature_name, run_result, run_report, report_dir_relative
-
-def run_test(FrameworkPath,
-              host,
-              platform,
-              browser,
-              project_base,
-              project_name,
-              module_full_path,
-              feature_file,
-              movie,
-              screenshot,
-              screenremark,
-              debugmode,
-              display_size,
-              chimp_profile,
-              isMaven,
-              argstring,
-              report_dir_base,
-              report_dir_relative,
-              run_result,
-              run_report):
-    ''' Run Test'''
-    cmd = ''
-    run_feature = path.join(module_full_path, feature_file)
-    if platform == 'Linux':
-        if isMaven: #isMaven on Linux
-            cmd = 'cd ' + module_full_path + ';' + \
-                ' PROJECTBASE=' + project_base + \
-                ' PROJECTNAME=' + project_name + \
-                ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
-                ' RELATIVEREPORTDIR=' + report_dir_relative + \
-                ' MOVIE=' + movie + \
-                ' SCREENSHOT=' + screenshot + \
-                ' SCREENREMARK=' + screenremark + \
-                ' BROWSER=' + browser + \
-                ' DEBUGMODE=' + debugmode + \
-                ' DISPLAYSIZE=' + display_size + \
-                ' PLATFORM=' + platform + \
-                ' RUNREPORT=' + os.path.basename(run_report) + \
-                ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args=\"-screen 0 ' + display_size + 'x24\"' + \
-                ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + feature_file + \
-                ' --plugin pretty --add-plugin json:' + run_result + \
-                ' 2>&1 > ' + run_report + ';' + \
-                ' cat ' + run_report + ' | ansi2html > ' + run_report + '.html'
-        else: #isChimpy on Linux
-            cmd = 'cd ' + module_full_path + ';' + \
-                ' PROJECTBASE=' + project_base + \
-                ' PROJECTNAME=' + project_name + \
-                ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
-                ' RELATIVEREPORTDIR=' + report_dir_relative + \
-                ' MOVIE=' + movie + \
-                ' SCREENSHOT=' + screenshot + \
-                ' SCREENREMARK=' + screenremark + \
-                ' BROWSER=' + browser + \
-                ' DEBUGMODE=' + debugmode + \
-                ' DISPLAYSIZE=' + display_size + \
-                ' PLATFORM=' + platform + \
-                ' RUNREPORT=' + os.path.basename(run_report) + \
-                ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
-                ' chimpy ' + chimp_profile + ' ' + feature_file + \
-                ' --format=json:' + run_result + \
-                ' ' + argstring + \
-                ' 2>&1 > ' + run_report + ';' + \
-                ' cat ' + run_report + ' | ansi2html > ' + run_report + '.html'
-    elif platform == 'Win7' or platform == 'Win10':
-        if isMaven: #isMaven on Windows
-            for rdp in host:
-                cmd = ''
-                lock_file = ''
-                time.sleep(random.uniform(0, 3))
-                # avoid different process using same SSH PORT simultaneously
-                lock_file = '/tmp/rdesktop.' + rdp['SSHHOST'] + ':' + rdp[
-                    'SSHPORT'] + '.lock'
-                if not os.path.exists(lock_file):
-                    open(lock_file, 'a').close()
-                    print(' > Running remote Maven command:')
-                    cmd = 'cd ' + module_full_path + ';' + \
-                        ' PROJECTBASE=' + project_base + \
-                        ' PROJECTNAME=' + project_name + \
-                        ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
-                        ' RELATIVEREPORTDIR=' + report_dir_relative + \
-                        ' MOVIE=' + movie + \
-                        ' SCREENSHOT=' + screenshot + \
-                        ' SCREENREMARK=' + screenremark + \
-                        ' DEBUGMODE=' + debugmode + \
-                        ' BROWSER=' + browser + \
-                        ' DISPLAYSIZE=' + display_size + \
-                        ' PLATFORM=' + platform + \
-                        ' SSHHOST=' + rdp['SSHHOST'] + \
-                        ' SSHPORT=' + rdp['SSHPORT'] + \
-                        ' RUNREPORT=' + os.path.basename(run_report) + \
-                        ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
-                        ' mvn clean test -Dbrowser=\"chrome\" -Dcucumber.options=\"' + feature_file + \
-                        ' --plugin pretty --add-plugin json:' + run_result + \
-                        ' 2>&1 > ' + run_report + ';' + \
-                        ' cat ' + run_report + ' | ansi2html > ' + run_report + '.html'
-                    break
-        else: #isChimpy on Windows
-            for rdp in host:
-                cmd = ''
-                lock_file = ''
-                time.sleep(random.uniform(0, 3))
-                # avoid different process using same SSH PORT simultaneously
-                lock_file = '/tmp/rdesktop.' + rdp['SSHHOST'] + ':' + rdp[
-                    'SSHPORT'] + '.lock'
-                if not os.path.exists(lock_file):
-                    open(lock_file, 'a').close()
-                    cmd = 'cd ' + module_full_path + ';' + \
-                        ' PROJECTBASE=' + project_base + \
-                        ' PROJECTNAME=' + project_name + \
-                        ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
-                        ' RELATIVEREPORTDIR=' + report_dir_relative + \
-                        ' MOVIE=' + movie + \
-                        ' SCREENSHOT=' + screenshot + \
-                        ' SCREENREMARK=' + screenremark + \
-                        ' DEBUGMODE=' + debugmode + \
-                        ' BROWSER=' + browser + \
-                        ' DISPLAYSIZE=' + display_size + \
-                        ' PLATFORM=' + platform + \
-                        ' SSHHOST=' + rdp['SSHHOST'] + \
-                        ' SSHPORT=' + rdp['SSHPORT'] + \
-                        ' RUNREPORT=' + os.path.basename(run_report) + \
-                        ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
-                        ' chimpy ' + chimp_profile + ' ' + feature_file + \
-                        ' --format=json:' + run_result + \
-                        ' ' + argstring + \
-                        ' 2>&1 > ' + run_report + ';' + \
-                        ' cat ' + run_report + ' | ansi2html > ' + run_report + '.html'
-                    break
-    else:
-        assert False, 'Can not process on {}'.format(platform)
-
-    print('\nRunning: {}'.format(run_feature))
-    print('Command: {}\n'.format(cmd))
-    os.system(cmd)
-    return run_feature
-
 def parse_arguments():
     '''
     parse command line arguments
     '''
-    descript = "This python scripts can be used to run chimp/maven in parallel and generate cucumber report. "
+    descript = "This python scripts can be used to run abdd/maven in parallel and generate cucumber report. "
     descript += "Command Example: "
     descript += " framework/scripts/autorunner.py --parallel 2 --movie 0"
     descript += " --platform Linux --browser CH"
@@ -254,7 +83,7 @@ def parse_arguments():
         dest="PARALLEL",
         default='CPU',
         help=
-        "chimp parallel run number, if CPU is used, without MOVIE count is CPU - 1, with MOVIE count is CPU/2, minimum id 1"
+        "abdd parallel run number, if CPU is used, without MOVIE count is CPU - 1, with MOVIE count is CPU/2, minimum id 1"
     )
 
     parser.add_argument(
@@ -285,7 +114,7 @@ def parse_arguments():
         default="Linux",
         choices=["Linux", "Win7", "Win10"],
         help=
-        "Run chimp on the given platform. Acceptable values: Linux, Win7, Win10. Default value: Linux"
+        "Run abdd on the given platform. Acceptable values: Linux, Win7, Win10. Default value: Linux"
     )
 
     parser.add_argument(
@@ -295,7 +124,7 @@ def parse_arguments():
         default="CH",
         choices=["CH", "IE"],
         help=
-        "Run chimp on the given browser. Acceptable values: CH, IE. Default value: CH"
+        "Run abdd on the given browser. Acceptable values: CH, IE. Default value: CH"
     )
 
     parser.add_argument(
@@ -320,7 +149,7 @@ def parse_arguments():
         "--PROJECT",
         dest="PROJECT",
         default="simple-test",
-        help="Run chimp on the given project. Default value: webtest-example")
+        help="Run abdd on the given project. Default value: webtest-example")
 
     parser.add_argument(
         "--modulelist",
@@ -350,35 +179,203 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "--argstring",
-        "--ARGSTRING",
-        dest="ARGSTRING",
-        default='',
-        help="Additoinal Cucumber Args in a quoted string"
-    )
-
-    parser.add_argument(
         "--projecttype",
         "--PROJECTTYPE",
         dest="PROJECTTYPE",
         default="Auto",
-        choices=["Auto", "Chimpy", "Maven"],
+        choices=["Auto", "Abdd", "Maven"],
         help=
-        "project type to specify the suitable runner. Available options are \"Maven\", \"Chimpy\", and \"Auto\". Default value: Auto"
+        "project type to specify the suitable runner. Available options are \"Maven\", \"Abdd\", and \"Auto\". Default value: Auto"
     )
 
     parser.add_argument(
         '--version',
         '-v',
         action='version',
-        version='%(prog)s V1.0'
+        version='%(prog)s V2.0'
     )
 
+    parser.add_argument('RUNNER_ARGS', nargs=argparse.REMAINDER)
+
     args = parser.parse_args()
+
     if len(sys.argv) > 1:
         if sys.argv[1].startswith('+'):
             args = parser.parse_args(shlex.split(open(sys.argv[1][1:]).read()))
+    
     return args
+
+def definepath (case, project_name, report_dir_base):
+    uri_array = case['uri'].split('/')
+    del uri_array[:len(uri_array) - uri_array[::-1].index(project_name)]   # remove any path before project_name inclusive
+    run_feature = '/'.join(uri_array)
+
+    # use /features/ as the divider between module_path and feature_path
+    module_path_array = uri_array[:uri_array.index('features')]
+    feature_path_array = uri_array[uri_array.index('features'):]
+
+    # clear extra path typically for Java projects
+    if 'src' in module_path_array: module_path_array.remove('src')              # remove src
+    if 'main' in module_path_array: module_path_array.remove('main')            # remove main
+    if 'test' in module_path_array: module_path_array.remove('test')            # remove test
+    if 'resources' in module_path_array: module_path_array.remove('resources')  # remove resources
+
+    module_path = '/'.join(module_path_array)   # relative path to module
+    module_name = module_path_array[0]          # module_name is the first level of module path
+    feature_name = feature_path_array.pop()     # 1. get feature file name, 2. reduce file name from feature_path_array
+    feature_path = '/'.join(feature_path_array) # relative path to feature without feature file
+
+    report_dir_relative = module_path
+    report_dir_full = path.join(report_dir_base, report_dir_relative)
+
+    if not path.exists(report_dir_full):
+        os.makedirs(report_dir_full)
+    
+    result_base = path.join(report_dir_full)
+    result_json = result_base + '/.tmp/' + feature_name.replace('_', '-').replace('.feature', '').lower() + '.json'
+    result_run  = result_base + '/' + feature_name.lower() + '.run'
+
+    # Handle space in feature_file
+    run_feature = run_feature.replace(' ', r'\ ' )
+
+    # print(module_path, module_name, feature_path, feature_name, result_json, result_run, report_dir_relative)
+    return module_path, module_name, feature_path, feature_name, result_json, result_run, report_dir_relative
+
+def run_test(FrameworkPath,
+              host,
+              platform,
+              browser,
+              project_base,
+              project_name,
+              module_full_path,
+              feature_file,
+              movie,
+              screenshot,
+              screenremark,
+              debugmode,
+              display_size,
+              abdd_profile,
+              isMaven,
+              runner_args,
+              report_dir_base,
+              report_dir_relative,
+              result_json,
+              result_run):
+    ''' Run Test'''
+    cmd = ''
+    run_feature = path.join(module_full_path, feature_file)
+    if platform == 'Linux':
+        if isMaven: #isMaven on Linux
+            cmd = 'cd ' + module_full_path + ';' + \
+                ' PROJECTBASE=' + project_base + \
+                ' PROJECTNAME=' + project_name + \
+                ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
+                ' RELATIVEREPORTDIR=' + report_dir_relative + \
+                ' MOVIE=' + movie + \
+                ' SCREENSHOT=' + screenshot + \
+                ' SCREENREMARK=' + screenremark + \
+                ' BROWSER=' + browser + \
+                ' DEBUGMODE=' + debugmode +  \
+                ' DISPLAYSIZE=' + display_size + \
+                ' PLATFORM=' + platform + \
+                ' RUNREPORT=' + os.path.basename(result_run) + \
+                ' ' + FrameworkPath + '/fr amework/scripts/xvfb-run-safe.sh --server-args=\"-screen 0 ' + display_size + 'x24\"' + \
+                ' mvn clean test -Dbrow ser=\"chrome\" -Dcucumber.options=\"'  + feature_file + \
+                ' --plugin pretty --add-plugin json:' + result_json + \
+                ' 2>&1 > ' + result_run + ';' + \
+                ' cat ' + result_run + ' | ansi2html > ' + result_run + '.html'
+        else: #isAbdd on Linux
+            cmd = 'cd ' + module_full_path + ';' + \
+                ' PROJECTBASE=' + project_base + \
+                ' PROJECTNAME=' + project_name + \
+                ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
+                ' RELATIVEREPORTDIR=' + report_dir_relative + \
+                ' MOVIE=' + movie + \
+                ' SCREENSHOT=' + screenshot + \
+                ' SCREENREMARK=' + screenremark + \
+                ' BROWSER=' + browser + \
+                ' DEBUGMODE=' + debugmode +  \
+                ' DISPLAYSIZE=' + display_size + \
+                ' PLATFORM=' + platform + \
+                ' RUNREPORT=' + os.path.basename(result_run) + \
+                ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
+                ' npx wdio ' + abdd_profile + ' ' + feature_file + \
+                ' --reporters=cucumberjs-json' + \
+                ' ' + runner_args + \
+                ' 2>&1 > ' + result_run + ';' + \
+                ' cat ' + result_run + ' | ansi2html > ' + result_run + '.html'
+    elif platform == 'Win7' or platform == 'Win10':
+        if isMaven: #isMaven on Windows
+            for rdp in host:
+                cmd = ''
+                lock_file = ''
+                time.sleep(random.uniform(0, 3))
+                # avoid different process using same SSH PORT simultaneously
+                lock_file = '/tmp/rdesktop.' + rdp['SSHHOST'] + ':' + rdp[
+                    'SSHPORT'] + '.lock'
+                if not os.path.exists(lock_file):
+                    open(lock_file, 'a').close()
+                    print(' > Running remote Maven command:')
+                    cmd = 'cd ' + module_full_path + ';' + \
+                        ' PROJECTBASE=' + project_base + \
+                        ' PROJECTNAME=' + project_name + \
+                        ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
+                        ' RELATIVEREPORTDIR=' + report_dir_relative + \
+                        ' MOVIE=' + movie + \
+                        ' SCREENSHOT=' + screenshot + \
+                        ' SCREENREMARK=' + screenremark + \
+                        ' DEBUGMODE=' + debugmode + \
+                        ' BROWSER=' + browser + \
+                        ' DISPLAYSIZE=' + display_size + \
+                        ' PLATFORM=' + platform +  \
+                        ' SSHHOST=' + rdp['SSHHOST'] + \
+                        ' SSHPORT=' + rdp['SSHPORT'] + \
+                        ' RUNREPORT=' + os.path.basename(result_run) + \
+                        ' ' + FrameworkPath + '/fr amework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
+                        ' mvn clean test -Dbrow ser=\"chrome\" -Dcucumber.options=\"'  + feature_file + \
+                        ' --plugin pretty --add-plugin json:' + result_json + \
+                        ' 2>&1 > ' + result_run + ';' + \
+                        ' cat ' + result_run + ' | ansi2html > ' + result_run + '.html'
+                    break
+        else: #isAbdd on Windows
+            for rdp in host:
+                cmd = ''
+                lock_file = ''
+                time.sleep(random.uniform(0, 3))
+                # avoid different process using same SSH PORT simultaneously
+                lock_file = '/tmp/rdesktop.' + rdp['SSHHOST'] + ':' + rdp[
+                    'SSHPORT'] + '.lock'
+                if not os.path.exists(lock_file):
+                    open(lock_file, 'a').close()
+                    cmd = 'cd ' + module_full_path + ';' + \
+                        ' PROJECTBASE=' + project_base + \
+                        ' PROJECTNAME=' + project_name + \
+                        ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
+                        ' RELATIVEREPORTDIR=' + report_dir_relative + \
+                        ' MOVIE=' + movie + \
+                        ' SCREENSHOT=' + screenshot + \
+                        ' SCREENREMARK=' + screenremark + \
+                        ' DEBUGMODE=' + debugmode + \
+                        ' BROWSER=' + browser + \
+                        ' DISPLAYSIZE=' + display_size + \
+                        ' PLATFORM=' + platform +  \
+                        ' SSHHOST=' + rdp['SSHHOST'] + \
+                        ' SSHPORT=' + rdp['SSHPORT'] + \
+                        ' RUNREPORT=' + os.path.basename(result_run) + \
+                        ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
+                        ' npx wdio ' + abdd_profile + ' ' + feature_file + \
+                        ' --reporters=cucumberjs-json' + \
+                        ' ' + runner_args + \
+                        ' 2>&1 > ' + result_run + ';' + \
+                        ' cat ' + result_run + ' | ansi2html > ' + result_run + '.html'
+                    break
+    else:
+        assert False, 'Can not process on {}'.format(platform)
+
+    print('\nRunning: {}'.format(run_feature))
+    print('Command: {}\n'.format(cmd))
+    os.system(cmd)
+    return run_feature
 
 def get_scenario_status(scenario_out):
     scenario = json.loads(open(scenario_out).read(), encoding='utf-8')
@@ -390,9 +387,9 @@ def get_scenario_status(scenario_out):
                 return 'failed'
     return 'passed'
 
-class ChimpAutoRun:
+class AbddAutoRun:
     '''
-    run chimp
+    run abdd
     '''
 
     def __init__(self, arguments):
@@ -427,15 +424,18 @@ class ChimpAutoRun:
             (self.project, self.runtime_stamp))
 
         self.modulelist = arguments.MODULELIST
-        self.argstring = arguments.ARGSTRING
+        runner_args = arguments.RUNNER_ARGS
+        self.cucumberjs_dryrun_args = ' '.join([w.replace('cucumberOpts.', '').replace('tagExpress', 'tags').replace('=', '=\"') + '\"' for w in runner_args[1:]])
+        self.wdio_run_args = ' '.join([w.replace('=', '=\"') + '\"' for w in runner_args[1:]])
+
         self.display_size = '1920x1200'
 
         self.project_full_path = path.join(self.FrameworkPath, self.projectbase, self.project)
         self.report_full_path = path.join(self.reportbase, self.reportpath)
         self.isMaven = self.isMavenProject (arguments.PROJECTTYPE)
 
-        # Each runable module should have a chimp.js
-        self.chimp_profile = path.join('chimp.js')
+        # Each runable module should have a abdd.js
+        self.abdd_profile = path.join('abdd.js')
         # Create report directory
         if not path.exists(path.join(self.FrameworkPath, self.reportbase)):
             os.makedirs(path.join(self.FrameworkPath, self.reportbase))
@@ -461,7 +461,7 @@ class ChimpAutoRun:
 
     def isMavenProject(self, args):
         result = False
-        if ( self.projecttype.lower() == "chimp" or self.projecttype.lower() == "chimpy"):
+        if ( self.projecttype.lower() == "abdd" or self.projecttype.lower() == "abdd"):
             result = False
         elif (self.projecttype.lower() == "maven" or self.projecttype.lower() == "mvn"):
             result = True
@@ -475,10 +475,10 @@ class ChimpAutoRun:
         return result
 
     def create_dryrun_json(self):
-        from autorunner_dryrun import ChimpDryRun
-        dry_run = ChimpDryRun(self.projectbase, self.project,
+        from autorunner_dryrun import AbddDryRun
+        dry_run = AbddDryRun(self.projectbase, self.project,
                                 self.modulelist, self.platform, self.browser,
-                                self.argstring, self.report_full_path)
+                                self.cucumberjs_dryrun_args, self.report_full_path)
         self.run_json = dry_run.create_run_json()
         return self.run_json
         
@@ -501,7 +501,7 @@ class ChimpAutoRun:
         '''
         get avaiable host by reading config file
         '''
-        config_file = path.join(self.FrameworkPath, 'framework', 'configs', 'chimp_run_host.config')
+        config_file = path.join(self.FrameworkPath, 'framework', 'configs', 'abdd_run_host.config')
         assert path.exists(config_file), '{} is not exits'.format(config_file)
 
         with open(config_file, encoding='utf-8') as fname:
@@ -521,7 +521,7 @@ class ChimpAutoRun:
 
         assert len(
             self.
-            host) > 0, 'No host is avilable! Check file: chimp_run_host.config'
+            host) > 0, 'No host is avilable! Check file: abdd_run_host.config'
 
     def generate_reports(self, dbfile):
         '''
@@ -549,11 +549,12 @@ class ChimpAutoRun:
             reportList = group.search(query.status != 'crashed')
             feature_report = None
             for item in reportList:
-                element = json.loads(open(item['run_result'], encoding='utf-8').read())[0]
+                element = json.loads(open(item['result_json'], encoding='utf-8').read())[0]
                 if not feature_report:
                     feature_report = element
                 else:
                     feature_report['elements'].append(element['elements'][0])
+                os.rename(item['result_json'], item['result_json'] + '.processed')
             if feature_report is not None:
                 cucumber_report_json.append(feature_report)
         db.close()
@@ -589,13 +590,13 @@ class ChimpAutoRun:
             '--reportName=\'AutoBDD HTML Report\' ' +  \
             '--reportTitle=' + self.project + ' ' + \
             '--testPlatform=' + self.platform + ' ' + \
-            '--testPlatformVer=\'Ubuntu 18.04\' ' + \
+            '--testPlatformVer=\'Ubuntu 20.04\' ' + \
             '--testBrowser=' + report_browser + ' ' + \
             '--testBrowserVer=' + report_browser_ver + ' ' + \
             '--testThreads=' + self.parallel + ' ' + \
             '--testStartTime=' + self.runtime_stamp + ' ' + \
             '--testRunDuration=' + run_duration + ' ' + \
-            '--testRunArgs="' + self.argstring + '"'
+            '--testRunnerArgs="' + self.wdio_run_args + '"'
         print('Generate HTML Report On: {}'.format(report_html_path))
         print(cmd_generate_html_report)
         os.system(cmd_generate_html_report)
@@ -611,7 +612,7 @@ class ChimpAutoRun:
 
     def run_in_parallel(self, dbfile):
         '''
-        run chimp in parallel
+        run abdd in parallel
 
         1. determine parallel pool size base on parallel input or CPU count
         2. from db find case of 'notrun' and 'rerun'
@@ -652,13 +653,13 @@ class ChimpAutoRun:
             case  = None
             runList = group.search((query.status == 'notrun') | (query.status == 'rerun'))
             runCount += len(runList)
-            if len(runList) > 0:
+            if len(runList) > 0 :
                 case = runList[0]
                 if case.doc_id:
-                    module_path, module_name, feature_path, feature_name, run_result, run_report, report_dir_relative = definepath(
+                    module_path, module_name, feature_path, feature_name, result_json, result_run , report_dir_relative = definepath(
                     case, self.project, self.report_dir_base)
                     module_full_path = path.join(self.projectbase, self.project, module_path)
-                    group.update({'status': 'running', 'run_result': run_result, 'run_report': run_report}, doc_ids=[case.doc_id])
+                    group.update({'status': 'running', 'result_json': result_json, 'result_run': result_run}, doc_ids=[case.doc_id])
                     r = pool.apply_async(run_test,  args=(self.FrameworkPath,
                                                     self.host,
                                                     self.platform,
@@ -672,13 +673,13 @@ class ChimpAutoRun:
                                                     self.screenremark,
                                                     self.debugmode,
                                                     self.display_size,
-                                                    self.chimp_profile,
+                                                    self.abdd_profile,
                                                     self.isMaven,
-                                                    self.argstring,
+                                                    self.wdio_run_args,
                                                     self.report_dir_base,
                                                     report_dir_relative,
-                                                    run_result,
-                                                    run_report))
+                                                    result_json,
+                                                    result_run))
                     progress.append(r)
                 else:
                     break
@@ -698,10 +699,10 @@ class ChimpAutoRun:
                         runList = group.search(query.status == 'running')
                         for case in runList:
                             if done_feature in case['uri']:
-                                if os.path.exists(case['run_result']) and os.path.getsize(case['run_result']) > 0:
+                                if os.path.exists(case['result_json']) and os.path.getsize(case['result_json']) > 0:
                                     resultString = ''
                                     failedString = '"status": "failed"'
-                                    with open(case['run_result'], encoding='utf-8') as f:
+                                    with open(case['result_json'], encoding='utf-8') as f:
                                         resultString = f.read()
                                     if (resultString.find(failedString) >= 0):
                                         group.update({'status': 'failed'}, doc_ids=[case.doc_id])
@@ -723,28 +724,28 @@ class ChimpAutoRun:
 
 if __name__ == "__main__":
     command_arguments = parse_arguments()
-    chimp_run = ChimpAutoRun(command_arguments)
-    rundb_json_path = path.join(chimp_run.report_full_path, 'db.subjson')
+    abdd_run = AbddAutoRun(command_arguments)
+    rundb_json_path = path.join(abdd_run.report_full_path, 'db.subjson')
     
     if not command_arguments.REPORTONLY:
         print('\nRunning test in parallel\n')
         # first run start from dryrun_json
-        run_feature_subjson = chimp_run.create_dryrun_json()
-        chimp_run.update_tinydb(rundb_json_path, run_feature_subjson, None)
-        chimp_run.run_in_parallel(rundb_json_path)
+        run_feature_subjson = abdd_run.create_dryrun_json()
+        abdd_run.update_tinydb(rundb_json_path, run_feature_subjson, None)
+        abdd_run.run_in_parallel(rundb_json_path)
         # rerun will re-use previous dryrun_json
         if command_arguments.RERUNFAILED:
             for n in range(0, int(command_arguments.RERUNFAILED)):
                 print('\nRerunning failed test iteration: {}\n'.format(n))
-                chimp_run.update_tinydb(rundb_json_path, run_feature_subjson, 'failed')
-                chimp_run.run_in_parallel(rundb_json_path)
+                abdd_run.update_tinydb(rundb_json_path, run_feature_subjson, 'failed')
+                abdd_run.run_in_parallel(rundb_json_path)
         if command_arguments.RERUNCRASHED:
             for n in range(0, int(command_arguments.RERUNCRASHED)):
                 print('\nRerunning crashed test iteration: {}\n'.format(n))
-                chimp_run.update_tinydb(rundb_json_path, run_feature_subjson, 'crashed')
-                chimp_run.run_in_parallel(rundb_json_path)
+                abdd_run.update_tinydb(rundb_json_path, run_feature_subjson, 'crashed')
+                abdd_run.run_in_parallel(rundb_json_path)
 
     if not command_arguments.RUNONLY:
         print('\nGenerating reports\n')
-        chimp_run.generate_reports(rundb_json_path)
+        abdd_run.generate_reports(rundb_json_path)
 

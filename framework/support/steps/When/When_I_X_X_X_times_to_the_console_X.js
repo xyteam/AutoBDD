@@ -1,9 +1,9 @@
 const parseExpectedText = require(process.env.FrameworkPath + '/framework/functions/common/parseExpectedText.js');
 const keycode = require('keycode');
 
-module.exports = function() {
-  this.When(/^I flush the "(.*)" console output$/,
-  {timeout: process.env.StepTimeoutInMS},
+const { When } = require('cucumber');
+When(/^I flush the "(.*)" console output$/,
+  { timeout: 60*1000 },
   function (consoleName) {
     // parse input
     const myConsoleName = parseExpectedText(consoleName);
@@ -11,8 +11,8 @@ module.exports = function() {
     this.myConsoleData[myConsoleName].stdout = '';
   });
 
-  this.When(/^I (?:type|press) (?:the )?"(.*)" (key|string) (?:(\d+) time(?:s)? )?to the console "(.*)"$/,
-  {timeout: process.env.StepTimeoutInMS},
+  When(/^I (?:type|press) (?:the )?"(.*)" (key|string) (?:(\d+) time(?:s)? )?to the console "(.*)"$/,
+  { timeout: 60*1000 },
   function (inputContent, inputType, repeatTimes, consoleName) {
     // parse input
     const myInputContent = parseExpectedText(inputContent);
@@ -36,4 +36,3 @@ module.exports = function() {
         break;
     }
   });
-}

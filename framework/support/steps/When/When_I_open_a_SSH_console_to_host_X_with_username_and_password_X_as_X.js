@@ -1,7 +1,6 @@
 const parseExpectedText = require(process.env.FrameworkPath + '/framework/functions/common/parseExpectedText.js');
-
-module.exports = function() {
-  this.When(
+const { When } = require('cucumber');
+When(
     /^I open a SSH console to the host "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
     { timeout: 15 * 60 * 1000 },
     function (hostName, userName, passWord, consoleName) {
@@ -16,7 +15,7 @@ module.exports = function() {
     }
   );
 
-  this.When(
+When(
     /^I run the following command set to the SSH console "(.*)":$/,
     { timeout: 15 * 60 * 1000 },
     function (consoleName, table) {
@@ -31,7 +30,7 @@ module.exports = function() {
     }
   );
 
-  this.When(
+When(
     /^I run the following remote command set:$/,
     { timeout: 15 * 60 * 1000 },
     function (table) {
@@ -46,4 +45,3 @@ module.exports = function() {
       }
     }
   );
-}

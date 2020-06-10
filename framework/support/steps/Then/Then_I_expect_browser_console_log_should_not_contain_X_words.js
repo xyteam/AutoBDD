@@ -1,5 +1,5 @@
-module.exports = function() {
-  this.Then(/^I expect the( last)* browser console log should( not)* contain "([^"]*)" words$/,
+const { Then } = require('cucumber');
+Then(/^I expect the( last)* browser console log should( not)* contain "([^"]*)" words$/,
   function (last, falseCase, regexWords) {
     const myRegexWords = regexWords.toLowerCase();
     const anyRegexWords = 'failed|rejected|unhandled|unauthorized|error|invalid';
@@ -13,4 +13,5 @@ module.exports = function() {
       expect(targetLogArray.length).toBeGreaterThan(0);
     }
   });
-};
+
+

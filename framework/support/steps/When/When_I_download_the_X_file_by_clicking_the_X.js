@@ -1,7 +1,7 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
-module.exports = function() {
-  this.When(/^I download the (PDF) file by clicking "([^"]*)"$/, {timeout: process.env.StepTimeoutInMS * 2}, function (fileType, imageName) {
+const { When } = require('cucumber');
+When(/^I download the (PDF) file by clicking "([^"]*)"$/, {timeout: 60*1000 * 2}, function (fileType, imageName) {
     // delete previous download file
     var downloadUrl = browser.getUrl();
     var fileName = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.')));
@@ -33,5 +33,6 @@ module.exports = function() {
     const downloadFilePath = this.fs_session.checkDownloadFile(fileName, fileExt);
     expect(downloadFilePath).toContain(fileName + '.' + fileExt);
   });
-};
+
+
 
