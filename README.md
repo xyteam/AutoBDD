@@ -9,7 +9,7 @@ docker-compose run --rm example-run "--tags @SmokeTest --movie=1"
 Open the HTML test report in ~/Projects/AutoBDD-example/bdd_reports/
 You will see BDD test report with screenshots and video.
 
-## AutoBDD
+## AutoBDD (v1.0.5)
 
   BDD Automation Framework
 
