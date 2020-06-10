@@ -1,5 +1,5 @@
 ARG AutoBDD_Ver
-FROM xyteam/AutoBDD-run:latest
+FROM xyteam/AutoBDD-run:2.0.0
 USER root
 ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
