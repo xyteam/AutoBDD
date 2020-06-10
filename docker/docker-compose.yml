@@ -2,13 +2,13 @@
 # 
 version: '3.5'
 services:
-  AutoBDD-dev:
+  autobdd-dev:
     build:
       context: ~/Projects/AutoBDD
       dockerfile: docker/autobdd-dev.dockerfile
       args:
         AutoBDD_Ver: ${AutoBDD_Ver}
-    image: "xyteam/AutoBDD-dev:${AutoBDD_Ver}"
+    image: "xyteam/autobdd-dev:${AutoBDD_Ver}"
     container_name: autobdd-dev
     shm_size: 1536M
     user: root
@@ -27,14 +27,14 @@ services:
       RESOLUTION: 1920x1200x24
     entrypoint: "/autobdd-dev.startup.sh"
 
-  AutoBDD-run:
+  autobdd-run:
     build:
       context: ~/Projects/AutoBDD
       dockerfile: docker/autobdd-run.dockerfile
       shm_size: 128M
       args:
         AutoBDD_Ver: ${AutoBDD_Ver}
-    image: "xyteam/AutoBDD-run:${AutoBDD_Ver}"
+    image: "xyteam/autobdd-run:${AutoBDD_Ver}"
     container_name: autobdd-run
     shm_size: 1536M
     user: root
