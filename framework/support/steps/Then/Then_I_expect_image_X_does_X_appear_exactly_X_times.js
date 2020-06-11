@@ -17,8 +17,8 @@ Then(
       if (imageName && imageName == 'last-seen') {
         screenFindResult = this.lastSeen_screenFindResult;
       } else {
-        [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedImageName);
-        imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
+        [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = fs_session.getTestImageParms(parsedImageName);
+        imagePathList = fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
         expectedImageSimilarity = this.lastSeen_screenFindResult && this.lastSeen_screenFindResult.name == parsedImageName ? (this.lastSeen_screenFindResult.score - 0.000001) : imageSimilarity;
         expectedImageNumberMax = myExpectedNumber;
         screenFindResult = JSON.parse(screen_session.screenFindAllImages(imagePathList, expectedImageSimilarity, maxSimilarityOrText, null, null, expectedImageNumberMax));  

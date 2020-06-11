@@ -32,7 +32,7 @@ When(
         // only keep 10k text
         const myReadIndex = ((Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240) > 0) ? Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240 : 0;
         const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout.slice(myReadIndex)).split(/[\r\n]+/);
-        this.browser_session.displayMessage(browser, lineArray.join('\n'));
+        browser_session.displayMessage(browser, lineArray.join('\n'));
         var lineText;
         switch(firstOrLast) {
           case 'first':

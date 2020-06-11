@@ -16,7 +16,7 @@ Then(
       browser.pause(500);
       const myConsoleData = this.myConsoleData;
       const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
-      this.browser_session.displayMessage(browser, lineArray.join('\n'));
+      browser_session.displayMessage(browser, lineArray.join('\n'));
 
       var lineText;
       switch(myFirstOrLast.trim()) {

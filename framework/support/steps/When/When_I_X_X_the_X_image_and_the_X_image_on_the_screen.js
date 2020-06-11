@@ -7,17 +7,17 @@ When(/^I (click|hoverClick|rightClick|doubleClick|hover|wave|shake|circle)(?: (\
   function (mouseAction, timesCount, targetType, imageNameOne, imageNameTwo) {
     // re imageNameOne
     const parsedImageNameOne = parseExpectedText(imageNameOne);
-    const [imageFileNameOne, imageFileExtOne, imageSimilarityOne, maxSimilarityOrTextOne] = this.fs_session.getTestImageParms(parsedImageNameOne);
+    const [imageFileNameOne, imageFileExtOne, imageSimilarityOne, maxSimilarityOrTextOne] = fs_session.getTestImageParms(parsedImageNameOne);
     var imagePathListOne;
     if (imageFileNameOne.includes('Screen')) {
       imagePathListOne = imageFileNameOne;
     } else {
-      imagePathListOne = this.fs_session.globalSearchImageList(__dirname, imageFileNameOne, imageFileExtOne);
+      imagePathListOne = fs_session.globalSearchImageList(__dirname, imageFileNameOne, imageFileExtOne);
     }
     // re imageNameTwo
     const parsedImageNameTwo = parseExpectedText(imageNameTwo);
-    const [imageFileNameTwo, imageFileExtTwo, imageSimilarityTwo, maxSimilarityOrTextTwo] = this.fs_session.getTestImageParms(parsedImageNameTwo);
-    const imagePathListTwo = this.fs_session.globalSearchImageList(__dirname, imageFileNameTwo, imageFileExtTwo);
+    const [imageFileNameTwo, imageFileExtTwo, imageSimilarityTwo, maxSimilarityOrTextTwo] = fs_session.getTestImageParms(parsedImageNameTwo);
+    const imagePathListTwo = fs_session.globalSearchImageList(__dirname, imageFileNameTwo, imageFileExtTwo);
     switch (targetType) {
       case 'between':
         var locationOne, locationTwo;

@@ -7,7 +7,7 @@ When(
       const myHostName = parseExpectedText(hostName);
       const myUserName = parseExpectedText(userName);
       const myPassWord = parseExpectedText(passWord);
-      var [myConsole, myConsoleData] = this.cmdline_session.remoteConsole(`${myUserName}@${myHostName}`, 22, myPassWord);
+      var [myConsole, myConsoleData] = cmdline_session.remoteConsole(`${myUserName}@${myHostName}`, 22, myPassWord);
       this.myConsoles = {};
       this.myConsoles[consoleName] = myConsole;
       this.myConsoleData = {};
@@ -40,7 +40,7 @@ When(
         const myUserName = parseExpectedText(cmd.userName);
         const myPassWord = parseExpectedText(cmd.passWord);
         const myCommand = parseExpectedText(cmd.command);
-        const myResult = JSON.parse(this.cmdline_session.remoteRunCmd(myCommand, `${myUserName}@${myHostName}`, 22, myPassWord));
+        const myResult = JSON.parse(cmdline_session.remoteRunCmd(myCommand, `${myUserName}@${myHostName}`, 22, myPassWord));
         console.log(myResult);
       }
     }

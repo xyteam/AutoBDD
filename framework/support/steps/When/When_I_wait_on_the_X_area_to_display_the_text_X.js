@@ -15,11 +15,11 @@ When(
       var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
       if (targetName) {
         const parsedTargetName = parseExpectedText(targetName);
-        [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedTargetName);
+        [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = fs_session.getTestImageParms(parsedTargetName);
         if (imageFileName.includes('Screen')) {
           imagePathList = imageFileName;
         } else {
-          imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
+          imagePathList = fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
         }
         imageScore = this.lastSeen_screenFindResult && this.lastSeen_screenFindResult.name == parsedTargetName ? (this.lastSeen_screenFindResult.score - 0.000001) : imageSimilarity;
       }
