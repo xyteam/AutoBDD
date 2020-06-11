@@ -25,7 +25,7 @@ module.exports = (type, targetElementIndex, targetElement, parentElementIndex, p
             const parentElementId = browser.$$(parentElement)[parentElementIndexInt].elementId;
             targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
         } else {
-            browser.$$(parentElement).value.forEach((pElement, pIndex) => {
+            browser.$$(parentElement).forEach((pElement, pIndex) => {
                 const parentElementId = pElement.ELEMENT;
                 targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
             });

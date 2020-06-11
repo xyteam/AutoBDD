@@ -139,7 +139,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
             targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
             checkElement(targetElementId, targetElementIndex, targetElement, parentElementIndex, parentElement, boolFalseCase, action, targetType, myExpectedText);
         } else {
-            browser.$$(parentElement).value.forEach((pElement, pIndex) => {
+            browser.$$(parentElement).forEach((pElement, pIndex) => {
                 const parentElementId = pElement.ELEMENT;
                 targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
                 checkElement(targetElementId, targetElementIndex, targetElement, pIndex + 1, parentElement, boolFalseCase, action, targetType, myExpectedText);    

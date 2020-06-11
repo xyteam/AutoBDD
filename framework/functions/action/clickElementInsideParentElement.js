@@ -12,10 +12,9 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
 
     var myParentElement, myTargetElement;
     if (parentElement) {
-        myParentElement = browser.$$(parentElement).value[parentElementIndexInt];
-        myTargetElement = browser.elementIdElements(myParentElement.ELEMENT, targetElement).value[targetElementIndexInt];
+        myTargetElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
     } else {
-        myTargetElement = browser.$$(targetElement).value[targetElementIndexInt];
+        myTargetElement = browser.$$(parentElement)[targetElementIndexInt];
     }
     // console.log(myTargetElement);
 
