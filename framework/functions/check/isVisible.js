@@ -13,7 +13,7 @@ module.exports = (partOf, element, waitAction, falseCase) => {
         const ms = 10000;
         browser.$(myElement).waitForDisplayed(ms, !!falseCase);    
     }
-    var isVisible = browser.isVisible(myElement);
+    var isVisible = browser.$(myElement).isDisplayed();
     if (typeof isVisible != 'boolean') {
         switch (myPartOf) {
             default:

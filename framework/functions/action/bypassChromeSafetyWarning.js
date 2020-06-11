@@ -3,7 +3,7 @@ module.exports = (wait, ifPresent) =>{
     if (!ifPresent) {
       expect(browser.isExisting('button=Advanced')).toBe(true);
     } 
-    if (browser.isVisible('button=Advanced') || browser.isVisible('button=Back to safety')) {
+    if (browser.$('button=Advanced').isDisplayed() || browser.$('button=Back to safety').isDisplayed()) {
         browser.click('button=Advanced');
         browser.click('#proceed-link');
     }

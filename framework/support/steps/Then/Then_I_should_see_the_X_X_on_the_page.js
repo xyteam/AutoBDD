@@ -6,7 +6,7 @@ Then(/^I should see the "([^"]*)" (button|label|option|modalDialog) on the page$
   function (elementText, elementName) {
     const targetElement = eval('textedElements.texted_' + elementName).replace('__TEXT__', elementText);
     browser.$(targetElement).waitForDisplayed(500);
-    expect(browser.isVisible(targetElement)).toBe(true);
+    expect(browser.$(targetElement).isDisplayed()).toBe(true);
   });
 
 
