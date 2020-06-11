@@ -58,7 +58,7 @@ module.exports = (target, falseCase, action, expectedText) => {
             case 'match':
             case 'matches':
                 expect(myTestTarget).not.toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `The current ${target} should not match ` +
                     `"${myExpectedText}"`
                 );        
@@ -85,7 +85,7 @@ module.exports = (target, falseCase, action, expectedText) => {
             case 'match':
             case 'matches':
                 expect(myTestTarget).toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `The current ${target} should match ` +
                     `"${myExpectedText}"`
                 );        

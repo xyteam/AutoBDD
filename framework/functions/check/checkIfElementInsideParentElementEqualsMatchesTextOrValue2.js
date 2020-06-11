@@ -61,7 +61,7 @@ const checkElement = (targetElementId, targetElementIndex, targetElement, parent
             case 'match':
             case 'matches':
                 expect(retrivedValue).not.toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `the ${targetElementIndex} target element "${targetElement}" inside the ${parentElementIndex} parent element "${parentElement}" should not match ${targetType} ` +
                     `"${myExpectedText}"`
                 );        
@@ -107,7 +107,7 @@ const checkElement = (targetElementId, targetElementIndex, targetElement, parent
             case 'match':
             case 'matches':
                 expect(retrivedValue).toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `the ${targetElementIndex} target element "${targetElement}" inside the ${parentElementIndex} parent element "${parentElement}" should match ${targetType} ` +
                     `"${myExpectedText}"`
                 );        

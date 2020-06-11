@@ -98,7 +98,7 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
             case 'match':
             case 'matches':
                 expect(readTargetContent).not.toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `file "${fileName}" should not match text "${myExpectedText}"`
                 );        
                 break;
@@ -124,7 +124,7 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
             case 'match':
             case 'matches':
                 expect(readTargetContent).toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `file "${fileName}" should match text "${myExpectedText}"`
                 );        
                 break;

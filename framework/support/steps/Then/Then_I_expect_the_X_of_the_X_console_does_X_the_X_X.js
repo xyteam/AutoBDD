@@ -53,7 +53,7 @@ Then(
             break;
           case 'match':
               expect(lineText.toLowerCase()).not.toMatch(
-                myExpectedText.toLowerCase(),
+                RegExp(myExpectedText.toLowerCase()),
                 `console should match the ${expectType} ` +
                 `"${myExpectedText}"`
               );        
@@ -79,7 +79,7 @@ Then(
               break;
             case 'match':
               expect(lineText.toLowerCase()).toMatch(
-                myExpectedText.toLowerCase(),
+                RegExp(myExpectedText.toLowerCase()),
                 `console should match the ${expectType} ` +
                 `"${myExpectedText}"`
               );        

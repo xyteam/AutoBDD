@@ -58,7 +58,6 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     }
 
     retrivedValue = retrivedValue.replace(/[^\x00-\x7F]/g, '');
-    const myRegex = RegExp(myExpectedText);
 
     if (boolFalseCase) {
         switch (action) {
@@ -80,8 +79,8 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                 break;
             case 'match':
             case 'matches':
-                expect(myRegex.test(retrivedValue)).not.toEqual(
-                    true,
+                expect(retrivedValue).not.toMatch(
+                    RegExp(myExpectedText),
                     `target element "${targetElement}" inside parent element "${parentElement}" should not match ${targetType} ` +
                     `"${myExpectedText}"`
                 );        
@@ -109,8 +108,8 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                 break;
             case 'match':
             case 'matches':
-                expect(myRegex.test(retrivedValue)).toEqual(
-                    true,
+                expect(retrivedValue).toMatch(
+                    RegExp(myExpectedText),
                     `target element "${targetElement}" inside parent element "${parentElement}" should match ${targetType} ` +
                     `"${myExpectedText}"`
                 );        

@@ -81,7 +81,7 @@ Then(
             break;
             case 'match':
               expect(lineText.toLowerCase()).not.toMatch(
-                myExpectedText.toLowerCase(),
+                RegExp(myExpectedText.toLowerCase()),
                 `target image text should not match the ${expectType} ` +
                 `"${myExpectedText}"`
               );        
@@ -113,7 +113,7 @@ Then(
             break;
           case 'match':
             expect(lineText.toLowerCase()).toMatch(
-              myExpectedText.toLowerCase(),
+              RegExp(myExpectedText.toLowerCase()),
               `target image text should match the ${expectType} ` +
               `"${myExpectedText}"`
             );        

@@ -75,7 +75,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
             case 'match':
             case 'matches':
                 expect(retrivedValue).not.toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `element "${parsedElement}" should not match ${type} ` +
                     `"${myExpectedText}"`
                 );        
@@ -104,7 +104,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
             case 'match':
             case 'matches':
                 expect(retrivedValue).toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `element "${parsedElement}" should match ${type} ` +
                     `"${myExpectedText}"`
                 );        

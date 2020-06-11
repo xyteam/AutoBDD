@@ -57,7 +57,7 @@ module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) =>
             case 'match':
             case 'matches':
                 expect(attributeValue).not.toMatch(
-                    expectedValue,
+                    RegExp(expectedValue),
                     `${attrType}: ${attrName} of element "${element}" should not match ` +
                     `"${expectedValue}"`
                 );        
@@ -84,7 +84,7 @@ module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) =>
             case 'match':
             case 'matches':
                 expect(attributeValue).toMatch(
-                    expectedValue,
+                    RegExp(expectedValue),
                     `${attrType}: ${attrName} of element "${element}" should match ` +
                     `"${expectedValue}"`
                 );        
