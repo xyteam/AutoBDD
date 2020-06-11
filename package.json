@@ -78,6 +78,7 @@
     "chromedriver": "^83.0.0",
     "cucumber-html-reporter": "^5.2.0",
     "cucumber-junit": "^1.7.1",
+    "devtools": "^6.1.17",
     "multiple-cucumber-html-reporter": "^1.16.3",
     "wdio-chromedriver-service": "^6.0.3",
     "wdio-cucumberjs-json-reporter": "^2.0.2",

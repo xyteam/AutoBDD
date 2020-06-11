@@ -231,6 +231,7 @@ exports.config = {
         // <number> timeout for step definitions
         timeout: 20000,
     },
+    // automationProtocol: 'devtools',
     ...hooks,
 };
 
