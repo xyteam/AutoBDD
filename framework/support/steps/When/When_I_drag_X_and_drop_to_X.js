@@ -1,6 +1,7 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
+const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
 const { When } = require('cucumber');
 When(/^I drag "([^"]*)" and drop to "([^"]*)"$/, function (imageNameOne, imageNameTwo) {
     const parsedImageNameOne = parseExpectedText(imageNameOne);

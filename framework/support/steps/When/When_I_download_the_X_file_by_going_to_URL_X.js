@@ -1,3 +1,5 @@
+const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
 const { When } = require('cucumber');
 When(/^I download the (XLS|PDF) file by going to URL "([^"]*)"$/, {timeout: 60*1000 * 2}, function (fileType, downloadUrl) {
     // delete previous download file

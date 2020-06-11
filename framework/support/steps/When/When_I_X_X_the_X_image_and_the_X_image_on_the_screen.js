@@ -1,6 +1,7 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
+const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
 const { When } = require('cucumber');
 When(/^I (click|hoverClick|rightClick|doubleClick|hover|wave|shake|circle)(?: (\d+) times)? (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/,
   { timeout: 60*1000 },

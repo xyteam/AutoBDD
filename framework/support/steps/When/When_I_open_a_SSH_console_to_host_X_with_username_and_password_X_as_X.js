@@ -1,4 +1,6 @@
 const parseExpectedText = require(process.env.FrameworkPath + '/framework/functions/common/parseExpectedText.js');
+const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const cmdline_session = require(FrameworkPath + '/framework/libs/cmdline_session');
 const { When } = require('cucumber');
 When(
     /^I open a SSH console to the host "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,

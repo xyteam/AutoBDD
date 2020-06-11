@@ -1,6 +1,6 @@
-const { When } = require('cucumber');
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
+const { When } = require('cucumber');
 When(/^I (circle|click|expect|park|hover|shake|wave) mouse(?: (\d+) times)? at the (center|centerLeft|centerRight|bottomCenter|bottomLeft|bottomRight|previous|topCenter|topLeft|topRight|\d+,\d+) position of the screen$/,
   { timeout: 60*1000 },
   function (mouseAction, timesCount, screenLocation) {
