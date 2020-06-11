@@ -47,5 +47,5 @@ module.exports = (selectionType, selectionValue, selectElem) => {
         }
     }
 
-    browser.$(...commandArguments)[command];
+    browser.$(...commandArguments)[command]();
 };

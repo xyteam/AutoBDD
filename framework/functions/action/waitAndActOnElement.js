@@ -66,5 +66,5 @@ module.exports = (waitMs, action, type, element) => {
     }
     browser.$(targetElement).scrollIntoView();
     isVisible('some', targetElement, 'becomes');
-    browser.$(targetElement)[method];
+    browser.$(targetElement)[method]();
 };

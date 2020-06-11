@@ -4,7 +4,7 @@
  */
 module.exports = (command) => {
     try {
-        browser.$()[command];
+        browser[command]();
     } catch (e) {
         console.log(`browser ${command} failed`);
     }

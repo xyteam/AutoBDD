@@ -19,5 +19,5 @@ module.exports = (action, modalType) => {
         command = 'alertAccept';
     }
 
-    browserAction.$()[command];
+    browserAction.$()[command]();
 };
