@@ -1,5 +1,6 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
+const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const { When } = require('cucumber');
 When(
     /^I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" image|screen area) to( not)* display the (text|regex) "(.*)?"$/,
@@ -39,9 +40,9 @@ When(
         browser.pause(myWaitIntvSec*1000)
         // check
         if (targetName) {
-          screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
+          screenFindResult = JSON.parse(screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
         } else {
-          screenFindResult = JSON.parse(this.screen_session.screenGetText());
+          screenFindResult = JSON.parse(screen_session.screenGetText());
         }
         this.lastSeen_screenFindResult = screenFindResult;
         let lineArray = screenFindResult[0].text;
