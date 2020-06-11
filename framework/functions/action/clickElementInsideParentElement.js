@@ -20,15 +20,15 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
 
     switch (action) {
         case 'moveTo':
-            browser.moveTo(myTargetElement.ELEMENT);
+            browser.$(myTargetElement).moveTo();
             break;
         case 'clear':
-            browser.elementIdClear(myTargetElement.ELEMENT);
+            browser.$(myTargetElement).clearValue();
             break;
         case 'tryClick':
             try {
                 console.log('1st try with direct click ...')
-                browser.elementIdClick(myTargetElement.ELEMENT);
+                browser.$(myTargetElement).click();
             } catch (e) {
                 console.log('2nd try with deep click ...')
                 const deepClick = function(argument) { argument.click(); };
@@ -42,7 +42,7 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
                 break;
         case 'click':
         default:
-            browser.elementIdClick(myTargetElement.ELEMENT);
+            browser.$(myTargetElement).click();
             break;
     }
 };
