@@ -1,5 +1,5 @@
 module.exports = (wait, ifPresent) =>{
-    if (wait) try {browser.waitForVisible('button=Advanced', 3000)} catch (e) {/*no-op*/};
+    if (wait) try {browser.$('button=Advanced').waitForDisplayed(3000)} catch (e) {/*no-op*/};
     if (!ifPresent) {
       expect(browser.isExisting('button=Advanced')).toBe(true);
     } 

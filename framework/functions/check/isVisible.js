@@ -11,7 +11,7 @@ module.exports = (partOf, element, waitAction, falseCase) => {
     const myPartOf = partOf || 'some';
     if (waitAction == 'becomes') {
         const ms = 10000;
-        browser.waitForVisible(myElement, ms, !!falseCase);    
+        browser.$(myElement).waitForDisplayed(ms, !!falseCase);    
     }
     var isVisible = browser.isVisible(myElement);
     if (typeof isVisible != 'boolean') {
