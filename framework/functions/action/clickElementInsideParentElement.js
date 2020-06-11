@@ -10,11 +10,11 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
 
-    var myParentElement, myTargetElement;
+    var myTargetElement;
     if (parentElement) {
         myTargetElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
     } else {
-        myTargetElement = browser.$$(parentElement)[targetElementIndexInt];
+        myTargetElement = browser.$$(targetElement)[targetElementIndexInt];
     }
     // console.log(myTargetElement);
 
