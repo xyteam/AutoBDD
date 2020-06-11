@@ -35,7 +35,7 @@ module.exports = (element, falseCase, type) => {
      * The text of the element
      * @type {String}
      */
-    const text = browser[command](parsedElement);
+    const text = browser.$(parsedElement)[command]();
 
     if (typeof falseCase === 'undefined' || falseCase == null) {
         boolFalseCase = false;

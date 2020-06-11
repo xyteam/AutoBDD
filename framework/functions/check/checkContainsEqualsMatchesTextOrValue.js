@@ -51,7 +51,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
         boolFalseCase = true;
     }
 
-    const retrivedValue = browser[command](parsedElement).toString();
+    const retrivedValue = browser.$(parsedElement)[command]().toString();
     // console.log(`${type} : ${retrivedValue}`)
 
     if (boolFalseCase) {

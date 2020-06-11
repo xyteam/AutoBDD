@@ -1,3 +1,5 @@
+const browserAction = require("./browserAction");
+
 /**
  * Handle a modal
  * @param  {String}   action    Action to perform on the modal (accept, dismiss)
@@ -17,5 +19,5 @@ module.exports = (action, modalType) => {
         command = 'alertAccept';
     }
 
-    browser[command]();
+    browserAction.$()[command];
 };

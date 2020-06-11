@@ -64,7 +64,7 @@ module.exports = (waitMs, action, type, element) => {
     if (method.toLowerCase().includes('click')) {
         waitFor(targetElement, myWaitMS, null, 'enabled');
     }
-    browser.scroll(targetElement, 0, -200);
+    browser.$(targetElement).scrollIntoView();
     isVisible('some', targetElement, 'becomes');
-    browser[method](targetElement);
+    browser.$(targetElement)[method];
 };

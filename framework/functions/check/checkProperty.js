@@ -26,7 +26,7 @@ module.exports = (isCSS, attrName, element, action, falseCase, expectedValue) =>
      * The actual attribute value
      * @type {Mixed}
      */
-    let attributeValue = browser[command](element, attrName);
+    let attributeValue = browser.$(element)[command](attrName);
 
     /**
      * when getting something with a color or font-weight WebdriverIO returns a

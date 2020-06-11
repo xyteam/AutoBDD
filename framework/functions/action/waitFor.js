@@ -63,5 +63,5 @@ module.exports =
     }
     // console.log(myElem);
     // console.log(command);
-    browser[command](myElem, intMs, boolFalseState);
+    browser.$(myElem)[command](intMs, boolFalseState);
 };

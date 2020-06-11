@@ -22,5 +22,5 @@ module.exports = (method, value, element) => {
         checkValue = '';
     }
 
-    browser[command](element, checkValue);
+    browser.$(element)[command](checkValue);
 };
