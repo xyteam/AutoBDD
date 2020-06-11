@@ -37,6 +37,7 @@ module.exports = (waitMs, action, type, element) => {
      * @type {String}
      */
     var method;
+    var option = {};
     switch (action) {
         case 'hover':
             method = 'moveTo';
@@ -45,13 +46,16 @@ module.exports = (waitMs, action, type, element) => {
             method = 'doubleClick';
             break;
         case 'left click':
-            method = 'leftClick';
+            method = 'click';
+            option = { button: 'left' }
             break;
         case 'middle click':
-            method = 'middleClick';
+            method = 'click';
+            option = { button: 'middle' }
             break;
         case 'right click':
-            method = 'rightClick';
+            method = 'click';
+            option = { button: 'right' }
             break;
         case 'click':
             method = 'click';
@@ -66,5 +70,5 @@ module.exports = (waitMs, action, type, element) => {
     }
     browser.$(targetElement).scrollIntoView();
     isVisible('some', targetElement, 'becomes');
-    browser.$(targetElement)[method]();
+    browser.$(targetElement)[method](option);
 };
