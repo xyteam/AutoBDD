@@ -19,21 +19,13 @@ module.exports = (type, targetElementIndex, targetElement, parentElementIndex, p
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : -1;
 
-    var targetElementId, retrivedValue;
+    var targetElementIdElement;
     if (parentElement) {
-        if (parentElementIndex >= 0) {
-            const parentElementId = browser.$$(parentElement)[parentElementIndexInt].elementId;
-            targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
-        } else {
-            browser.$$(parentElement).forEach((pElement, pIndex) => {
-                const parentElementId = pElement.ELEMENT;
-                targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
-            });
-        }
+        targetElementIdElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
     } else {
-        targetElementId = browser.$$(targetElement)[targetElementIndexInt].elementId;
+        targetElementIdElement = browser.$$(targetElement)[targetElementIndexInt];
     }
-    retrivedValue = browser.getElementText(targetElementId);
+    const retrivedValue = browser.getElementText(targetElementIdElement);
     process.env[varName] = (type == 'number') ? retrivedValue.match(/\d+/)[0] : retrivedValue;
     console.log(`assigned "${process.env[varName]}" to ENV:${varName}`);
 };
