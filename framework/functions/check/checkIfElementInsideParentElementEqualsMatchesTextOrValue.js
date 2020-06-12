@@ -16,12 +16,12 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     
-    var targetElementId;
+    var targetElementIdElement;
     if (parentElement) {
         const parentElementId = browser.$$(parentElement)[parentElementIndexInt].elementId;
-        targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
+        targetElementIdElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
     } else {
-        targetElementId = browser.$$(targetElement)[targetElementIndexInt].elementId;
+        targetElementIdElement = browser.$$(targetElement)[targetElementIndexInt];
     }
 
     /**
@@ -50,11 +50,15 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     var retrivedValue;
     switch (targetType) {
         case 'value':
-            retrivedValue = browser.getElementAttribute(targetElementId, targetType);
+            if (browser.$(targetElementIdElement).getTagName() == 'input') {
+                retrivedValue = browser.$(targetElementIdElement).getValue();
+            } else {
+                retrivedValue = browser.getElementAttribute(targetElementIdElement, targetType);
+            }
             break;
         case 'text':
         default:
-            retrivedValue = browser.getElementText(targetElementId);
+            retrivedValue = browser.getElementText(targetElementIdElement);
     }
 
     retrivedValue = retrivedValue.replace(/[^\x00-\x7F]/g, '');

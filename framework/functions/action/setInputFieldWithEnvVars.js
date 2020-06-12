@@ -19,5 +19,5 @@ module.exports = (method, isEnvVar, value, element) => {
     checkIfElementExists(element, false, 1);
 
     if (command == 'addValue') inputValue = browser.$(element).getValue() + inputValue;
-    browser.$(element).setValue(checkValue);
+    browser.$(element).setValue(inputValue);
 };
