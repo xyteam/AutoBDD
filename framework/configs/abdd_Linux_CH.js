@@ -203,7 +203,7 @@ exports.config = {
         // <boolean> invoke formatters without executing steps
         // dryRun: false,
         // <boolean> abort the run on first failure
-        failFast: true,
+        failFast: false,
         // <boolean> Enable this config to treat undefined definitions as
         // warnings
         ignoreUndefinedDefinitions: false,
