@@ -42,9 +42,9 @@ module.exports = (waitMs, action, type, element) => {
         case 'hover':
             method = 'moveTo';
             break;
-        case 'double click':
-            method = 'doubleClick';
-            break;
+        // case 'double click':
+        //     method = 'doubleClick';
+        //     break;
         case 'left click':
             method = 'click';
             option = { button: 'left' }
@@ -70,5 +70,11 @@ module.exports = (waitMs, action, type, element) => {
     }
     browser.$(targetElement).scrollIntoView();
     isVisible('some', targetElement, 'becomes');
-    browser.$(targetElement)[method](option);
+    if (action == 'double click') {
+        const doubleClick = function(argument) { $(argument).dblclick() };
+        // browser.$(targetElement).moveTo();
+        browser.execute(doubleClick, targetElement);
+    } else {
+        browser.$(targetElement)[method](option);
+    }
 };
