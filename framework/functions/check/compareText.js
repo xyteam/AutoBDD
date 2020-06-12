@@ -10,13 +10,13 @@ module.exports = (element1, falseCase, element2) => {
      * The text of the first element
      * @type {String}
      */
-    const text1 = browser.getText(element1);
+    const text1 = browser.$(element1).getText();
 
     /**
      * The text of the second element
      * @type {String}
      */
-    const text2 = browser.getText(element2);
+    const text2 = browser.$(element2).getText();
 
     if (falseCase) {
         expect(text1).not.toEqual(
