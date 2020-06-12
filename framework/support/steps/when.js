@@ -19,7 +19,6 @@ const selectOption = require('../../functions/action/selectOption');
 const selectOptionByIndex = require('../../functions/action/selectOptionByIndex');
 const selectFileFromDownloadFolder = require('../../functions/action/selectFileFromDownloadFolder');
 const setCookie = require('../../functions/action/setCookie');
-const setInputField = require('../../functions/action/setInputField');
 const setInputFieldWithEnvVars = require('../../functions/action/setInputFieldWithEnvVars');
 const setPromptText = require('../../functions/action/setPromptText');
 const submitForm = require('../../functions/action/submitForm');
@@ -50,12 +49,7 @@ When(
 );
 
 When(
-    /^I (add|set) "([^"]*)?" to the inputfield "([^"]*)?"$/,
-    setInputField
-);
-
-When(
-    /^I (add|set) env var "([^"]*)?" to the inputfield "([^"]*)?"$/,
+    /^I (add|set)(?: (env var))? "([^"]*)?" to the inputfield "([^"]*)?"$/,
     setInputFieldWithEnvVars
 );
 
