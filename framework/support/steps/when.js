@@ -21,7 +21,6 @@ const selectFileFromDownloadFolder = require('../../functions/action/selectFileF
 const setCookie = require('../../functions/action/setCookie');
 const setInputFieldWithEnvVars = require('../../functions/action/setInputFieldWithEnvVars');
 const setPromptText = require('../../functions/action/setPromptText');
-const submitForm = require('../../functions/action/submitForm');
 const switchIframe = require('../../functions/action/switchIframe');
 const typeText = require('../../functions/action/typeText');
 const waitAndActOnElement = require('../../functions/action/waitAndActOnElement');
@@ -61,11 +60,6 @@ When(
 When(
     /^I drag element "([^"]*)?" to element "([^"]*)?"$/,
     dragElement
-);
-
-When(
-    /^I submit the form "([^"]*)?"$/,
-    submitForm
 );
 
 When(
