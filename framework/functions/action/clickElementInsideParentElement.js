@@ -9,6 +9,7 @@
 module.exports = (action, targetElementIndex, targetElement, parentElementIndex, parentElement) => {
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
+    const deepClick = function(argument) { $(argument).click() };
 
     var myTargetElement;
     if (parentElement) {
@@ -31,13 +32,11 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
                 browser.$(myTargetElement).click();
             } catch (e) {
                 console.log('2nd try with deep click ...')
-                const deepClick = function(argument) { argument.click(); };
                 browser.execute(deepClick, myTargetElement);          
             }
             break;
         case 'deepClick':
                 console.log('do deep click ...')
-                const deepClick = function(argument) { argument.click(); };
                 browser.execute(deepClick, myTargetElement);          
                 break;
         case 'click':
