@@ -15,7 +15,7 @@ const checkElement = (targetElementId, targetElementIndex, targetElement, parent
     var retrivedValue;
     switch (targetType) {
         case 'value':
-            retrivedValue = browser.elementIdAttribute(targetElementId, targetType).value;
+            retrivedValue = browser.getElementAttribute(targetElementId, targetType);
             break;
         case 'text':
         case 'regex':
