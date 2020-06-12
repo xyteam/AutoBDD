@@ -18,7 +18,6 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     
     var targetElementIdElement;
     if (parentElement) {
-        const parentElementId = browser.$$(parentElement)[parentElementIndexInt].elementId;
         targetElementIdElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
     } else {
         targetElementIdElement = browser.$$(targetElement)[targetElementIndexInt];
@@ -58,7 +57,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
             break;
         case 'text':
         default:
-            retrivedValue = browser.getElementText(targetElementIdElement);
+            retrivedValue = browser.$(targetElementIdElement).getText();
     }
 
     retrivedValue = retrivedValue.replace(/[^\x00-\x7F]/g, '');

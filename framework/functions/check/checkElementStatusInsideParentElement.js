@@ -14,12 +14,11 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     
-    var targetElementId;
+    var targetElementIdElement;
     if (parentElement) {
-        const parentElementId = browser.$$(parentElement)[parentElementIndexInt].elementId;
-        targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
+        targetElementIdElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
     } else {
-        targetElementId = browser.$$(targetElement)[targetElementIndexInt].elementId;
+        targetElementIdElement = browser.$$(targetElement)[targetElementIndexInt];
     }
 
     /**
@@ -37,20 +36,20 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     if (boolFalseCase) {
         switch (expectedStauts) {
             case 'displayed':
-                expect(browser.elementIdDisplayed(targetElementId).value).not.toBe(
+                expect(browser.$(targetElementIdElement).isDisplayed()).not.toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should not be ${expectedStauts}`
                 );        
                 break;
             case 'enabled':
-                expect(browser.elementIdEnabled(targetElementId).value).not.toBe(
+                expect(browser.$(targetElementIdElement).isEnabled()).not.toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should not be ${expectedStauts}`
                 );        
                 break;
             case 'checked':
             case 'selected':
-                expect(browser.elementIdSelected(targetElementId).value).not.toBe(
+                expect(browser.$(targetElementIdElement).isSelected()).not.toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should not be ${expectedStauts}`
                 );        
@@ -61,20 +60,20 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     } else {
         switch (expectedStauts) {
             case 'displayed':
-                expect(browser.elementIdDisplayed(targetElementId).value).toBe(
+                expect(browbrowser.$(targetElementIdElement).isDisplayed()).toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should be ${expectedStauts}`
                 );        
                 break;
             case 'enabled':
-                expect(browser.elementIdEnabled(targetElementId).value).toBe(
+                expect(browser.$(targetElementIdElement).isEnabled()).toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should be ${expectedStauts}`
                 );        
                 break;
             case 'checked':
             case 'selected':
-                expect(browser.elementIdSelected(targetElementId).value).toBe(
+                expect(browser.$(targetElementIdElement).isSelected()).toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should be ${expectedStauts}`
                 );        
