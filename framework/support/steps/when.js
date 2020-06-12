@@ -5,11 +5,10 @@ const changeBrowserZoom = require('../../functions/action/changeBrowserZoom');
 const clearInputField = require('../../functions/action/clearInputField');
 const clickElementInsideParentElement = require('../../functions/action/clickElementInsideParentElement');
 const clickToCondition = require('../../functions/action/clickToCondition');
-const closeLastOpenedWindow = require('../../functions/action/closeLastOpenedWindow');
 const deleteCookie = require('../../functions/action/deleteCookie');
 const browserAction = require('../../functions/action/browserAction');
 const dragElement = require('../../functions/action/dragElement');
-const focusLastOpenedWindow = require('../../functions/action/focusLastOpenedWindow');
+const switchToOrCloseLastOpenedWindow = require('../../functions/action/switchToOrCloseLastOpenedWindow');
 const handleModal = require('../../functions/action/handleModal');
 const moveToElement = require('../../functions/action/moveToElement');
 const pause = require('../../functions/action/pause');
@@ -108,13 +107,8 @@ When(
 );
 
 When(
-    /^I close the last opened (window|tab)$/,
-    closeLastOpenedWindow
-);
-
-When(
-    /^I focus the last opened (window|tab)$/,
-    focusLastOpenedWindow
+    /^I (switch to|close) the last opened (?:window|tab)$/,
+    switchToOrCloseLastOpenedWindow
 );
 
 When(
