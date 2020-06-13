@@ -39,7 +39,7 @@ module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) =
      * object but we want to assert against a string
      */
     if (attrName.match(/(color|font-weight)/)) {
-        attributeValue = attributeValue.value.toString();
+        attributeValue = attributeValue.value;
     }
 
     if (falseCase) {
