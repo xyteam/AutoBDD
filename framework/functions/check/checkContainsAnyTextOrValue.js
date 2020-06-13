@@ -22,8 +22,8 @@ module.exports = (element, falseCase, type) => {
     }
 
     if (!!falseCase) {
-        expect(retrivedValue).not.toEqual('');
-    } else {
         expect(retrivedValue).toEqual('');
+    } else {
+        expect(retrivedValue).not.toEqual('');
     }
 };
