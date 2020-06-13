@@ -14,7 +14,6 @@ module.exports = (partOf, element, waitAction, falseCase) => {
         browser.$(myElement).waitForDisplayed(ms, !!falseCase);    
     }
     var isVisible = browser.$(myElement).isDisplayed();
-    console.log(`${myElement} isDisplayed: ${isVisible}`);
     if (typeof isVisible != 'boolean') {
         switch (myPartOf) {
             default:
