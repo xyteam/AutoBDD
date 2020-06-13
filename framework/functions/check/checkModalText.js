@@ -5,6 +5,7 @@
  * @param  {String}   falseState    Whether to check if the text matches or not
  * @param  {String}   expectedText  The text to check against
  */
+const assert = require('assert');
 module.exports = (modalType, falseState, expectedText) => {
     try {
         /**
@@ -12,8 +13,9 @@ module.exports = (modalType, falseState, expectedText) => {
          * @type {String}
          */
         const text = browser.getAlertText();
+        console.log(text)
 
-        if (falseState) {
+        if (!!falseState) {
             expect(text).not.toEqual(
                 expectedText,
                 `Expected the text of ${modalType} not to equal ` +
