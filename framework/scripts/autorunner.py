@@ -299,7 +299,7 @@ def run_test(FrameworkPath,
                 ' PLATFORM=' + platform + \
                 ' RUNREPORT=' + os.path.basename(result_run) + \
                 ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
-                ' npx wdio ' + abdd_profile + ' ' + feature_file + \
+                ' npx wdio ' + abdd_profile + ' --spec ' + feature_file + \
                 ' --reporters=cucumberjs-json' + \
                 ' ' + runner_args + \
                 ' 2>&1 > ' + result_run + ';' + \
@@ -363,7 +363,7 @@ def run_test(FrameworkPath,
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' RUNREPORT=' + os.path.basename(result_run) + \
                         ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
-                        ' npx wdio ' + abdd_profile + ' ' + feature_file + \
+                        ' npx wdio ' + abdd_profile + ' --spec ' + feature_file + \
                         ' --reporters=cucumberjs-json' + \
                         ' ' + runner_args + \
                         ' 2>&1 > ' + result_run + ';' + \
