@@ -9,7 +9,7 @@ module.exports = (element, falseCase) => {
      * The state of visibility of the given element inside the viewport
      * @type {Boolean}
      */
-    const isVisible = browser.isVisibleWithinViewport(element);
+    const isVisible = browser.$(element).isDisplayedInViewport();
 
     if (falseCase) {
         expect(isVisible).not.toBe(
