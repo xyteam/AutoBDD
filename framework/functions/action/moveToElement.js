@@ -17,5 +17,5 @@ module.exports = (element, x, y) => {
      */
     const intY = parseInt(y, 10) || undefined;
 
-    browser.moveToObject(element, intX, intY);
+    browser.$(element).moveTo(intX, intY);
 };
