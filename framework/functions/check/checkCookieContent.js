@@ -25,7 +25,7 @@ module.exports = (cookieName, falseCase, expectedValue) => {
      * The cookie retrieved from the browser object
      * @type {Object}
      */
-    const cookie = browser.getCookie(parsedCookieName);
+    const cookie = browser.getCookies([parsedCookieName])[0];
 
     expect(cookie.name).toEqual(
         parsedCookieName,
