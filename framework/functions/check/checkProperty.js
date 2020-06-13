@@ -10,7 +10,6 @@
  * @param  {String}   expectedValue The value to match against
  */
 module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) => {
-    console.log([isCSS, attrName, selector, action, falseCase, expectedValue])
     /**
      * The command to use for fetching the expected value
      * @type {String}

@@ -27,21 +27,21 @@ module.exports = (targetElement, parentElementIndex, parentElement, falseCase, c
             expect(appearanceNumber).toEqual(myExpectedNumber);
             break;
         case 'not exactly':
-            expect(typeof falseCase === 'undefined').toBe(true, 'cannot use double negative expression');
+            expect(falseCase).toBe(null, 'cannot use double negative expression');
             expect(appearanceNumber).not.toEqual(myExpectedNumber);
             break;
         case 'more than':
             expect(appearanceNumber).toBeGreaterThan(myExpectedNumber);
             break;
         case 'no more than':
-            expect(typeof falseCase === 'undefined').toBe(true, 'cannot use double negative expression');
+            expect(falseCase).toBe(null, 'cannot use double negative expression');
             expect(appearanceNumber).not.toBeGreaterThan(myExpectedNumber);
             break;
         case 'less than':
             expect(appearanceNumber).toBeLessThan(myExpectedNumber);
             break;
         case 'no less than':
-            expect(typeof falseCase === 'undefined').toBe(true, 'cannot use double negative expression');
+            expect(falseCase).toBe(null, 'cannot use double negative expression');
             expect(appearanceNumber).not.toBeLessThan(myExpectedNumber);
             break;
     }    

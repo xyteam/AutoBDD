@@ -2,9 +2,12 @@ const { Then } = require('cucumber');
 Then(/^I expect the( last)* browser console (SEVERE) level log does( not)* appear(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
   function (last, logLevel, falseCase, compareAction, expectedNumber) {
     const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 0;
-    const myCompareAction = compareAction || ((typeof falseCase == 'undefined') ? 'more than' : 'exactly');
+    const myCompareAction = compareAction || (falseCase) ? 'exactly' : 'more than';
 
-    const targetLogArray = (last) ? JSON.parse(process.env.LastBrowserLog) : browser.log('browser').value.filter(log => log.level == logLevel);
+    // const logTypes = browser.getLogTypes()
+    // logTypes.forEach(logType => console.log(logType, browser.getLogs(logType)));
+
+    const targetLogArray = (last) ? JSON.parse(process.env.LastBrowserLog) : browser.getLogs('browser').filter(log => log.level == logLevel);
     process.env.LastBrowserLog = JSON.stringify(targetLogArray);
     console.log(process.env.LastBrowserLog);
 

@@ -3,7 +3,6 @@
  * @param  {String}   action switch to or close
  */
 module.exports = (action) => {
-    console.log(action)
     const lastWindowHandle = browser.getWindowHandles().slice(-1)[0];
     browser.switchToWindow(lastWindowHandle);
     if (action == 'close') browser.closeWindow(); 
