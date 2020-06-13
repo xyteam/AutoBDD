@@ -18,6 +18,5 @@ module.exports = (action, modalType) => {
     if (modalType === 'alertbox') {
         command = 'alertAccept';
     }
-
-    browserAction.$()[command]();
+    browserAction(command);
 };

@@ -11,7 +11,7 @@ module.exports = (modalType, falseState, expectedText) => {
          * The text of the current modal
          * @type {String}
          */
-        const text = browser.alertText();
+        const text = browser.getAlertText();
 
         if (falseState) {
             expect(text).not.toEqual(
@@ -27,7 +27,7 @@ module.exports = (modalType, falseState, expectedText) => {
             );
         }
     } catch (e) {
-        assert(
+        assert (
             e,
             `A ${modalType} was not opened when it should have been opened`
         );
