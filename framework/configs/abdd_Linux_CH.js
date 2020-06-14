@@ -8,6 +8,7 @@ const { hooks } = require(`${FrameworkPath}/framework/support/module_hooks.js`);
 const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
 const myCombinedStepPath = ['support/steps/*.js', ProjectPath + '/project/support/steps/**/*.js', FrameworkPath + '/framework/support/steps/**/*.js'];
 const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
+const myParallelRunPort = 4444 + parseInt(process.env.DISPLAY.slice(-2).replace(':', ''));
 
 // for Linux chrome
 const myChromeProfilePath = process.env.myChromeProfilePath || '/tmp/chrome_profile_' + process.env.DISPLAY.substr(1);
@@ -68,7 +69,7 @@ exports.config = {
     // and 30 processes will get spawned. The property handles how many capabilities
     // from the same test should run tests.
     //
-    maxInstances: 128,
+    maxInstances: 1,
     //
     // If you have trouble getting all important capabilities together, check out the
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
@@ -81,6 +82,7 @@ exports.config = {
         // 5 instances get started at a time.
         maxInstances: 1,
         browserName: 'chrome',
+        port: myParallelRunPort,
         'goog:chromeOptions': {
             args: [
                 // '--headless',
@@ -174,6 +176,7 @@ exports.config = {
             },
             args: {
                 drivers: selenium_standalone_config.drivers,
+                seleniumArgs: ['-host', '127.0.0.1','-port', `${myParallelRunPort}`]
             },
         }]
     ],
