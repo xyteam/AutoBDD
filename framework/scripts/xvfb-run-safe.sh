@@ -2,7 +2,7 @@
 
 # allow settings to be updated via environment
 : "${xvfb_lockdir:=$HOME/.xvfb-locks}"
-: "${xvfb_display_min:=99}"
+: "${xvfb_display_min:=100}"
 : "${xvfb_display_max:=599}"
 
 # assuming only one user will use this, let's put the locks in our own home directory
