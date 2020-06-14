@@ -147,7 +147,7 @@ When(
 );
 
 When(
-    /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to( not)* (be checked|be enabled|be selected|be displayed|contain a text|contain a value|exist))*$/,
+    /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to( not)* (exist|be enabled|be visible|be clickable|be selected|be checked|contain a text|contain a value))*$/,
     {
         timeout: 3600*1000,
         wrapperOptions: {

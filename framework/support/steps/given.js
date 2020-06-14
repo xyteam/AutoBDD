@@ -60,12 +60,7 @@ Given(
 );
 
 Given(
-    /^the element "([^"]*)?" is( not)* selected$/,
-    checkSelected
-);
-
-Given(
-    /^the checkbox "([^"]*)?" is( not)* checked$/,
+    /^the (?:element|checkbox) "([^"]*)?" is( not)* (?:checked|selected)$/,
     checkSelected
 );
 
