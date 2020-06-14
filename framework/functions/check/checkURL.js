@@ -13,7 +13,6 @@ module.exports = (target, falseCase, action, expectedText) => {
      * @type {String}
      */
     const currentUrl = browser.getUrl();
-    console.log('URL: ' + currentUrl);
     const currentUrlProtocol = (currentUrl.includes('://')) ? currentUrl.split('://')[0] : '';
     const currentUrlHost = (currentUrl.includes('://')) ? currentUrl.split('://')[1].split('/')[0].split(':')[0] : '';
     const currentUrlHostPort = (currentUrl.includes('://')) ? currentUrl.split('://')[1].split('/')[0].split(':')[1] : '';

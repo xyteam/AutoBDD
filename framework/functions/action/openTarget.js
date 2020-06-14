@@ -37,8 +37,8 @@ module.exports = (targetType, targetName) => {
         case "url":
         default:
             urlTarget = encodeURI(parsedTargetName);
-            console.log('URL: ' + urlTarget);
             try {
+                console.log(urlTarget)
                 browser.url(urlTarget);
             } catch (e) {
                 console.log(e.message);
