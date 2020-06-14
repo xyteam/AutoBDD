@@ -10,9 +10,9 @@ module.exports = (expectedUrl, obsolete) => {
      * All the current window handles
      * @type {Object}
      */
-    const windowHandles = browser.windowHandles().value;
+    const windowHandles = browser.getWindowHandles();
 
-    expect(windowHandles.length).not.toBe(1, 'A popup was not opened');
+    expect(windowHandles).not.toHaveLength(1, 'A popup was not opened');
 
     /**
      * The last opened window handle
@@ -21,15 +21,18 @@ module.exports = (expectedUrl, obsolete) => {
     const lastWindowHandle = windowHandles.slice(-1);
 
     // Make sure we focus on the last opened window handle
-    browser.window(lastWindowHandle[0]);
+    browser.switchToWindow(lastWindowHandle[0]);
 
     /**
      * Get the URL of the current browser window
      * @type {String}
      */
-    const windowUrl = browser.url().value;
+    const windowUrl = browser.getUrl();
 
-    expect(windowUrl).toContain(expectedUrl, 'The popup has a incorrect url');
+    expect(windowUrl).toContain(
+        expectedUrl,
+        'The popup has a incorrect getUrl'
+    );
 
-    browser.close();
+    browser.closeWindow();
 };
