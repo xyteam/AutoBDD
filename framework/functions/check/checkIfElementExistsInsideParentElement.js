@@ -13,7 +13,7 @@ const parseExpectedText = require('../common/parseExpectedText');
 module.exports = (targetElement, parentElementIndex, parentElement, falseCase, compareAction, expectedNumber) => {
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     const myExpectedNumber = (expectedNumber) ? parseInt(parseExpectedText(expectedNumber)) : (falseCase) ? 0 : 1;
-    const myCompareAction = compareAction || ((falseCase) ? 'no more than' : 'exactly');
+    const myCompareAction = compareAction || ((falseCase) ? 'no more than' : 'no less than');
 
     var appearanceNumber;
     if (parentElement) {
