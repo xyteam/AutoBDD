@@ -626,7 +626,7 @@ class AbddAutoRun:
             # using cpu count
             cpu_count = multiprocessing.cpu_count()
             if self.movie == '1':
-                used_pool_number = cpu_count / 2
+                used_pool_number = cpu_count / 1.5
             else:
                 used_pool_number = cpu_count
             if used_pool_number < 1:
