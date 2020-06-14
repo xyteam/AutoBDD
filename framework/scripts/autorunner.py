@@ -222,7 +222,7 @@ def definepath (case, project_name, report_dir_base):
 
     module_path = '/'.join(module_path_array)   # relative path to module
     module_name = module_path_array[0]          # module_name is the first level of module path
-    feature_name = feature_path_array.pop()     # 1. get feature file name, 2. reduce file name from feature_path_array
+    feature_file = feature_path_array.pop()     # 1. get feature file name, 2. reduce file name from feature_path_array
     feature_path = '/'.join(feature_path_array) # relative path to feature without feature file
 
     report_dir_relative = module_path
@@ -232,14 +232,14 @@ def definepath (case, project_name, report_dir_base):
         os.makedirs(report_dir_full)
     
     result_base = path.join(report_dir_full)
-    result_json = result_base + '/.tmp/' + feature_name.replace('_', '-').replace('.feature', '').lower() + '.json'
-    result_run  = result_base + '/' + feature_name.lower() + '.run'
+    result_json = result_base + '/.tmp/' + feature_file.replace('_', '-').replace('.feature', '').lower() + '.json'
+    result_run  = result_base + '/' + feature_file.lower() + '.run'
 
     # Handle space in feature_file
-    run_feature = run_feature.replace(' ', r'\ ' )
+    feature_file = feature_file.replace(' ', r'\ ' )
 
-    # print(module_path, module_name, feature_path, feature_name, result_json, result_run, report_dir_relative)
-    return module_path, module_name, feature_path, feature_name, result_json, result_run, report_dir_relative
+    # print(module_path, module_name, feature_path, feature_file, result_json, result_run, report_dir_relative)
+    return module_path, module_name, feature_path, feature_file, result_json, result_run, report_dir_relative
 
 def run_test(FrameworkPath,
               host,
@@ -248,6 +248,7 @@ def run_test(FrameworkPath,
               project_base,
               project_name,
               module_full_path,
+              feature_path,
               feature_file,
               movie,
               screenshot,
@@ -263,7 +264,7 @@ def run_test(FrameworkPath,
               result_run):
     ''' Run Test'''
     cmd = ''
-    run_feature = path.join(module_full_path, feature_file)
+    run_feature = path.join(module_full_path, feature_path, feature_file)
     if platform == 'Linux':
         if isMaven: #isMaven on Linux
             cmd = 'cd ' + module_full_path + ';' + \
@@ -280,7 +281,7 @@ def run_test(FrameworkPath,
                 ' PLATFORM=' + platform + \
                 ' RUNREPORT=' + os.path.basename(result_run) + \
                 ' ' + FrameworkPath + '/fr amework/scripts/xvfb-run-safe.sh --server-args=\"-screen 0 ' + display_size + 'x24\"' + \
-                ' mvn clean test -Dbrow ser=\"chrome\" -Dcucumber.options=\"'  + feature_file + \
+                ' mvn clean test -Dbrow ser=\"chrome\" -Dcucumber.options=\"'  + run_feature + \
                 ' --plugin pretty --add-plugin json:' + result_json + \
                 ' 2>&1 > ' + result_run + ';' + \
                 ' cat ' + result_run + ' | ansi2html > ' + result_run + '.html'
@@ -299,8 +300,7 @@ def run_test(FrameworkPath,
                 ' PLATFORM=' + platform + \
                 ' RUNREPORT=' + os.path.basename(result_run) + \
                 ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
-                ' npx wdio ' + abdd_profile + ' --spec ' + feature_file + \
-                ' --reporters=cucumberjs-json' + \
+                ' npx wdio ' + abdd_profile + ' --spec ' + run_feature + \
                 ' ' + runner_args + \
                 ' 2>&1 > ' + result_run + ';' + \
                 ' cat ' + result_run + ' | ansi2html > ' + result_run + '.html'
@@ -332,7 +332,7 @@ def run_test(FrameworkPath,
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' RUNREPORT=' + os.path.basename(result_run) + \
                         ' ' + FrameworkPath + '/fr amework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
-                        ' mvn clean test -Dbrow ser=\"chrome\" -Dcucumber.options=\"'  + feature_file + \
+                        ' mvn clean test -Dbrow ser=\"chrome\" -Dcucumber.options=\"'  + run_feature + \
                         ' --plugin pretty --add-plugin json:' + result_json + \
                         ' 2>&1 > ' + result_run + ';' + \
                         ' cat ' + result_run + ' | ansi2html > ' + result_run + '.html'
@@ -363,8 +363,7 @@ def run_test(FrameworkPath,
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' RUNREPORT=' + os.path.basename(result_run) + \
                         ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
-                        ' npx wdio ' + abdd_profile + ' --spec ' + feature_file + \
-                        ' --reporters=cucumberjs-json' + \
+                        ' npx wdio ' + abdd_profile + ' --spec ' + run_feature + \
                         ' ' + runner_args + \
                         ' 2>&1 > ' + result_run + ';' + \
                         ' cat ' + result_run + ' | ansi2html > ' + result_run + '.html'
@@ -656,7 +655,7 @@ class AbddAutoRun:
             if len(runList) > 0 :
                 case = runList[0]
                 if case.doc_id:
-                    module_path, module_name, feature_path, feature_name, result_json, result_run , report_dir_relative = definepath(
+                    module_path, module_name, feature_path, feature_file, result_json, result_run , report_dir_relative = definepath(
                     case, self.project, self.report_dir_base)
                     module_full_path = path.join(self.projectbase, self.project, module_path)
                     group.update({'status': 'running', 'result_json': result_json, 'result_run': result_run}, doc_ids=[case.doc_id])
@@ -668,6 +667,7 @@ class AbddAutoRun:
                                                     self.project,
                                                     module_full_path,
                                                     feature_path,
+                                                    feature_file,
                                                     self.movie,
                                                     self.screenshot,
                                                     self.screenremark,
