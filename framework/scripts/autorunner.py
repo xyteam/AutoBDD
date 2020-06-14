@@ -208,7 +208,6 @@ def parse_arguments():
 def definepath (case, project_name, report_dir_base):
     uri_array = case['uri'].split('/')
     del uri_array[:len(uri_array) - uri_array[::-1].index(project_name)]   # remove any path before project_name inclusive
-    run_feature = '/'.join(uri_array)
 
     # use /features/ as the divider between module_path and feature_path
     module_path_array = uri_array[:uri_array.index('features')]
@@ -230,9 +229,16 @@ def definepath (case, project_name, report_dir_base):
 
     if not path.exists(report_dir_full):
         os.makedirs(report_dir_full)
+
+    feature_name = ''
+    with open(case['uri']) as myfile:
+        for line in myfile.readlines():
+            if re.search(r'^Feature:', line):                
+                feature_name = line
+                break
     
     result_base = path.join(report_dir_full)
-    result_json = result_base + '/.tmp/' + feature_file.replace('_', '-').replace('.feature', '').lower() + '.json'
+    result_json = result_base + '/.tmp/' + feature_name.replace('Feature:', '').strip().replace(' ', '-').lower() + '.json'
     result_run  = result_base + '/' + feature_file.lower() + '.run'
 
     # Handle space in feature_file
@@ -377,7 +383,7 @@ def run_test(FrameworkPath,
     return run_feature
 
 def get_scenario_status(scenario_out):
-    scenario = json.loads(open(scenario_out).read(), encoding='utf-8')
+    scenario = json.loads(open(scenario_out).read())
     for element in scenario[0]['elements']:
         steps = element['steps']
         for step in steps:
@@ -485,7 +491,7 @@ class AbddAutoRun:
         db = TinyDB(tinyrundb_json, sort_keys=True, indent=4, separators=(',', ': '))
         db.drop_table('_default')
         query = Query()
-        runcases = json.loads(open(run_json).read(), encoding='utf-8')
+        runcases = json.loads(open(run_json).read())
         for case in runcases:
             if case['feature'] in db.tables():
                 feature_table = db.table(case['feature'])
@@ -503,7 +509,7 @@ class AbddAutoRun:
         config_file = path.join(self.FrameworkPath, 'framework', 'configs', 'abdd_run_host.config')
         assert path.exists(config_file), '{} is not exits'.format(config_file)
 
-        with open(config_file, encoding='utf-8') as fname:
+        with open(config_file) as fname:
             head = fname.readline()
             while 'SSHHOST' not in head:
                 head = fname.readline()
@@ -548,7 +554,7 @@ class AbddAutoRun:
             reportList = group.search(query.status != 'crashed')
             feature_report = None
             for item in reportList:
-                element = json.loads(open(item['result_json'], encoding='utf-8').read())[0]
+                element = json.loads(open(item['result_json']).read())[0]
                 if not feature_report:
                     feature_report = element
                 else:
@@ -701,10 +707,9 @@ class AbddAutoRun:
                             if done_feature in case['uri']:
                                 if os.path.exists(case['result_json']) and os.path.getsize(case['result_json']) > 0:
                                     resultString = ''
-                                    failedString = '"status": "failed"'
-                                    with open(case['result_json'], encoding='utf-8') as f:
+                                    with open(case['result_json']) as f:
                                         resultString = f.read()
-                                    if (resultString.find(failedString) >= 0):
+                                    if re.search(r'"status": ?"failed"', resultString):
                                         group.update({'status': 'failed'}, doc_ids=[case.doc_id])
                                     else:
                                         group.update({'status': 'passed'}, doc_ids=[case.doc_id])
