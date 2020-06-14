@@ -13,6 +13,7 @@ const handleModal = require('../../functions/action/handleModal');
 const moveToElement = require('../../functions/action/moveToElement');
 const pause = require('../../functions/action/pause');
 const pressKeyTimes = require('../../functions/action/pressKeyTimes');
+const clickMouseKeyTimes = require('../../functions/action/clickMouseKeyTimes');
 const scroll = require('../../functions/action/scroll');
 const selectOption = require('../../functions/action/selectOption');
 const selectOptionByIndex = require('../../functions/action/selectOptionByIndex');
@@ -84,6 +85,11 @@ When(
 When(
     /^I press the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
     pressKeyTimes
+);
+
+When(
+    /^I (double )?click the (left|middle|right) mouse key(?: (\d+) time(?:s)?)?$/,
+    clickMouseKeyTimes
 );
 
 When(

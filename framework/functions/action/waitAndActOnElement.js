@@ -60,7 +60,7 @@ module.exports = (waitMs, action, type, element) => {
 
     checkIfElementExists(targetElement);
     if (method.toLowerCase().includes('click')) {
-        waitFor(targetElement, myWaitMS, null, 'enabled');
+        waitFor(targetElement, myWaitMS, null, 'isClickable');
     }
     browser.$(targetElement).scrollIntoView();
     isVisible('some', targetElement, 'becomes');
