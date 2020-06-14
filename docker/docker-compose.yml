@@ -18,8 +18,8 @@ services:
       - ${HOME}/.m2:/home/${USER}/.m2:rw
       - ${HOME}/Projects:/home/${USER}/Projects:rw
     ports:
-      - "5911:5900"
-      - "2233:22"
+      - "5922:5900"
+      - "2222:22"
     environment:
       USER: ${USER}
       PASSWORD: ${PASSWORD}
