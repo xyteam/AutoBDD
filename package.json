@@ -1,6 +1,6 @@
 {
   "name": "autobdd",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "BDD Automaiton",
   "bin": {
     "autorunner.py": "./framework/scripts/autorunner.py",
@@ -15,7 +15,6 @@
     "test": "npm run postinstall; npm run test-run; npm run test-report"
   },
   "dependencies": {
-    "@wdio/selenium-standalone-service": "^6.1.14",
     "ajv": "^6.12.2",
     "assert": "^2.0.0",
     "bottleneck": ">=2.19.5",
@@ -76,6 +75,7 @@
     "@wdio/jasmine-framework": "^6.1.17",
     "@wdio/local-runner": "^6.1.16",
     "@wdio/spec-reporter": "^6.1.14",
+    "@wdio/selenium-standalone-service": "^6.1.14",
     "@wdio/sync": "^6.1.14",
     "chromedriver": "^83.0.0",
     "cucumber-html-reporter": "^5.2.0",
