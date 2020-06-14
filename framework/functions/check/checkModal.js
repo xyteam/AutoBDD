@@ -12,9 +12,9 @@ module.exports = (modalType, falseState) => {
     let promptText = '';
 
     try {
-        promptText = browser.alertText();
+        promptText = browser.getAlertText();
 
-        if (falseState) {
+        if (!!falseState) {
             expect(promptText).to.not
                 .equal(
                     null,
@@ -22,7 +22,7 @@ module.exports = (modalType, falseState) => {
                 );
         }
     } catch (e) {
-        if (!falseState) {
+        if (!!!falseState) {
             expect(promptText).to
                 .equal(
                     null,

@@ -1,9 +1,9 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
+const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 const stripAnsi = require('strip-ansi');
-
-module.exports = function() {
-  this.When(
+const { When } = require('cucumber');
+When(
     /^I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" console to( not)* display the (text|regex) "(.*)?"$/,
     {timeout: 60*60*1000},
     function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, consoleName, falseState, expectType, expectedText) {
@@ -32,7 +32,7 @@ module.exports = function() {
         // only keep 10k text
         const myReadIndex = ((Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240) > 0) ? Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240 : 0;
         const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout.slice(myReadIndex)).split(/[\r\n]+/);
-        this.browser_session.displayMessage(browser, lineArray.join('\n'));
+        browser_session.displayMessage(browser, lineArray.join('\n'));
         var lineText;
         switch(firstOrLast) {
           case 'first':
@@ -70,4 +70,4 @@ module.exports = function() {
       clearInterval(handle);
     }
   );
-}
+

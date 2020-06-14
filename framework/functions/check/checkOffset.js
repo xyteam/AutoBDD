@@ -11,7 +11,7 @@ module.exports = (elem, falseCase, expectedPosition, axis) => {
      * Get the location of the element on the given axis
      * @type {[type]}
      */
-    const location = browser.getLocation(elem, axis);
+    const location = browser.$(elem).getLocation(axis);
 
     /**
      * Parsed expected position

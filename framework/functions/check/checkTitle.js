@@ -58,7 +58,7 @@ module.exports = (falseCase, action, type, expectedText) => {
             case 'match':
             case 'matches':
                 expect(retrivedTitle).not.toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `page title does not match ${type} ` +
                     `"${myExpectedText}"`
                 );        
@@ -87,7 +87,7 @@ module.exports = (falseCase, action, type, expectedText) => {
             case 'match':
             case 'matches':
                 expect(retrivedTitle).toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `page title does match ${type} ` +
                     `"${myExpectedText}"`
                 );        

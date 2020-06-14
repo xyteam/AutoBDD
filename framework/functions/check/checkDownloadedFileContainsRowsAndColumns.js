@@ -13,6 +13,8 @@ const fs_session = require('../../libs/fs_session');
 const parseExpectedText = require('../common/parseExpectedText');
 
 module.exports = (fileName, rowCompareAction, expectedNumOfRows, rowType, colCompareAction, expectedNumOfColumns, columnType) => {
+    const myRowCompareAction = (rowCompareAction) ? rowCompareAction.trim() : 'exactly';
+    const myColCompareAction = (colCompareAction) ? colCompareAction.trim() : 'exactly';
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
@@ -50,7 +52,7 @@ module.exports = (fileName, rowCompareAction, expectedNumOfRows, rowType, colCom
 
     if (expectedNumOfRows) {
         const parsedExpectedNumOfRows = (expectedNumOfRows) ? parseInt(parseExpectedText(expectedNumOfRows)) : 0;
-        switch (rowCompareAction.trim()) {
+        switch (myRowCompareAction) {
             case 'more than':
                 expect(countedNumOfRows).toBeGreaterThan(
                     parsedExpectedNumOfRows,
@@ -87,7 +89,7 @@ module.exports = (fileName, rowCompareAction, expectedNumOfRows, rowType, colCom
 
     if (expectedNumOfColumns) {
         let parsedExpectedNumOfColumns = (expectedNumOfColumns) ? parseInt(parseExpectedText(expectedNumOfColumns)) : 0;
-        switch (colCompareAction.trim()) {
+        switch (myColCompareAction) {
             case 'more than':
                 expect(countedNumOfColumns).toBeGreaterThan(
                     parsedExpectedNumOfColumns,

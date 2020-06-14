@@ -5,15 +5,17 @@
  * @param  {String}   falseState    Whether to check if the text matches or not
  * @param  {String}   expectedText  The text to check against
  */
+const assert = require('assert');
 module.exports = (modalType, falseState, expectedText) => {
     try {
         /**
          * The text of the current modal
          * @type {String}
          */
-        const text = browser.alertText();
+        const text = browser.getAlertText();
+        console.log(text)
 
-        if (falseState) {
+        if (!!falseState) {
             expect(text).not.toEqual(
                 expectedText,
                 `Expected the text of ${modalType} not to equal ` +
@@ -27,7 +29,7 @@ module.exports = (modalType, falseState, expectedText) => {
             );
         }
     } catch (e) {
-        assert(
+        assert (
             e,
             `A ${modalType} was not opened when it should have been opened`
         );

@@ -1,14 +1,15 @@
 const parseExpectedText = require(process.env.FrameworkPath + '/framework/functions/common/parseExpectedText.js');
-
-module.exports = function() {
-  this.When(
+const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const cmdline_session = require(FrameworkPath + '/framework/libs/cmdline_session');
+const { When } = require('cucumber');
+When(
     /^I open a SSH console to the host "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
     { timeout: 15 * 60 * 1000 },
     function (hostName, userName, passWord, consoleName) {
       const myHostName = parseExpectedText(hostName);
       const myUserName = parseExpectedText(userName);
       const myPassWord = parseExpectedText(passWord);
-      var [myConsole, myConsoleData] = this.cmdline_session.remoteConsole(`${myUserName}@${myHostName}`, 22, myPassWord);
+      var [myConsole, myConsoleData] = cmdline_session.remoteConsole(`${myUserName}@${myHostName}`, 22, myPassWord);
       this.myConsoles = {};
       this.myConsoles[consoleName] = myConsole;
       this.myConsoleData = {};
@@ -16,7 +17,7 @@ module.exports = function() {
     }
   );
 
-  this.When(
+When(
     /^I run the following command set to the SSH console "(.*)":$/,
     { timeout: 15 * 60 * 1000 },
     function (consoleName, table) {
@@ -31,7 +32,7 @@ module.exports = function() {
     }
   );
 
-  this.When(
+When(
     /^I run the following remote command set:$/,
     { timeout: 15 * 60 * 1000 },
     function (table) {
@@ -41,9 +42,8 @@ module.exports = function() {
         const myUserName = parseExpectedText(cmd.userName);
         const myPassWord = parseExpectedText(cmd.passWord);
         const myCommand = parseExpectedText(cmd.command);
-        const myResult = JSON.parse(this.cmdline_session.remoteRunCmd(myCommand, `${myUserName}@${myHostName}`, 22, myPassWord));
+        const myResult = JSON.parse(cmdline_session.remoteRunCmd(myCommand, `${myUserName}@${myHostName}`, 22, myPassWord));
         console.log(myResult);
       }
     }
   );
-}

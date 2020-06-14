@@ -10,7 +10,7 @@ module.exports = (element, falseCase, exactly) => {
      * The number of elements found in the DOM
      * @type {Int}
      */
-    const nrOfElements = browser.elements(element).value.length;
+    const nrOfElements = browser.$$(element).length;
 
     if (falseCase === true) {
         expect(nrOfElements).toBe(

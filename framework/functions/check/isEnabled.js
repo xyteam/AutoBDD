@@ -14,7 +14,7 @@ module.exports = (partOf, element, waitAction, falseCase) => {
         const ms = 10000;
         browser.waitForEnabled(myElement, ms, !!falseCase);    
     }
-    var isEnabled = browser.isEnabled(myElement);
+    var isEnabled = browser.$(myElement).isEnabled();
     if (typeof isEnabled != 'boolean') {
         switch (myPartOf) {
             default:

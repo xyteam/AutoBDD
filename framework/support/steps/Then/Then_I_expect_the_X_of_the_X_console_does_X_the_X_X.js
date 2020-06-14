@@ -1,11 +1,11 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
+const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 const stripAnsi = require('strip-ansi');
-
-module.exports = function() {
-  this.Then(
+const { Then } = require('cucumber');
+Then(
     /^I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the "(.*)?" console does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
-    {timeout: process.env.StepTimeoutInMS},
+    { timeout: 60*1000 },
     function (firstOrLast, lineCount, consoleName, falseCase, compareAction, expectType, expectedText) {
       // parse input
       const myConsoleName = parseExpectedText(consoleName);
@@ -16,7 +16,7 @@ module.exports = function() {
       browser.pause(500);
       const myConsoleData = this.myConsoleData;
       const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
-      this.browser_session.displayMessage(browser, lineArray.join('\n'));
+      browser_session.displayMessage(browser, lineArray.join('\n'));
 
       var lineText;
       switch(myFirstOrLast.trim()) {
@@ -53,7 +53,7 @@ module.exports = function() {
             break;
           case 'match':
               expect(lineText.toLowerCase()).not.toMatch(
-                myExpectedText.toLowerCase(),
+                RegExp(myExpectedText.toLowerCase()),
                 `console should match the ${expectType} ` +
                 `"${myExpectedText}"`
               );        
@@ -79,7 +79,7 @@ module.exports = function() {
               break;
             case 'match':
               expect(lineText.toLowerCase()).toMatch(
-                myExpectedText.toLowerCase(),
+                RegExp(myExpectedText.toLowerCase()),
                 `console should match the ${expectType} ` +
                 `"${myExpectedText}"`
               );        
@@ -90,4 +90,4 @@ module.exports = function() {
       }
     }
   );
-}
+

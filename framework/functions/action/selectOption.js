@@ -7,38 +7,29 @@
  */
 module.exports = (selectionType, selectionValue, selectElem) => {
     /**
-     * Arguments to pass to the selection method
-     * @type {Array}
-     */
-    const commandArguments = [
-        selectElem,
-        selectionValue,
-    ];
-
-    /**
      * The method to use for selecting the option
      * @type {String}
      */
-    let command = '';
+    var command, arg1, arg2;
 
     switch (selectionType) {
         case 'name': {
             command = 'selectByAttribute';
-
-            // The selectByAttribute command expects the attribute name as it
-            // second argument so let's add it
-            commandArguments.splice(1, 0, 'name');
-
+            arg1 = 'name';
+            arg2 = selectionValue;
             break;
         }
 
         case 'value': {
-            command = 'selectByValue';
+            command = 'selectByAttribute';
+            arg1 = 'value';
+            arg2 = selectionValue;
             break;
         }
 
         case 'text': {
             command = 'selectByVisibleText';
+            arg1 = selectionValue;
             break;
         }
 
@@ -47,5 +38,5 @@ module.exports = (selectionType, selectionValue, selectElem) => {
         }
     }
 
-    browser[command](...commandArguments);
+    browser.$(selectElem)[command](arg1, arg2);
 };

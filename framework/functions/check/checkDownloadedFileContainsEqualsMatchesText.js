@@ -15,6 +15,7 @@ const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
 
 module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedText) => {
+    const myAction = (action) ? action.trim() : 'contains';
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
@@ -80,7 +81,7 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
     }
 
     if (boolFalseCase) {
-        switch (action) {
+        switch (myAction) {
             case 'contain':
             case 'contains':
                 expect(readTargetContent).not.toContain(
@@ -98,15 +99,15 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
             case 'match':
             case 'matches':
                 expect(readTargetContent).not.toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `file "${fileName}" should not match text "${myExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
+                expect(false).toBe(true, `action ${myAction} should be one of contains, equals or matches`);
         }
     } else {
-        switch (action) {
+        switch (myAction) {
             case 'contain':
             case 'contains':
                 expect(readTargetContent).toContain(
@@ -124,12 +125,12 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
             case 'match':
             case 'matches':
                 expect(readTargetContent).toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `file "${fileName}" should match text "${myExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
+                expect(false).toBe(true, `action ${myAction} should be one of contains, equals or matches`);
         }
     }
 }

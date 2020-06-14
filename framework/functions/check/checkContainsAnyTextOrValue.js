@@ -1,5 +1,5 @@
 /**
- * Check if the given elements contains text
+ * Check if the given elements contains retrivedValue
  * @param  {String}   element       Element selector
  * @param  {String}   falseCase     Whether to check if the content contains
  *                                  text or not
@@ -14,38 +14,16 @@ module.exports = (element, falseCase, type) => {
      * @type {String}
      */
     var parsedElement = parseExpectedText(element);
-
-    /**
-     * The command to perform on the browser object
-     * @type {String}
-     */
-    let command = 'getText'
-    
+    var retrivedValue;
     if (type == 'value') {
-        command = 'getValue';
-    } 
-
-    /**
-     * False case
-     * @type {Boolean}
-     */
-    let boolFalseCase;
-
-    /**
-     * The text of the element
-     * @type {String}
-     */
-    const text = browser[command](parsedElement);
-
-    if (typeof falseCase === 'undefined' || falseCase == null) {
-        boolFalseCase = false;
+        retrivedValue = browser.$(parsedElement).getValue();
     } else {
-        boolFalseCase = !!falseCase;
+        retrivedValue = browser.$(parsedElement).getText();
     }
 
-    if (boolFalseCase) {
-        expect(text).toEqual('');
+    if (!!falseCase) {
+        expect(retrivedValue).toEqual('');
     } else {
-        expect(text).not.toEqual('');
+        expect(retrivedValue).not.toEqual('');
     }
 };

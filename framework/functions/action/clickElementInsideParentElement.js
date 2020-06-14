@@ -9,41 +9,39 @@
 module.exports = (action, targetElementIndex, targetElement, parentElementIndex, parentElement) => {
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
+    const deepClick = function(argument) { $(argument).click() };
 
-    var myParentElement, myTargetElement;
+    var myTargetElement;
     if (parentElement) {
-        myParentElement = browser.elements(parentElement).value[parentElementIndexInt];
-        myTargetElement = browser.elementIdElements(myParentElement.ELEMENT, targetElement).value[targetElementIndexInt];
+        myTargetElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
     } else {
-        myTargetElement = browser.elements(targetElement).value[targetElementIndexInt];
+        myTargetElement = browser.$$(targetElement)[targetElementIndexInt];
     }
     // console.log(myTargetElement);
 
     switch (action) {
         case 'moveTo':
-            browser.moveTo(myTargetElement.ELEMENT);
+            browser.$(myTargetElement).moveTo();
             break;
         case 'clear':
-            browser.elementIdClear(myTargetElement.ELEMENT);
+            browser.$(myTargetElement).clearValue();
             break;
         case 'tryClick':
             try {
                 console.log('1st try with direct click ...')
-                browser.elementIdClick(myTargetElement.ELEMENT);
+                browser.$(myTargetElement).click();
             } catch (e) {
                 console.log('2nd try with deep click ...')
-                const deepClick = function(argument) { argument.click(); };
                 browser.execute(deepClick, myTargetElement);          
             }
             break;
         case 'deepClick':
                 console.log('do deep click ...')
-                const deepClick = function(argument) { argument.click(); };
                 browser.execute(deepClick, myTargetElement);          
                 break;
         case 'click':
         default:
-            browser.elementIdClick(myTargetElement.ELEMENT);
+            browser.$(myTargetElement).click();
             break;
     }
 };

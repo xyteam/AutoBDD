@@ -1,10 +1,13 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
+const parseExpectedText = require(`${FrameworkPath}/framework/functions/common/parseExpectedText`);
+const fs_session = require(`${FrameworkPath}/framework/libs/fs_session`);
+const screen_session = require(`${FrameworkPath}/framework/libs/screen_session`);
+
 const fuzz = require('fuzzball');
-module.exports = function() {
-  this.Then(
+const { Then } = require('cucumber');
+Then(
     /^I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the (?:"([^"]*)?" )?(image|screen area) does( not)* (contain|equal|mimic|match) the (text|regex) "(.*)?"$/,
-    {timeout: process.env.StepTimeoutInMS},
+    { timeout: 60*1000 },
     function (firstOrLast, lineCount, targetName, targetArea, falseCase, compareAction, expectType, expectedText) {
       const myExpectedText = parseExpectedText(expectedText);
       const myFirstOrLast = firstOrLast || '';
@@ -15,16 +18,16 @@ module.exports = function() {
         screenFindResult = this.lastSeen_screenFindResult;
       } else if (targetName && targetArea == 'image') {
         const parsedTargetName = parseExpectedText(targetName);
-        [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedTargetName);
+        [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = fs_session.getTestImageParms(parsedTargetName);
         if (imageFileName.includes('Screen')) {
           imagePathList = imageFileName;
         } else {
-          imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
+          imagePathList = fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
         }
         imageScore = this.lastSeen_screenFindResult && this.lastSeen_screenFindResult.name == parsedTargetName ? (this.lastSeen_screenFindResult.score - 0.000001) : imageSimilarity;
-        screenFindResult = JSON.parse(this.screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
+        screenFindResult = JSON.parse(screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
       } else {
-        screenFindResult = JSON.parse(this.screen_session.screenGetText());
+        screenFindResult = JSON.parse(screen_session.screenGetText());
       }  
       this.lastSeen_screenFindResult = screenFindResult;
 
@@ -78,7 +81,7 @@ module.exports = function() {
             break;
             case 'match':
               expect(lineText.toLowerCase()).not.toMatch(
-                myExpectedText.toLowerCase(),
+                RegExp(myExpectedText.toLowerCase()),
                 `target image text should not match the ${expectType} ` +
                 `"${myExpectedText}"`
               );        
@@ -110,7 +113,7 @@ module.exports = function() {
             break;
           case 'match':
             expect(lineText.toLowerCase()).toMatch(
-              myExpectedText.toLowerCase(),
+              RegExp(myExpectedText.toLowerCase()),
               `target image text should match the ${expectType} ` +
               `"${myExpectedText}"`
             );        
@@ -121,4 +124,3 @@ module.exports = function() {
       }
     }
   );
-}

@@ -7,7 +7,5 @@ Feature: test build report
   Scenario: download drivers
     When  I open the file "~/Projects/AutoBDD/test-projects/simple-test/bdd_reports/build-test/index.html"
     Then  I expect that the page title does equal the text "Multiple Cucumber HTML Reporter"
-    And   I expect that the 1st element ".chart table" matches the text "Passed\n100.00 %"
-    And   I expect that the 1st element ".chart table" matches the text "Failed\n0.00 %"
-    And   I expect that the 2nd element ".chart table" matches the text "Passed\n100.00 %"
-    And   I expect that the 2nd element ".chart table" matches the text "Failed\n0.00 %" 
+    And   I expect that the 1st element "table.tile_info" matches the regex "Passed[\s]+100.00 %[\s]+Failed[\s]+0.00 %"
+    And   I expect that the 2nd element "table.tile_info" matches the regex "Passed[\s]+100.00 %[\s]+Failed[\s]+0.00 %"

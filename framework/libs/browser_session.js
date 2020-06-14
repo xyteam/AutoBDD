@@ -62,7 +62,7 @@ module.exports = {
   showErrorLog: function(session) {
     var anyRegexWords = 'failed|rejected|unhandled|unauthorized|error|invalid';
     var msgRegex = RegExp(anyRegexWords);
-    var targetLogArray = session.log('browser').value.filter(log => msgRegex.test(log.message.toLowerCase()) === true);
+    var targetLogArray = session.getLogs('browser').filter(log => msgRegex.test(log.message.toLowerCase()) === true);
     process.env.LastBrowserLog = JSON.stringify(targetLogArray);
     console.log(process.env.LastBrowserLog);
   },

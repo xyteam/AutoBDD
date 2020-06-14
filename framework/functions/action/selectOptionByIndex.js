@@ -13,5 +13,5 @@ module.exports = (index, obsolete, selectElem) => {
      */
     const optionIndex = parseInt(index, 10);
 
-    browser.selectByIndex(selectElem, optionIndex);
+    browser.$(selectElem).selectByIndex(optionIndex);
 };

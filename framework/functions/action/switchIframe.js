@@ -10,16 +10,15 @@ module.exports = (index, name) => {
      * @type {Int}
      */
     if (index && index == 'parent') {
-        browser.frameParent();
+        browser.switchToParentFrame();
     } else {
         const iFrameIndex = (index) ? parseInt(index, 10) - 1 : 0;
         const iFrameName = (name) ? parseExpectedText(name) : '';
         var iFrameElement;
         if (iFrameName.length > 0) {
-            iFrameElement = browser.elements(`iframe[name="${iFrameName}"]`).value[iFrameIndex].value;
+            browser.switchToFrame(browser.$$(`iframe[name="${iFrameName}"]`)[iFrameIndex]);
         } else {
-            iFrameElement = browser.elements('iframe').value[iFrameIndex].value;
+            browser.switchToFrame(browser.$$('iframe')[iFrameIndex]);
         }
-        browser.frame(iFrameElement);    
     }
 };

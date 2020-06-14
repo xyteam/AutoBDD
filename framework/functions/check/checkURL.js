@@ -13,11 +13,10 @@ module.exports = (target, falseCase, action, expectedText) => {
      * @type {String}
      */
     const currentUrl = browser.getUrl();
-    console.log(currentUrl);
-    const currentUrlProtocol = currentUrl.split('://')[0];
-    const currentUrlHost = currentUrl.split('://')[1].split('/')[0].split(':')[0];
-    const currentUrlHostPort = currentUrl.split('://')[1].split('/')[0].split(':')[1];
-    const currentUrlPath = '/' + currentUrl.split('://')[1].split('/').slice(1).join('');
+    const currentUrlProtocol = (currentUrl.includes('://')) ? currentUrl.split('://')[0] : '';
+    const currentUrlHost = (currentUrl.includes('://')) ? currentUrl.split('://')[1].split('/')[0].split(':')[0] : '';
+    const currentUrlHostPort = (currentUrl.includes('://')) ? currentUrl.split('://')[1].split('/')[0].split(':')[1] : '';
+    const currentUrlPath = (currentUrl.includes('://')) ? '/' + currentUrl.split('://')[1].split('/').slice(1).join('') : '';
 
     var myTestTarget;
     switch (target) {
@@ -58,7 +57,7 @@ module.exports = (target, falseCase, action, expectedText) => {
             case 'match':
             case 'matches':
                 expect(myTestTarget).not.toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `The current ${target} should not match ` +
                     `"${myExpectedText}"`
                 );        
@@ -85,7 +84,7 @@ module.exports = (target, falseCase, action, expectedText) => {
             case 'match':
             case 'matches':
                 expect(myTestTarget).toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `The current ${target} should match ` +
                     `"${myExpectedText}"`
                 );        

@@ -1,12 +1,5 @@
-# build docker:
-# cd docker && docker-compose build autobdd-dev
-#
-# development env:
-#   docker-compose -d up autobdd-dev
-#   docker-compose down autobdd-dev
-
 ARG AutoBDD_Ver
-FROM xyteam/autobdd-run:1.0.5
+FROM xyteam/autobdd-run:2.0.0
 USER root
 ENV USER root
 ENV DEBIAN_FRONTEND noninteractive

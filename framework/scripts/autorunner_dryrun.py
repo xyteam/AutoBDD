@@ -24,14 +24,14 @@ CASE_INFO = {
     "status": "notrun"
 }
 
-class ChimpDryRun():
+class AbddDryRun():
     def __init__(self,
                  projectbase,
                  project,
                  modulelist,
                  platform,
                  browser,
-                 argString,
+                 runner_args,
                  output=None):
 
         if 'FrameworkPath' not in environ:
@@ -39,7 +39,7 @@ class ChimpDryRun():
         else:
             self.FrameworkPath = environ['FrameworkPath']
 
-        self.argString = argString if argString else ''
+        self.runner_args = runner_args if runner_args else ''
         self.projectbase = projectbase
         self.project = project
         self.project_full_path = path.join(self.FrameworkPath, self.projectbase, self.project)
@@ -69,8 +69,8 @@ class ChimpDryRun():
             for module in self.modulelist:
                 dryrun_feature_list += self.project_full_path + '/' + module + ' '
         dryrun_feature_list.strip()
-
-        dryrun_cmd = 'cucumber-js --dry-run --format json:' + dryrun_json + ' ' + dryrun_feature_list + ' ' + self.argString
+        
+        dryrun_cmd = 'cucumber-js --dry-run --format json:' + dryrun_json + ' ' + dryrun_feature_list + ' ' + self.runner_args
         Popen_args = shlex.split(dryrun_cmd)
         print('\ndryrun command: {}\n'.format(dryrun_cmd))
         results = subprocess.Popen(

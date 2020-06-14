@@ -14,7 +14,7 @@ module.exports = (clickElement, clickCount, checkElement, falseCase, state) => {
       browser.click(clickElement);
       myClickCount--;
       browser.pause(300);
-      keepGoing = !browser[action](checkElement);
+      keepGoing = !browser.$(checkElement)[action];
       if (falseCase) keepGoing = !keepGoing;
     } while (myClickCount > 0 && keepGoing);
 };

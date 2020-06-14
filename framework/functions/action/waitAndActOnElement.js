@@ -37,24 +37,22 @@ module.exports = (waitMs, action, type, element) => {
      * @type {String}
      */
     var method;
+    var options = { button: 0, x: 0, y: 0};
     switch (action) {
         case 'hover':
             method = 'moveTo';
             break;
-        case 'double click':
-            method = 'doubleClick';
-            break;
+        case 'click':
         case 'left click':
-            method = 'leftClick';
+            method = 'click';
             break;
         case 'middle click':
-            method = 'middleClick';
+            method = 'click';
+            options.button = 1;
             break;
         case 'right click':
-            method = 'rightClick';
-            break;
-        case 'click':
             method = 'click';
+            options.button = 2;
             break;
         default:
             method = action;
@@ -62,9 +60,14 @@ module.exports = (waitMs, action, type, element) => {
 
     checkIfElementExists(targetElement);
     if (method.toLowerCase().includes('click')) {
-        waitFor(targetElement, myWaitMS, null, 'enabled');
+        waitFor(targetElement, myWaitMS, null, 'isClickable');
     }
-    browser.scroll(targetElement, 0, -200);
+    browser.$(targetElement).scrollIntoView();
     isVisible('some', targetElement, 'becomes');
-    browser[method](targetElement);
+    if (action == 'double click') {
+        const doubleClick = function(argument) { $(argument).dblclick() };
+        browser.execute(doubleClick, targetElement);
+    } else {
+        browser.$(targetElement)[method](options);
+    }
 };

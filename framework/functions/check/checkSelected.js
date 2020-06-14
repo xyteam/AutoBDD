@@ -9,7 +9,7 @@ module.exports = (element, falseCase) => {
      * The selected state
      * @type {Boolean}
      */
-    const isSelected = browser.isSelected(element);
+    const isSelected = browser.$(element).isSelected();
 
     if (falseCase) {
         expect(isSelected).not.toEqual(true, `"${element}" should not be selected`);

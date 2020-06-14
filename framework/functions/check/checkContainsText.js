@@ -29,8 +29,8 @@ module.exports = (elementType, element, falseCase, expectedText) => {
     let command = 'getText';
 
     if (
-        browser.getText(parsedElement) == '' &&
-        browser.getAttribute(parsedElement, 'value') !== null
+        browser.$(parsedElement).getText() == '' &&
+        browser.$(parsedElement).getAttribute('value') !== null
     ) {
         command = 'getValue';
     }
@@ -45,7 +45,7 @@ module.exports = (elementType, element, falseCase, expectedText) => {
      * The text of the element
      * @type {String}
      */
-    const text = browser[command](parsedElement);
+    const text = browser.$(parsedElement)[command]();
 
     if (typeof expectedText === 'undefined') {
         myExpectedText = falseCase;

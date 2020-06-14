@@ -4,5 +4,5 @@
  * @param  {String}   destination The selector for the destination element
  */
 module.exports = (source, destination) => {
-    browser.dragAndDrop(source, destination);
+    browser.$(source).dragAndDrop($(destination));
 };

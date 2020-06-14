@@ -51,7 +51,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
         boolFalseCase = true;
     }
 
-    const retrivedValue = browser[command](parsedElement).toString();
+    const retrivedValue = browser.$(parsedElement)[command]().toString();
     // console.log(`${type} : ${retrivedValue}`)
 
     if (boolFalseCase) {
@@ -75,7 +75,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
             case 'match':
             case 'matches':
                 expect(retrivedValue).not.toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `element "${parsedElement}" should not match ${type} ` +
                     `"${myExpectedText}"`
                 );        
@@ -104,7 +104,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
             case 'match':
             case 'matches':
                 expect(retrivedValue).toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `element "${parsedElement}" should match ${type} ` +
                     `"${myExpectedText}"`
                 );        

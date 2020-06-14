@@ -1,13 +1,95 @@
 const FrameworkPath = process.env.FrameworkPath;
+var cucumberJsReporter = require('wdio-cucumberjs-json-reporter').default;
 const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
+const safexvfb = require(FrameworkPath + '/framework/libs/safexvfb');
 const changeBrowserZoom = require(FrameworkPath + '/framework/functions/action/changeBrowserZoom');
 var currentScenarioName, currentScenarioStatus;
 var currentStepNumber;
 
 const frameworkHooks = {
-  BeforeFeature: function(feature) {
+  /**
+   *  wdio runner before hooks
+   **/
+
+  /**
+   * Gets executed once before all workers get launched.
+   * @param {Object} config wdio configuration object
+   * @param {Array.<Object>} capabilities list of capabilities details
+   */
+  onPrepare: function (config, capabilities) {
+  },
+  /**
+   * Gets executed before a worker process is spawned and can be used to initialise specific service
+   * for that worker as well as modify runtime environments in an async fashion.
+   * @param  {String} cid      capability id (e.g 0-0)
+   * @param  {[type]} caps     object containing capabilities for session that will be spawn in the worker
+   * @param  {[type]} specs    specs to be run in the worker process
+   * @param  {[type]} args     object that will be merged with the main configuration once worker is initialised
+   * @param  {[type]} execArgv list of string arguments passed to the worker process
+   */
+  onWorkerStart: function (cid, caps, specs, args, execArgv) {
+  },
+  /**
+   * Gets executed just before initialising the webdriver session and test framework. It allows you
+   * to manipulate configurations depending on the capability or spec.
+   * @param {Object} config wdio configuration object
+   * @param {Array.<Object>} capabilities list of capabilities details
+   * @param {Array.<String>} specs List of spec file paths that are to be run
+   */
+  beforeSession: function (config, capabilities, specs) {
+    // const myDisplayNum = safexvfb.start();
+    // process.env.DISPLAY = `:${myDisplayNum}`;
+  },
+  /**
+   * Gets executed before test execution begins. At this point you can access to all global
+   * variables like `browser`. It is the perfect place to define custom commands.
+   * @param {Array.<Object>} capabilities list of capabilities details
+   * @param {Array.<String>} specs List of spec file paths that are to be run
+   */
+  before: function (capabilities, specs) {
+  },
+  /**
+   * Hook that gets executed before the suite starts
+   * @param {Object} suite suite details
+   */
+  beforeSuite: function (suite) {
+  },
+  /**
+   * Hook that gets executed _before_ a hook within the suite starts (e.g. runs before calling
+   * beforeEach in Mocha)
+   * stepData and world are Cucumber framework specific
+   */
+  beforeHook: function (test, context/*, stepData, world*/) {
+  },
+  /**
+   * Hook that gets executed _after_ a hook within the suite ends (e.g. runs after calling
+   * afterEach in Mocha)
+   * stepData and world are Cucumber framework specific
+   */
+  afterHook: function (test, context, { error, result, duration, passed, retries }/*, stepData, world*/) {
+  },
+  /**
+   * Function to be executed before a test (in Mocha/Jasmine) starts.
+   */
+  beforeTest: function (test, context) {
+  },
+  //
+  /**
+   * Runs before a WebdriverIO command gets executed.
+   * @param {String} commandName command name
+   * @param {Array} args arguments that command would receive
+   */
+  beforeCommand: function (commandName, args) {
+  },
+
+  /**
+   * cucumber framework hooks
+   **/ 
+
+   BeforeFeature: function(feature) {
+    // console.log(feature);
     currentScenarioName = '';
     currentStepNumber = 0;
     // start RDP and sshfs
@@ -39,7 +121,8 @@ const frameworkHooks = {
   },
 
   BeforeScenario: function(scenario) {
-    var scenarioName = scenario.getName();
+    // console.log(scenario);
+    const scenarioName = scenario.name;
     currentScenarioName = scenarioName;
     currentStepNumber = 0;
     browser.windowHandleMaximize();
@@ -47,13 +130,14 @@ const frameworkHooks = {
   },
 
   BeforeStep: function(step) {
+    // console.log(step);
     // only count real steps (do not count After steps)
-    if(step.getName()) currentStepNumber++;
+    if (step.text.length > 0) currentStepNumber++;
   },
 
-  AfterStep: function(step, result) {
+  AfterStep: function(step, passed) {
     // to be done for real steps
-    if (step.getName()) {
+    if (step.text.length > 0) {
       // start recording
       if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
 
@@ -62,26 +146,15 @@ const frameworkHooks = {
       const remarkScenarioName = (currentScenarioNameArray.length <= 10) ? currentScenarioName : currentScenarioNameArray.slice(0, 6).join(' ') +
                                  ' .. ' +
                                  currentScenarioNameArray.slice(currentScenarioNameArray.length - 3).join(' ');
-      const remarkStepName = step.getName();
+      const remarkStepName = step.text;
       const remarkTextBase = `${remarkScenarioName} ... Step ${currentStepNumber} : ${remarkStepName}`;
       var remarkText, remarkColor;
-      switch (result) {
-        case 'passed':
+      if (passed) {
           remarkText = remarkTextBase;
           remarkColor = 'green';
-          break;
-        case 'failed':
+      } else {
           remarkText = `Step Failed: ${remarkTextBase}`;
           remarkColor = 'red';
-          break;
-        case 'undefined':
-          remarkText = `Step Undefined: ${remarkTextBase}`;
-          remarkColor = 'orange';
-          break;
-        case 'skipped':
-          remarkText = `Step Skipped: ${remarkTextBase}`;
-          remarkColor = 'blue';
-          break;  
       }
 
       // in the case of SCREENREMARK=0 do not print remark text
@@ -91,21 +164,21 @@ const frameworkHooks = {
       if (process.env.SCREENSHOT == 2 && currentStepNumber == 1) {
         framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
       }
-      if (process.env.SCREENSHOT == 3 && result != 'skipped') {
+      if (process.env.SCREENSHOT == 3) {
         framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
       }
 
       // show browser log
       if (process.env.BROWSERLOG == 1) {
         browser_session.showErrorLog(browser);
-      }  
+      }
     }
   },
 
-  // expect scenario.isSuccessful(), should be called with After(scenario)
-  AfterScenario: function(scenario) {
+  AfterScenario: function(scenario, result) {
+    
     // scenario status
-    if (scenario.isSuccessful()) {
+    if (result.status == 'passed') {
       currentScenarioStatus = 'Passed';
     } else {
       currentScenarioStatus = 'Failed'
@@ -130,25 +203,25 @@ const frameworkHooks = {
     var scenarioBeginImage_tag, scenarioEndImage_tag, video_tag, runlog_tag;
     scenarioBeginImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', 1)[0];
     [scenarioEndImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(currentScenarioName, currentScenarioStatus, currentStepNumber);
-    scenario.attach(runlog_tag, 'text/html');
-    
+    cucumberJsReporter.attach(runlog_tag, 'text/html');
     if (process.env.MOVIE == 1) { // MOVIE == 1 attach movie
-      scenario.attach(video_tag, 'text/html');
+      cucumberJsReporter.attach(video_tag, 'text/html');
     }
-    
+  
     if (process.env.SCREENSHOT == 1) { // SCREESHOT == 1 attach final screenshot
-      scenario.attach(scenarioEndImage_tag, 'text/html');
+      cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 2) { // SCREESHOT == 2 attach first and final screenshots
-      scenario.attach(scenarioBeginImage_tag, 'text/html');
-      scenario.attach(scenarioEndImage_tag, 'text/html');
+      cucumberJsReporter.attach(scenarioBeginImage_tag, 'text/html');
+      cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 3) { // SCREESHOT == 3 attach all step screenshots, skipped steps will get empty refernce
       for (stepIndex = 1; stepIndex <= currentStepNumber; stepIndex++) {
         const stepImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', stepIndex)[0];
-        scenario.attach(stepImage_tag, 'text/html');
+        cucumberJsReporter.attach(stepImage_tag, 'text/html');
       }
-      scenario.attach(scenarioEndImage_tag, 'text/html');
+      cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
     }
-    
+
+
     // need to perform these steps before tear down RDP
     changeBrowserZoom(100);
 
@@ -164,7 +237,69 @@ const frameworkHooks = {
         framework_libs.stopSshTunnel();
       } catch(e) {}
     }
-  }
+  },
+
+  /**
+   *  wdio runner after hooks
+   **/
+
+  /**
+   * Runs after a WebdriverIO command gets executed.
+   * @param {String} commandName hook command name
+   * @param {Array} args arguments that command would receive
+   * @param {Number} result 0 - command success, 1 - command error
+   * @param {Object} error error object if any
+   */
+  afterCommand: function (commandName, args, result, error) {
+  },
+  /**
+   * Function to be executed after a test (in Mocha/Jasmine) ends.
+   */
+  afterTest: function (test, context, { error, result, duration, passed, retries }) {
+  },
+  /**
+   * Hook that gets executed after the suite has ended
+   * @param {Object} suite suite details
+   */
+  afterSuite: function (suite) {
+  },
+  /**
+   * Gets executed after all tests are done. You still have access to all global variables from
+   * the test.
+   * @param {Number} result 0 - test pass, 1 - test fail
+   * @param {Array.<Object>} capabilities list of capabilities details
+   * @param {Array.<String>} specs List of spec file paths that ran
+   */
+  after: function (result, capabilities, specs) {
+  },
+  /**
+   * Gets executed right after terminating the webdriver session.
+   * @param {Object} config wdio configuration object
+   * @param {Array.<Object>} capabilities list of capabilities details
+   * @param {Array.<String>} specs List of spec file paths that ran
+   */
+  afterSession: function (config, capabilities, specs) {
+    // const myDisplayNum = process.env.DISPLAY.substring(1);
+    // safexvfb.stop(myDisplayNum);
+    // process.env.DISPLAY = null;
+  },
+  /**
+   * Gets executed after all workers got shut down and the process is about to exit. An error
+   * thrown in the onComplete hook will result in the test run failing.
+   * @param {Object} exitCode 0 - success, 1 - fail
+   * @param {Object} config wdio configuration object
+   * @param {Array.<Object>} capabilities list of capabilities details
+   * @param {<Object>} results object containing test results
+   */
+  onComplete: function (exitCode, config, capabilities, results) {
+  },
+  /**
+  * Gets executed when a refresh happens.
+  * @param {String} oldSessionId session ID of the old session
+  * @param {String} newSessionId session ID of the new session
+  */
+  onReload: function(oldSessionId, newSessionId) {
+  },
 }
 
 module.exports = frameworkHooks;

@@ -26,7 +26,7 @@ module.exports = (element, falseCase, expectedSize, dimension) => {
      * The size of the given element
      * @type {Object}
      */
-    const elementSize = browser.getElementSize(parsedElement);
+    const elementSize = browser.$(parsedElement).getSize();
 
     /**
      * Parsed size to check for

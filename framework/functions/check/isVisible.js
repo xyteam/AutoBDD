@@ -10,10 +10,10 @@ module.exports = (partOf, element, waitAction, falseCase) => {
     const myElement = parseExpectedText(element);
     const myPartOf = partOf || 'some';
     if (waitAction == 'becomes') {
-        const ms = 10000;
-        browser.waitForVisible(myElement, ms, !!falseCase);    
+        browser.$(myElement).waitForDisplayed(10000, !!falseCase);  
     }
-    var isVisible = browser.isVisible(myElement);
+    browser.pause(1000);
+    const isVisible = browser.$(myElement).isDisplayed();
     if (typeof isVisible != 'boolean') {
         switch (myPartOf) {
             default:

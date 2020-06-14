@@ -18,16 +18,16 @@ module.exports = (cookieName, falseCase) => {
      * The cookie as retrieved from the browser
      * @type {Object}
      */
-    const cookie = browser.getCookie(parsedCookieName);
+    const cookie = browser.getCookies([parsedCookieName])[0];
 
     if (falseCase) {
-        expect(cookie).toEqual(
-            null,
+        expect(typeof(cookie)).toEqual(
+            'undefined',
             `Expected cookie "${parsedCookieName}" not to exists but it does`
         );
     } else {
-        expect(cookie).not.toEqual(
-            null,
+        expect(typeof(cookie)).not.toEqual(
+            'undefined',
             `Expected cookie "${parsedCookieName}" to exists but it does not`
         );
     }

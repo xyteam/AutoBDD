@@ -6,7 +6,7 @@
  * @param  {String}  parentElement      parent element selector
  * @param  {Boolean} falseCase          Check if the element (does not) exists
  * @param  {String}  action             equals, contains or matches
- * @param  {String}  targetType               text or value
+ * @param  {String}  targetType         text or value
  * @param  {String}  expectedText       The text to validate against
  */
 
@@ -16,12 +16,11 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     
-    var targetElementId;
+    var targetElementIdElement;
     if (parentElement) {
-        const parentElementId = browser.elements(parentElement).value[parentElementIndexInt].ELEMENT;
-        targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
+        targetElementIdElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
     } else {
-        targetElementId = browser.elements(targetElement).value[targetElementIndexInt].ELEMENT;
+        targetElementIdElement = browser.$$(targetElement)[targetElementIndexInt];
     }
 
     /**
@@ -50,14 +49,18 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     var retrivedValue;
     switch (targetType) {
         case 'value':
-            retrivedValue = browser.elementIdAttribute(targetElementId, targetType).value;
+            if (browser.$(targetElementIdElement).getTagName() == 'input') {
+                retrivedValue = browser.$(targetElementIdElement).getValue();
+            } else {
+                retrivedValue = browser.getElementAttribute(targetElementIdElement, targetType);
+            }
             break;
         case 'text':
         default:
-            retrivedValue = browser.elementIdText(targetElementId).value;
+            retrivedValue = browser.$(targetElementIdElement).getText();
     }
 
-    // console.log(`${targetType} : ${retrivedValue}`)
+    retrivedValue = retrivedValue.replace(/[^\x00-\x7F]/g, '');
 
     if (boolFalseCase) {
         switch (action) {
@@ -80,7 +83,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
             case 'match':
             case 'matches':
                 expect(retrivedValue).not.toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `target element "${targetElement}" inside parent element "${parentElement}" should not match ${targetType} ` +
                     `"${myExpectedText}"`
                 );        
@@ -109,7 +112,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
             case 'match':
             case 'matches':
                 expect(retrivedValue).toMatch(
-                    myExpectedText,
+                    RegExp(myExpectedText),
                     `target element "${targetElement}" inside parent element "${parentElement}" should match ${targetType} ` +
                     `"${myExpectedText}"`
                 );        
