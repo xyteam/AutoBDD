@@ -82,7 +82,6 @@ exports.config = {
         // 5 instances get started at a time.
         maxInstances: 1,
         browserName: 'chrome',
-        port: myParallelRunPort,
         'goog:chromeOptions': {
             args: [
                 // '--headless',
@@ -97,6 +96,7 @@ exports.config = {
                 '--disable-gpu',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
+                // '--ignore-certificate-errors'
             ],
             // prefs: {
             //   'credentials_enable_service': false,
@@ -111,7 +111,9 @@ exports.config = {
             //     'default_directory': myDownloadPathLocal
             //   }
             // }
-        },    
+        },
+        port: myParallelRunPort,
+        setAcceptInsecureCerts: true
       }
     ],
     //
