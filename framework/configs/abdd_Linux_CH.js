@@ -96,7 +96,7 @@ exports.config = {
                 '--disable-gpu',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
-                // '--ignore-certificate-errors'
+                '--ignore-certificate-errors'
             ],
             // prefs: {
             //   'credentials_enable_service': false,
@@ -112,8 +112,7 @@ exports.config = {
             //   }
             // }
         },
-        port: myParallelRunPort,
-        setAcceptInsecureCerts: true
+        port: myParallelRunPort
       }
     ],
     //
