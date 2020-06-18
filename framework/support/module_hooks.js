@@ -1,8 +1,13 @@
-const projectHooks = require(`${process.env.PROJECTRUNPATH}/project/support/hooks.js`);  
-const localHooks = require(`${process.env.PROJECTRUNPATH}/${process.env.ThisModule}/support/hooks.js`);
-
+const fs = require('fs');
+var projectHooks = {};
+var localHooks = {};
+if (fs.existsSync(`${process.env.PROJECTRUNPATH}/project/support/hooks.js`)) {
+  projectHooks = require(`${process.env.PROJECTRUNPATH}/project/support/hooks.js`) || {};
+}
+if (fs.existsSync(`${process.env.PROJECTRUNPATH}/${process.env.ThisModule}/support/hooks.js`)) {
+  projectHooks = require(`${process.env.PROJECTRUNPATH}/${process.env.ThisModule}/support/hooks.js`) || {};
+}
 exports.hooks = {
-
   onPrepare: function (config, capabilities) {
     if (projectHooks.onPrepare) projectHooks.onPrepare(config, capabilities);
     if (localHooks.onPrepare) localHooks.onPrepare(config, capabilities);
