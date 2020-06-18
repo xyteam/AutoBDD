@@ -430,7 +430,7 @@ class AbddAutoRun:
 
         self.modulelist = arguments.MODULELIST
         runner_args = arguments.RUNNER_ARGS
-        self.cucumberjs_dryrun_args = ' '.join([w.replace('cucumberOpts.', '').replace('tagExpress', 'tags').replace('=', '=\"') + '\"' for w in runner_args[1:]])
+        self.cucumberjs_dryrun_args = ' '.join([w.replace('cucumberOpts.', '').replace('tagExpression', 'tags').replace('=', '=\"') + '\"' for w in runner_args[1:]])
         self.wdio_run_args = ' '.join([w.replace('=', '=\"') + '\"' for w in runner_args[1:]])
 
         self.display_size = '1920x1200'
@@ -554,6 +554,8 @@ class AbddAutoRun:
             reportList = group.search(query.status != 'crashed')
             feature_report = None
             for item in reportList:
+                if path.exists(item['result_json'] + '.processed'):
+                    continue
                 element = json.loads(open(item['result_json']).read())[0]
                 if not feature_report:
                     feature_report = element
