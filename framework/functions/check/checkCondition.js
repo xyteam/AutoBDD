@@ -2,7 +2,7 @@
  * Check if the given element is (not) visible
  * @param  {String}   partOf       some or all of
  * @param  {String}   element      Element selector
- * @param  {String}   verb         is or become
+ * @param  {String}   verb         is or become, becomes
  * @param  {String}   falseCase    fasle case
  * @param  {String}   state        checked element state
  */
@@ -14,7 +14,7 @@ module.exports = (partOf, element, verb, falseCase, state) => {
     if (checkAction == 'isVisible') checkAction = 'isDisplayedInViewport';
     if (checkAction == 'isChecked') checkAction = 'isSelected';
     var myResult;
-    if (verb == 'becomes') {
+    if (verb.includes('become')) {
         if (browser.$(myElem)[checkAction]() == !!falseCase) {
             var waitAction = `waitFor${state.charAt(0).toUpperCase()}${state.slice(1)}`;
             if (waitAction == 'waitForVisible') waitAction = 'waitForDisplayed';
