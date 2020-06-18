@@ -201,27 +201,27 @@ const frameworkHooks = {
     }
 
     // process tags for report attachement
-    var scenarioBeginImage_tag, scenarioEndImage_tag, video_tag, runlog_tag;
-    scenarioBeginImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', 1)[0];
-    [scenarioEndImage_tag, video_tag, runlog_tag] = framework_libs.getHtmlReportTags(currentScenarioName, currentScenarioStatus, currentStepNumber);
+    const runlog_tag = framework_libs.getRunlogTag();
     cucumberJsReporter.attach(runlog_tag, 'text/html');
-    if (process.env.MOVIE == 1) { // MOVIE == 1 attach movie
-      cucumberJsReporter.attach(video_tag, 'text/html');
-    }
-  
-    if (process.env.SCREENSHOT == 1) { // SCREESHOT == 1 attach final screenshot
+
+    var scenarioBeginImage_tag, scenarioEndImage_tag, video_tag;
+    [scenarioEndImage_tag, video_tag] = framework_libs.getImageMovieTags(currentScenarioName, currentScenarioStatus, currentStepNumber);
+    if (process.env.SCREENSHOT == 1) { // SCREESHOT == 1 attach final screenshot and movie
       cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
-    } else if (process.env.SCREENSHOT == 2) { // SCREESHOT == 2 attach first and final screenshots
+      if (process.env.MOVIE == 1) cucumberJsReporter.attach(video_tag, 'text/html');
+    } else if (process.env.SCREENSHOT == 2) { // SCREESHOT == 2 attach first and final screenshots and movie
+      scenarioBeginImage_tag = framework_libs.getImageMovieTags(currentScenarioName, 'Step', 1)[0];
       cucumberJsReporter.attach(scenarioBeginImage_tag, 'text/html');
       cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
-    } else if (process.env.SCREENSHOT == 3) { // SCREESHOT == 3 attach all step screenshots, skipped steps will get empty refernce
+      if (process.env.MOVIE == 1) cucumberJsReporter.attach(video_tag, 'text/html');
+    } else if (process.env.SCREENSHOT == 3) { // SCREESHOT == 3 attach attach final screenshot and movie and all step screenshots, skipped steps will get empty refernce
+      cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
+      if (process.env.MOVIE == 1) cucumberJsReporter.attach(video_tag, 'text/html');
       for (stepIndex = 1; stepIndex <= currentStepNumber; stepIndex++) {
-        const stepImage_tag = framework_libs.getHtmlReportTags(currentScenarioName, 'Step', stepIndex)[0];
+        const stepImage_tag = framework_libs.getImageMovieTags(currentScenarioName, 'Step', stepIndex)[0];
         cucumberJsReporter.attach(stepImage_tag, 'text/html');
       }
-      cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
     }
-
 
     // need to perform these steps before tear down RDP
     changeBrowserZoom(100);
