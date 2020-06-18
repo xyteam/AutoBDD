@@ -1,6 +1,6 @@
 const checkIfElementExists = require('../check/checkIfElementExists');
-const isVisible = require('../check/isVisible');
-const waitFor = require('../action/waitFor');
+const checkCondition = require('../check/checkCondition');
+const waitForCondition = require('../action/waitForCondition');
 
 /**
  * Perform an click action on the given element
@@ -60,10 +60,10 @@ module.exports = (waitMs, action, type, element) => {
 
     checkIfElementExists(targetElement);
     if (method.toLowerCase().includes('click')) {
-        waitFor(targetElement, myWaitMS, null, 'isClickable');
+        waitForCondition(targetElement, myWaitMS, null, 'clickable');
     }
     browser.$(targetElement).scrollIntoView();
-    isVisible('some', targetElement, 'becomes');
+    checkCondition('some', targetElement, 'becomes', null, 'visible');
     if (action == 'double click') {
         const doubleClick = function(argument) { $(argument).dblclick() };
         browser.execute(doubleClick, targetElement);

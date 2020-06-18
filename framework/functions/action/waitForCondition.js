@@ -3,7 +3,7 @@
  * a text, contain a value or to exist
  * @param  {String}   elem                     Element selector
  * @param  {String}   ms                       Wait duration (optional)
- * @param  {String}   falseCase               Check for opposite state
+ * @param  {String}   falseCase                Check for opposite state
  * @param  {String}   state                    State to check for (default
  *                                             existence)
  */
@@ -13,18 +13,18 @@ const waitForContent = (element, ms, getWhat, falseCase) => {
         () => ($(element)[getWhat]().length > 0) == !falseCase,
         {
             timeout: ms,
-            timeoutMsg: `wait for ${getWhat} timeout`
+            timeoutMsg: `${element}.${getWhat} == ${!falseCase} timeout`
         }
     );
 }
 const waitForCondition = (element, ms, isWhat, falseCase, element2) => {
     // isClickable, isDisplayed, isDisplayedInViewPort, isEnabled, isExisting, isFocused, isSelected,
-    // isEqual(with element2)  
+    // isEqual(with element2)
     browser.waitUntil(
         () => ($(element)[isWhat](element2)) == !falseCase,
         {
             timeout: ms,
-            timeoutMsg: `wait for ${isWhat} timeout`
+            timeoutMsg: `${element}.${isWhat}(${element2}) == ${!falseCase} timeout`
         }
     );
 }
@@ -50,23 +50,27 @@ module.exports =
      * Maximum number of milliseconds to wait, default 3000
      * @type {String}
      */
-    var myState = state || 'exist';
-    // convert conditions
-    if (myState == 'be visible') myState = 'be displayed';
-    if (myState == 'be selected') myState = 'isSelected';
-    if (myState == 'be checked') myState = 'isSelected';
-    if (myState == 'contain a text') myState = 'getText';
-    if (myState == 'contain a value') myState = 'getValue';
+    var myState = state || 'existing';
 
-    if (['exist', 'be enabled', 'be displayed', 'be clickable'].includes(myState)) {
+    if (['existing', 'enabled', 'displayed', 'clickable'].includes(myState)) {
         // ready to call conditions;
-        var parsedState = myState.replace('be ', '');
-        parsedState = parsedState.charAt(0).toUpperCase() + parsedState.slice(1);
-        const command = `waitFor${parsedState}`;
-        browser.$(myElem)[command](intMs, !!falseCase);
-    } else if (['getText', 'getValue'].includes(myState)) {
+        myState = (myState.charAt(0).toUpperCase() + myState.slice(1)).replace('Existing', 'Exist');
+        const waitForCommand = `waitFor${myState}`;
+        const option = {
+            timeout: intMs,
+            reverse: !!falseCase,
+            timeoutMsg: `${myElem}.$waitFor${myState} == ${!falseCase} timeout`
+        }
+        if ($(myElem).isExisting()) $(myElem)[waitForCommand](option);
+    } else if (myState.includes('containing')) { // 'containing a text', 'containing a value'
+        if (myState.includes('value')) myState = 'getValue';
+        if (myState.includes('text')) myState = 'getText';
         waitForContent(myElem, intMs, myState, !!falseCase);
     } else {
-        waitForCondition(myElem, intMs, myState, !!falseCase);
+        // convert conditions
+        var checkAction = `is${myState.charAt(0).toUpperCase()}${myState.slice(1)}`;
+        if (checkAction == 'isVisible') checkAction = 'isDisplayedInViewport';
+        if (checkAction == 'isChecked') checkAction = 'isSelected';
+        waitForCondition(myElem, intMs, checkAction, !!falseCase);
     }
 };

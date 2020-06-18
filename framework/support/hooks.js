@@ -75,7 +75,7 @@ const frameworkHooks = {
    */
   beforeTest: function (test, context) {
   },
-  //
+  
   /**
    * Runs before a WebdriverIO command gets executed.
    * @param {String} commandName command name
@@ -89,7 +89,7 @@ const frameworkHooks = {
    **/ 
 
    BeforeFeature: function(feature) {
-    // console.log(feature);
+    console.log(`Feature: ${feature.document.feature.name}\n`);
     currentScenarioName = '';
     currentStepNumber = 0;
     // start RDP and sshfs
@@ -121,12 +121,13 @@ const frameworkHooks = {
   },
 
   BeforeScenario: function(scenario) {
-    // console.log(scenario);
+    console.log(`Scenario: ${scenario.name}\n`);
     const scenarioName = scenario.name;
     currentScenarioName = scenarioName;
     currentStepNumber = 0;
     browser.windowHandleMaximize();
-    browser.timeouts('script', 3600*1000);
+    // browser.setTimeouts(implicit, pageLoad, script)
+    browser.setTimeouts(null, null, 3600*1000);
   },
 
   BeforeStep: function(step) {

@@ -6,7 +6,7 @@ Then(/^the "([^"]*)" modal\-dialoag should contain these select\-option$/, { tim
     const myModalDialog_select = myModalDialog + web_selectors.select;
     var expected_browserList = table.hashes();
     var displayed_browserList = browser.$(myModalDialog_select).getText();
-    browser.click(myModalDialog_select);
+    browser.$(myModalDialog_select).click();
     expected_browserList.forEach(function(row) {
       expect(displayed_browserList).toContain(row['browser_name']);
     });

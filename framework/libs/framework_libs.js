@@ -84,6 +84,10 @@ const cmd_create_rdesktop_lock = 'echo "' + cmd_start_rdesktop + '"'
 const cmd_remove_rdesktop_lock = 'rm -f /tmp/rdesktop.' + myRDPHOST + ':' + myRDPPORT + '.lock';
 
 module.exports = {
+  sleep: function (millis) {
+    return new Promise(resolve => setTimeout(resolve, millis));
+  },
+  
   // ssh_tunnel
   sshTunnelRunning: function() {
     // return true if running, false if not

@@ -49,15 +49,15 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     var retrivedValue;
     switch (targetType) {
         case 'value':
-            if (browser.$(targetElementIdElement).getTagName() == 'input') {
-                retrivedValue = browser.$(targetElementIdElement).getValue();
+            if (targetElementIdElement.getTagName() == 'input') {
+                retrivedValue = targetElementIdElement.getValue();
             } else {
                 retrivedValue = browser.getElementAttribute(targetElementIdElement, targetType);
             }
             break;
         case 'text':
         default:
-            retrivedValue = browser.$(targetElementIdElement).getText();
+            retrivedValue = targetElementIdElement.getText();
     }
 
     retrivedValue = retrivedValue.replace(/[^\x00-\x7F]/g, '');

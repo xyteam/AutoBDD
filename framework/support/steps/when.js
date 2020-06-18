@@ -24,11 +24,12 @@ const setPromptText = require('../../functions/action/setPromptText');
 const switchIframe = require('../../functions/action/switchIframe');
 const typeText = require('../../functions/action/typeText');
 const waitAndActOnElement = require('../../functions/action/waitAndActOnElement');
-const waitFor = require('../../functions/action/waitFor');
+const waitForCondition = require('../../functions/action/waitForCondition');
 const waitForDownload = require('../../functions/action/waitForDownload');
 
 When(
-    /^I (back|close|debug|forward|refresh|reload|reset) browser$/, {timeout: 3600*1000},
+    /^I (back|close|debug|forward|refresh|reload|reset) browser$/,
+    {timeout: 3600*1000},
     browserAction
 );
 
@@ -43,7 +44,7 @@ When(
 );
 
 When(
-    /^I click the element "([^"]*)?"(?: up to (\d+) time(?:s)?)? until the element "([^"]*)?" becomes(?: (not))? (enabled|existing|selected|visible)$/,
+    /^I click the element "([^"]*)?"(?: up to (\d+) time(?:s)?)? until the element "([^"]*)?" is(?: (not))? (existing|displayed|visible|focused|enabled|clickable|selected|checked)$/,
     clickToCondition
 );
 
@@ -153,14 +154,14 @@ When(
 );
 
 When(
-    /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to( not)* (exist|be enabled|be visible|be clickable|be selected|be checked|contain a text|contain a value))*$/,
+    /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to be( not)* (existing|displayed|visible|focused|enabled|clickable|selected|checked|containing a text|containing a value))*$/,
     {
         timeout: 3600*1000,
         wrapperOptions: {
             retry: 3,
         },
     },
-    waitFor
+    waitForCondition
 );
 
 When(

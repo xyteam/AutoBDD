@@ -11,41 +11,41 @@
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
-const checkElement = (targetElementIdElement, targetElementIndex, targetElement, parentElementIndex, parentElement, boolFalseCase, action, targetType, myExpectedText) => {
+const checkElement = (targetElementIdElement, targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, targetType, myExpectedText) => {
     var retrivedValue;
+    // Check for empty text
+    if (typeof myExpectedText === 'undefined' && typeof falseCase === 'undefined') {
+        myExpectedText = '';
+        falseCase = !falseCase;
+    } else if (typeof myExpectedText === 'function') {
+        myExpectedText = '';
+    }
+
     switch (targetType) {
         case 'value':
-            if (browser.$(targetElementIdElement).getTagName() == 'input') {
-                retrivedValue = browser.$(targetElementIdElement).getValue();
+            if (typeof(targetElementIdElement) != 'undefined' && targetElementIdElement.isExisting()) {
+                if (targetElementIdElement.getTagName() == 'input') {
+                    retrivedValue = targetElementIdElement.getValue();
+                } else {
+                    retrivedValue = browser.getElementAttribute(targetElementIdElement, targetType);
+                }    
             } else {
-                retrivedValue = browser.getElementAttribute(targetElementIdElement, targetType);
+                retrivedValue = '';
             }
             break;
         case 'text':
         case 'regex':
-            retrivedValue = browser.$(targetElementIdElement).getText();
+            retrivedValue = typeof(targetElementIdElement) != 'undefined' && targetElementIdElement.isExisting() ? targetElementIdElement.getText() : '';
     }
-    if (boolFalseCase) {
+
+    if (['existing', 'displayed', 'visible', 'enabled', 'clickable', 'focused', 'selected', 'checked'].includes(action)) {
+        var checkAction = `is${action.charAt(0).toUpperCase()}${action.slice(1)}`;
+        if (checkAction == 'isVisible') checkAction = 'isDisplayedInViewport';
+        if (checkAction == 'isChecked') checkAction = 'isSelected';
+        const myResult = typeof(targetElementIdElement) != 'undefined' && targetElementIdElement.isExisting() && targetElementIdElement[checkAction]();
+        expect(myResult).toBe(!falseCase, `Failed expectation: the ${targetElementIndex} target element "${targetElement}" inside the ${parentElementIndex} parent element "${parentElement}" is ${falseCase} ${action}`);    
+    } else if (falseCase) {
         switch (action) {
-            case 'displayed':
-                expect(browser.$(targetElementIdElement).isDisplayed()).not.toBe(
-                    true,
-                    `the ${targetElementIndex} target element "${targetElement}" inside the ${parentElementIndex} parent element "${parentElement}" should not be ${action}`
-                );        
-                break;
-            case 'enabled':
-                expect(browser.$(targetElementIdElement).isEnabled).not.toBe(
-                    true,
-                    `the ${targetElementIndex} target element "${targetElement}" inside the ${parentElementIndex} parent element "${parentElement}" should not be ${action}`
-                );        
-                break;
-            case 'checked':
-            case 'selected':
-                expect(browser.$(targetElementIdElement).isSelected()).not.toBe(
-                    true,
-                    `the ${targetElementIndex} target element "${targetElement}" inside the ${parentElementIndex} parent element "${parentElement}" should not be ${action}`
-                );        
-                break;    
             case 'contain':
             case 'contains':
                 expect(retrivedValue).not.toContain(
@@ -73,25 +73,6 @@ const checkElement = (targetElementIdElement, targetElementIndex, targetElement,
         }
     } else {
         switch (action) {
-            case 'displayed':
-                expect(browser.$(targetElementIdElement).isDisplayed()).toBe(
-                    true,
-                    `the ${targetElementIndex} target element "${targetElement}" inside the ${parentElementIndex} parent element "${parentElement}" should be ${action}`
-                );        
-                break;
-            case 'enabled':
-                expect(browser.$(targetElementIdElement).isEnabled).toBe(
-                    true,
-                    `the ${targetElementIndex} target element "${targetElement}" inside the ${parentElementIndex} parent element "${parentElement}" should be ${action}`
-                );        
-                break;
-            case 'checked':
-            case 'selected':
-                expect(browser.$(targetElementIdElement).isSelected()).toBe(
-                    true,
-                    `the ${targetElementIndex} target element "${targetElement}" inside the ${parentElementIndex} parent element "${parentElement}" should be ${action}`
-                );        
-                break;    
             case 'contain':
             case 'contains':
                 expect(retrivedValue).toContain(
@@ -123,33 +104,27 @@ const checkElement = (targetElementIdElement, targetElementIndex, targetElement,
 }
 
 module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, targetType, expectedText) => {
-    var myExpectedText = parseExpectedText(expectedText);
-    var boolFalseCase = !!falseCase;
-    // Check for empty element
-    if (typeof myExpectedText === 'undefined' && typeof falseCase === 'undefined') {
-        myExpectedText = '';
-        boolFalseCase = true;
-    } else if (typeof myExpectedText === 'function') {
-        myExpectedText = '';
-        boolFalseCase = !boolFalseCase;
-    }
+    const myTargetElement = parseExpectedText(targetElement);
+    const myParentElement = parseExpectedText(parentElement);
+    const myExpectedText = parseExpectedText(expectedText);
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : -1;
 
     var targetElementIdElement;
-    if (parentElement) {
+    if (myParentElement) {
         if (parentElementIndexInt >= 0) {
-            targetElementIdElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
-            checkElement(targetElementIdElement, targetElementIndex, targetElement, parentElementIndex, parentElement, boolFalseCase, action, targetType, myExpectedText);
+            targetElementIdElement = $$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
+            checkElement(targetElementIdElement, targetElementIndex, myTargetElement, parentElementIndex, myParentElement, falseCase, action, targetType, myExpectedText);
         } else {
-            browser.$$(parentElement).forEach((pElement, pIndex) => {
-                targetElementIdElement = browser.$$(pElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
-                checkElement(targetElementIdElement, targetElementIndex, targetElement, pIndex + 1, parentElement, boolFalseCase, action, targetType, myExpectedText);    
+            $$(myParentElement).forEach((pElement, pIndex) => {
+                targetElementIdElement = $$(pElement.selector)[pIndex].$$(myTargetElement)[targetElementIndexInt];
+                checkElement(targetElementIdElement, targetElementIndex, myTargetElement, pIndex + 1, myParentElement, falseCase, action, targetType, myExpectedText);    
             });
         }
     } else {
-        targetElementIdElement = browser.$$(targetElement)[targetElementIndexInt];
-        checkElement(targetElementIdElement, targetElementIndex, targetElement, parentElementIndex, null, boolFalseCase, action, targetType, myExpectedText);
+        targetElementIdElement = $$(myTargetElement)[targetElementIndexInt];
+        console.log([myTargetElement, targetElementIndexInt, targetElementIdElement])
+        checkElement(targetElementIdElement, targetElementIndex, myTargetElement, parentElementIndex, myParentElement, falseCase, action, targetType, myExpectedText);
     }
 };
 

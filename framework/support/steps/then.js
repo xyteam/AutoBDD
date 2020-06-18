@@ -3,6 +3,7 @@ const { Then } = require('cucumber');
 const checkClass = require('../../functions/check/checkClass');
 const checkContainsAnyTextOrValue = require('../../functions/check/checkContainsAnyTextOrValue');
 const checkElementTextValueIsEmpty = require('../../functions/check/checkElementTextValueIsEmpty');
+const checkCondition = require('../../functions/check/checkCondition');
 const checkCookieContent = require('../../functions/check/checkCookieContent');
 const checkCookieExists = require('../../functions/check/checkCookieExists');
 const checkDimension = require('../../functions/check/checkDimension');
@@ -22,8 +23,6 @@ const checkTitle = require('../../functions/check/checkTitle');
 const checkURL = require('../../functions/check/checkURL');
 const checkWithinViewport = require('../../functions/check/checkWithinViewport');
 const compareText = require('../../functions/check/compareText');
-const isEnabled = require('../../functions/check/isEnabled');
-const isVisible = require('../../functions/check/isVisible');
 const checkIfElementExistsInsideParentElement = require('../../functions/check/checkIfElementExistsInsideParentElement');
 const checkIfElementInsideParentElementEqualsMatchesTextOrValue = require('../../functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue');
 const checkIfElementInsideParentElementEqualsMatchesTextOrValue2 = require('../../functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue2');
@@ -44,13 +43,13 @@ Then(
 );
 
 Then(
-    /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? (?:is|does)( not)* (displayed|checked|enabled|selected|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
+    /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? (?:is|does)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
     checkIfElementInsideParentElementEqualsMatchesTextOrValue2
 );
 
 Then(
-    /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" (is|becomes)( not)* visible$/,
-    isVisible
+    /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" (become(?:s)?)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked)$/,
+    checkCondition
 );
 
 Then(
@@ -106,11 +105,6 @@ Then(
 Then(
     /^I expect (?:that )?the font( css)* attribute "([^"]*)?" from element "([^"]*)?" is( not)* "([^"]*)?"$/,
     checkFontProperty
-);
-
-Then(
-    /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" (becomes)( not)* enabled$/,
-    isEnabled
 );
 
 Then(

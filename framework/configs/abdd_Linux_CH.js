@@ -6,9 +6,11 @@ const fs = require('fs');
 const path = require('path');
 const { hooks } = require(`${FrameworkPath}/framework/support/module_hooks.js`);
 const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
-const myCombinedStepPath = ['support/steps/*.js', ProjectPath + '/project/support/steps/**/*.js', FrameworkPath + '/framework/support/steps/**/*.js'];
+const myCombinedStepPath = [FrameworkPath + '/framework/support/steps/**/*.js',
+                            ProjectPath + '/project/support/steps/**/*.js',
+                            'support/steps/*.js'];
 const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
-const myParallelRunPort = 4444 + parseInt(process.env.DISPLAY.slice(-2).replace(':', ''));
+const myParallelRunPort = 4444 + parseInt(process.env.DISPLAY.slice(-3).replace(':', ''));
 
 // for Linux chrome
 const myChromeProfilePath = process.env.myChromeProfilePath || '/tmp/chrome_profile_' + process.env.DISPLAY.substr(1);
@@ -17,6 +19,7 @@ const myPreference_json = '{"download":{"default_directory":"' + myDownloadPathL
 fs.existsSync(myChromeProfilePath) || fs.mkdirSync(myChromeProfilePath);
 fs.existsSync(myChromeProfilePath + '/Default') || fs.mkdirSync(myChromeProfilePath + '/Default');
 fs.writeFileSync(myChromeProfilePath + '/Default/Preferences', myPreference_json);
+process.env.debugX = process.env.debugX || 1;
 
 // const myBrowserProxySetting = (process.env.http_proxy) ? "--proxy-server=" + process.env.http_proxy : "--no-proxy-server";
 
@@ -243,7 +246,7 @@ exports.config = {
         // <boolean> add cucumber tags to feature or scenario name
         tagsInTitle: false,
         // <number> timeout for step definitions
-        timeout: 20000,
+        timeout: 60*1000*process.env.debugX,
     },
     // automationProtocol: 'devtools',
     ...hooks,
