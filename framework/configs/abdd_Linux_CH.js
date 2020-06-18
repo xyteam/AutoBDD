@@ -15,7 +15,7 @@ const myParallelRunPort = 4444 + parseInt(process.env.DISPLAY.slice(-3).replace(
 // for Linux chrome
 const myChromeProfilePath = process.env.myChromeProfilePath || '/tmp/chrome_profile_' + process.env.DISPLAY.substr(1);
 fs.existsSync(myChromeProfilePath) || fs.mkdirSync(myChromeProfilePath);
-const myPreference_json = '{"download":{"default_directory":"' + myDownloadPathLocal + '","directory_upgrade":true},"savefile":{"default_directory":"' + myDownloadPathLocal + '"}}';
+const myPreference_json = `{"download":{"default_directory":"${myDownloadPathLocal}","directory_upgrade":true},"savefile":{"default_directory":"${myDownloadPathLocal}"}}`;
 fs.existsSync(myChromeProfilePath) || fs.mkdirSync(myChromeProfilePath);
 fs.existsSync(myChromeProfilePath + '/Default') || fs.mkdirSync(myChromeProfilePath + '/Default');
 fs.writeFileSync(myChromeProfilePath + '/Default/Preferences', myPreference_json);
