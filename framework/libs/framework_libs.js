@@ -84,6 +84,10 @@ const cmd_create_rdesktop_lock = 'echo "' + cmd_start_rdesktop + '"'
 const cmd_remove_rdesktop_lock = 'rm -f /tmp/rdesktop.' + myRDPHOST + ':' + myRDPPORT + '.lock';
 
 module.exports = {
+  sleep: function (millis) {
+    return new Promise(resolve => setTimeout(resolve, millis));
+  },
+  
   // ssh_tunnel
   sshTunnelRunning: function() {
     // return true if running, false if not
@@ -272,17 +276,20 @@ module.exports = {
     childProcess = exec(cmd_aosd_cat_text);
     return childProcess;
   },
-  getHtmlReportTags: function(scenarioName, resultPrefix, stepIndex) {
+  getImageMovieTags: function(scenarioName, resultPrefix, stepIndex) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const myResultPrefix = safeQuote(resultPrefix);
     const myStepIndex = parseInt(stepIndex) || 0;
     const scenario_base = this.convertScenarioNameToFileBase(myScenarioName);
     const scenario_mp4 = `${scenario_base}.mp4`;
     const scenario_png = `${scenario_base}.${myStepIndex}.png`;
-    const feature_runlog = myRUNREPORT;
     const image_tag = `<img src="${myRELATIVEREPORTDIR}/${myResultPrefix}_${encodeURIComponent(scenario_png)}" style="max-width: 100%; height: auto;" alt="${myResultPrefix}_${scenario_png}">`;
-    const video_tag = `<video src="${myRELATIVEREPORTDIR}/${myResultPrefix}_${encodeURIComponent(scenario_mp4)}" style="max-width: 100%; height: auto;" controls/>Your browser does not support the video tag.</video>`; 
+    const video_tag = `<video src="${myRELATIVEREPORTDIR}/${myResultPrefix}_${encodeURIComponent(scenario_mp4)}" style="max-width: 100%; height: auto;" controls autoplay/>Your browser does not support the video tag.</video>`; 
+    return [image_tag, video_tag];
+  },
+  getRunlogTag: function() {
+    const feature_runlog = myRUNREPORT;
     const runlog_tag = `<a href="${myRELATIVEREPORTDIR}/${feature_runlog}.html" style="max-width: 100%; height: auto;"/>${feature_runlog}</a>`;
-    return [image_tag, video_tag, runlog_tag];
+    return runlog_tag;
   }
 }

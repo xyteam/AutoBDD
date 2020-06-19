@@ -8,13 +8,17 @@
  */
 module.exports = (clickElement, clickCount, checkElement, falseCase, state) => {
     var myClickCount = clickCount || 2;
-    const action = `is${state.charAt(0).toUpperCase()}${state.slice(1)}`;
+    var myState = state || 'existing';
+    // convert conditions
+    var checkAction = `is${myState.charAt(0).toUpperCase()}${myState.slice(1)}`;
+    if (checkAction == 'isVisible') checkAction = 'isDisplayedInViewport';
+    if (checkAction == 'isChecked') checkAction = 'isSelected';
     var keepGoing = true;
     do {
-      browser.click(clickElement);
+      browser.$(clickElement).click();
       myClickCount--;
       browser.pause(300);
-      keepGoing = !browser.$(checkElement)[action];
+      keepGoing = !browser.$(checkElement)[checkAction]();
       if (falseCase) keepGoing = !keepGoing;
     } while (myClickCount > 0 && keepGoing);
 };

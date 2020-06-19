@@ -8,7 +8,6 @@
  * @param  {String}  varName            variable name
  */
 
-const parseExpectedText = require('../common/parseExpectedText');
 module.exports = (type, targetElementIndex, targetElement, parentElementIndex, parentElement, varName) => {
     // Check for empty element
     if (typeof myExpectedText === 'undefined') {
@@ -17,15 +16,14 @@ module.exports = (type, targetElementIndex, targetElement, parentElementIndex, p
         myExpectedText = '';
     }
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
-    const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : -1;
+    const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
 
-    var targetElementIdElement;
+    var retrivedValue;
     if (parentElement) {
-        targetElementIdElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
+        retrivedValue = $$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt].getText();
     } else {
-        targetElementIdElement = browser.$$(targetElement)[targetElementIndexInt];
+        retrivedValue = $$(targetElement)[targetElementIndexInt].getText();
     }
-    const retrivedValue = browser.$(targetElementIdElement).getText();
     process.env[varName] = (type == 'number') ? retrivedValue.match(/\d+/)[0] : retrivedValue;
     console.log(`assigned "${process.env[varName]}" to ENV:${varName}`);
 };
