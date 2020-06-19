@@ -11,7 +11,6 @@ const checkDownloadedJsonFileConformsTemplateFile = require('../../functions/che
 const checkDownloadedFileContainsNumOfLines = require('../../functions/check/checkDownloadedFileContainsNumOfLines');
 const checkDownloadedFileContainsRowsAndColumns = require('../../functions/check/checkDownloadedFileContainsRowsAndColumns');
 const checkDownloadedFileContainsEqualsMatchesText = require('../../functions/check/checkDownloadedFileContainsEqualsMatchesText');
-const checkFocus = require('../../functions/check/checkFocus');
 const checkIsOpenedInNewWindow = require('../../functions/check/checkIsOpenedInNewWindow');
 const checkModal = require('../../functions/check/checkModal');
 const checkModalText = require('../../functions/check/checkModalText');
@@ -140,11 +139,6 @@ Then(
 Then(
     /^I expect (?:that )?the url "([^"]*)?" is opened in a new (tab|window)$/,
     checkIsOpenedInNewWindow
-);
-
-Then(
-    /^I expect (?:that )?the element "([^"]*)?" is( not)* focused$/,
-    checkFocus
 );
 
 Then(

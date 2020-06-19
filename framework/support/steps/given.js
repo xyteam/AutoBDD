@@ -14,7 +14,6 @@ const checkContainsEqualsMatchesTextOrValue = require('../../functions/check/che
 const checkModal = require('../../functions/check/checkModal');
 const checkOffset = require('../../functions/check/checkOffset');
 const checkProperty = require('../../functions/check/checkProperty');
-const checkSelected = require('../../functions/check/checkSelected');
 const checkTitle = require('../../functions/check/checkTitle');
 const checkUrl = require('../../functions/check/checkURL');
 const closeAllButFirstTab = require('../../functions/action/closeAllButFirstTab');
@@ -51,11 +50,6 @@ Given(
 Given(
     /^(?:(some|all) of )?the element "([^"]*)?" (is)( not)* (existing|displayed|visible|focused|enabled|clickable|selected|checked)$/,
     checkCondition
-);
-
-Given(
-    /^the (?:element|checkbox) "([^"]*)?" is( not)* (?:checked|selected)$/,
-    checkSelected
 );
 
 Given(
