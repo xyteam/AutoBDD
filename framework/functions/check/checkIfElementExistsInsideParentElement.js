@@ -12,8 +12,8 @@ const parseExpectedText = require('../common/parseExpectedText');
 
 module.exports = (targetElement, parentElementIndex, parentElement, falseCase, compareAction, expectedNumber) => {
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
-    const myExpectedNumber = (expectedNumber) ? parseInt(parseExpectedText(expectedNumber)) : (falseCase) ? 0 : 1;
-    const myCompareAction = compareAction || ((falseCase) ? 'no more than' : 'no less than');
+    const myCompareAction = compareAction || ((!!falseCase) ? 'more than' : 'at least');
+    const myExpectedNumber = (expectedNumber) ? parseInt(parseExpectedText(expectedNumber)) : (!!falseCase) ? 0 : 1;
 
     var appearanceNumber;
     if (parentElement) {
@@ -22,26 +22,41 @@ module.exports = (targetElement, parentElementIndex, parentElement, falseCase, c
         appearanceNumber = browser.$$(targetElement).length;
     }
 
-    switch (myCompareAction) {
-        case 'exactly':
-            expect(appearanceNumber).toEqual(myExpectedNumber);
-            break;
-        case 'not exactly':
-            expect(falseCase).toBe(null, 'cannot use double negative expression');
-            expect(appearanceNumber).not.toEqual(myExpectedNumber);
-            break;
-        case 'more than':
-            expect(appearanceNumber).toBeGreaterThan(myExpectedNumber);
-            break;
-        case 'no more than':
-            expect(appearanceNumber).not.toBeGreaterThan(myExpectedNumber);
-            break;
-        case 'less than':
-            expect(appearanceNumber).toBeLessThan(myExpectedNumber);
-            break;
-        case 'no less than':
-            expect(falseCase).toBe(null, 'cannot use double negative expression');
-            expect(appearanceNumber).not.toBeLessThan(myExpectedNumber);
-            break;
-    }    
+    if (!!falseCase) {
+        expect(myCompareAction).not.toContain('no', 'do not support double negative statement');
+        expect(myCompareAction).not.toContain('at least', 'do not support no at least statement');    
+        switch (myCompareAction) {
+            case 'exactly':
+                expect(appearanceNumber).not.toEqual(myExpectedNumber);
+                break;
+            case 'more than':
+                expect(appearanceNumber).not.toBeGreaterThan(myExpectedNumber);
+                break;
+            case 'less than':
+                expect(appearanceNumber).not.toBeLessThan(myExpectedNumber);
+                break;
+        }
+    } else {
+        switch (myCompareAction) {
+            case 'exactly':
+                expect(appearanceNumber).toEqual(myExpectedNumber);
+                break;
+            case 'not exactly':
+                expect(appearanceNumber).not.toEqual(myExpectedNumber);
+                break;
+            case 'more than':
+                expect(appearanceNumber).toBeGreaterThan(myExpectedNumber);
+                break;
+            case 'no more than':
+                expect(appearanceNumber).not.toBeGreaterThan(myExpectedNumber);
+                break;
+            case 'less than':
+                expect(appearanceNumber).toBeLessThan(myExpectedNumber);
+                break;
+            case 'at least':
+            case 'no less than':
+                expect(appearanceNumber).not.toBeLessThan(myExpectedNumber);
+                break;
+        }        
+    }
 };

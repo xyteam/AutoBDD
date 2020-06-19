@@ -32,7 +32,7 @@ Then(
 );
 
 Then(
-    /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|no less than) ([^\s]+) time(?:s)?)?$/,
+    /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|at least|no less than) ([^\s]+) time(?:s)?)?$/,
     checkIfElementExistsInsideParentElement
 );
 

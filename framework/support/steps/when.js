@@ -144,7 +144,7 @@ When(
 );
 
 When(
-    /^I wait on download file "([^"]*)?"(?: for (\d+)ms)* to( not)* exist$/,
+    /^I wait on download file "([^"]*)?"(?: for (\d+)ms)* to be( not)* existing$/,
     {
         wrapperOptions: {
             retry: 3,

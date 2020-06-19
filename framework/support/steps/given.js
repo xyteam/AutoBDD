@@ -115,7 +115,7 @@ Given(
 );
 
 Given(
-    /^I have a screen that is ([\d]+) by ([\d]+) pixels$/,
+    /^I resize browser window to ([\d]+) by ([\d]+) pixels$/,
     resizeScreenSize
 );
 
