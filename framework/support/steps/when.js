@@ -44,7 +44,7 @@ When(
 );
 
 When(
-    /^I click the element "([^"]*)?"(?: up to (\d+) time(?:s)?)? until the element "([^"]*)?" is(?: (not))? (existing|displayed|visible|focused|enabled|clickable|selected|checked)$/,
+    /^I click the (?:element|checkbox) "([^"]*)?"(?: up to (\d+) time(?:s)?)? until the element "([^"]*)?" is(?: (not))? (existing|displayed|visible|focused|enabled|clickable|selected|checked)$/,
     clickToCondition
 );
 
@@ -154,7 +154,7 @@ When(
 );
 
 When(
-    /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to be( not)* (existing|displayed|visible|focused|enabled|clickable|selected|checked|containing a text|containing a value))*$/,
+    /^I wait on (?:element|checkbox) "([^"]*)?"(?: for (\d+)ms)*(?: to be( not)* (existing|displayed|visible|focused|enabled|clickable|selected|checked|containing a text|containing a value))*$/,
     {
         timeout: 3600*1000,
         wrapperOptions: {

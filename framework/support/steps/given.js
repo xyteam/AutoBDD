@@ -48,7 +48,7 @@ Given(
 );
 
 Given(
-    /^(?:(some|all) of )?the element "([^"]*)?" (is)( not)* (existing|displayed|visible|focused|enabled|clickable|selected|checked)$/,
+    /^(?:(some|all) of )?the (?:element|checkbox) "([^"]*)?" (is)( not)* (existing|displayed|visible|focused|enabled|clickable|selected|checked)$/,
     checkCondition
 );
 

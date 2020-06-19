@@ -42,12 +42,12 @@ Then(
 );
 
 Then(
-    /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? (?:is|does)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
+    /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? (?:is|does)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
     checkIfElementInsideParentElementEqualsMatchesTextOrValue2
 );
 
 Then(
-    /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" (become(?:s)?)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked)$/,
+    /^I expect (?:that )?(?:(some|all) of )?the (?:element|checkbox) "([^"]*)?" (become(?:s)?)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked)$/,
     checkCondition
 );
 
