@@ -528,7 +528,7 @@ class AbddAutoRun:
             self.
             host) > 0, 'No host is avilable! Check file: abdd_run_host.config'
 
-    def generate_reports(self, dbfile, reportonly):
+    def generate_reports(self, dbfile):
         '''
 
         '''
@@ -554,11 +554,9 @@ class AbddAutoRun:
             reportList = group.search(query.status != 'crashed')
             feature_report = None
             for item in reportList:
-                if reportonly:
+                if os.path.exists(item['result_json'] + '.processed'):
                     element = json.loads(open(item['result_json'] + '.processed').read())[0]
                 else:
-                    if os.path.exists(item['result_json'] + '.processed'):
-                        continue
                     element = json.loads(open(item['result_json']).read())[0]
                     os.rename(item['result_json'], item['result_json'] + '.processed')
                 if not feature_report:
@@ -757,5 +755,5 @@ if __name__ == "__main__":
 
     if not command_arguments.RUNONLY:
         print('\nGenerating reports\n')
-        abdd_run.generate_reports(rundb_json_path, command_arguments.REPORTONLY)
+        abdd_run.generate_reports(rundb_json_path)
 
