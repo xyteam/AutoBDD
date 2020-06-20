@@ -52,7 +52,8 @@ module.exports =
      */
     var myState = state || 'existing';
 
-    $(myElem).waitForExist(intMs, !!falseCase);
+    const existOption = {timeout: intMs, reverse: !!falseCase};
+    $(myElem).waitForExist(existOption);
     if (['existing', 'enabled', 'displayed', 'clickable'].includes(myState)) {
         // ready to call conditions;
         myState = (myState.charAt(0).toUpperCase() + myState.slice(1)).replace('Existing', 'Exist');
