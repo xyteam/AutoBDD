@@ -11,7 +11,6 @@ const checkDownloadedJsonFileConformsTemplateFile = require('../../functions/che
 const checkDownloadedFileContainsNumOfLines = require('../../functions/check/checkDownloadedFileContainsNumOfLines');
 const checkDownloadedFileContainsRowsAndColumns = require('../../functions/check/checkDownloadedFileContainsRowsAndColumns');
 const checkDownloadedFileContainsEqualsMatchesText = require('../../functions/check/checkDownloadedFileContainsEqualsMatchesText');
-const checkFocus = require('../../functions/check/checkFocus');
 const checkIsOpenedInNewWindow = require('../../functions/check/checkIsOpenedInNewWindow');
 const checkModal = require('../../functions/check/checkModal');
 const checkModalText = require('../../functions/check/checkModalText');
@@ -33,7 +32,7 @@ Then(
 );
 
 Then(
-    /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|no less than) ([^\s]+) time(?:s)?)?$/,
+    /^I expect (?:that )?the element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|at least|no less than) ([^\s]+) time(?:s)?)?$/,
     checkIfElementExistsInsideParentElement
 );
 
@@ -43,12 +42,12 @@ Then(
 );
 
 Then(
-    /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? (?:is|does)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
+    /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? (?:is|does)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
     checkIfElementInsideParentElementEqualsMatchesTextOrValue2
 );
 
 Then(
-    /^I expect (?:that )?(?:(some|all) of )?the element "([^"]*)?" (become(?:s)?)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked)$/,
+    /^I expect (?:that )?(?:(some|all) of )?the (?:element|checkbox) "([^"]*)?" (become(?:s)?)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked)$/,
     checkCondition
 );
 
@@ -140,11 +139,6 @@ Then(
 Then(
     /^I expect (?:that )?the url "([^"]*)?" is opened in a new (tab|window)$/,
     checkIsOpenedInNewWindow
-);
-
-Then(
-    /^I expect (?:that )?the element "([^"]*)?" is( not)* focused$/,
-    checkFocus
 );
 
 Then(

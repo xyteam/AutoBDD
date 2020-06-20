@@ -13,7 +13,7 @@ const waitForContent = (element, ms, getWhat, falseCase) => {
         () => ($(element)[getWhat]().length > 0) == !falseCase,
         {
             timeout: ms,
-            timeoutMsg: `${element}.${getWhat} == ${!falseCase} timeout`
+            timeoutMsg: `$(${element}).${getWhat} == ${!falseCase} timeout`
         }
     );
 }
@@ -24,7 +24,7 @@ const waitForCondition = (element, ms, isWhat, falseCase, element2) => {
         () => ($(element)[isWhat](element2)) == !falseCase,
         {
             timeout: ms,
-            timeoutMsg: `${element}.${isWhat}(${element2}) == ${!falseCase} timeout`
+            timeoutMsg: `$(${element}).${isWhat}(${element2}) == ${!falseCase} timeout`
         }
     );
 }
@@ -52,6 +52,7 @@ module.exports =
      */
     var myState = state || 'existing';
 
+    $(myElem).waitForExist(intMs, !!falseCase);
     if (['existing', 'enabled', 'displayed', 'clickable'].includes(myState)) {
         // ready to call conditions;
         myState = (myState.charAt(0).toUpperCase() + myState.slice(1)).replace('Existing', 'Exist');
