@@ -6,11 +6,10 @@
 mkdir -p ~/Projects; cd ~/Projects; \
 git clone https://github.com/xyteam/AutoBDD-example.git; \
 cd AutoBDD-example/docker; \
-docker-compose run --rm example-run "--parallel=2 --screenshot=3 --movie=1"
-```
-Open the HTML test report in ~/Projects/AutoBDD-example/bdd_reports/
-You will see the HTML report with step screenshots and test case movie.
+docker-compose run --rm autobdd-example-run "--parallel=4 --screenshot=3 --movie=1 --rerunfailed=1 --reportpath=test1"
 
+google-chrome ~/Projects/AutoBDD-example/bdd_reports/test1/index.html
+```
 ## AutoBDD (v2)
 
   BDD Automation Framework
