@@ -27,26 +27,11 @@ module.exports = {
     session.url(url);
     clearInterval(handle);
   },
-
-  openUrlInNewTab: function(session, url) {
-    var handle = setInterval(function() {
-      session.refresh();
-    }, defaultTimeout);
-    session.newWindow(url);
-    session.pause(1000);
-    if (process.env.BROWSER == 'IE') {
-      screen_session.clickImage(null, 'IE_AllowOnce.png');
-      session.pause(3000);
-      screen_session.clickImage(null, 'IE_DismissX.png');
-    }
-    session.pause(1000);
-    clearInterval(handle);
-  },
   
   clickAndEnter: function(session, linkToClick) {
-    session.waitForExist(linkToClick, 15000);
+    session.$(linkToClick).waitForExist(15000);
     try {
-      session.click(linkToClick)
+      session.$(linkToClick).click()
       try {
         session.pause(1000);
       } catch(e) {}
@@ -70,7 +55,7 @@ module.exports = {
   // wait until DOM content is loaded or timeout
   waitDOMContentLoaded: function(session, timeout) {
     var timeout = timeout || defaultTimeout;
-    session.windowHandle().addEventListener('DOMContentLoaded', (event) => {
+    session.getWindowHandle().on('DOMContentLoaded', (event) => {
       return;
     });
     session.pause(timeout)
@@ -80,11 +65,10 @@ module.exports = {
   // wait until Image content is loaded or timeout
   waitImageContentLoaded: function(session, timeout) {
     var timeout = timeout || defaultTimeout;
-    session.windowHandle().addEventListener('onload', (event) => {
+    session.getWindowHandle().on('onload', (event) => {
       return;
     });
     session.pause(timeout)
     return;
   }
-  
 }
