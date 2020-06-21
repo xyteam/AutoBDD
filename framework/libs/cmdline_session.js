@@ -39,10 +39,8 @@ module.exports = {
     const localHostKey_result = JSON.parse(this.runCmd(cmd_localHostKey));
     if (localHostKey_result.output.includes(`Host ${mySshHost} found`)) {
       const localHostKey = localHostKey_result.output.split('\n')[1].split(' ')[2];
-      console.log(`localHostKey: ${localHostKey}`)
       const cmd_remoteHostKey = `ssh-keyscan -4 -p ${mySshPort} -H ${mySshHost}`;
       const remoteHostKey_result = JSON.parse(this.runCmd(cmd_remoteHostKey));
-      console.log(`remoteHostKey_result: ${remoteHostKey_result.output}`)
       if (remoteHostKey_result.output.includes(localHostKey)) {
         console.log(`${mySshHost} hostkey is recognized in known_hosts`);
         needCorrection = false;
