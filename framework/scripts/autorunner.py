@@ -563,7 +563,6 @@ class AbddAutoRun:
                     feature_report = element
                 else:
                     feature_report['elements'].append(element['elements'][0])
-                os.rename(item['result_json'], item['result_json'] + '.processed')
             if feature_report is not None:
                 cucumber_report_json.append(feature_report)
         db.close()
