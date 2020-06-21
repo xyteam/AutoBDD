@@ -553,12 +553,14 @@ class AbddAutoRun:
             group = db.table(table)
             reportList = group.search(query.status != 'crashed')
             feature_report = None
-            for item in reportList:
-                if os.path.exists(item['result_json'] + '.processed'):
-                    element = json.loads(open(item['result_json'] + '.processed').read())[0]
+            for case in reportList:
+                if os.path.exists(case['result_json']): # process new result
+                    element = json.loads(open(case['result_json']).read())[0]
+                    os.rename(case['result_json'], case['result_json'] + '.processed')
+                elif os.path.exists(case['result_json'] + '.processed'): # process existing result
+                    element = json.loads(open(case['result_json'] + '.processed').read())[0]
                 else:
-                    element = json.loads(open(item['result_json']).read())[0]
-                    os.rename(item['result_json'], item['result_json'] + '.processed')
+                    group.update({'status': 'crashed'}, doc_ids=[case.doc_id])
                 if not feature_report:
                     feature_report = element
                 else:
@@ -733,27 +735,31 @@ class AbddAutoRun:
 if __name__ == "__main__":
     command_arguments = parse_arguments()
     abdd_run = AbddAutoRun(command_arguments)
-    rundb_json_path = path.join(abdd_run.report_full_path, 'db.subjson')
     
     if not command_arguments.REPORTONLY:
         print('\nRunning test in parallel\n')
         # first run start from dryrun_json
         run_feature_subjson = abdd_run.create_dryrun_json()
+        rundb_json_path = path.join(abdd_run.report_full_path, 'db.subjson')
         abdd_run.update_tinydb(rundb_json_path, run_feature_subjson, None)
         abdd_run.run_in_parallel(rundb_json_path)
         # rerun will re-use previous dryrun_json
+        # rerun failed then rerun crashed
         if command_arguments.RERUNFAILED:
             for n in range(0, int(command_arguments.RERUNFAILED)):
                 print('\nRerunning failed test iteration: {}\n'.format(n))
+                rundb_json_path = path.join(abdd_run.report_full_path, 'db.subjson')
                 abdd_run.update_tinydb(rundb_json_path, run_feature_subjson, 'failed')
                 abdd_run.run_in_parallel(rundb_json_path)
         if command_arguments.RERUNCRASHED:
             for n in range(0, int(command_arguments.RERUNCRASHED)):
                 print('\nRerunning crashed test iteration: {}\n'.format(n))
+                rundb_json_path = path.join(abdd_run.report_full_path, 'db.subjson')
                 abdd_run.update_tinydb(rundb_json_path, run_feature_subjson, 'crashed')
                 abdd_run.run_in_parallel(rundb_json_path)
 
     if not command_arguments.RUNONLY:
         print('\nGenerating reports\n')
+        rundb_json_path = path.join(abdd_run.report_full_path, 'db.subjson')
         abdd_run.generate_reports(rundb_json_path)
 
