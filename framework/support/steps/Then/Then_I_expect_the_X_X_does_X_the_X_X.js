@@ -44,7 +44,7 @@ Then(
             if (lineCount) {
               lineText = lineArray[lineCount - 1];
             } else {
-              lineText = lineArray.join('\n');
+              lineText = lineArray.join(' ');
             }
           }
 
