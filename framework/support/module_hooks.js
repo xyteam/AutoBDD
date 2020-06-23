@@ -67,39 +67,39 @@ exports.hooks = {
   },
 
   beforeFeature: function (uri, feature, scenarios) {
-    if (localHooks.BeforeFeature) localHooks.BeforeFeature(feature);
-    if (projectHooks.BeforeFeature) projectHooks.BeforeFeature(feature);
-    if (frameworkHooks.BeforeFeature) frameworkHooks.BeforeFeature(feature);
+    if (localHooks.beforeFeature) localHooks.beforeFeature(uri, feature, scenarios);
+    if (projectHooks.beforeFeature) projectHooks.beforeFeature(uri, feature, scenarios);
+    if (frameworkHooks.beforeFeature) frameworkHooks.beforeFeature(uri, feature, scenarios);
   },
 
   beforeScenario: function (uri, feature, scenario, sourceLocation) {
-    if (localHooks.BeforeScenario) localHooks.BeforeScenario(scenario);
-    if (projectHooks.BeforeScenario) projectHooks.BeforeScenario(scenario);
-    if (frameworkHooks.BeforeScenario) frameworkHooks.BeforeScenario(scenario);
+    if (localHooks.beforeScenario) localHooks.beforeScenario(uri, feature, scenario, sourceLocation);
+    if (projectHooks.beforeScenario) projectHooks.beforeScenario(uri, feature, scenario, sourceLocation);
+    if (frameworkHooks.beforeScenario) frameworkHooks.beforeScenario(uri, feature, scenario, sourceLocation);
   },
 
   beforeStep: function ({uri, feature, step}, context) {
-    if (localHooks.BeforeStep) localHooks.BeforeStep(step.step);
-    if (projectHooks.BeforeStep) projectHooks.BeforeStep(step.step);
-    if (frameworkHooks.BeforeStep) frameworkHooks.BeforeStep(step.step);
+    if (localHooks.beforeStep) localHooks.beforeStep({uri, feature, step}, context);
+    if (projectHooks.beforeStep) projectHooks.beforeStep({uri, feature, step}, context);
+    if (frameworkHooks.beforeStep) frameworkHooks.beforeStep({uri, feature, step}, context);
   },
 
   afterStep: function ({uri, feature, step}, context, {error, result, duration, passed}) {
-    if (localHooks.AfterStep) localHooks.AfterStep(step.step, passed);
-    if (projectHooks.AfterStep) projectHooks.AfterStep(step.step, passed);
-    if (frameworkHooks.AfterStep) frameworkHooks.AfterStep(step.step, passed);
+    if (localHooks.afterStep) localHooks.afterStep({uri, feature, step}, context, {error, result, duration, passed});
+    if (projectHooks.afterStep) projectHooks.afterStep({uri, feature, step}, context, {error, result, duration, passed});
+    if (frameworkHooks.afterStep) frameworkHooks.afterStep({uri, feature, step}, context, {error, result, duration, passed});
   },
 
   afterScenario: function (uri, feature, scenario, result, sourceLocation) {
-    if (localHooks.AfterScenario) localHooks.AfterScenario(scenario, result);
-    if (projectHooks.AfterScenario) projectHooks.AfterScenario(scenario, result);
-    if (frameworkHooks.AfterScenario) frameworkHooks.AfterScenario(scenario, result);
+    if (localHooks.afterScenario) localHooks.afterScenario(uri, feature, scenario, result, sourceLocation);
+    if (projectHooks.afterScenario) projectHooks.afterScenario(uri, feature, scenario, result, sourceLocation);
+    if (frameworkHooks.afterScenario) frameworkHooks.afterScenario(uri, feature, scenario, result, sourceLocation);
   },
 
   afterFeature: function (uri, feature, scenarios) {
-    if (localHooks.AfterFeature) localHooks.AfterFeature(feature);
-    if (projectHooks.AfterFeature) projectHooks.AfterFeature(feature);
-    if (frameworkHooks.AfterFeature) frameworkHooks.AfterFeature(feature);
+    if (localHooks.afterFeature) localHooks.afterFeature(uri, feature, scenarios);
+    if (projectHooks.afterFeature) projectHooks.afterFeature(uri, feature, scenarios);
+    if (frameworkHooks.afterFeature) frameworkHooks.afterFeature(uri, feature, scenarios);
   },
 
   afterCommand: function (commandName, args, result, error) {

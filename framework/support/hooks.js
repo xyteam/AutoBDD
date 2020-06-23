@@ -88,7 +88,7 @@ const frameworkHooks = {
    * cucumber framework hooks
    **/ 
 
-   BeforeFeature: function(feature) {
+   beforeFeature: function(uri, feature, scenarios) {
     console.log(`Feature: ${feature.document.feature.name}\n`);
     currentScenarioName = '';
     currentStepNumber = 0;
@@ -120,7 +120,7 @@ const frameworkHooks = {
     }
   },
 
-  BeforeScenario: function(scenario) {
+  beforeScenario: function(uri, feature, scenario, sourceLocation) {
     console.log(`Scenario: ${scenario.name}\n`);
     const scenarioName = scenario.name;
     currentScenarioName = scenarioName;
@@ -130,15 +130,15 @@ const frameworkHooks = {
     browser.setTimeouts(null, null, 3600*1000);
   },
 
-  BeforeStep: function(step) {
-    // console.log(step);
-    // only count real steps (do not count After steps)
-    if (step.text.length > 0) currentStepNumber++;
+  beforeStep: function({uri, feature, step}, context) {
+    // console.log(step.step);
+    // only count real steps (do not count after steps)
+    if (step.step.text.length > 0) currentStepNumber++;
   },
 
-  AfterStep: function(step, passed) {
+  afterStep: function({uri, feature, step}, context, {error, result, duration, passed}) {
     // to be done for real steps
-    if (step.text.length > 0) {
+    if (step.step.text.length > 0) {
       // start recording
       if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
 
@@ -147,7 +147,7 @@ const frameworkHooks = {
       const remarkScenarioName = (currentScenarioNameArray.length <= 10) ? currentScenarioName : currentScenarioNameArray.slice(0, 6).join(' ') +
                                  ' .. ' +
                                  currentScenarioNameArray.slice(currentScenarioNameArray.length - 3).join(' ');
-      const remarkStepName = step.text;
+      const remarkStepName = step.step.text;
       const remarkTextBase = `${remarkScenarioName} ... Step ${currentStepNumber} : ${remarkStepName}`;
       var remarkText, remarkColor;
       if (passed) {
@@ -176,7 +176,7 @@ const frameworkHooks = {
     }
   },
 
-  AfterScenario: function(scenario, result) {
+  afterScenario: function(uri, feature, scenario, result, sourceLocation) {
     
     // scenario status
     if (result.status == 'passed') {
@@ -230,7 +230,7 @@ const frameworkHooks = {
     browser.pause(1000);
   },
   
-  AfterFeature: function(feature) {
+  afterFeature: function(uri, feature, scenarios) {
     if (process.env.SSHHOST && process.env.SSHPORT) {
       try {
         framework_libs.stopRdesktop();
