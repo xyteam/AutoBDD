@@ -16,9 +16,11 @@ module.exports = (index, name) => {
         const iFrameName = (name) ? parseExpectedText(name) : '';
         var iFrameElement;
         if (iFrameName.length > 0) {
-            browser.switchToFrame(browser.$$(`iframe[name="${iFrameName}"]`)[iFrameIndex]);
+            iFrameElement = `iframe[name="${iFrameName}"]`;
         } else {
-            browser.switchToFrame(browser.$$('iframe')[iFrameIndex]);
+            iFrameElement = 'iframe';
         }
+        $(iFrameElement).waitForExist();
+        browser.switchToFrame(browser.$$(iFrameElement)[iFrameIndex]);
     }
 };
