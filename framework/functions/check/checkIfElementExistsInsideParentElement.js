@@ -18,7 +18,7 @@ module.exports = (targetElement, parentElementIndex, parentElement, falseCase, c
 
     var appearanceNumber;
     if (parentElement) {
-        $(myParentElement).waitForExist({reverse: !!falseCase});
+        $(myParentElement).waitForExist();
         appearanceNumber = browser.$$(myParentElement)[parentElementIndexInt].$$(myTargetElement).length;
     } else {
         appearanceNumber = browser.$$(myTargetElement).length;

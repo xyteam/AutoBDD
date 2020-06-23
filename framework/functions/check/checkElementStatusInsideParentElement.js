@@ -17,7 +17,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     
     var targetElementIdElement;
     if (parentElement) {
-        $(myParentElement).waitForExist({reverse: !!falseCase});
+        $(myParentElement).waitForExist();
         targetElementIdElement = browser.$$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
     } else {
         targetElementIdElement = browser.$$(myTargetElement)[targetElementIndexInt];
