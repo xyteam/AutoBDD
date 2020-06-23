@@ -112,7 +112,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
 
     var targetElementIdElement;
     if (myParentElement) {
-        $(myParentElement).waitForExist({reverse: !!falseCase});
+        $(myParentElement).waitForExist();
         if (parentElementIndexInt >= 0) {
             targetElementIdElement = $$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
             checkElement(targetElementIdElement, targetElementIndex, myTargetElement, parentElementIndex, myParentElement, falseCase, action, targetType, myExpectedText);
