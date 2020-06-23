@@ -6,42 +6,47 @@
  * @param  {String}  parentElementIndex The nth parent element start from 1st,2nd,3rd,4th
  * @param  {String}  parentElement      parent element selector
  */
+
+const parseExpectedText = require('../common/parseExpectedText');
 module.exports = (action, targetElementIndex, targetElement, parentElementIndex, parentElement) => {
+    const myTargetElement = parseExpectedText(targetElement);
+    const myParentElement = parseExpectedText(parentElement);
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     const deepClick = function(argument) { $(argument).click() };
 
-    var myTargetElement;
+    var targetElementIdElement;
     if (parentElement) {
-        myTargetElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
+        $(myParentElement).waitForExist();
+        targetElementIdElement = browser.$$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
     } else {
-        myTargetElement = browser.$$(targetElement)[targetElementIndexInt];
+        targetElementIdElement = browser.$$(myTargetElement)[targetElementIndexInt];
     }
     // console.log(myTargetElement);
 
     switch (action) {
         case 'moveTo':
-            browser.$(myTargetElement).moveTo();
+            browser.$(targetElementIdElement).moveTo();
             break;
         case 'clear':
-            browser.$(myTargetElement).clearValue();
+            browser.$(targetElementIdElement).clearValue();
             break;
         case 'tryClick':
             try {
                 console.log('1st try with direct click ...')
-                browser.$(myTargetElement).click();
+                browser.$(targetElementIdElement).click();
             } catch (e) {
                 console.log('2nd try with deep click ...')
-                browser.execute(deepClick, myTargetElement);          
+                browser.execute(deepClick, targetElementIdElement);          
             }
             break;
         case 'deepClick':
                 console.log('do deep click ...')
-                browser.execute(deepClick, myTargetElement);          
+                browser.execute(deepClick, targetElementIdElement);          
                 break;
         case 'click':
         default:
-            browser.$(myTargetElement).click();
+            browser.$(targetElementIdElement).click();
             break;
     }
 };

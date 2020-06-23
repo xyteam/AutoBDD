@@ -104,14 +104,15 @@ const checkElement = (targetElementIdElement, targetElementIndex, targetElement,
 }
 
 module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, targetType, expectedText) => {
+    const myExpectedText = parseExpectedText(expectedText);
     const myTargetElement = parseExpectedText(targetElement);
     const myParentElement = parseExpectedText(parentElement);
-    const myExpectedText = parseExpectedText(expectedText);
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
-    const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : -1;
+    const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : -1; // -1 indicates no parent element
 
     var targetElementIdElement;
     if (myParentElement) {
+        $(myParentElement).waitForExist({reverse: !!falseCase});
         if (parentElementIndexInt >= 0) {
             targetElementIdElement = $$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
             checkElement(targetElementIdElement, targetElementIndex, myTargetElement, parentElementIndex, myParentElement, falseCase, action, targetType, myExpectedText);
@@ -123,7 +124,6 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
         }
     } else {
         targetElementIdElement = $$(myTargetElement)[targetElementIndexInt];
-        console.log([myTargetElement, targetElementIndexInt, targetElementIdElement])
         checkElement(targetElementIdElement, targetElementIndex, myTargetElement, parentElementIndex, myParentElement, falseCase, action, targetType, myExpectedText);
     }
 };
