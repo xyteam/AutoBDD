@@ -8,12 +8,12 @@
  *                                             existence)
  */
 const waitForContent = (element, ms, getWhat, falseCase) => {
-    // getText, getValue 
+    // getText, getValue
     browser.waitUntil(
         () => ($(element)[getWhat]().length > 0) == !falseCase,
         {
             timeout: ms,
-            timeoutMsg: `$(${element}).${getWhat} == ${!falseCase} timeout`
+            timeoutMsg: `$(${element}).${getWhat}().length > 0 == ${!falseCase} timeout`
         }
     );
 }
