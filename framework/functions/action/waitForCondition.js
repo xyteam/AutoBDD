@@ -10,7 +10,7 @@
 const waitForContent = (element, ms, getWhat, falseCase) => {
     // getText, getValue
     browser.waitUntil(
-        () => ($(element)[getWhat]().length > 0) == !falseCase,
+        () => { return $(element)[getWhat]().length > 0 == !falseCase },
         {
             timeout: ms,
             timeoutMsg: `$(${element}).${getWhat}().length > 0 == ${!falseCase} timeout`
@@ -21,7 +21,7 @@ const waitForCondition = (element, ms, isWhat, falseCase, element2) => {
     // isClickable, isDisplayed, isDisplayedInViewPort, isEnabled, isExisting, isFocused, isSelected,
     // isEqual(with element2)
     browser.waitUntil(
-        () => ($(element)[isWhat](element2)) == !falseCase,
+        () => { return $(element)[isWhat](element2) == !falseCase },
         {
             timeout: ms,
             timeoutMsg: `$(${element}).${isWhat}(${element2}) == ${!falseCase} timeout`
@@ -38,7 +38,7 @@ module.exports =
      * Parsed element selector
      * @type {String}
      */
-    const myElem = parseExpectedText(elem);
+    const myElem = (typeof(elem) == 'object') ? elem.selector: (typeof(elem) == 'string') ? parseExpectedText(elem) : 'bogus element';
     
     /**
      * Maximum number of milliseconds to wait, default 3000
@@ -70,12 +70,12 @@ module.exports =
     } else if (myState.includes('containing')) { // 'containing a text', 'containing a value'
         if (myState.includes('value')) myState = 'getValue';
         if (myState.includes('text')) myState = 'getText';
-        waitForContent(myElem, intMs, myState, !!falseCase);
+        if ($(myElem).isExisting()) waitForContent(myElem, intMs, myState, !!falseCase);
     } else {
         // convert conditions
         var checkAction = `is${myState.charAt(0).toUpperCase()}${myState.slice(1)}`;
         if (checkAction == 'isVisible') checkAction = 'isDisplayedInViewport';
         if (checkAction == 'isChecked') checkAction = 'isSelected';
-        waitForCondition(myElem, intMs, checkAction, !!falseCase);
+        if ($(myElem).isExisting()) waitForCondition(myElem, intMs, checkAction, !!falseCase);
     }
 };
