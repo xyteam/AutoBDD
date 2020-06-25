@@ -24,7 +24,7 @@ const setPromptText = require('../../functions/action/setPromptText');
 const switchIframe = require('../../functions/action/switchIframe');
 const typeText = require('../../functions/action/typeText');
 const waitAndActOnElement = require('../../functions/action/waitAndActOnElement');
-const waitForCondition = require('../../functions/action/waitForCondition');
+const waitOnElementInsideParentElementToBeConditon = require('../../functions/action/waitOnElementInsideParentElementToBeConditon');
 const waitForDownload = require('../../functions/action/waitForDownload');
 
 When(
@@ -84,7 +84,7 @@ When(
 );
 
 When(
-    /^I press the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
+    /^I (press|toggle up|toggle down) the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
     pressKeyTimes
 );
 
@@ -146,6 +146,7 @@ When(
 When(
     /^I wait on download file "([^"]*)?"(?: for (\d+)ms)* to be( not)* existing$/,
     {
+        timeout: 3600*1000,
         wrapperOptions: {
             retry: 3,
         },
@@ -154,14 +155,14 @@ When(
 );
 
 When(
-    /^I wait on (?:element|checkbox) "([^"]*)?"(?: for (\d+)ms)*(?: to be( not)* (existing|displayed|visible|focused|enabled|clickable|selected|checked|containing a text|containing a value))*$/,
+    /^I wait on the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?(?: for (\d+)ms)*(?: to be( not)* (existing|displayed|visible|focused|enabled|clickable|selected|checked|containing a text|containing a value))*$/,
     {
         timeout: 3600*1000,
-        wrapperOptions: {
-            retry: 3,
-        },
+        // wrapperOptions: {
+        //     retry: 3,
+        // },
     },
-    waitForCondition
+    waitOnElementInsideParentElementToBeConditon
 );
 
 When(

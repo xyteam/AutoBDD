@@ -11,7 +11,7 @@ When(/^I flush the "(.*)" console output$/,
     this.myConsoleData[myConsoleName].stdout = '';
   });
 
-  When(/^I (?:type|press) (?:the )?"(.*)" (key|string) (?:(\d+) time(?:s)? )?to the console "(.*)"$/,
+When(/^I (?:type|press) (?:the )?"(.*)" (key|string) (?:(\d+) time(?:s)? )?to the console "(.*)"$/,
   { timeout: 60*1000 },
   function (inputContent, inputType, repeatTimes, consoleName) {
     // parse input

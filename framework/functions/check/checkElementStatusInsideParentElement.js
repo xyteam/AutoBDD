@@ -6,19 +6,21 @@
  * @param  {String}  parentElement      parent element selector
  * @param  {Boolean} falseCase          Check if the element (does not) exists
  * @param  {String}  expectedStauts     displayed, enabled or selected
-\ */
+ */
 
 const parseExpectedText = require('../common/parseExpectedText');
-
 module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, expectedStauts) => {
+    const myTargetElement = parseExpectedText(targetElement);
+    const myParentElement = parseExpectedText(parentElement);
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     
     var targetElementIdElement;
     if (parentElement) {
-        targetElementIdElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
+        $(myParentElement).waitForExist();
+        targetElementIdElement = browser.$$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
     } else {
-        targetElementIdElement = browser.$$(targetElement)[targetElementIndexInt];
+        targetElementIdElement = browser.$$(myTargetElement)[targetElementIndexInt];
     }
 
     /**

@@ -9,17 +9,19 @@
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
-
 module.exports = (targetElement, parentElementIndex, parentElement, falseCase, compareAction, expectedNumber) => {
+    const myTargetElement = parseExpectedText(targetElement);
+    const myParentElement = parseExpectedText(parentElement);
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     const myCompareAction = compareAction || ((!!falseCase) ? 'more than' : 'at least');
     const myExpectedNumber = (expectedNumber) ? parseInt(parseExpectedText(expectedNumber)) : (!!falseCase) ? 0 : 1;
 
     var appearanceNumber;
     if (parentElement) {
-        appearanceNumber = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement).length;
+        $(myParentElement).waitForExist();
+        appearanceNumber = browser.$$(myParentElement)[parentElementIndexInt].$$(myTargetElement).length;
     } else {
-        appearanceNumber = browser.$$(targetElement).length;
+        appearanceNumber = browser.$$(myTargetElement).length;
     }
 
     if (!!falseCase) {
