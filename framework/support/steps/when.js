@@ -84,7 +84,7 @@ When(
 );
 
 When(
-    /^I press the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
+    /^I (press|toggle up|toggle down) the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
     pressKeyTimes
 );
 
