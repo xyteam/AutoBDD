@@ -25,17 +25,23 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
         $(myParentElement).waitForExist();
         if (parentElementIndexInt >= 0) {
             $$(myParentElement)[parentElementIndexInt].$(myTargetElement).waitForExist(existOption);
-            targetElementIdElement = $$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
+            try {
+                targetElementIdElement = $$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
+            } catch(e) { /* no-op */ }
             if (targetElementIdElement) waitForCondition(targetElementIdElement, intMs, !!falseCase, state);
         } else {
             $$(myParentElement).forEach((pElement, pIndex) => {
                 $$(pElement.selector)[pIndex].$(myTargetElement).waitForExist(existOption);
-                targetElementIdElement = $$(pElement.selector)[pIndex].$$(myTargetElement)[targetElementIndexInt];
+                try {
+                    targetElementIdElement = $$(pElement.selector)[pIndex].$$(myTargetElement)[targetElementIndexInt];
+                } catch(e) { /* no-op */ }
                 if (targetElementIdElement) waitForCondition(targetElementIdElement, intMs, !!falseCase, state);    
             });
         }
     } else {
-        $(myTargetElement).waitForExist(existOption);
+        try {
+            $(myTargetElement).waitForExist(existOption);
+        } catch(e) { /* no-op */ }
         targetElementIdElement = $$(myTargetElement)[targetElementIndexInt];
         if (targetElementIdElement) waitForCondition(targetElementIdElement, intMs, !!falseCase, state);
     }
