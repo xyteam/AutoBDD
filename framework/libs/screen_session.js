@@ -140,9 +140,9 @@ module.exports = {
     if (keyUpDown && modifier) {
       robot.keyToggle(myKey, keyUpDown, modifier);
     } else if (keyUpDown) {
-      robot.keyTap(myKey, keyUpDown);
+      robot.keyToggle(myKey, keyUpDown);
     } else if (modifier) {
-      robot.keyToggle(myKey, null, modifier);
+      robot.keyTap(myKey, modifier);
     } else {
       robot.keyTap(myKey);
     }
