@@ -36,10 +36,10 @@ Then(
     checkIfElementExistsInsideParentElement
 );
 
-// Then(
-//     /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?( not)* (contains|equals|matches) the (text|regex|value) "(.*)?"$/,
-//     checkIfElementInsideParentElementEqualsMatchesTextOrValue
-// );
+Then(
+    /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?( not)* (contains|equals|matches) the (text|regex|value) "(.*)?"$/,
+    checkIfElementInsideParentElementEqualsMatchesTextOrValue
+);
 
 Then(
     /^I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? (?:is|does)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
