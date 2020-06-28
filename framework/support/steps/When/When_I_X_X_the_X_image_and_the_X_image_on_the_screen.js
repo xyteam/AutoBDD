@@ -18,7 +18,13 @@ When(/^I (click|hoverClick|rightClick|doubleClick|hover|wave|shake|circle)(?: (\
     // re imageNameTwo
     const parsedImageNameTwo = parseExpectedText(imageNameTwo);
     const [imageFileNameTwo, imageFileExtTwo, imageSimilarityTwo, maxSimilarityOrTextTwo] = fs_session.getTestImageParms(parsedImageNameTwo);
-    const imagePathListTwo = fs_session.globalSearchImageList(__dirname, imageFileNameTwo, imageFileExtTwo);
+    var imagePathListTwo;
+    if (imageFileNameTwo.includes('Screen')) {
+      imagePathListTwo = imageFileNameTwo;
+    } else {
+      imagePathListTwo = fs_session.globalSearchImageList(__dirname, imageFileNameTwo, imageFileExtTwo);
+    }
+   
     switch (targetType) {
       case 'between':
         var locationOne, locationTwo;
@@ -34,11 +40,11 @@ When(/^I (click|hoverClick|rightClick|doubleClick|hover|wave|shake|circle)(?: (\
           switch (mouseAction) {
             case "click":
               screen_session.moveMouse(targetLocation.x, targetLocation.y);
-              screen_session.mouseClick();
+              screen_session.mouseClick("left");
               break;
             case "hoverClick":
               screen_session.moveMouseSmooth(targetLocation.x, targetLocation.y);
-              screen_session.mouseClick();
+              screen_session.mouseClick("left");
               break;
               case "rightClick":
               screen_session.moveMouse(targetLocation.x, targetLocation.y);
