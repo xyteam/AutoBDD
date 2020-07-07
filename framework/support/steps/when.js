@@ -49,7 +49,7 @@ When(
 );
 
 When(
-    /^I (add|set)(?: (env var))? "([^"]*)?" to the inputfield "([^"]*)?"$/,
+    /^I (add|set)(?: (env var))? "(.*)?" to the (inputfield|textarea) "([^"]*)?"$/,
     setInputFieldWithEnvVars
 );
 
@@ -69,7 +69,7 @@ When(
 );
 
 When(
-    /^I set a cookie "([^"]*)?" with the content "([^"]*)?"$/,
+    /^I set a cookie "([^"]*)?" with the content "(.*)?"$/,
     setCookie
 );
 
@@ -79,7 +79,7 @@ When(
 );
 
 When(
-    /^I delete the cookie "([^"]*)?"$/,
+    /^I delete the cookie "(.*)?"$/,
     deleteCookie
 );
 
@@ -104,7 +104,7 @@ When(
 );
 
 When(
-    /^I enter "([^"]*)?" into the prompt$/,
+    /^I enter "(.*)?" into the prompt$/,
     setPromptText
 );
 

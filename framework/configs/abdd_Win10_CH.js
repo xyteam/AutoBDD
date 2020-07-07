@@ -1,10 +1,13 @@
 'use strict';
 const FrameworkPath = process.env.FrameworkPath;
-const ProjectPath = process.env.PROJECTRUNPATH
+const ProjectPath = process.env.PROJECTRUNPATH;
+const TestDir = process.env.TestDir;
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
 const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
-const myCombinedStepPath = ['support', ProjectPath + '/project/support', FrameworkPath + '/framework/support'];
+const myCombinedStepPath = [`${FrameworkPath}/framework/support/steps/**/*.js`,
+                            `${ProjectPath}/${TestDir}/support/steps/**/*.js`,
+                            `support/steps/*.js`];
 const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
 
 module.exports = {

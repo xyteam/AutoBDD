@@ -1,6 +1,6 @@
 # controls what test-projects to be included in the framework
 test-projects/*
-!test-projects/simple-test/
+!test-projects/simple-project/
 
 # files to ignore
 *.run
@@ -27,4 +27,4 @@ tmp/
 .screenshots/
 .vscode/
 .settings/
-bdd_reports/
+e2e-report/

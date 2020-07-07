@@ -4,8 +4,10 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const FrameworkTestfilesPath = FrameworkPath + '/framework/testfiles';
 const ProjectPath = process.env.PROJECTRUNPATH;
-const ProjectTestfilesPath = ProjectPath + '/project/testfiles';
-const ModuleTestfilesPath = ProjectPath + '/' + process.env.ThisModule + '/testfiles';
+const TestDir = process.env.TestDir;
+const TestModule = process.env.TestModule;
+const ProjectTestfilesPath = `${ProjectPath}/${TestDir}/testfiles`;
+const ModuleTestfilesPath = `${ProjectPath}/${TestDir}/${TestModule}/testfiles`;
 const glob = require("glob");
 
 module.exports = (expectedText) => {
