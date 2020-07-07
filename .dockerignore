@@ -1,5 +1,5 @@
 **/.git
 **/node_modules
-**/bdd_reports
+**/e2e-report
 test-projects/*
-!test-projects/simple-test/
+!test-projects/simple-project/

@@ -5,13 +5,14 @@
   "bin": {
     "autorunner.py": "./framework/scripts/autorunner.py",
     "findTargetImage": "./framework/scripts/findTargetImage.js",
-    "getImageText": "./framework/scripts/getImageText.js"
+    "getImageText": "./framework/scripts/getImageText.js",
+    "xvfb-runner": "./framework/scripts/xvfb-runner.js"
   },
   "main": "index.js",
   "scripts": {
-    "postinstall": ". .autoPathrc.sh; cd ./test-projects/simple-test/test-init; npx wdio abdd.js",
-    "test-run": ". .autoPathrc.sh; rm -rf test-projects/simple-test/bdd_reports/build-test; autorunner.py --project simple-test --reportpath build-test --movie 1 -- --cucumberOpts.tags='@Init and not @Report'; cat test-projects/simple-test/bdd_reports/build-test/*/*.run",
-    "test-report": ". .autoPathrc.sh; cd ./test-projects/simple-test/test-report; npx wdio abdd.js",
+    "postinstall": ". .autoPathrc.sh; cd ./test-projects/simple-project/e2e-test/test-init; npx wdio abdd.js",
+    "test-run": ". .autoPathrc.sh; rm -rf test-projects/simple-project/e2e-report/build-test; autorunner.py --project simple-project --reportpath build-test --movie 1 -- --cucumberOpts.tags='@Init and not @Report'; cat test-projects/simple-project/e2e-report/build-test/e2e-test/*/*.run",
+    "test-report": ". .autoPathrc.sh; cd ./test-projects/simple-project/e2e-test/test-report; npx wdio abdd.js",
     "test": "npm run postinstall; npm run test-run; npm run test-report"
   },
   "dependencies": {

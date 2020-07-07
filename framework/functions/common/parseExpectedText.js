@@ -4,8 +4,8 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const FrameworkTestfilesPath = FrameworkPath + '/framework/testfiles';
 const ProjectPath = process.env.PROJECTRUNPATH;
-const ProjectTestfilesPath = ProjectPath + '/project/testfiles';
-const ModuleTestfilesPath = ProjectPath + '/' + process.env.ThisModule + '/testfiles';
+const ProjectTestfilesPath = ProjectPath + '/e2e-test/testfiles';
+const ModuleTestfilesPath = ProjectPath + '/e2e-test/' + process.env.ThisModule + '/testfiles';
 const glob = require("glob");
 
 module.exports = (expectedText) => {

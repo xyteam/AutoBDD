@@ -5,11 +5,11 @@ var localHooks = {};
 if (fs.existsSync(`${process.env.FrameworkPath}/framework/support/hooks.js`)) {
   frameworkHooks = require(`${process.env.FrameworkPath}/framework/support/hooks.js`) || {};
 }
-if (fs.existsSync(`${process.env.PROJECTRUNPATH}/project/support/hooks.js`)) {
-  projectHooks = require(`${process.env.PROJECTRUNPATH}/project/support/hooks.js`) || {};
+if (fs.existsSync(`${process.env.PROJECTRUNPATH}/e2e-test/support/hooks.js`)) {
+  projectHooks = require(`${process.env.PROJECTRUNPATH}/e2e-test/support/hooks.js`) || {};
 }
-if (fs.existsSync(`${process.env.PROJECTRUNPATH}/${process.env.ThisModule}/support/hooks.js`)) {
-  localHooks = require(`${process.env.PROJECTRUNPATH}/${process.env.ThisModule}/support/hooks.js`) || {};
+if (fs.existsSync(`${process.env.PROJECTRUNPATH}/e2e-test/${process.env.ThisModule}/support/hooks.js`)) {
+  localHooks = require(`${process.env.PROJECTRUNPATH}/e2e-test/${process.env.ThisModule}/support/hooks.js`) || {};
 }
 exports.hooks = {
   onPrepare: function (config, capabilities) {

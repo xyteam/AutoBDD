@@ -4,7 +4,7 @@ const ProjectPath = process.env.PROJECTRUNPATH
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
 const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
-const myCombinedStepPath = ['support', ProjectPath + '/project/support', FrameworkPath + '/framework/support'];
+const myCombinedStepPath = ['support', ProjectPath + '/e2e-test/support', FrameworkPath + '/framework/support'];
 const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
 
 module.exports = {
