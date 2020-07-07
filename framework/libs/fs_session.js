@@ -3,11 +3,13 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const FrameworkTestimagesPath = FrameworkPath + '/framework/testimages';
 const FrameworkTestfilesPath = FrameworkPath + '/framework/testfiles';
 const ProjectPath = process.env.PROJECTRUNPATH;
-const ProjectTestimagesPath = ProjectPath + '/e2e-test/testimages';
-const ProjectTestfilesPath = ProjectPath + '/e2e-test/testfiles';
-const ModulePath = ProjectPath + '/e2e-test/' + process.env.ThisModule;
-const ModuleTestimagesPath = ModulePath + '/testimages';
-const ModuleTestfilesPath = ModulePath + '/testfiles';
+const TestDir = process.env.TestDir;
+const TestModule = process.env.TestModule;
+const ProjectTestimagesPath = `${ProjectPath}/${TestDir}/testimages`;
+const ProjectTestfilesPath = `${ProjectPath}/${TestDir}/testfiles`;
+const ModulePath = `${ProjectPath}/${TestDir}/${TestModule}`;
+const ModuleTestimagesPath = `${ModulePath}/testimages`;
+const ModuleTestfilesPath = `${ModulePath}/testfiles`;
 const DownloadPathLocal = process.env.DownloadPathLocal;
 const fs = require('fs');
 const glob = require("glob");
@@ -22,7 +24,7 @@ module.exports = {
     var testFileFullPath = null;
 
     // Search order: Module, Project, Framework, will return null if not found
-    if (testFileFullPath == null && process.env.PROJECTNAME && process.env.ThisModule) {
+    if (testFileFullPath == null && process.env.PROJECTNAME && process.env.TestModule) {
       testFileExt.some(function(ext) {
         var filePath = ModuleTestfilesPath + '/' + fileName + '.' + ext;
         if (fs.existsSync(filePath)) testFileFullPath = filePath;

@@ -18,7 +18,7 @@ const myMOVIE = safeQuote(process.env.MOVIE);
 const mySCREENSHOT = safeQuote(process.env.SCREENSHOT);
 const myREPORTDIR = safeQuote(process.env.REPORTDIR);
 const myRELATIVEREPORTDIR = safeQuote(process.env.RELATIVEREPORTDIR);
-const myMODULE = safeQuote(process.env.ThisModule);
+const myMODULE = safeQuote(process.env.TestModule);
 const myRUNREPORT = safeQuote(process.env.RUNREPORT);
 
 // safe quote env vars - framework essential
