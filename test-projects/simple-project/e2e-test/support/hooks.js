@@ -26,22 +26,22 @@ const projectHooks = {
   // beforeCommand: function (commandName, args) {
   // },
 
-  // BeforeFeature: function(feature) {
+  // beforeFeature: function(feature) {
   // },
 
-  // BeforeScenario: function(scenario) {
+  // beforeScenario: function(scenario) {
   // },
 
-  // BeforeStep: function(step) {
+  // beforeStep: function(step) {
   // },
 
-  // AfterStep: function(step, passed) {
+  // afterStep: function(step, passed) {
   // },
 
-  // AfterScenario: function(scenario, result) {
+  // afterScenario: function(scenario, result) {
   // },
 
-  // AfterFeature: function(feature) {
+  // afterFeature: function(feature) {
   // },
 
   // afterCommand: function (commandName, args, result, error) {
