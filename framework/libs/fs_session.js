@@ -1,13 +1,13 @@
 // fs_session.js provides functions to read and write the Downlaods folder of the target system (local or remote)
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const FrameworkTestimagesPath = FrameworkPath + '/framework/testimages';
-const FrameworkTestfilesPath = FrameworkPath + '/framework/testfiles';
 const ProjectPath = process.env.PROJECTRUNPATH;
 const TestDir = process.env.TestDir;
 const TestModule = process.env.TestModule;
+const ModulePath = `${ProjectPath}/${TestDir}/${TestModule}`;
+const FrameworkTestimagesPath = FrameworkPath + '/framework/testimages';
+const FrameworkTestfilesPath = FrameworkPath + '/framework/testfiles';
 const ProjectTestimagesPath = `${ProjectPath}/${TestDir}/testimages`;
 const ProjectTestfilesPath = `${ProjectPath}/${TestDir}/testfiles`;
-const ModulePath = `${ProjectPath}/${TestDir}/${TestModule}`;
 const ModuleTestimagesPath = `${ModulePath}/testimages`;
 const ModuleTestfilesPath = `${ModulePath}/testfiles`;
 const DownloadPathLocal = process.env.DownloadPathLocal;
