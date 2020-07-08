@@ -1,14 +1,15 @@
 const FrameworkPath = process.env.FrameworkPath;
-const ProjectPath = process.env.PROJECTRUNPATH
+const ProjectPath = process.env.PROJECTRUNPATH;
+const TestDir = process.env.TestDir;
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const myREPORTDIR = process.env.REPORTDIR || '.';
 const fs = require('fs');
 const path = require('path');
 const { hooks } = require(`${FrameworkPath}/framework/support/module_hooks.js`);
 const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
-const myCombinedStepPath = [FrameworkPath + '/framework/support/steps/**/*.js',
-                            ProjectPath + '/project/support/steps/**/*.js',
-                            'support/steps/*.js'];
+const myCombinedStepPath = [`${FrameworkPath}/framework/support/steps/**/*.js`,
+                            `${ProjectPath}/${TestDir}/support/steps/**/*.js`,
+                            `support/steps/*.js`];
 const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
 const myParallelRunPort = 4444 + parseInt(process.env.DISPLAY.slice(-3).replace(':', ''));
 

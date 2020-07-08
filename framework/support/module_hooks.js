@@ -1,15 +1,19 @@
 const fs = require('fs');
+const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const ProjectPath = process.env.PROJECTRUNPATH;
+const TestDir = process.env.TestDir;
+const TestModule = process.env.TestModule;
 var frameworkHooks = {};
 var projectHooks = {};
 var localHooks = {};
-if (fs.existsSync(`${process.env.FrameworkPath}/framework/support/hooks.js`)) {
-  frameworkHooks = require(`${process.env.FrameworkPath}/framework/support/hooks.js`) || {};
+if (fs.existsSync(`${FrameworkPath}/framework/support/hooks.js`)) {
+  frameworkHooks = require(`${FrameworkPath}/framework/support/hooks.js`) || {};
 }
-if (fs.existsSync(`${process.env.PROJECTRUNPATH}/project/support/hooks.js`)) {
-  projectHooks = require(`${process.env.PROJECTRUNPATH}/project/support/hooks.js`) || {};
+if (fs.existsSync(`${ProjectPath}/${TestDir}/support/hooks.js`)) {
+  projectHooks = require(`${ProjectPath}/${TestDir}/support/hooks.js`) || {};
 }
-if (fs.existsSync(`${process.env.PROJECTRUNPATH}/${process.env.ThisModule}/support/hooks.js`)) {
-  localHooks = require(`${process.env.PROJECTRUNPATH}/${process.env.ThisModule}/support/hooks.js`) || {};
+if (fs.existsSync(`${ProjectPath}/${TestDir}/${TestModule}/support/hooks.js`)) {
+  localHooks = require(`${ProjectPath}/${TestDir}/${TestModule}/support/hooks.js`) || {};
 }
 exports.hooks = {
   onPrepare: function (config, capabilities) {

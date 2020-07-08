@@ -1,13 +1,15 @@
 // fs_session.js provides functions to read and write the Downlaods folder of the target system (local or remote)
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const ProjectPath = process.env.PROJECTRUNPATH;
+const TestDir = process.env.TestDir;
+const TestModule = process.env.TestModule;
+const ModulePath = `${ProjectPath}/${TestDir}/${TestModule}`;
 const FrameworkTestimagesPath = FrameworkPath + '/framework/testimages';
 const FrameworkTestfilesPath = FrameworkPath + '/framework/testfiles';
-const ProjectPath = process.env.PROJECTRUNPATH;
-const ProjectTestimagesPath = ProjectPath + '/project/testimages';
-const ProjectTestfilesPath = ProjectPath + '/project/testfiles';
-const ModulePath = ProjectPath + '/' + process.env.ThisModule;
-const ModuleTestimagesPath = ModulePath + '/testimages';
-const ModuleTestfilesPath = ModulePath + '/testfiles';
+const ProjectTestimagesPath = `${ProjectPath}/${TestDir}/testimages`;
+const ProjectTestfilesPath = `${ProjectPath}/${TestDir}/testfiles`;
+const ModuleTestimagesPath = `${ModulePath}/testimages`;
+const ModuleTestfilesPath = `${ModulePath}/testfiles`;
 const DownloadPathLocal = process.env.DownloadPathLocal;
 const fs = require('fs');
 const glob = require("glob");
@@ -22,7 +24,7 @@ module.exports = {
     var testFileFullPath = null;
 
     // Search order: Module, Project, Framework, will return null if not found
-    if (testFileFullPath == null && process.env.PROJECTNAME && process.env.ThisModule) {
+    if (testFileFullPath == null && process.env.PROJECTNAME && process.env.TestModule) {
       testFileExt.some(function(ext) {
         var filePath = ModuleTestfilesPath + '/' + fileName + '.' + ext;
         if (fs.existsSync(filePath)) testFileFullPath = filePath;
