@@ -2,18 +2,18 @@
   "name": "autobdd",
   "version": "2.0.0",
   "description": "BDD Automaiton",
-  "bin": {
-    "autorunner.py": "./framework/scripts/autorunner.py",
-    "findTargetImage": "./framework/scripts/findTargetImage.js",
-    "getImageText": "./framework/scripts/getImageText.js",
-    "xvfb-runner": "./framework/scripts/xvfb-runner.js"
-  },
-  "main": "index.js",
   "scripts": {
-    "postinstall": ". .autoPathrc.sh; cd ./test-projects/simple-project/e2e-test/test-init; npx wdio abdd.js",
-    "test-run": ". .autoPathrc.sh; rm -rf test-projects/simple-project/e2e-report/build-test; autorunner.py --project simple-project --reportpath build-test --movie 1 -- --cucumberOpts.tags='@Init and not @Report'; cat test-projects/simple-project/e2e-report/build-test/e2e-test/*/*.run",
-    "test-report": ". .autoPathrc.sh; cd ./test-projects/simple-project/e2e-test/test-report; npx wdio abdd.js",
-    "test": "npm run postinstall; npm run test-run; npm run test-report"
+    "postinstall": "npm run e2e-init",
+    "e2e-init": ". .autoPathrc.sh; cd ./test-projects/autobdd-test/e2e-test/test-init; npx wdio abdd.js",
+    "e2e-autorunner": ". .autoPathrc.sh; rm -rf test-projects/autobdd-test/e2e-report/build-test; autorunner.py --project autobdd-test --reportpath build-test --movie 1 -- --cucumberOpts.tags='@Init and not @Report'; cat test-projects/autobdd-test/e2e-report/build-test/e2e-test/*/*.run",
+    "e2e-report": ". .autoPathrc.sh; cd ./test-projects/autobdd-test/e2e-test/test-report; npx wdio abdd.js",
+    "jest-test": ". .autoPathrc.sh; cd ./test-projects/autobdd-test; jest --verbose js-code/",
+    "py-test": ". .autoPathrc.sh; cd ./test-projects/autobdd-test; python -m pytest -r A py-code/",
+    "cy-test": ". .autoPathrc.sh; cd ./test-projects/autobdd-test/cal-app; npm install; npm start; cypress run; npm stop",
+    "unit-test": "npm run jest-test & npm run py-test",
+    "int-test": "npm run cy-test",
+    "e2e-test": "npm run e2e-autorunner && npm run e2e-report",
+    "test": "npm run unit-test && npm run int-test && npm run e2e-test"
   },
   "dependencies": {
     "ajv": "^6.12.2",
@@ -59,8 +59,14 @@
   },
   "keywords": [
     "AutoBDD",
-    "webdriverio",
+    "end-to-end",
+    "e2e test",
+    "unit test",
     "cucumber",
+    "webdriverio",
+    "jest",
+    "pytest",
+    "cypress",
     "automation",
     "framework"
   ],
@@ -78,6 +84,8 @@
     "@wdio/spec-reporter": "^6.1.14",
     "@wdio/selenium-standalone-service": "^6.1.14",
     "@wdio/sync": "^6.1.14",
+    "cypress": "^4.10.0",
+    "jest": "^26.1.0",
     "chromedriver": "^83.0.0",
     "cucumber-html-reporter": "^5.2.0",
     "cucumber-junit": "^1.7.1",

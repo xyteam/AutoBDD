@@ -1,6 +1,6 @@
 # controls what test-projects to be included in the framework
 test-projects/*
-!test-projects/simple-project/
+!test-projects/autobdd-test/
 
 # files to ignore
 *.run
@@ -19,12 +19,15 @@ package-lock.json
 nohup.out
 
 # dirs to ignore
+.screenshots/
+videos/
 node_modules/
+e2e-report/
 logs/
 tmp/
 .tmp/
 .DS_Store
-.screenshots/
 .vscode/
 .settings/
-e2e-report/
+.pytest_cache/
+__pycache__/

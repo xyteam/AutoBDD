@@ -101,12 +101,12 @@ ADD . /${USER}/Projects/AutoBDD
 
 # setup AutoBDD
 RUN cd /${USER}/Projects/AutoBDD && \
-    pip install wheel setuptools tinydb && \
+    pip install wheel setuptools tinydb pytest && \
     npm config set script-shell "/bin/bash" && \
     npm cache clean --force && \
     xvfb-run -a npm --loglevel=error install && \
     xvfb-run -a npm test && \
-    rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/simple-project/e2e-report
+    rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/autobdd-test/e2e-report
 
 # insert entry point
 COPY docker/autobdd-run.startup.sh /
