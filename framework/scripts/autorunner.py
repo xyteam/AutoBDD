@@ -148,7 +148,7 @@ def parse_arguments():
         "--project",
         "--PROJECT",
         dest="PROJECT",
-        default="simple-project",
+        default="autobdd-test",
         help="Run abdd on the given project. Default value: webtest-example")
 
     parser.add_argument(

@@ -2,4 +2,4 @@
 **/node_modules
 **/e2e-report
 test-projects/*
-!test-projects/simple-project/
+!test-projects/autobdd-test/

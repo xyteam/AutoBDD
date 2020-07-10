@@ -176,6 +176,7 @@ exports.config = {
     services: [
         ['selenium-standalone', {
             logPath: 'logs',
+            skipSeleniumInstall: true,
             installArgs: {
                 drivers: selenium_standalone_config.drivers,
             },

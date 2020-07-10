@@ -1,6 +1,6 @@
 # controls what test-projects to be included in the framework
 test-projects/*
-!test-projects/simple-project/
+!test-projects/autobdd-test/
 
 # files to ignore
 *.run
@@ -28,3 +28,5 @@ tmp/
 .vscode/
 .settings/
 e2e-report/
+__pycache__/
+videos/
