@@ -19,14 +19,15 @@ package-lock.json
 nohup.out
 
 # dirs to ignore
+.screenshots/
+videos/
 node_modules/
+e2e-report/
 logs/
 tmp/
 .tmp/
 .DS_Store
-.screenshots/
 .vscode/
 .settings/
-e2e-report/
+.pytest_cache/
 __pycache__/
-videos/

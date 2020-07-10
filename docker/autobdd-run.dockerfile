@@ -101,7 +101,7 @@ ADD . /${USER}/Projects/AutoBDD
 
 # setup AutoBDD
 RUN cd /${USER}/Projects/AutoBDD && \
-    pip install wheel setuptools tinydb && \
+    pip install wheel setuptools tinydb pytest && \
     npm config set script-shell "/bin/bash" && \
     npm cache clean --force && \
     xvfb-run -a npm --loglevel=error install && \

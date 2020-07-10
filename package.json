@@ -3,8 +3,7 @@
   "version": "2.0.0",
   "description": "BDD Automaiton",
   "scripts": {
-    "postinstall": "npm run install-pytest && npm run e2e-init",
-    "install-pytest": "pip install pytest",
+    "postinstall": "npm run e2e-init",
     "e2e-init": ". .autoPathrc.sh; cd ./test-projects/autobdd-test/e2e-test/test-init; npx wdio abdd.js",
     "e2e-autorunner": ". .autoPathrc.sh; rm -rf test-projects/autobdd-test/e2e-report/build-test; autorunner.py --project autobdd-test --reportpath build-test --movie 1 -- --cucumberOpts.tags='@Init and not @Report'; cat test-projects/autobdd-test/e2e-report/build-test/e2e-test/*/*.run",
     "e2e-report": ". .autoPathrc.sh; cd ./test-projects/autobdd-test/e2e-test/test-report; npx wdio abdd.js",
