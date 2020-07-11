@@ -106,7 +106,7 @@ RUN cd /${USER}/Projects/AutoBDD && \
     npm cache clean --force && \
     xvfb-run -a npm --loglevel=error install && \
     xvfb-run -a npm test && \
-    rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/autobdd-test/e2e-report
+    rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/autobdd-test/test-results
 
 # insert entry point
 COPY docker/autobdd-run.startup.sh /
