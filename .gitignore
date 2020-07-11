@@ -22,7 +22,7 @@ nohup.out
 .screenshots/
 videos/
 node_modules/
-e2e-report/
+test-results/
 logs/
 tmp/
 .tmp/
