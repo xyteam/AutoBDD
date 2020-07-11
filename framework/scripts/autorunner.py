@@ -238,7 +238,7 @@ def definepath (case, project_name, report_dir_base):
                 break
     
     result_base = path.join(report_dir_full)
-    result_json = result_base + '/.tmp/' + feature_name.replace('Feature:', '').strip().replace(' ', '-').lower() + '.json'
+    result_json = result_base + '/' + feature_name.replace('Feature:', '').strip().replace(' ', '-').lower() + '.json'
     result_run  = result_base + '/' + feature_file.lower() + '.run'
 
     # Handle space in feature_file

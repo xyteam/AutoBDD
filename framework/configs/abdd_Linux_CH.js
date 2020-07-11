@@ -207,11 +207,11 @@ exports.config = {
     reporters: [
         'spec',
         [ 'cucumberjs-json', {
-            jsonFolder: `${myREPORTDIR}/.tmp`,
+            jsonFolder: `${myREPORTDIR}`,
             language: 'en'
         }],
         ['allure', {
-            outputDir:  `${myREPORTDIR}/.tmp`,
+            outputDir:  `${myREPORTDIR}`,
             disableWebdriverStepsReporting: true,
             disableWebdriverScreenshotsReporting: true,
         }]    
