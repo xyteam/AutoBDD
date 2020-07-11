@@ -166,7 +166,7 @@ def parse_arguments():
         dest="REPORTBASE",
         default=None,
         help=
-        "The full path base directory for all reports into. Default: None, report will be archived in e2e-report under your BDD project"
+        "The full path base directory for all reports into. Default: None, report will be archived in test-results under your BDD project"
     )
 
     parser.add_argument(
@@ -424,7 +424,7 @@ class AbddAutoRun:
         self.project = arguments.PROJECT
         self.projecttype = arguments.PROJECTTYPE
         self.reportbase = arguments.REPORTBASE if arguments.REPORTBASE else path.join(
-            self.FrameworkPath, self.projectbase, self.project, 'e2e-report')
+            self.FrameworkPath, self.projectbase, self.project, 'test-results')
         self.reportpath = arguments.REPORTPATH if arguments.REPORTPATH else '_'.join(
             (self.project, self.runtime_stamp))
 
