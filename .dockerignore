@@ -1,12 +1,12 @@
 **/.git
 **/node_modules
-**/e2e-report
+**/test-results
 test-projects/*
 !test-projects/autobdd-test/
 logs/
 tmp/
 .tmp/
-e2e-report/
+test-results/
 __pycache__/
 .screenshots/
 videos/
