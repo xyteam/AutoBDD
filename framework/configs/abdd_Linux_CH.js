@@ -211,9 +211,7 @@ exports.config = {
             language: 'en'
         }],
         ['allure', {
-            outputDir:  `${myREPORTDIR}`,
-            disableWebdriverStepsReporting: true,
-            disableWebdriverScreenshotsReporting: true,
+            outputDir:  `${process.env.PROJECTRUNPATH}/test-results/allure-report`,
         }]    
     ],
     cucumberOpts: {
