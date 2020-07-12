@@ -211,7 +211,7 @@ exports.config = {
             language: 'en'
         }],
         ['allure', {
-            outputDir:  `${process.env.PROJECTRUNPATH}/test-results/allure-report`,
+            outputDir:  `${myREPORTDIR}/allure-results`,
         }]    
     ],
     cucumberOpts: {
