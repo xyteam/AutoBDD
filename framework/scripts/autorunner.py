@@ -286,7 +286,7 @@ def run_test(FrameworkPath,
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
                 ' RUNREPORT=' + os.path.basename(result_run) + \
-                ' ' + FrameworkPath + '/fr amework/scripts/xvfb-run-safe.sh --server-args=\"-screen 0 ' + display_size + 'x24\"' + \
+                ' ' + FrameworkPath + '/framework/scripts/xvfb-runner.sh' + \
                 ' mvn clean test -Dbrow ser=\"chrome\" -Dcucumber.options=\"'  + run_feature + \
                 ' --plugin pretty --add-plugin json:' + result_json + \
                 ' 2>&1 > ' + result_run + ';' + \
@@ -305,7 +305,7 @@ def run_test(FrameworkPath,
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
                 ' RUNREPORT=' + os.path.basename(result_run) + \
-                ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
+                ' ' + FrameworkPath + '/framework/scripts/xvfb-runner.sh' + \
                 ' npx wdio ' + abdd_profile + ' --spec ' + run_feature + \
                 ' ' + runner_args + \
                 ' 2>&1 > ' + result_run + ';' + \
@@ -337,7 +337,7 @@ def run_test(FrameworkPath,
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' RUNREPORT=' + os.path.basename(result_run) + \
-                        ' ' + FrameworkPath + '/fr amework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
+                        ' ' + FrameworkPath + '/framework/scripts/xvfb-runner.sh' + \
                         ' mvn clean test -Dbrow ser=\"chrome\" -Dcucumber.options=\"'  + run_feature + \
                         ' --plugin pretty --add-plugin json:' + result_json + \
                         ' 2>&1 > ' + result_run + ';' + \
@@ -368,7 +368,7 @@ def run_test(FrameworkPath,
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' RUNREPORT=' + os.path.basename(result_run) + \
-                        ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
+                        ' ' + FrameworkPath + '/framework/scripts/xvfb-runner.sh' + \
                         ' npx wdio ' + abdd_profile + ' --spec ' + run_feature + \
                         ' ' + runner_args + \
                         ' 2>&1 > ' + result_run + ';' + \
