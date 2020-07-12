@@ -209,10 +209,7 @@ exports.config = {
         [ 'cucumberjs-json', {
             jsonFolder: `${myREPORTDIR}`,
             language: 'en'
-        }],
-        ['allure', {
-            outputDir:  `${myREPORTDIR}/allure-results`,
-        }]    
+        }]
     ],
     cucumberOpts: {
         // <boolean> show full backtrace for errors
