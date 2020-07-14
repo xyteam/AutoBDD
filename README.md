@@ -8,7 +8,7 @@ git clone https://github.com/xyteam/AutoBDD-example.git; \
 cd AutoBDD-example/docker; \
 docker-compose run --rm autobdd-example-run "--parallel=4 --screenshot=3 --movie=1 --rerunfailed=1 --reportpath=test1"
 
-google-chrome ~/Projects/AutoBDD-example/e2e-report/test1/index.html
+google-chrome ~/Projects/AutoBDD-example/test-results/test1/index.html
 ```
 ## AutoBDD (v2)
 

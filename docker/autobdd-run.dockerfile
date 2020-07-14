@@ -92,6 +92,7 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
 # run finishing set up
 RUN update-alternatives --install /usr/bin/python python $(which $(readlink $(which python3))) 10; \
     update-alternatives --install /usr/bin/pip pip $(which pip3) 10; \
+    echo "fs.inotify.max_user_watches = 524288" | sudo tee -a /etc/sysctl.conf; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
     mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \
     mkdir -p /${USER}/Projects
@@ -101,12 +102,12 @@ ADD . /${USER}/Projects/AutoBDD
 
 # setup AutoBDD
 RUN cd /${USER}/Projects/AutoBDD && \
-    pip install wheel setuptools tinydb pytest && \
+    pip install wheel setuptools tinydb pytest allure-pytest && \
     npm config set script-shell "/bin/bash" && \
     npm cache clean --force && \
     xvfb-run -a npm --loglevel=error install && \
     xvfb-run -a npm test && \
-    rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/autobdd-test/e2e-report
+    rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/autobdd-test/test-results
 
 # insert entry point
 COPY docker/autobdd-run.startup.sh /

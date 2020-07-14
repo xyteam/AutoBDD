@@ -166,7 +166,7 @@ def parse_arguments():
         dest="REPORTBASE",
         default=None,
         help=
-        "The full path base directory for all reports into. Default: None, report will be archived in e2e-report under your BDD project"
+        "The full path base directory for all reports into. Default: None, report will be archived in test-results under your BDD project"
     )
 
     parser.add_argument(
@@ -238,7 +238,7 @@ def definepath (case, project_name, report_dir_base):
                 break
     
     result_base = path.join(report_dir_full)
-    result_json = result_base + '/.tmp/' + feature_name.replace('Feature:', '').strip().replace(' ', '-').lower() + '.json'
+    result_json = result_base + '/' + feature_name.replace('Feature:', '').strip().replace(' ', '-').lower() + '.json'
     result_run  = result_base + '/' + feature_file.lower() + '.run'
 
     # Handle space in feature_file
@@ -286,7 +286,7 @@ def run_test(FrameworkPath,
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
                 ' RUNREPORT=' + os.path.basename(result_run) + \
-                ' ' + FrameworkPath + '/fr amework/scripts/xvfb-run-safe.sh --server-args=\"-screen 0 ' + display_size + 'x24\"' + \
+                ' ' + FrameworkPath + '/framework/scripts/xvfb-runner.sh' + \
                 ' mvn clean test -Dbrow ser=\"chrome\" -Dcucumber.options=\"'  + run_feature + \
                 ' --plugin pretty --add-plugin json:' + result_json + \
                 ' 2>&1 > ' + result_run + ';' + \
@@ -305,7 +305,7 @@ def run_test(FrameworkPath,
                 ' DISPLAYSIZE=' + display_size + \
                 ' PLATFORM=' + platform + \
                 ' RUNREPORT=' + os.path.basename(result_run) + \
-                ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
+                ' ' + FrameworkPath + '/framework/scripts/xvfb-runner.sh' + \
                 ' npx wdio ' + abdd_profile + ' --spec ' + run_feature + \
                 ' ' + runner_args + \
                 ' 2>&1 > ' + result_run + ';' + \
@@ -337,7 +337,7 @@ def run_test(FrameworkPath,
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' RUNREPORT=' + os.path.basename(result_run) + \
-                        ' ' + FrameworkPath + '/fr amework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
+                        ' ' + FrameworkPath + '/framework/scripts/xvfb-runner.sh' + \
                         ' mvn clean test -Dbrow ser=\"chrome\" -Dcucumber.options=\"'  + run_feature + \
                         ' --plugin pretty --add-plugin json:' + result_json + \
                         ' 2>&1 > ' + result_run + ';' + \
@@ -368,7 +368,7 @@ def run_test(FrameworkPath,
                         ' SSHHOST=' + rdp['SSHHOST'] + \
                         ' SSHPORT=' + rdp['SSHPORT'] + \
                         ' RUNREPORT=' + os.path.basename(result_run) + \
-                        ' ' + FrameworkPath + '/framework/scripts/xvfb-run-safe.sh --server-args="-screen 0 ' + display_size + 'x24"' + \
+                        ' ' + FrameworkPath + '/framework/scripts/xvfb-runner.sh' + \
                         ' npx wdio ' + abdd_profile + ' --spec ' + run_feature + \
                         ' ' + runner_args + \
                         ' 2>&1 > ' + result_run + ';' + \
@@ -424,7 +424,7 @@ class AbddAutoRun:
         self.project = arguments.PROJECT
         self.projecttype = arguments.PROJECTTYPE
         self.reportbase = arguments.REPORTBASE if arguments.REPORTBASE else path.join(
-            self.FrameworkPath, self.projectbase, self.project, 'e2e-report')
+            self.FrameworkPath, self.projectbase, self.project, 'test-results')
         self.reportpath = arguments.REPORTPATH if arguments.REPORTPATH else '_'.join(
             (self.project, self.runtime_stamp))
 
