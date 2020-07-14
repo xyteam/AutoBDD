@@ -4,7 +4,7 @@ version: '3.5'
 services:
   autobdd-dev:
     build:
-      context: ~/Projects/AutoBDD
+      context: ~/${ProjectsBase}/AutoBDD
       dockerfile: docker/autobdd-dev.dockerfile
       args:
         AutoBDD_Ver: ${AutoBDD_Ver}
@@ -16,7 +16,7 @@ services:
     volumes:
       - ${HOME}/.ssh:/home/${USER}/.ssh:rw
       - ${HOME}/.m2:/home/${USER}/.m2:rw
-      - ${HOME}/Projects:/home/${USER}/Projects:rw
+      - ${HOME}/${ProjectsBase}:/home/${USER}/Projects:rw
     ports:
       - "5922:5900"
       - "2222:22"
@@ -29,7 +29,7 @@ services:
 
   autobdd-run:
     build:
-      context: ~/Projects/AutoBDD
+      context: ~/${ProjectsBase}/AutoBDD
       dockerfile: docker/autobdd-run.dockerfile
       shm_size: 128M
       args:
