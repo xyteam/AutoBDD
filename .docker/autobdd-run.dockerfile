@@ -1,9 +1,6 @@
-# build docker:
-# cd docker && docker-compose build autobdd-run
+# build autobdd-run:
+# cd .docker && docker-compose build autobdd-run
 #
-# run test:
-# docker-compose run -d autobdd-run "--project=$BDD_PROJECT --parallel=1"
-# docker-compose logs -f autobdd-run
 
 FROM ubuntu:20.04
 USER root
@@ -110,7 +107,7 @@ RUN cd /${USER}/Projects/AutoBDD && \
     rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/autobdd-test/test-results
 
 # insert entry point
-COPY docker/autobdd-run.startup.sh /
+COPY .docker/autobdd-run.startup.sh /
 RUN chmod +x /autobdd-run.startup.sh
 
 # finalize docker setup

@@ -1,3 +1,7 @@
+# build autobdd-dev:
+# cd .docker && docker-compose build autobdd-dev
+#
+
 ARG AutoBDD_Ver
 FROM xyteam/autobdd-run:2.1.0
 USER root
@@ -30,10 +34,10 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /bin/
 RUN chmod +x /bin/tini
 
 # copy preset ubuntu system env
-COPY docker/autobdd-dev.root /
+COPY .docker/autobdd-dev.root /
 
 # insert entry point
-COPY docker/autobdd-dev.startup.sh /
+COPY .docker/autobdd-dev.startup.sh /
 RUN chmod +x /autobdd-dev.startup.sh
 
 # finalize docker setup

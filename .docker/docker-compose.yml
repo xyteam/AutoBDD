@@ -1,11 +1,18 @@
-# docker-compose run autobdd-run "--project ${BDD_PROJECT}"
+# run test with autobdd-run
+# docker-compose run --rm autobdd-run "--project ${BDD_PROJECT}"
+#
+# spin up autobdd-dev for test development:
+# docker-compose up -d autobdd-dev
+# docker-compose logs -f autobdd-dev
+# ssh localhost -p 2222
+# vnc localhost:5922
 # 
 version: '3.5'
 services:
   autobdd-dev:
     build:
-      context: ~/${ProjectsBase}/AutoBDD
-      dockerfile: docker/autobdd-dev.dockerfile
+      context: ~/${ProjectsBase:-Projects}/AutoBDD
+      dockerfile: .docker/autobdd-dev.dockerfile
       args:
         AutoBDD_Ver: ${AutoBDD_Ver}
     image: "xyteam/autobdd-dev:${AutoBDD_Ver}"
@@ -16,7 +23,7 @@ services:
     volumes:
       - ${HOME}/.ssh:/home/${USER}/.ssh:rw
       - ${HOME}/.m2:/home/${USER}/.m2:rw
-      - ${HOME}/${ProjectsBase}:/home/${USER}/Projects:rw
+      - ${HOME}/${ProjectsBase:-Projects}:/home/${USER}/Projects:rw
     ports:
       - "5922:5900"
       - "2222:22"
@@ -29,8 +36,8 @@ services:
 
   autobdd-run:
     build:
-      context: ~/${ProjectsBase}/AutoBDD
-      dockerfile: docker/autobdd-run.dockerfile
+      context: ~/${ProjectsBase:-Projects}/AutoBDD
+      dockerfile: .docker/autobdd-run.dockerfile
       shm_size: 128M
       args:
         AutoBDD_Ver: ${AutoBDD_Ver}
