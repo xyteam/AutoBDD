@@ -8,46 +8,58 @@
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (action, targetElementIndex, targetElement, parentElementIndex, parentElement) => {
+module.exports = (action, targetElementIndex, targetElement, parentElementIndex, parentElement, ifExists) => {
     const myTargetElement = parseExpectedText(targetElement);
     const myParentElement = parseExpectedText(parentElement);
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     const deepClick = function(argument) { $(argument).click() };
 
-    var targetElementIdElement;
-    if (parentElement) {
-        $(myParentElement).waitForExist();
-        targetElementIdElement = browser.$$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
-    } else {
-        targetElementIdElement = browser.$$(myTargetElement)[targetElementIndexInt];
-    }
-    // console.log(myTargetElement);
-
-    switch (action) {
-        case 'moveTo':
-            browser.$(targetElementIdElement).moveTo();
-            break;
-        case 'clear':
-            browser.$(targetElementIdElement).clearValue();
-            break;
-        case 'tryClick':
-            try {
-                console.log('1st try with direct click ...')
-                browser.$(targetElementIdElement).click();
-            } catch (e) {
-                console.log('2nd try with deep click ...')
-                browser.execute(deepClick, targetElementIdElement);          
-            }
-            break;
-        case 'deepClick':
-                console.log('do deep click ...')
-                browser.execute(deepClick, targetElementIdElement);          
+    const clickAction = () => {
+        var targetElementIdElement;
+        if (parentElement) {
+            $(myParentElement).waitForExist();
+            targetElementIdElement = browser.$$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
+        } else {
+            targetElementIdElement = browser.$$(myTargetElement)[targetElementIndexInt];
+        }
+        // console.log(myTargetElement);
+    
+        switch (action) {
+            case 'moveTo':
+                browser.$(targetElementIdElement).moveTo();
                 break;
-        case 'click':
-        default:
-            browser.$(targetElementIdElement).click();
-            break;
+            case 'clear':
+                browser.$(targetElementIdElement).clearValue();
+                break;
+            case 'tryClick':
+                try {
+                    console.log('1st try with direct click ...')
+                    browser.$(targetElementIdElement).click();
+                } catch (e) {
+                    console.log('2nd try with deep click ...')
+                    browser.execute(deepClick, targetElementIdElement);          
+                }
+                break;
+            case 'deepClick':
+                    console.log('do deep click ...')
+                    browser.execute(deepClick, targetElementIdElement);          
+                    break;
+            case 'click':
+            default:
+                browser.$(targetElementIdElement).click();
+                break;
+        }    
+    }
+
+    if (ifExists) {
+        try {
+            clickAction();
+        } catch (e) {
+            console.log(`try: element ${targetElement} does not exist`);
+        }
+    } else {
+        clickAction();
     }
 };
 
