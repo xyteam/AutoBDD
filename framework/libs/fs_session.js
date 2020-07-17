@@ -27,21 +27,25 @@ module.exports = {
     if (testFileFullPath == null && process.env.PROJECTNAME && process.env.TestModule) {
       testFileExt.some(function(ext) {
         var filePath = ModuleTestfilesPath + '/' + fileName + '.' + ext;
+        console.log(`searching: ${filePath}`);
         if (fs.existsSync(filePath)) testFileFullPath = filePath;
       })
     }
     if (testFileFullPath == null && process.env.PROJECTNAME) {
       testFileExt.some(function(ext) {
         var filePath = ProjectTestfilesPath + '/' + fileName + '.' + ext;
+        console.log(`searching: ${filePath}`);
         if (fs.existsSync(filePath)) testFileFullPath = filePath;
       })
     }
     if (testFileFullPath == null && process.env.FrameworkPath) {
       testFileExt.some(function(ext) {
         var filePath = FrameworkTestfilesPath + '/' + fileName + '.' + ext;
+        console.log(`searching: ${filePath}`);
         if (fs.existsSync(filePath)) testFileFullPath = filePath;
       })
     }
+    console.log(`return: ${testFileFullPath}`)
     return testFileFullPath;
   },
 
