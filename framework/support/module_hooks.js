@@ -15,6 +15,7 @@ if (fs.existsSync(`${ProjectPath}/${TestDir}/support/hooks.js`)) {
 if (fs.existsSync(`${ProjectPath}/${TestDir}/${TestModule}/support/hooks.js`)) {
   localHooks = require(`${ProjectPath}/${TestDir}/${TestModule}/support/hooks.js`) || {};
 }
+
 exports.hooks = {
   onPrepare: function (config, capabilities) {
     if (frameworkHooks.onPrepare) frameworkHooks.onPrepare(config, capabilities);

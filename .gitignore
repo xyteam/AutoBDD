@@ -17,6 +17,7 @@ sikulixapi*.jar
 package-lock.json
 .project
 nohup.out
+test-projects/autobdd-test/e2e-test/*/*-*.json
 
 # dirs to ignore
 .screenshots/

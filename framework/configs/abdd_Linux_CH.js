@@ -1,26 +1,27 @@
-const FrameworkPath = process.env.FrameworkPath;
-const ProjectPath = process.env.PROJECTRUNPATH;
-const TestDir = process.env.TestDir;
-const myDISPLAYSIZE = process.env.DISPLAYSIZE;
-const myREPORTDIR = process.env.REPORTDIR || `${process.env.PROJECTRUNPATH}/test-results`;
 const fs = require('fs');
 const path = require('path');
+const safeQuote = require('../libs/safequote');
+const FrameworkPath = safeQuote(process.env.FrameworkPath);
+const ProjectPath = safeQuote(process.env.PROJECTRUNPATH);
+const myReportDir = safeQuote(process.env.REPORTDIR);
+const myTestDir = safeQuote(process.env.TestDir);
+const myDISPLAYSIZE = safeQuote(process.env.DISPLAYSIZE);
 const { hooks } = require(`${FrameworkPath}/framework/support/module_hooks.js`);
 const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
 const myCombinedStepPath = [`${FrameworkPath}/framework/support/steps/**/*.js`,
-                            `${ProjectPath}/${TestDir}/support/steps/**/*.js`,
+                            `${ProjectPath}/${myTestDir}/support/steps/**/*.js`,
                             `support/steps/*.js`];
-const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
+const myDownloadPathLocal = safeQuote(process.env.DownloadPathLocal) || '/tmp/download_' + process.env.DISPLAY.substr(1);
 const myParallelRunPort = 4444 + parseInt(process.env.DISPLAY.slice(-3).replace(':', ''));
 
 // for Linux chrome
-const myChromeProfilePath = process.env.myChromeProfilePath || '/tmp/chrome_profile_' + process.env.DISPLAY.substr(1);
+const myChromeProfilePath = safeQuote(process.env.myChromeProfilePath) || '/tmp/chrome_profile_' + process.env.DISPLAY.substr(1);
 fs.existsSync(myChromeProfilePath) || fs.mkdirSync(myChromeProfilePath);
 const myPreference_json = `{"download":{"default_directory":"${myDownloadPathLocal}","directory_upgrade":true},"savefile":{"default_directory":"${myDownloadPathLocal}"}}`;
 fs.existsSync(myChromeProfilePath) || fs.mkdirSync(myChromeProfilePath);
 fs.existsSync(myChromeProfilePath + '/Default') || fs.mkdirSync(myChromeProfilePath + '/Default');
 fs.writeFileSync(myChromeProfilePath + '/Default/Preferences', myPreference_json);
-process.env.debugX = process.env.debugX || 1;
+process.env.debugX = safeQuote(process.env.debugX) || 1;
 
 // const myBrowserProxySetting = (process.env.http_proxy) ? "--proxy-server=" + process.env.http_proxy : "--no-proxy-server";
 
@@ -207,7 +208,7 @@ exports.config = {
     reporters: [
         'spec',
         [ 'cucumberjs-json', {
-            jsonFolder: `${myREPORTDIR}`,
+            jsonFolder: `${myReportDir}`,
             language: 'en'
         }]
     ],

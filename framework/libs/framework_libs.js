@@ -14,12 +14,9 @@ const myDISPLAY = safeQuote(process.env.DISPLAY);
 // safe quote env vars - test related
 const myPLATFORM = safeQuote(process.env.PLATFORM);
 const myDISPLAYSIZE = safeQuote(process.env.DISPLAYSIZE);
-const myMOVIE = safeQuote(process.env.MOVIE);
-const mySCREENSHOT = safeQuote(process.env.SCREENSHOT);
-const myREPORTDIR = safeQuote(process.env.REPORTDIR);
-const myRELATIVEREPORTDIR = safeQuote(process.env.RELATIVEREPORTDIR);
-const myMODULE = safeQuote(process.env.TestModule);
 const myRUNREPORT = safeQuote(process.env.RUNREPORT);
+const myReportDir = safeQuote(process.env.REPORTDIR);
+const myRELATIVEREPORTDIR = safeQuote(process.env.RELATIVEREPORTDIR);
 
 // safe quote env vars - framework essential
 const myBROWSER = safeQuote(process.env.BROWSER);
@@ -162,7 +159,7 @@ module.exports = {
   // movie and screenshot
   convertScenarioNameToFileBase: function(scenarioName) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
-    const fileBase = (myPLATFORM + '_' + myBROWSER + '_' + myMODULE + '_' + myScenarioName)
+    const fileBase = (myPLATFORM + '_' + myBROWSER + '_' + myScenarioName)
                       .replace(spaceChar_regex, '_')
                       .replace(invalidFileNameChar_regex, '');
     return fileBase;
@@ -179,7 +176,7 @@ module.exports = {
   recordingRunning: function(scenarioName) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
-    const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
+    const recordingFile_fullPath = `${myReportDir}/Recording_${scenario_mp4}`;
     const cmd_check_recording = `pgrep -f "ffmpeg .*${recordingFile_fullPath}"`;
     var pidCount = execSync(cmd_check_recording).toString().split('\n').filter(Boolean).length
     if (pidCount >= 2) {
@@ -191,7 +188,7 @@ module.exports = {
   startRecording: function(scenarioName) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
-    const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
+    const recordingFile_fullPath = `${myReportDir}/Recording_${scenario_mp4}`;
     const cmd_start_recording = 'ffmpeg -y -s ' + myDISPLAYSIZE
         + ' -f x11grab -an -nostdin -r ' + myMOVIEFR
         + ' -i ' + myDISPLAY
@@ -209,7 +206,7 @@ module.exports = {
   stopRecording: function(scenarioName) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
-    const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
+    const recordingFile_fullPath = `${myReportDir}/Recording_${scenario_mp4}`;
     const cmd_stop_recording = `sleep 1; pkill -INT -f "ffmpeg .*${recordingFile_fullPath}"; sleep 1`;
     if (myScenarioName) {
       if (this.recordingRunning(myScenarioName))
@@ -228,8 +225,8 @@ module.exports = {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const myResultPrefix = safeQuote(resultPrefix);
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
-    const recordingFile_fullPath = myREPORTDIR + '/Recording_' + scenario_mp4;
-    const finalFile_fullPath = myREPORTDIR + '/' + myResultPrefix + '_' + scenario_mp4;
+    const recordingFile_fullPath = `${myReportDir}/Recording_${scenario_mp4}`;
+    const finalFile_fullPath = `${myReportDir}/${myResultPrefix}_${scenario_mp4}`;
     const cmd_rename_movie = 'mv ' + recordingFile_fullPath + ' ' + finalFile_fullPath;
     while (this.recordingRunning(myScenarioName)) {
       browser.pause(1000);
@@ -249,7 +246,7 @@ module.exports = {
     const myTextColor = safeQuote(textColor) || 'green';
     const myFontSize = parseInt(fontSize) || 20;
     const scenario_png = `${this.convertScenarioNameToFileBase(myScenarioName)}.${myStepIndex}.png`;
-    const cmd_take_screenshot = `import -silent -display ${myDISPLAY} -window root ${myREPORTDIR}/${myResultPrefix}_${scenario_png}`;
+    const cmd_take_screenshot = `import -silent -display ${myDISPLAY} -window root ${myReportDir}/${myResultPrefix}_${scenario_png}`;
     if (myScenarioName) {
       var childProcess;
       if (myText && myText.length > 0 ) {
