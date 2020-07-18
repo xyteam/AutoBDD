@@ -19,9 +19,9 @@ Notes on CPU and Memory for the default vm in VirtualBox:
         Run in Docker Quick Start terminal as Administrator:
             docker-machine stop
         Run VirtualBox application from Windows 10 desktop:
-            2 CPU with 3072 GB for system with 8 GB memory
-            4 CPU with 6144 GB for system with 16 GB memory
-            8 CPU with 10240 GB for system with 32 GB memory           
+            2 CPU with 3072 MB for system with 8 GB memory
+            4 CPU with 6144 MB for system with 16 GB memory
+            8 CPU with 10240 MB for system with 32 GB memory           
 
 Docker IP note:
     1. If you use docker-toolbox, when you bring up a container, your docker-machine IP may not be "127.0.0.1" (as other docker tool may be).
