@@ -58,7 +58,9 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         xdg-utils \
         xdotool \
         xvfb \
-        zlib1g-dev; \
+        zlib1g-dev \
+	fonts-wqy-microhei \
+        ttf-wqy-zenhei; \
 # install newer tesseract-ocr
     apt-get update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" && \
     apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
