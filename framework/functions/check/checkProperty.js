@@ -9,7 +9,12 @@
  *                                  attribute matches or not
  * @param  {String}   expectedValue The value to match against
  */
+
+const parseExpectedText = require('../common/parseExpectedText');
+
 module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) => {
+    const  mySelector = parseExpectedText(selector);
+    var  myExpectedValue = parseExpectedText(expectedValue);
     /**
      * The command to use for fetching the expected value
      * @type {String}
@@ -26,12 +31,12 @@ module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) =
      * The actual attribute value
      * @type {Mixed}
      */
-    let attributeValue = $(selector)[command](attrName);
+    let attributeValue = $(mySelector)[command](attrName);
 
     // eslint-disable-next-line
-    expectedValue = isFinite(expectedValue) ?
-        parseFloat(expectedValue)
-        : expectedValue;
+    myExpectedValue = isFinite(myExpectedValue) ?
+        parseFloat(myExpectedValue)
+        : myExpectedValue;
 
 
     /**
@@ -47,25 +52,25 @@ module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) =
             case 'be':
             case 'is':
                 expect(attributeValue).not.toEqual(
-                    expectedValue,
-                    `${attrType}: ${attrName} of selector "${selector}" should not be ` +
-                    `"${expectedValue}"`
+                    myExpectedValue,
+                    `${attrType}: ${attrName} of mySelector "${mySelector}" should not be ` +
+                    `"${myExpectedValue}"`
                 );        
                 break;
             case 'contain':
             case 'contains':
                 expect(attributeValue).not.toContain(
-                    expectedValue,
-                    `${attrType}: ${attrName} of selector "${selector}" should not contain ` +
-                    `"${expectedValue}"`
+                    myExpectedValue,
+                    `${attrType}: ${attrName} of mySelector "${mySelector}" should not contain ` +
+                    `"${myExpectedValue}"`
                 );        
                 break;
             case 'match':
             case 'matches':
                 expect(attributeValue).not.toMatch(
-                    RegExp(expectedValue),
-                    `${attrType}: ${attrName} of selector "${selector}" should not match ` +
-                    `"${expectedValue}"`
+                    RegExp(myExpectedValue),
+                    `${attrType}: ${attrName} of mySelector "${mySelector}" should not match ` +
+                    `"${myExpectedValue}"`
                 );        
                 break;
         }
@@ -74,25 +79,25 @@ module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) =
             case 'be':
             case 'is':
                 expect(attributeValue).toEqual(
-                    expectedValue,
-                    `${attrType}: ${attrName} of selector "${selector}" should be ` +
-                    `"${expectedValue}"`
+                    myExpectedValue,
+                    `${attrType}: ${attrName} of mySelector "${mySelector}" should be ` +
+                    `"${myExpectedValue}"`
                 );        
                 break;
             case 'contain':
             case 'contains':
                 expect(attributeValue).toContain(
-                    expectedValue,
-                    `${attrType}: ${attrName} of selector "${selector}" should contain ` +
-                    `"${expectedValue}"`
+                    myExpectedValue,
+                    `${attrType}: ${attrName} of mySelector "${mySelector}" should contain ` +
+                    `"${myExpectedValue}"`
                 );        
                 break;
             case 'match':
             case 'matches':
                 expect(attributeValue).toMatch(
-                    RegExp(expectedValue),
-                    `${attrType}: ${attrName} of selector "${selector}" should match ` +
-                    `"${expectedValue}"`
+                    RegExp(myExpectedValue),
+                    `${attrType}: ${attrName} of mySelector "${mySelector}" should match ` +
+                    `"${myExpectedValue}"`
                 );        
                 break;
         }
