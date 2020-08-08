@@ -1,5 +1,5 @@
 # run test with autobdd-run
-# docker-compose run --rm autobdd-run "--project ${BDD_PROJECT}"
+# docker-compose run --rm autobdd-run "--project ${PROJECTNAME}"
 #
 # spin up autobdd-dev for test development:
 # docker-compose up -d autobdd-dev

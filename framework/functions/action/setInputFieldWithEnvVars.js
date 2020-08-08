@@ -17,9 +17,10 @@ module.exports = (method, isEnvVar, value, fieldType, element) => {
     const command = (method === 'add') ? 'addValue' : 'setValue';
     var inputValue = (!value) ? '' : (isEnvVar) ? eval('process.env.' + value) : parseExpectedText(value);
 
-    checkIfElementExists(element, false, 1);
+    const myElement = parseExpectedText(element);
+    checkIfElementExists(myElement, false, 1);
 
-    const currentValue = (fieldType == 'inputfield') ? $(element).getValue() : $(element).getText()
+    const currentValue = (fieldType == 'inputfield') ? $(myElement).getValue() : $(myElement).getText()
     if (command == 'addValue') inputValue = currentValue + inputValue;
-    $(element).setValue(inputValue);
+    $(myElement).setValue(inputValue);
 };
