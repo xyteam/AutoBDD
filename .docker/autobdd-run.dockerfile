@@ -52,6 +52,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         rdesktop \
         rsync \
         sshpass \
+        tcpreplay \
         unzip \
         wmctrl \
         x11-xserver-utils \
