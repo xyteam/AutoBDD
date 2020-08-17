@@ -8,7 +8,7 @@ const clickToCondition = require('../../functions/action/clickToCondition');
 const deleteCookie = require('../../functions/action/deleteCookie');
 const browserAction = require('../../functions/action/browserAction');
 const dragElement = require('../../functions/action/dragElement');
-const switchToOrCloseLastOpenedWindow = require('../../functions/action/switchToOrCloseLastOpenedWindow');
+const switchToOrCloseOpenedWindow = require('../../functions/action/switchToOrCloseOpenedWindow');
 const handleModal = require('../../functions/action/handleModal');
 const moveToElement = require('../../functions/action/moveToElement');
 const pause = require('../../functions/action/pause');
@@ -114,8 +114,8 @@ When(
 );
 
 When(
-    /^I (switch to|close) the last opened (?:window|tab)$/,
-    switchToOrCloseLastOpenedWindow
+    /^I (switch to|close) the(?: (last|\d+(?:st|nd|rd|th)))? opened (?:window|tab)$/,
+    switchToOrCloseOpenedWindow
 );
 
 When(
