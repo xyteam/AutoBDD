@@ -208,7 +208,7 @@ exports.config = {
     reporters: [
         'spec',
         [ 'cucumberjs-json', {
-            jsonFolder: `${myReportDir}/logs`,
+            jsonFolder: `${myReportDir}`,
             language: 'en'
         }]
     ],
