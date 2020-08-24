@@ -47,6 +47,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         net-tools \
         ntpdate \
         openssh-server \
+        parallel \
         python3-dev \
         python3-pip \
         rdesktop \

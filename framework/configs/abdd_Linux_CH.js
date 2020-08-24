@@ -133,7 +133,7 @@ exports.config = {
     // it is possible to configure which logTypes to include/exclude.
     // excludeDriverLogs: ['*'], // pass '*' to exclude all driver session logs
     // excludeDriverLogs: ['bugreport', 'server'],
-    outputDir: path.join(__dirname, '/logs'),
+    outputDir: `${myReportDir}/logs`,
     //
     // Set specific log levels per logger
     // loggers:
@@ -176,7 +176,7 @@ exports.config = {
     // commands. Instead, they hook themselves up into the test process.
     services: [
         ['selenium-standalone', {
-            logPath: 'logs',
+            logPath: `${myReportDir}/logs`,
             skipSeleniumInstall: true,
             installArgs: {
                 drivers: selenium_standalone_config.drivers,
@@ -208,7 +208,7 @@ exports.config = {
     reporters: [
         'spec',
         [ 'cucumberjs-json', {
-            jsonFolder: `${myReportDir}`,
+            jsonFolder: `${myReportDir}/logs`,
             language: 'en'
         }]
     ],

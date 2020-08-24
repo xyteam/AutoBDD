@@ -8,27 +8,34 @@
  *                                             existence)
  */
 const waitForContent = (element, ms, getWhat, falseCase) => {
-    // getText, getValue 
-    browser.waitUntil(
-        () => ($(element)[getWhat]().length > 0) == !falseCase,
-        {
-            timeout: ms,
-            timeoutMsg: `wait for ${getWhat} timeout`
-        }
-    );
+    try {
+        // getText, getValue 
+        return browser.waitUntil(
+            () => ($(element)[getWhat]().length > 0) == !falseCase,
+            {
+                timeout: ms,
+                timeoutMsg: `wait for ${getWhat} timeout`
+            }
+        );
+    } catch(e) {
+        return false;
+    }
 }
 const waitForCondition = (element, ms, isWhat, falseCase, element2) => {
     // isClickable, isDisplayed, isDisplayedInViewPort, isEnabled, isExisting, isFocused, isSelected,
-    // isEqual(with element2)  
-    browser.waitUntil(
-        () => ($(element)[isWhat](element2)) == !falseCase,
-        {
-            timeout: ms,
-            timeoutMsg: `wait for ${isWhat} timeout`
-        }
-    );
+    // isEqual(with element2)
+    try {
+        return browser.waitUntil(
+            () => ($(element)[isWhat](element2)) == !falseCase,
+            {
+                timeout: ms,
+                timeoutMsg: `wait for ${isWhat} timeout`
+            }
+        );    
+    } catch (e) {
+        return false;
+    }
 }
-
 
 const parseExpectedText = require('../common/parseExpectedText');
 

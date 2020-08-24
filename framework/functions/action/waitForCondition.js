@@ -8,27 +8,35 @@
  *                                             existence)
  */
 const waitForContent = (element, ms, getWhat, falseCase) => {
-    // getText, getValue
-    browser.waitUntil(
-        () => { return $(element)[getWhat]().length > 0 == !falseCase },
-        {
-            timeout: ms,
-            timeoutMsg: `$(${element}).${getWhat}().length > 0 == ${!falseCase} timeout`
-        }
-    );
+    try {
+        return browser.waitUntil(
+            // getText, getValue
+            () => { return $(element)[getWhat]().length > 0 == !falseCase },
+            {
+                timeout: ms,
+                timeoutMsg: `$(${element}).${getWhat}().length > 0 == ${!falseCase} timeout`
+            }
+        );
+    } catch(e){
+        return false;
+    }
 }
+
 const waitForCondition = (element, ms, isWhat, falseCase, element2) => {
     // isClickable, isDisplayed, isDisplayedInViewPort, isEnabled, isExisting, isFocused, isSelected,
     // isEqual(with element2)
-    browser.waitUntil(
-        () => { return $(element)[isWhat](element2) == !falseCase },
-        {
-            timeout: ms,
-            timeoutMsg: `$(${element}).${isWhat}(${element2}) == ${!falseCase} timeout`
-        }
-    );
+    try {
+        return browser.waitUntil(
+            () => { return $(element)[isWhat](element2) == !falseCase },
+            {
+                timeout: ms,
+                timeoutMsg: `$(${element}).${isWhat}(${element2}) == ${!falseCase} timeout`
+            }
+        );    
+    } catch(e) {
+        return false;
+    }
 }
-
 
 const parseExpectedText = require('../common/parseExpectedText');
 

@@ -60,6 +60,8 @@ fi
 cat >> $HOME/.bash_profile << END_bash_profile
 export DISPLAY=:1
 npm config set script-shell /bin/bash
+cd ~/Projects/AutoBDD
+. .autoPathrc.sh
 END_bash_profile
 
 # start supervisord
