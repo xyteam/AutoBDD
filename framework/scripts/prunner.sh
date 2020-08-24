@@ -23,12 +23,12 @@ while (( "$#" )); do
     #   echo "Error: Unsupported flag $1" >&2
     #   exit 1
     #   ;;
-    -t=*|--cucumberOpts.tagExpressions=*)
+    -t=*|--cucumberOpts.tagExpression=*)
       OptVal=${1#*=}
       RUN_OPTS="${RUN_OPTS} --cucumberOpts.tagExpression=\"${OptVal}\""
       shift
       ;;
-    -t|--cucumberOpts.tagExpressions)
+    -t|--cucumberOpts.tagExpression)
       if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
         RUN_OPTS="${RUN_OPTS} --cucumberOpts.tagExpression=\"$2\""
         shift 2
