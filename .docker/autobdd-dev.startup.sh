@@ -40,7 +40,10 @@ if [ "$USER" != "root" ]; then
     unset PASSWORD
 
     # HOME
-    cd /root && tar cf - ./Projects/AutoBDD/node_modules | (cd $HOME && tar xf -)
+    # cd /root && tar cf - ./Projects/AutoBDD/node_modules | (cd $HOME && tar xf -)
+    tar_dir="./Projects/AutoBDD/node_modules"
+    tar_psrc=(${tar_dir}/*)
+    parallel tar -cf - ${tar_dir}/{} | (cd $HOME && tar xf -) ::: "${tar_psrc[@]##*/}"
     cp -r /root/{.gtkrc-2.0,.asoundrc} ${HOME}
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
     # prepare sshd
