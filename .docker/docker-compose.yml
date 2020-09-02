@@ -21,9 +21,9 @@ services:
     user: root
     privileged: true
     volumes:
-      - ${HOME}/.ssh:/home/${USER}/.ssh:rw
-      - ${HOME}/.m2:/home/${USER}/.m2:rw
-      - ${HOME}/${ProjectsBase:-Projects}:/home/${USER}/Projects:rw
+      - ${HOME}/.ssh:/home/${USER}/.ssh:cached
+      - ${HOME}/.m2:/home/${USER}/.m2:cached
+      - ${HOME}/${ProjectsBase:-Projects}:/home/${USER}/Projects:cached
     ports:
       - "5922:5900"
       - "2222:22"
@@ -47,7 +47,7 @@ services:
     user: root
     privileged: true
     volumes:
-      - ${HOME}/.m2:/home/${USER}/.m2:rw
+      - ${HOME}/.m2:/home/${USER}/.m2:cached
     environment:
       USER: ${USER}
     entrypoint: "/autobdd-run.startup.sh"
