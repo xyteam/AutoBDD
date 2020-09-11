@@ -34,7 +34,7 @@ When(
 );
 
 When(
-    /^I (?:wait (?:(\d+)ms )?and )?((?:left |middle |right |double )?click|hover) on the (\S*) "([^"]*)?"$/,
+    /^I (?:wait (?:(\d+)ms )?and )?((?:left |middle |right |double )?click|hover) on the (\S*) "([^"]*)?"(?: (if exists))?$/,
     waitAndActOnElement
 );
 
