@@ -5,6 +5,7 @@
  * @param  {String}  targetElement      target element selector
  * @param  {String}  parentElementIndex The nth parent element start from 1st,2nd,3rd,4th
  * @param  {String}  parentElement      parent element selector
+ * @param  {String}  ifExists           if exists
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
