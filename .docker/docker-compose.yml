@@ -23,7 +23,7 @@ services:
     volumes:
       - ${HOME}/.ssh:/home/${USER}/.ssh:cached
       - ${HOME}/.m2:/home/${USER}/.m2:cached
-      - ${HOME}/${ProjectsBase:-Projects}:/home/${USER}/Projects:cached
+      - ${HOME}/${ProjectsBase:-Projects}:/home/${USER}/Projects
     ports:
       - "5922:5900"
       - "2222:22"
