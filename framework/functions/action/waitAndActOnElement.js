@@ -1,15 +1,16 @@
-const checkIfElementExists = require('../check/checkIfElementExists');
+const waitFor = require('../action/waitFor');
 const checkCondition = require('../check/checkCondition');
 const waitForCondition = require('../action/waitForCondition');
 
 /**
  * Perform an click action on the given element
- * @param  {String}   waitMs  wait time in ms
- * @param  {String}   action  The action to perform (click or doubleClick)
- * @param  {String}   type    Type of the element (link or selector)
- * @param  {String}   element Element selector
+ * @param  {String}   waitMs            wait time in ms
+ * @param  {String}   action            The action to perform (click or doubleClick)
+ * @param  {String}   type              Type of the element (link or selector)
+ * @param  {String}   element           Element selector
+ * @param  {String}   ifExists          if exists
  */
-module.exports = (waitMs, action, type, element) => {
+module.exports = (waitMs, action, type, element, ifExists) => {
     const myWaitMS = parseInt(waitMs, 10) || 3000;
     /**
      * Element to perform the action on
@@ -58,16 +59,28 @@ module.exports = (waitMs, action, type, element) => {
             method = action;
     }
 
-    checkIfElementExists(targetElement);
-    if (method.toLowerCase().includes('click')) {
-        waitForCondition(targetElement, myWaitMS, null, 'clickable');
+    const actionBlock = () => {
+        waitFor(targetElement);
+        if (method.toLowerCase().includes('click')) {
+            waitForCondition(targetElement, myWaitMS, null, 'clickable');
+        }
+        browser.$(targetElement).scrollIntoView();
+        checkCondition('some', targetElement, 'becomes', null, 'visible');
+        if (action == 'double click') {
+            const doubleClick = function(argument) { $(argument).dblclick() };
+            browser.execute(doubleClick, targetElement);
+        } else {
+            browser.$(targetElement)[method](options);
+        }    
     }
-    browser.$(targetElement).scrollIntoView();
-    checkCondition('some', targetElement, 'becomes', null, 'visible');
-    if (action == 'double click') {
-        const doubleClick = function(argument) { $(argument).dblclick() };
-        browser.execute(doubleClick, targetElement);
+    
+    if (ifExists) {
+        try {
+            actionBlock();
+        } catch (e) {
+            console.log(`try: element ${targetElement} does not exist`);
+        }
     } else {
-        browser.$(targetElement)[method](options);
+        actionBlock();
     }
 };
