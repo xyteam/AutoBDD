@@ -133,7 +133,10 @@ const frameworkHooks = {
   beforeStep: function({uri, feature, step}, context) {
     // console.log(step.step);
     // only count real steps (do not count after steps)
-    if (step.step.text.length > 0) currentStepNumber++;
+    if (step.step.text.length > 0) {
+      currentStepNumber++;
+      console.log(step.step.text);
+    }
   },
 
   afterStep: function({uri, feature, step}, context, {error, result, duration, passed}) {
