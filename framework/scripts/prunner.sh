@@ -78,6 +78,6 @@ echo running $(echo ${SPEC_LIST} | wc -w) feature files with ${JOBS_COUNT} proce
 echo ${SPEC_LIST} | tr " " "\n"
 rm -rf logs/*
 echo "to monitor progress"
-echo "tail -f `pwd`/logs/1/\\.*/stdout"
+echo "tail -f `pwd`/logs/1/*.feature/stdout"
 echo
 time parallel --jobs=${JOBS_COUNT} --results logs xvfb-runner.sh npx wdio abdd.js ${RUN_OPTS} --spec={1} ${PARAMS} ::: ${SPEC_LIST}
