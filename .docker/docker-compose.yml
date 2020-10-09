@@ -23,7 +23,7 @@ services:
     volumes:
       - ${HOME}/.ssh:/home/${USER}/.ssh:delegated
       - ${HOME}/.m2:/home/${USER}/.m2:delegated
-      - ${HOME}/${ProjectsBase:-Projects}:/home/${USER}/Projects
+      - ${HOME}/${ProjectsBase:-Projects}:/home/${USER}/Projects:delegated
     ports:
       - "5922:5900"
       - "2222:22"
