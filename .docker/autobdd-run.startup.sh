@@ -22,9 +22,9 @@ if [ "$USER" != "root" ]; then
     cd /root && tar cf - ./Projects | (cd $HOME && tar xf -)
     # update file permission inside docer
     if [ "$HOSTOS" == "Linux" ]; then
-      find $HOME -mindepth 3 -maxdepth 3 -type d | grep -v '/.git/\|/.npm/' | parallel chown -R $USERID:$GROUPID
+      find $HOME -mindepth 3 -maxdepth 3 -type d | grep -v '/.git/' | parallel chown -R $USERID:$GROUPID
     else
-      find $HOME -mindepth 3 -maxdepth 3 -type d | grep -v '/.git/\|/.npm/' | parallel chown -R $USER:$USER
+      find $HOME -mindepth 3 -maxdepth 3 -type d | grep -v '/.git/' | parallel chown -R $USER:$USER
     fi
     # set bash_profile
     cat /root/.bashrc >> $HOME/.bash_profile && chown $USER:$USER $HOME/.bash_profile
