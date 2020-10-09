@@ -10,7 +10,7 @@ Feature: test ocr
 
   Scenario: test screen center area ocr
     When  I open the path "/"
-    Then  I expect that the "Screen-200" image does contain the text "Official Build"
+    Then  I expect that the "Screen-200" image does contain the text "Profile Path:"
 
   Scenario: test target image ocr
     When  I open the path "/"
