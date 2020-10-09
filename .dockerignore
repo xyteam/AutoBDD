@@ -1,12 +1,12 @@
-**/.git
-**/node_modules
-**/test-results
-test-projects/*
+.git/
+node_modules/
+test-projects/
 !test-projects/autobdd-test/
 logs/
 tmp/
 .tmp/
 test-results/
+test-reports/
 __pycache__/
 .screenshots/
 videos/
