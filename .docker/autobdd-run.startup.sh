@@ -20,10 +20,11 @@ if [ "$USER" != "root" ]; then
     unset PASSWORD
     # home folder
     cd /root && tar cf - ./Projects | (cd $HOME && tar xf -)
+    # update file permission inside docer
     if [ "$HOSTOS" == "Linux" ]; then
-      chown -R $USERID:$GROUPID $HOME
+      find $HOME -mindepth 3 -maxdepth 3 -type d | grep -v '/.git/\|/.npm/' | parallel chown -R $USERID:$GROUPID
     else
-      chown -R $USER:$USER $HOME
+      find $HOME -mindepth 3 -maxdepth 3 -type d | grep -v '/.git/\|/.npm/' | parallel chown -R $USER:$USER
     fi
     # set bash_profile
     cat /root/.bashrc >> $HOME/.bash_profile && chown $USER:$USER $HOME/.bash_profile
@@ -34,5 +35,5 @@ npm config set script-shell /bin/bash
 END_bash_profile
 
 # run test by taking autorun.py parameters
-sudo -E su $USER -lm -s bash -c "cd $HOME/Projects/AutoBDD && . .autoPathrc.sh && ./framework/scripts/autorunner.py $@"
+sudo -E su $USER -lm -s /bin/bash -c "cd $HOME/Projects/AutoBDD && . .autoPathrc.sh && ./framework/scripts/autorunner.py $@"
 

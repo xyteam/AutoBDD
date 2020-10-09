@@ -50,10 +50,11 @@ if [ "$USER" != "root" ]; then
     mkdir -p $HOME/Projects
     mkdir -p $HOME/.config/pcmanfm/LXDE/
     ln -sf /usr/local/share/doro-lxde-wallpapers/desktop-items-0.conf $HOME/.config/pcmanfm/LXDE/
+    # update file permission inside docer
     if [ "$HOSTOS" == "Linux" ]; then
-    chown -R $USERID:$GROUPID $HOME
+      find $HOME -mindepth 3 -maxdepth 3 -type d | grep -v '/.git/\|/.npm/' | parallel chown -R $USERID:$GROUPID
     else
-    chown -R $USER:$USER $HOME
+      find $HOME -mindepth 3 -maxdepth 3 -type d | grep -v '/.git/\|/.npm/' | parallel chown -R $USER:$USER
     fi
     # set bash_profile
     cat /root/.bashrc >> $HOME/.bash_profile && chown $USER:$USER $HOME/.bash_profile
