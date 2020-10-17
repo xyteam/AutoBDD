@@ -67,7 +67,7 @@ eval set -- "$PARAMS"
 
 # parse args - end
 
-CPU_COUNT=$(lscpu | grep CPU\(s\): | awk '{print $2}')
+CPU_COUNT=$(nproc)
 if [[ "${JOBS_COUNT}" == "" ]]; then JOBS_COUNT=${CPU_COUNT}; fi
 if [[ "${JOBS_COUNT}" == *"/"* ]]; then JOBS_COUNT=`expr ${CPU_COUNT} \* ${JOBS_COUNT/\// \/ }`; fi
 if [[ "${JOBS_COUNT}" == *"-"* ]]; then JOBS_COUNT=`expr ${CPU_COUNT} ${JOBS_COUNT/-/ \- }`; fi
@@ -80,4 +80,4 @@ rm -rf logs/*
 echo "to monitor progress"
 echo "tail -f `pwd`/logs/1/*.feature/stdout"
 echo
-time parallel --jobs=${JOBS_COUNT} --results logs xvfb-runner.sh npx wdio abdd.js ${RUN_OPTS} --spec={1} ${PARAMS} ::: ${SPEC_LIST}
+time parallel --jobs=${JOBS_COUNT} --results=logs xvfb-runner.sh npx wdio abdd.js ${RUN_OPTS} --spec={1} ${PARAMS} ::: ${SPEC_LIST}
