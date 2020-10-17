@@ -4,7 +4,8 @@
   "description": "BDD Automaiton",
   "scripts": {
     "postinstall": "npm run e2e-init",
-    "e2e-init": ". .autoPathrc.sh; cd ./test-projects/autobdd-test/e2e-test/test-init; npx wdio abdd.js",
+    "e2e-init": ". .autoPathrc.sh; cd ./test-projects/autobdd-test/e2e-test/test-init; arunner.sh",
+    "e2e-prunner": ". .autoPathrc.sh; cd ./test-projects/autobdd-test/e2e-test/test-init; prunner.sh",
     "e2e-autorunner": ". .autoPathrc.sh; rm -rf test-projects/autobdd-test/test-results/build-test; autorunner.py --project autobdd-test --reportpath build-test --movie 1 -- --cucumberOpts.tags='@Init and not @Report'; cat test-projects/autobdd-test/test-results/build-test/e2e-test/*/*.run",
     "check-e2e-results": ". .autoPathrc.sh; cd ./test-projects/autobdd-test/e2e-test/check-report; npx wdio abdd.js",
     "jest-test": ". .autoPathrc.sh; cd ./test-projects/autobdd-test; jest --verbose js-code/",
@@ -12,7 +13,7 @@
     "cy-test": ". .autoPathrc.sh; cd ./test-projects/autobdd-test/cal-app; npm install; npm start; cypress run; npm stop",
     "unit-test": "npm run jest-test & npm run py-test",
     "int-test": "npm run cy-test",
-    "e2e-test": "npm run e2e-autorunner && npm run check-e2e-results",
+    "e2e-test": "npm run e2e-prunner && npm run e2e-autorunner && npm run check-e2e-results",
     "test": "npm run unit-test && npm run int-test && npm run e2e-test"
   },
   "dependencies": {
