@@ -61,11 +61,11 @@ module.exports = {
 
     if (typeof(sshPass) != 'undefined') {
       process.env.SSHPASS = sshPass;
-      mySshCommand = `sshpass -e scp -P ${mySshPort} -o StrictHostKeyChecking=no ${src} ${dst}`;
+      mySshCommand = `sshpass -e scp -P ${mySshPort} -o StrictHostKeyChecking=no -r ${src} ${dst}`;
     } else if (typeof(sshKeyFile) != 'undefined') {
-      mySshCommand = `scp -P ${mySshPort} -o IdentityFile=${myKeyFile} -o StrictHostKeyChecking=no ${src} ${dst}`;
+      mySshCommand = `scp -P ${mySshPort} -o IdentityFile=${myKeyFile} -o StrictHostKeyChecking=no -r ${src} ${dst}`;
     } else {
-      mySshCommand = `scp -P ${mySshPort} -o StrictHostKeyChecking=no ${src} ${dst}`
+      mySshCommand = `scp -P ${mySshPort} -o StrictHostKeyChecking=no -r ${src} ${dst}`
     }
     var result;
     var exitcode;
@@ -121,7 +121,7 @@ module.exports = {
   },
 
   remoteConsole: function(sshLogin, sshPort, sshPass, sshKeyFile) {
-    const mySshLogin = sshLogin || 'vagrant@localhost';
+    const mySshLogin = sshLogin || `${process.env.USER}@localhost`;
     const mySshPort = sshPort || 22;
     const myKeyFile = sshKeyFile || process.env.HOME + '/.ssh/id_rsa';
     const mySshHost = sshLogin.split('@')[1];
