@@ -10,7 +10,7 @@ ARG AutoBDD_Ver
 
 # switch to faster ubuntu archive
 # RUN sed -i 's#http://archive.ubuntu.com/#http://tw.archive.ubuntu.com/#' /etc/apt/sources.list;
-RUN sed -i 's#http://archive.ubuntu.com/#http://mirror.math.princeton.edu/pub/#' /etc/apt/sources.list;
+# RUN sed -i 's#http://archive.ubuntu.com/#http://mirror.math.princeton.edu/pub/#' /etc/apt/sources.list;
 
 # apt install essential tools for apt install/upgrade
 RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; \
