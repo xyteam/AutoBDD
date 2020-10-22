@@ -6,7 +6,7 @@ testSectionEnd="----------\nDone Test\n=========="
 clean:
 	echo "cleaning build-test folder..."; \
 	rm -rf test-results/*; \
-	find . -type d -name "__pycache__" -o ".pytest_cache" | xargs rm -f; \
+	find . -type d -name "__pycache__" -o -name ".pytest_cache" | xargs rm -rf; \
 	find . -type f -name "*.pyc" | xargs rm -f; \
 	find e2e-test -type d -name logs | xargs rm -rf; \
 	find e2e-test -type f -name "test-*.json" | xargs rm -f; \
