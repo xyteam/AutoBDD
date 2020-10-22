@@ -21,8 +21,6 @@ services:
     user: root
     privileged: true
     volumes:
-      - ${HOME}/.ssh:/home/${USER}/.ssh:delegated
-      - ${HOME}/.m2:/home/${USER}/.m2:delegated
       - ${HOME}/${ProjectsBase:-Projects}:/home/${USER}/Projects:delegated
     ports:
       - "5922:5900"
@@ -46,8 +44,6 @@ services:
     shm_size: 1536M
     user: root
     privileged: true
-    volumes:
-      - ${HOME}/.m2:/home/${USER}/.m2:delegated
     environment:
       USER: ${USER}
     entrypoint: "/autobdd-run.startup.sh"
