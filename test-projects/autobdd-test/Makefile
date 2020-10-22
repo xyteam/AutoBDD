@@ -6,10 +6,11 @@ testSectionEnd="----------\nDone Test\n=========="
 clean:
 	echo "cleaning build-test folder..."; \
 	rm -rf test-results/*; \
-	find . -type d -name "__pycache__" -o ".pytest_cache" | xargs rm -f;
-	find . -type f -name "*.pyc" | xargs rm -f;
+	find . -type d -name "__pycache__" -o ".pytest_cache" | xargs rm -f; \
+	find . -type f -name "*.pyc" | xargs rm -f; \
 	find e2e-test -type d -name logs | xargs rm -rf; \
 	find e2e-test -type f -name "test-*.json" | xargs rm -f; \
+	find e2e-test -type f -name "Passed_*.???" -o -name "Failed_*.???" -o -name "Recording_*.???" | xargs rm -f;
 
 e2e-arunner:
 	echo ${testSectionBegin}; \

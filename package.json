@@ -4,7 +4,7 @@
   "description": "BDD Automaiton",
   "scripts": {
     "postinstall": ". .autoPathrc.sh; cd ./test-projects/autobdd-test; make e2e-arunner",
-    "test": ". .autoPathrc.sh; cd ./test-projects/autobdd-test; make test-all"
+    "test": ". .autoPathrc.sh; cd ./test-projects/autobdd-test; make test-all; make clean"
   },
   "dependencies": {
     "ajv": "^6.12.5",
