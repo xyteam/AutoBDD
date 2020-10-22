@@ -5,7 +5,11 @@ testSectionEnd="----------\nDone Test\n=========="
 
 clean:
 	echo "cleaning build-test folder..."; \
-	rm -rf test-results/build-test; \
+	rm -rf test-results/*; \
+	find . -type d -name "__pycache__" -o ".pytest_cache" | xargs rm -f;
+	find . -type f -name "*.pyc" | xargs rm -f;
+	find e2e-test -type d -name logs | xargs rm -rf; \
+	find e2e-test -type f -name "test-*.json" | xargs rm -f; \
 
 e2e-arunner:
 	echo ${testSectionBegin}; \
@@ -17,7 +21,7 @@ e2e-arunner:
 e2e-prunner:
 	echo ${testSectionBegin}; \
 	echo "running cucumber test with prunner.sh (parllel runner)..."; \
-	cd e2e-test/test-init; \
+	cd e2e-test/test-something; \
 	prunner.sh; \
 	echo ${testSectionEnd}
 
@@ -25,7 +29,7 @@ e2e-autorunner: clean
 	echo ${testSectionBegin}; \
 	echo "running cucumber test with autorunner (parallel runner with cucumber report)..."; \
 	cd ${FrameworkPath}; \
-	autorunner.py --project autobdd-test --reportpath build-test --movie 1 -- --cucumberOpts.tags='@Init and not @Report'; \
+	autorunner.py --project autobdd-test --reportpath build-test --movie 1 -- --cucumberOpts.tags='not @Init and not @Report'; \
 	find test-results/build-test -type d -name "*.run" | xargs cat; \
 	echo ${testSectionEnd}
 
