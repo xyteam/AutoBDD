@@ -21,14 +21,12 @@ if [ "$USER" != "root" ]; then
     unset PASSWORD
 
     # HOME
-    cd /root
     # user dirs and files
-    # cd /root; parallel "tar -cf - ./{} | (cd $HOME && tar xf -)" ::: "$(ls -A1 -I Projects -I.xvfb-locks .)"
-    cd /root; tar cf - $(ls -A1 -I Projects -I.xvfb-locks .) | (cd $HOME; tar xf -)
-    # in run env we want the entire AutoBDD folder
-    # cd /root; parallel "tar -cf - Projects/AutoBDD/{} | (cd $HOME && tar xf -)" ::: "$(ls -A1 Projects/AutoBDD)"
-    cd /root; tar -cf - Projects/AutoBDD | (cd $HOME; tar xf -)
-    # update file permission inside docker
+    cd /root; tar cf - $(ls -A1 -I Projects -I .xvfb-locks .) | (cd $HOME; tar xf -)
+    [ ! -d "$HOME/Projects/AutoBDD/framework" ] \
+        && (echo "updating Projects/AutoBDD" && cd /root; tar -cf - Projects/AutoBDD | (cd $HOME; tar xf -)) \
+        || (echo "only updating Projects/AutoBDD/node_modules" && cd /root; tar cf - Projects/AutoBDD/node_modules | (cd $HOME; tar xf -))
+    # update file ownership inside docker
     if [ "$HOSTOS" == "Linux" ]; then
       chown -R $USERID:$GROUPID $HOME
     else
