@@ -1,5 +1,5 @@
 # run test with autobdd-run
-# docker-compose run --rm autobdd-run "--project ${PROJECTNAME}"
+# docker-compose run --rm autobdd-run "make test-all"
 #
 # spin up autobdd-dev for test development:
 # docker-compose up -d autobdd-dev
@@ -27,6 +27,10 @@ services:
       - "2222:22"
     environment:
       USER: ${USER}
+      PROJECTNAME: ${PROJECTNAME}
+      HOSTOS: ${HOSTOS}
+      USERID: ${USERID}
+      GROUPID: ${GROUPID}
       PASSWORD: ${PASSWORD}
       VNC_PASSWORD: ${VNC_PASSWORD}
       RESOLUTION: 1920x1200x24
@@ -45,5 +49,9 @@ services:
     user: root
     privileged: true
     environment:
-      USER: ${USER}
+      USER: root
+      PROJECTNAME: ${PROJECTNAME}
+      HOSTOS: ${HOSTOS}
+      USERID: ${USERID}
+      GROUPID: ${GROUPID}
     entrypoint: "/autobdd-run.startup.sh"

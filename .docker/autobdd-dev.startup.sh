@@ -68,6 +68,7 @@ export DISPLAY=:1
 npm config set script-shell /bin/bash
 cd ~/Projects/AutoBDD
 . .autoPathrc.sh
+cd test-projects/${PROJECTNAME}
 END_bash_profile
 chown $USER:$USER $HOME/.bash_profile
 
