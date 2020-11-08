@@ -7,6 +7,7 @@
     "test": ". .autoPathrc.sh; cd ./test-projects/autobdd-test; make test-all; make clean"
   },
   "dependencies": {
+    "@hapi/hapi": "^20.0.1",
     "ajv": "^6.12.5",
     "assert": "^2.0.0",
     "bottleneck": ">=2.19.5",
@@ -17,7 +18,6 @@
     "fs-ext": "^2.0.0",
     "fuzzball": "^1.3.0",
     "glob": ">=7.1.6",
-    "hapi": ">=18.1.0",
     "hoek": ">=6.1.3",
     "java": "^0.12.1",
     "json-diff": ">=0.5.4",
