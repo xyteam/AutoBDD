@@ -48,6 +48,6 @@ chown $USER:$USER $HOME/.bash_profile
 sudo -E su $USER -m -s /bin/bash -c "\
   cd $HOME/Projects/AutoBDD && \
   . .autoPathrc.sh && \
-  cd test-projects/${PROJECTNAME} && \
+  cd test-projects/${BDD_PROJECT} && \
   $@"
 

@@ -27,7 +27,7 @@ services:
       - "2222:22"
     environment:
       USER: ${USER}
-      PROJECTNAME: ${PROJECTNAME}
+      BDD_PROJECT: ${BDD_PROJECT}
       HOSTOS: ${HOSTOS}
       USERID: ${USERID}
       GROUPID: ${GROUPID}
@@ -50,7 +50,7 @@ services:
     privileged: true
     environment:
       USER: root
-      PROJECTNAME: ${PROJECTNAME}
+      BDD_PROJECT: ${BDD_PROJECT}
       HOSTOS: ${HOSTOS}
       USERID: ${USERID}
       GROUPID: ${GROUPID}
