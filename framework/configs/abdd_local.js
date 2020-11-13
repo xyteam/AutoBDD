@@ -1,11 +1,14 @@
 'use strict';
-const FrameworkPath = process.env.FrameworkPath;
+const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const ProjectPath = process.env.PROJECTRUNPATH;
 const TestDir = process.env.TestDir;
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
 const fs = require('fs');
 const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
-const myCombinedStepPath = [`${FrameworkPath}/framework/support/steps/**/*.js`,
+const myCombinedStepPath = [`${FrameworkPath}/framework/step_files/browser/*.js`,
+                            `${FrameworkPath}/framework/step_files/screen/*.js`,
+                            `${FrameworkPath}/framework/step_files/postman/*.js`,
+                            `${FrameworkPath}/framework/step_files/maven/*.js`,
                             `${ProjectPath}/${TestDir}/support/steps/**/*.js`,
                             `support/steps/*.js`];
 const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);

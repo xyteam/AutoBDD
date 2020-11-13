@@ -1,30 +1,31 @@
 const { Then } = require('cucumber');
 
-const checkClass = require('../../functions/check/checkClass');
-const checkContainsAnyTextOrValue = require('../../functions/check/checkContainsAnyTextOrValue');
-const checkElementTextValueIsEmpty = require('../../functions/check/checkElementTextValueIsEmpty');
-const checkCondition = require('../../functions/check/checkCondition');
-const checkCookieContent = require('../../functions/check/checkCookieContent');
-const checkCookieExists = require('../../functions/check/checkCookieExists');
-const checkDimension = require('../../functions/check/checkDimension');
-const checkDownloadedJsonFileConformsTemplateFile = require('../../functions/check/checkDownloadedJsonFileConformsTemplateFile');
-const checkDownloadedFileContainsNumOfLines = require('../../functions/check/checkDownloadedFileContainsNumOfLines');
-const checkDownloadedFileContainsRowsAndColumns = require('../../functions/check/checkDownloadedFileContainsRowsAndColumns');
-const checkDownloadedFileContainsEqualsMatchesText = require('../../functions/check/checkDownloadedFileContainsEqualsMatchesText');
-const checkIsOpenedInNewWindow = require('../../functions/check/checkIsOpenedInNewWindow');
-const checkModal = require('../../functions/check/checkModal');
-const checkModalText = require('../../functions/check/checkModalText');
-const checkNewWindow = require('../../functions/check/checkNewWindow');
-const checkOffset = require('../../functions/check/checkOffset');
-const checkProperty = require('../../functions/check/checkProperty');
-const checkFontProperty = require('../../functions/check/checkFontProperty');
-const checkTitle = require('../../functions/check/checkTitle');
-const checkURL = require('../../functions/check/checkURL');
-const checkWithinViewport = require('../../functions/check/checkWithinViewport');
-const compareText = require('../../functions/check/compareText');
-const checkIfElementExistsInsideParentElement = require('../../functions/check/checkIfElementExistsInsideParentElement');
-const checkIfElementInsideParentElementEqualsMatchesTextOrValue = require('../../functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue');
-const checkIfElementInsideParentElementEqualsMatchesTextOrValue2 = require('../../functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue2');
+const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const checkClass = require(FrameworkPath + '/framework/step_functions/check/checkClass');
+const checkContainsAnyTextOrValue = require(FrameworkPath + '/framework/step_functions/check/checkContainsAnyTextOrValue');
+const checkElementTextValueIsEmpty = require(FrameworkPath + '/framework/step_functions/check/checkElementTextValueIsEmpty');
+const checkCondition = require(FrameworkPath + '/framework/step_functions/check/checkCondition');
+const checkCookieContent = require(FrameworkPath + '/framework/step_functions/check/checkCookieContent');
+const checkCookieExists = require(FrameworkPath + '/framework/step_functions/check/checkCookieExists');
+const checkDimension = require(FrameworkPath + '/framework/step_functions/check/checkDimension');
+const checkDownloadedJsonFileConformsTemplateFile = require(FrameworkPath + '/framework/step_functions/check/checkDownloadedJsonFileConformsTemplateFile');
+const checkDownloadedFileContainsNumOfLines = require(FrameworkPath + '/framework/step_functions/check/checkDownloadedFileContainsNumOfLines');
+const checkDownloadedFileContainsRowsAndColumns = require(FrameworkPath + '/framework/step_functions/check/checkDownloadedFileContainsRowsAndColumns');
+const checkDownloadedFileContainsEqualsMatchesText = require(FrameworkPath + '/framework/step_functions/check/checkDownloadedFileContainsEqualsMatchesText');
+const checkIsOpenedInNewWindow = require(FrameworkPath + '/framework/step_functions/check/checkIsOpenedInNewWindow');
+const checkModal = require(FrameworkPath + '/framework/step_functions/check/checkModal');
+const checkModalText = require(FrameworkPath + '/framework/step_functions/check/checkModalText');
+const checkNewWindow = require(FrameworkPath + '/framework/step_functions/check/checkNewWindow');
+const checkOffset = require(FrameworkPath + '/framework/step_functions/check/checkOffset');
+const checkProperty = require(FrameworkPath + '/framework/step_functions/check/checkProperty');
+const checkFontProperty = require(FrameworkPath + '/framework/step_functions/check/checkFontProperty');
+const checkTitle = require(FrameworkPath + '/framework/step_functions/check/checkTitle');
+const checkURL = require(FrameworkPath + '/framework/step_functions/check/checkURL');
+const checkWithinViewport = require(FrameworkPath + '/framework/step_functions/check/checkWithinViewport');
+const compareText = require(FrameworkPath + '/framework/step_functions/check/compareText');
+const checkIfElementExistsInsideParentElement = require(FrameworkPath + '/framework/step_functions/check/checkIfElementExistsInsideParentElement');
+const checkIfElementInsideParentElementEqualsMatchesTextOrValue = require(FrameworkPath + '/framework/step_functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue');
+const checkIfElementInsideParentElementEqualsMatchesTextOrValue2 = require(FrameworkPath + '/framework/step_functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue2');
 
 Then(
     /^I expect (?:that )?the page title does( not)* (contain|equal|match) the (text|value|regex) "(.*)?"$/,

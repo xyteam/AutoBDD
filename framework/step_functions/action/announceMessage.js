@@ -1,5 +1,6 @@
 const browser_session = require('../../libs/browser_session');
 const parseExpectedText = require('../common/parseExpectedText');
+
 module.exports = (target, message) => {
     const myMessage = parseExpectedText(message);
     if (target) {

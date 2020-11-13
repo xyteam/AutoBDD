@@ -1,4 +1,4 @@
-const FrameworkPath = process.env.FrameworkPath;
+const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 require(FrameworkPath + '/framework/support/env.js');
 // if SSHPORT is defined it indicates a remote target, We will establish SSH tunnel
 if ((process.env.SSHPORT) && (process.env.SSHHOST == '10.0.2.2')) {

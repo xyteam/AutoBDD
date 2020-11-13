@@ -1,10 +1,10 @@
-const FrameworkPath = process.env.FrameworkPath;
+const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 var cucumberJsReporter = require('wdio-cucumberjs-json-reporter').default;
 const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 const safexvfb = require(FrameworkPath + '/framework/libs/safexvfb');
-const changeBrowserZoom = require(FrameworkPath + '/framework/functions/action/changeBrowserZoom');
+const changeBrowserZoom = require(FrameworkPath + '/framework/step_functions/action/changeBrowserZoom');
 var currentScenarioName, currentScenarioStatus;
 var currentStepNumber;
 

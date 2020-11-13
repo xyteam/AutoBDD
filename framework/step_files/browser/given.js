@@ -1,26 +1,27 @@
 const { Given } = require('cucumber');
 
-const announceMessage = require('../../functions/action/announceMessage');
-const assignValueOfElementInsideParentElementAs = require('../../functions/action/assignValueOfElementInsideParentElementAs');
-const bypassChromeSafetyWarning = require('../../functions/action/bypassChromeSafetyWarning');
-const checkContainsAnyTextOrValue = require('../../functions/check/checkContainsAnyTextOrValue');
-const checkElementTextValueIsEmpty = require('../../functions/check/checkElementTextValueIsEmpty');
-const checkCondition = require('../../functions/check/checkCondition');
-const checkCookieContent = require('../../functions/check/checkCookieContent');
-const checkCookieExists = require('../../functions/check/checkCookieExists');
-const checkDimension = require('../../functions/check/checkDimension');
-const checkElementExists = require('../../functions/check/checkElementExists');
-const checkContainsEqualsMatchesTextOrValue = require('../../functions/check/checkContainsEqualsMatchesTextOrValue');
-const checkModal = require('../../functions/check/checkModal');
-const checkOffset = require('../../functions/check/checkOffset');
-const checkProperty = require('../../functions/check/checkProperty');
-const checkTitle = require('../../functions/check/checkTitle');
-const checkUrl = require('../../functions/check/checkURL');
-const closeAllButFirstTab = require('../../functions/action/closeAllButFirstTab');
-const compareText = require('../../functions/check/compareText');
-const deleteDownload = require('../../functions/action/deleteDownload');
-const openTarget = require('../../functions/action/openTarget');
-const resizeScreenSize = require('../../functions/action/resizeScreenSize');
+const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const announceMessage = require(FrameworkPath + '/framework/step_functions/action/announceMessage');
+const assignValueOfElementInsideParentElementAs = require(FrameworkPath + '/framework/step_functions/action/assignValueOfElementInsideParentElementAs');
+const bypassChromeSafetyWarning = require(FrameworkPath + '/framework/step_functions/action/bypassChromeSafetyWarning');
+const checkContainsAnyTextOrValue = require(FrameworkPath + '/framework/step_functions/check/checkContainsAnyTextOrValue');
+const checkElementTextValueIsEmpty = require(FrameworkPath + '/framework/step_functions/check/checkElementTextValueIsEmpty');
+const checkCondition = require(FrameworkPath + '/framework/step_functions/check/checkCondition');
+const checkCookieContent = require(FrameworkPath + '/framework/step_functions/check/checkCookieContent');
+const checkCookieExists = require(FrameworkPath + '/framework/step_functions/check/checkCookieExists');
+const checkDimension = require(FrameworkPath + '/framework/step_functions/check/checkDimension');
+const checkElementExists = require(FrameworkPath + '/framework/step_functions/check/checkElementExists');
+const checkContainsEqualsMatchesTextOrValue = require(FrameworkPath + '/framework/step_functions/check/checkContainsEqualsMatchesTextOrValue');
+const checkModal = require(FrameworkPath + '/framework/step_functions/check/checkModal');
+const checkOffset = require(FrameworkPath + '/framework/step_functions/check/checkOffset');
+const checkProperty = require(FrameworkPath + '/framework/step_functions/check/checkProperty');
+const checkTitle = require(FrameworkPath + '/framework/step_functions/check/checkTitle');
+const checkUrl = require(FrameworkPath + '/framework/step_functions/check/checkURL');
+const closeAllButFirstTab = require(FrameworkPath + '/framework/step_functions/action/closeAllButFirstTab');
+const compareText = require(FrameworkPath + '/framework/step_functions/check/compareText');
+const deleteDownload = require(FrameworkPath + '/framework/step_functions/action/deleteDownload');
+const openTarget = require(FrameworkPath + '/framework/step_functions/action/openTarget');
+const resizeScreenSize = require(FrameworkPath + '/framework/step_functions/action/resizeScreenSize');
 
 Given(
     /^I announce message(?: at (console|browser))?: "([^"]*)?"$/,

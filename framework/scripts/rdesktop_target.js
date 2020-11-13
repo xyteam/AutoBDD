@@ -7,7 +7,7 @@ var argv = require('minimist')(process.argv.slice(2));
 const start = argv.start;
 const stop = argv.stop;
 process.env.DISPLAY = process.env.DISPLAY || ':1'
-const FrameworkPath = process.env.FrameworkPath;
+const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 require(FrameworkPath + '/framework/support/env.js');
 const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
