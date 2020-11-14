@@ -17,8 +17,12 @@ module.exports = (elem, falseCase, expectedPosition, axis) => {
      * Parsed expected position
      * @type {Int}
      */
-    const intExpectedPosition = parseFloat(expectedPosition, 10);
+    var intExpectedPosition = parseFloat(expectedPosition, 10);
 
+    if (process.env.DISPLAY.split(':')[1].length > 1) {
+        if (axis == 'x') intExpectedPosition = intExpectedPosition + parseInt(process.env.XVFB_CHROME_PIXEL_OFFSET_X);
+        if (axis == 'y') intExpectedPosition = intExpectedPosition + parseInt(process.env.XVFB_CHROME_PIXEL_OFFSET_Y);
+    }
     if (falseCase) {
         expect(location).not.toEqual(
                 intExpectedPosition,

@@ -15,6 +15,11 @@ process.env.TESSDATA_PREFIX = '/usr/share/tesseract-ocr/4.00/tessdata';
 process.env.LastBrowserLog = '';
 fs.existsSync(process.env.DownloadPathLocal) || fs.mkdirSync(process.env.DownloadPathLocal);
 
+// xvfb
+process.env.XVFB_CHROME_PIXEL_OFFSET_X = process.env.XVFB_CHROME_PIXEL_OFFSET_X || 4;
+process.env.XVFB_CHROME_PIXEL_OFFSET_Y = process.env.XVFB_CHROME_PIXEL_OFFSET_Y || 0;
+
+// image
 process.env.imageSimilarity = process.env.imageSimilarity || 0.8;
 process.env.imageWaitTime = process.env.imageWaitTime || 1;
 
