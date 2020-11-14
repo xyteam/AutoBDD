@@ -135,7 +135,7 @@ When(
 );
 
 When(
-    /^I switch to the(?: (parent|\d+(?:st|nd|rd|th)))? iframe(?: with the name "([^"]*)?")?$/,
+    /^I switch to the(?: (parent|last|\d+(?:st|nd|rd|th)))? iframe(?: with the name "([^"]*)?")?$/,
     switchIframe
 );
 
