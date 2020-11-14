@@ -16,7 +16,7 @@ process.env.LastBrowserLog = '';
 fs.existsSync(process.env.DownloadPathLocal) || fs.mkdirSync(process.env.DownloadPathLocal);
 
 // xvfb
-process.env.XVFB_CHROME_PIXEL_OFFSET_X = process.env.XVFB_CHROME_PIXEL_OFFSET_X || 4;
+process.env.XVFB_CHROME_PIXEL_OFFSET_X = process.env.XVFB_CHROME_PIXEL_OFFSET_X || 0;
 process.env.XVFB_CHROME_PIXEL_OFFSET_Y = process.env.XVFB_CHROME_PIXEL_OFFSET_Y || 0;
 
 // image
