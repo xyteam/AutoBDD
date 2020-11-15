@@ -1,23 +1,9 @@
 const { When } = require('cucumber');
 
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const textedElements = require(FrameworkPath + '/framework/testfiles/textedElements');
 const parseExpectedText = require(FrameworkPath + '/framework/step_functions/common/parseExpectedText');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
-
-When(/^I click the "([^"]*)" (button|label|option|modalDialog) on the page$/,
-{ timeout: 60 * 1000 },
-function (elementText, elementName) {
-    const targetElement = eval('textedElements.texted_' + elementName).replace('__TEXT__', elementText);
-    switch (elementName) {
-        case 'option':
-            browser.$(targetElement).$('..').click();
-            break;
-        default:
-            browser.$(targetElement).click();
-    }
-});
 
 When(/^I download the (PDF) file by clicking "([^"]*)"$/, { timeout: 60 * 1000 * 2 },
 function (fileType, imageName) {

@@ -28,6 +28,20 @@ const waitAndActOnElement = require(FrameworkPath + '/framework/step_functions/a
 const waitOnElementInsideParentElementToBeConditon = require(FrameworkPath + '/framework/step_functions/action/waitOnElementInsideParentElementToBeConditon');
 const waitForDownload = require(FrameworkPath + '/framework/step_functions/action/waitForDownload');
 
+When(/^I click the "([^"]*)" (button|label|option|modalDialog) on the page$/,
+{ timeout: 60 * 1000 },
+function (elementText, elementName) {
+    const textedElements = require(FrameworkPath + '/framework/testfiles/textedElements');
+    const targetElement = eval('textedElements.texted_' + elementName).replace('__TEXT__', elementText);
+    switch (elementName) {
+        case 'option':
+            browser.$(targetElement).$('..').click();
+            break;
+        default:
+            browser.$(targetElement).click();
+    }
+});
+
 When(
     /^I (back|close|debug|forward|refresh|reload|reset) browser$/,
     {timeout: 3600*1000},
