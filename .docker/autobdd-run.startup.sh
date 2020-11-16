@@ -38,16 +38,6 @@ if [ "$USER" != "root" ]; then
     mkdir -p /run/sshd
 fi
 
-# add npm settings to bash_profile
-cat >> $HOME/.bash_profile << END_bash_profile
-npm config set script-shell /bin/bash
-END_bash_profile
-chown $USER:$USER $HOME/.bash_profile
-
 # run test by taking additional parameters
-sudo -E su $USER -m -s /bin/bash -c "\
-  cd $HOME/Projects/AutoBDD && \
-  . .autoPathrc.sh && \
-  cd test-projects/${BDD_PROJECT} && \
-  $@"
+sudo -E su $USER -m -s /bin/bash -c ". .bash_profile && $@"
 

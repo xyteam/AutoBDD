@@ -62,16 +62,6 @@ if [ "$USER" != "root" ]; then
     mkdir -p /run/sshd
 fi
 
-# add display and npm settings to bash_profile
-cat >> $HOME/.bash_profile << END_bash_profile
-export DISPLAY=:1
-npm config set script-shell /bin/bash
-cd ~/Projects/AutoBDD
-. .autoPathrc.sh
-cd test-projects/${BDD_PROJECT}
-END_bash_profile
-chown $USER:$USER $HOME/.bash_profile
-
 # start supervisord
 exec /bin/tini -- /usr/local/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
 

@@ -1,0 +1,5 @@
+wheel
+setuptools
+tinydb
+pytest
+allure-pytest
