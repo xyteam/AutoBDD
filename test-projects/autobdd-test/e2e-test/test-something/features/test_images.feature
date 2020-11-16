@@ -5,6 +5,6 @@ Feature: test images
   I want to test image
 
   Scenario: test images
-    When  I open the path "/"
-    And   I scroll to the element "#logo"
-    Then  I should see the "chromeLogo" image on the screen
+    When  :browser: I open the path "/"
+    And   :browser: I scroll to the element "#logo"
+    Then  :screen: I should see the "chromeLogo" image on the screen
