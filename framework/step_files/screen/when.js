@@ -5,6 +5,16 @@ const parseExpectedText = require(FrameworkPath + '/framework/step_functions/com
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
 
+When(/^I select the "([^"]*)?" file for upload$/, {timeout: 300*1000},
+(fullFileName) => {
+    if(fullFileName && fullFileName.split('.').length > 1){
+    const currentPath = path.resolve();
+    const TESTFILE_FOLDER = 'testfiles';
+    const fullPathForFile = currentPath + '/' + TESTFILE_FOLDER + '/' + fullFileName;
+    screen_session.typeString(fullPathForFile+'\n');
+    }
+});
+  
 When(/^I download the (PDF) file by clicking "([^"]*)"$/, { timeout: 60 * 1000 * 2 },
 function (fileType, imageName) {
     // delete previous download file

@@ -8,6 +8,12 @@ const browser_session = require(FrameworkPath + '/framework/libs/browser_session
 const stripAnsi = require('strip-ansi');
 const keycode = require('keycode');
 
+When(/^I assign "([^"]*)?" value to(?: the)? "([^"]*)?" ENV if necessary$/,
+  (envValue, envTarget) => {
+    process.env[envTarget] = (process.env[envTarget]) ? process.env[envTarget] : envValue;
+  }
+);
+
 When(/^I open a SSH console to the host "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
 { timeout: 15 * 60 * 1000 },
 function (hostName, userName, passWord, consoleName) {
