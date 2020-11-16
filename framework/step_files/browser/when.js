@@ -28,7 +28,7 @@ const waitAndActOnElement = require(FrameworkPath + '/framework/step_functions/a
 const waitOnElementInsideParentElementToBeConditon = require(FrameworkPath + '/framework/step_functions/action/waitOnElementInsideParentElementToBeConditon');
 const waitForDownload = require(FrameworkPath + '/framework/step_functions/action/waitForDownload');
 
-When(/^I click the "([^"]*)" (button|label|option|modalDialog) on the page$/,
+When(/^(?::browser: )?I click the "([^"]*)" (button|label|option|modalDialog) on the page$/,
 { timeout: 60 * 1000 },
 function (elementText, elementName) {
     const textedElements = require(FrameworkPath + '/framework/testfiles/textedElements');
@@ -43,123 +43,123 @@ function (elementText, elementName) {
 });
 
 When(
-    /^I (back|close|debug|forward|refresh|reload|reset) browser$/,
+    /^(?::browser: )?I (back|close|debug|forward|refresh|reload|reset) browser$/,
     {timeout: 3600*1000},
     browserAction
 );
 
 When(
-    /^I (?:wait (?:(\d+)ms )?and )?((?:left |middle |right |double )?click|hover) on the (\S*) "([^"]*)?"(?: (if exists))?$/,
+    /^(?::browser: )?I (?:wait (?:(\d+)ms )?and )?((?:left |middle |right |double )?click|hover) on the (\S*) "([^"]*)?"(?: (if exists))?$/,
     waitAndActOnElement
 );
 
 When(
-    /^I (clear|click|tryClick|deepClick|moveTo) the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?(?: (if exists))?$/,
+    /^(?::browser: )?I (clear|click|tryClick|deepClick|moveTo) the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?(?: (if exists))?$/,
     clickElementInsideParentElement
 );
 
 When(
-    /^I click the (?:element|checkbox) "([^"]*)?"(?: up to (\d+) time(?:s)?)? until the element "([^"]*)?" is(?: (not))? (existing|displayed|visible|focused|enabled|clickable|selected|checked)$/,
+    /^(?::browser: )?I click the (?:element|checkbox) "([^"]*)?"(?: up to (\d+) time(?:s)?)? until the element "([^"]*)?" is(?: (not))? (existing|displayed|visible|focused|enabled|clickable|selected|checked)$/,
     clickToCondition
 );
 
 When(
-    /^I (add|set)(?: (env var))? "(.*)?" to the (inputfield|textarea) "([^"]*)?"$/,
+    /^(?::browser: )?I (add|set)(?: (env var))? "(.*)?" to the (inputfield|textarea) "([^"]*)?"$/,
     setInputFieldWithEnvVars
 );
 
 When(
-    /^I clear the inputfield "([^"]*)?"$/,
+    /^(?::browser: )?I clear the inputfield "([^"]*)?"$/,
     clearInputField
 );
 
 When(
-    /^I drag element "([^"]*)?" to element "([^"]*)?"$/,
+    /^(?::browser: )?I drag element "([^"]*)?" to element "([^"]*)?"$/,
     dragElement
 );
 
 When(
-    /^I pause for (\d+)ms$/, {timeout: 3600*1000},
+    /^(?::browser: )?I pause for (\d+)ms$/, {timeout: 3600*1000},
     pause
 );
 
 When(
-    /^I set a cookie "([^"]*)?" with the content "(.*)?"$/,
+    /^(?::browser: )?I set a cookie "([^"]*)?" with the content "(.*)?"$/,
     setCookie
 );
 
 When(
-    /^I select the "([^"]*)?" file from the download folder$/, {timeout: 30*1000},
+    /^(?::browser: )?I select the "([^"]*)?" file from the download folder$/, {timeout: 30*1000},
     selectFileFromDownloadFolder
 );
 
 When(
-    /^I delete the cookie "(.*)?"$/,
+    /^(?::browser: )?I delete the cookie "(.*)?"$/,
     deleteCookie
 );
 
 When(
-    /^I (press|toggle up|toggle down) the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
+    /^(?::browser: )?I (press|toggle up|toggle down) the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
     pressKeyTimes
 );
 
 When(
-    /^I (double )?click the (left|middle|right) mouse key(?: (\d+) time(?:s)?)?$/,
+    /^(?::browser: )?I (double )?click the (left|middle|right) mouse key(?: (\d+) time(?:s)?)?$/,
     clickMouseKeyTimes
 );
 
 When(
-    /^I type the "(.*)?" string to the screen$/,
+    /^(?::browser: )?I type the "(.*)?" string to the screen$/,
     typeText
 );
 
 When(
-    /^I (accept|dismiss) the (alertbox|confirmbox|prompt)$/,
+    /^(?::browser: )?I (accept|dismiss) the (alertbox|confirmbox|prompt)$/,
     handleModal
 );
 
 When(
-    /^I enter "(.*)?" into the prompt$/,
+    /^(?::browser: )?I enter "(.*)?" into the prompt$/,
     setPromptText
 );
 
 When(
-    /^I scroll to the element "([^"]*)?"$/,
+    /^(?::browser: )?I scroll to the element "([^"]*)?"$/,
     scroll
 );
 
 When(
-    /^I (switch to|close) the(?: (last|\d+(?:st|nd|rd|th)))? opened (?:window|tab)$/,
+    /^(?::browser: )?I (switch to|close) the(?: (last|\d+(?:st|nd|rd|th)))? opened (?:window|tab)$/,
     switchToOrCloseOpenedWindow
 );
 
 When(
-    /^I move to element "([^"]*)?"(?: with an offset of (\d+),(\d+))*$/,
+    /^(?::browser: )?I move to element "([^"]*)?"(?: with an offset of (\d+),(\d+))*$/,
     moveToElement
 );
 
 When(
-    /^I select the (\d+)(st|nd|rd|th) option for element "([^"]*)?"$/,
+    /^(?::browser: )?I select the (\d+)(st|nd|rd|th) option for element "([^"]*)?"$/,
     selectOptionByIndex
 );
 
 When(
-    /^I select the option with the (name|value|text) "([^"]*)?" for element "([^"]*)?"$/,
+    /^(?::browser: )?I select the option with the (name|value|text) "([^"]*)?" for element "([^"]*)?"$/,
     selectOption
 );
 
 When(
-    /^I switch to the(?: (parent|last|\d+(?:st|nd|rd|th)))? iframe(?: with the name "([^"]*)?")?$/,
+    /^(?::browser: )?I switch to the(?: (parent|last|\d+(?:st|nd|rd|th)))? iframe(?: with the name "([^"]*)?")?$/,
     switchIframe
 );
 
 When(
-    /^I set browser background color to "([^"]*)?"$/,
+    /^(?::browser: )?I set browser background color to "([^"]*)?"$/,
     changeBrowserBackground
 );
 
 When(
-    /^I wait on download file "([^"]*)?"(?: for (\d+)ms)* to be( not)* existing$/,
+    /^(?::browser: )?I wait on download file "([^"]*)?"(?: for (\d+)ms)* to be( not)* existing$/,
     {
         timeout: 3600*1000,
         wrapperOptions: {
@@ -170,7 +170,7 @@ When(
 );
 
 When(
-    /^I wait on the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?(?: for (\d+)ms)*(?: to be( not)* (existing|displayed|visible|focused|enabled|clickable|selected|checked|containing a text|containing a value))*$/,
+    /^(?::browser: )?I wait on the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?(?: for (\d+)ms)*(?: to be( not)* (existing|displayed|visible|focused|enabled|clickable|selected|checked|containing a text|containing a value))*$/,
     {
         timeout: 3600*1000,
         // wrapperOptions: {
@@ -181,6 +181,6 @@ When(
 );
 
 When(
-    /^I zoom browser to "([^"]*)?"$/,
+    /^(?::browser: )?I zoom browser to "([^"]*)?"$/,
     changeBrowserZoom
 );
