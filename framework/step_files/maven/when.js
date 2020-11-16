@@ -4,7 +4,7 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 const javacucumber_session = require(FrameworkPath + '/framework/libs/javacucumber_session');
 
-When(/^I run the java cucumber scenario "([^"]*)"$/, {timeout: 60*1000 * 4}, function (javacucumberScenario) {
+When(/^(?::maven: )?I run the java cucumber scenario "([^"]*)"$/, {timeout: 60*1000 * 4}, function (javacucumberScenario) {
         var result = javacucumber_session.runMvnTestScenario(this.javacucumber_project,
                                                                     this.javacucumber_projectModule,
                                                                     this.javacucumber_featureFile,

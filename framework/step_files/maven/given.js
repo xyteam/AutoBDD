@@ -3,15 +3,15 @@ const { Given } = require('cucumber');
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 
-Given(/^I have a java cucumber feature file "([^"]*)"$/, function (featureFile) {
+Given(/^(?::maven: )?I have a java cucumber feature file "([^"]*)"$/, function (featureFile) {
     this.javacucumber_featureFile = featureFile;
 });
 
-Given(/^I have a java cucumber project module "([^"]*)"$/, function (projectModule) {
+Given(/^(?::maven: )?I have a java cucumber project module "([^"]*)"$/, function (projectModule) {
     this.javacucumber_projectModule = projectModule;
   });
 
-Given(/^I have a java cucumber project "([^"]*)"$/, function (projectName) {
+Given(/^(?::maven: )?I have a java cucumber project "([^"]*)"$/, function (projectName) {
     this.javacucumber_project = projectName;
     var result = javacucumber_session.runMvnCleanProject(this.javacucumber_project);
     // console.log(result.output);

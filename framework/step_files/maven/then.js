@@ -3,7 +3,7 @@ const { Then } = require('cucumber');
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 
-Then(/^the java cucumber test should all pass$/, function () {
+Then(/^(?::maven: )?the java cucumber test should all pass$/, function () {
     browser_session.displayMessage(browser, this.javacucumber_result);
     expect(this.javacucumber_result).toContain('BUILD SUCCESS');
     expect(this.javacucumber_result).not.toContain('BUILD FAILURE');
