@@ -4,7 +4,7 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 const cmdline_session = require(FrameworkPath + '/framework/libs/cmdline_session');
 
-When(/^I run the postman collection in newman commandline$/, function () {
+When(/^(?::postman: )?I run the postman collection in newman commandline$/, function () {
         const newman_command = `newman run -e ${this.postman_environment_file} ${this.postman_collection_file}`;
         console.log(newman_command);
         const newman_result = cmdline_session.runCmd(newman_command);
