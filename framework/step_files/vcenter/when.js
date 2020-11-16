@@ -6,7 +6,7 @@ const path = require('path');
 
 const { When } = require('cucumber');
 
-When(/^I change the VM with config below:$/,
+When(/^(?::vcenter: )?I change the VM with config below:$/,
   { timeout: 15 * 60 * 1000 },
   (table) => {
     const config = table.rowsHash();
@@ -30,7 +30,7 @@ When(/^I change the VM with config below:$/,
   }
 );
 
-When(/^I connect the "(.*)" to "(.*)" for the VM "(.*)" inside esxi dc "(.*)"$/,
+When(/^(?::vcenter: )?I connect the "(.*)" to "(.*)" for the VM "(.*)" inside esxi dc "(.*)"$/,
   (nicName, netName, vmName, dcName) => {
     const myNicName = parseExpectedText(nicName);
     const myNetName = parseExpectedText(netName);
@@ -51,7 +51,7 @@ When(/^I connect the "(.*)" to "(.*)" for the VM "(.*)" inside esxi dc "(.*)"$/,
   }
 );
 
-When(/^I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)"$/,
+When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)"$/,
   { timeout: 15 * 60 * 1000 },
   (esxiCmd, vmName, dcName) => {
     const myVmName = parseExpectedText(vmName);
@@ -83,7 +83,7 @@ When(/^I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)"$/,
   }
 );
 
-When(/^I open the HTML5 console to the VM "(.*)" inside esxi dc "(.*)"$/,
+When(/^(?::vcenter: )?I open the HTML5 console to the VM "(.*)" inside esxi dc "(.*)"$/,
   { timeout: 15 * 60 * 1000 },
   (vmName, dcName) => {
     const myVmName = parseExpectedText(vmName);
@@ -151,7 +151,7 @@ When(/^I open the HTML5 console to the VM "(.*)" inside esxi dc "(.*)"$/,
   }
 );
 
-When(/^I open the SSH console to the VM "(.*)" inside esxi dc "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
+When(/^(?::vcenter: )?I open the SSH console to the VM "(.*)" inside esxi dc "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
   { timeout: 15 * 60 * 1000 },
   function (vmName, dcName, userName, passWord, consoleName) {
     const myVmName = parseExpectedText(vmName);
@@ -175,7 +175,7 @@ When(/^I open the SSH console to the VM "(.*)" inside esxi dc "(.*)" with userna
   }
 );
 
-When(/^I use the OVA URL to deploy an VM with config below:$/,
+When(/^(?::vcenter: )?I use the OVA URL to deploy an VM with config below:$/,
   { timeout: 60 * 60 * 1000 },
   (table) => {
     const config = table.rowsHash();

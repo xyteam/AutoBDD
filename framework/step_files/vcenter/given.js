@@ -4,7 +4,7 @@ const parseExpectedText = require(process.env.FrameworkPath + '/framework/functi
 
 const { Given } = require('cucumber');
 
-Given(/^I have the "(.*)" command installed locally$/,
+Given(/^(?::vcenter: )?I have the "(.*)" command installed locally$/,
   (cmdName) => {
     // check govc
     switch (cmdName) {
@@ -19,7 +19,7 @@ Given(/^I have the "(.*)" command installed locally$/,
   }
 );
 
-Given(/^I have govc access to my vcenter with the URL "(.*)"$/,
+Given(/^(?::vcenter: )?I have govc access to my vcenter with the URL "(.*)"$/,
   (vCenterURL) => {
     const myVCenterURL = parseExpectedText(vCenterURL);
     // push myVCenterURL to be runtime global variable
