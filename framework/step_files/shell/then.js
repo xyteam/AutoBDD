@@ -5,7 +5,7 @@ const parseExpectedText = require(FrameworkPath + '/framework/step_functions/com
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 const stripAnsi = require('strip-ansi');
 
-Then(/^I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the "(.*)?" console does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
+Then(/^(?::shell: )?I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the "(.*)?" console does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
     { timeout: 60 * 1000 },
     function (firstOrLast, lineCount, consoleName, falseCase, compareAction, expectType, expectedText) {
         // parse input

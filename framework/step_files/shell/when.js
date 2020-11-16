@@ -8,13 +8,13 @@ const browser_session = require(FrameworkPath + '/framework/libs/browser_session
 const stripAnsi = require('strip-ansi');
 const keycode = require('keycode');
 
-When(/^I assign "([^"]*)?" value to(?: the)? "([^"]*)?" ENV if necessary$/,
+When(/^(?::shell: )?I assign "([^"]*)?" value to(?: the)? "([^"]*)?" ENV if necessary$/,
   (envValue, envTarget) => {
     process.env[envTarget] = (process.env[envTarget]) ? process.env[envTarget] : envValue;
   }
 );
 
-When(/^I open a SSH console to the host "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
+When(/^(?::shell: )?I open a SSH console to the host "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
 { timeout: 15 * 60 * 1000 },
 function (hostName, userName, passWord, consoleName) {
     const myHostName = parseExpectedText(hostName);
@@ -27,7 +27,7 @@ function (hostName, userName, passWord, consoleName) {
     this.myConsoleData[consoleName] = myConsoleData;
 });
 
-When(/^I copy (test file|downloaded file|folder) "(.*)" to scp target "(.*)" with password "(.*)"$/,
+When(/^(?::shell: )?I copy (test file|downloaded file|folder) "(.*)" to scp target "(.*)" with password "(.*)"$/,
 { timeout: 15 * 60 * 1000 },
 function (sourceType, sourceName, scpTarget, scpPassword) {
     var myFileName, myFileExt;
@@ -52,7 +52,7 @@ function (sourceType, sourceName, scpTarget, scpPassword) {
     cmdline_session.remoteCopy(sourceFullPath, scpTarget, 22, scpPassword);
 });
 
-When(/^I run the following command set to the SSH console "(.*)":$/,
+When(/^(?::shell: )?I run the following command set to the SSH console "(.*)":$/,
 { timeout: 15 * 60 * 1000 },
 function (consoleName, table) {
     const myConsole = this.myConsoles[consoleName];
@@ -65,7 +65,7 @@ function (consoleName, table) {
     }
 });
 
-When(/^I run the following remote command set:$/,
+When(/^(?::shell: )?I run the following remote command set:$/,
 { timeout: 15 * 60 * 1000 },
 function (table) {
     const commandList = table.rowsHash();
@@ -79,7 +79,7 @@ function (table) {
     }
 });
 
-When(/^I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" console to( not)* display the (text|regex) "(.*)?"$/,
+When(/^(?::shell: )?I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" console to( not)* display the (text|regex) "(.*)?"$/,
 { timeout: 60 * 60 * 1000 },
 function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, consoleName, falseState, expectType, expectedText) {
     // parse input
@@ -145,7 +145,7 @@ function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, consoleName, fals
     clearInterval(handle);
 });
 
-When(/^I flush the "(.*)" console output$/,
+When(/^(?::shell: )?I flush the "(.*)" console output$/,
 { timeout: 60 * 1000 },
 function (consoleName) {
     // parse input
@@ -154,7 +154,7 @@ function (consoleName) {
     this.myConsoleData[myConsoleName].stdout = '';
 });
 
-When(/^I (?:type|press) (?:the )?"(.*)" (key|string) (?:(\d+) time(?:s)? )?to the console "(.*)"$/,
+When(/^(?::shell: )?I (?:type|press) (?:the )?"(.*)" (key|string) (?:(\d+) time(?:s)? )?to the console "(.*)"$/,
 { timeout: 60 * 1000 },
 function (inputContent, inputType, repeatTimes, consoleName) {
     // parse input
