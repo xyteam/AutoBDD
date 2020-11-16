@@ -5,7 +5,7 @@ const parseExpectedText = require(FrameworkPath + '/framework/step_functions/com
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
 
-When(/^I select the "([^"]*)?" file for upload$/, {timeout: 300*1000},
+When(/^(?::screen: )?I select the "([^"]*)?" file for upload$/, {timeout: 300*1000},
 (fullFileName) => {
     if(fullFileName && fullFileName.split('.').length > 1){
     const currentPath = path.resolve();
@@ -15,7 +15,7 @@ When(/^I select the "([^"]*)?" file for upload$/, {timeout: 300*1000},
     }
 });
   
-When(/^I download the (PDF) file by clicking "([^"]*)"$/, { timeout: 60 * 1000 * 2 },
+When(/^(?::screen: )?I download the (PDF) file by clicking "([^"]*)"$/, { timeout: 60 * 1000 * 2 },
 function (fileType, imageName) {
     // delete previous download file
     var downloadUrl = browser.getUrl();
@@ -49,7 +49,7 @@ function (fileType, imageName) {
     expect(downloadFilePath).toContain(fileName + '.' + fileExt);
 });
 
-When(/^I download the (XLS|PDF) file by going to URL "([^"]*)"$/,
+When(/^(?::screen: )?I download the (XLS|PDF) file by going to URL "([^"]*)"$/,
 { timeout: 60 * 1000 * 2 },
 function (fileType, downloadUrl) {
     // delete previous download file
@@ -65,7 +65,7 @@ function (fileType, downloadUrl) {
     this.downloadUrl = downloadUrl;
 });
 
-When(/^I drag "([^"]*)" and drop to "([^"]*)"$/,
+When(/^(?::screen: )?I drag "([^"]*)" and drop to "([^"]*)"$/,
 function (imageNameOne, imageNameTwo) {
     // re imageNameOne
     const parsedImageNameOne = parseExpectedText(imageNameOne);
@@ -95,7 +95,7 @@ function (imageNameOne, imageNameTwo) {
 });
 
 
-When(/^I (circle|click|expect|park|hover|shake|wave) mouse(?: (\d+) times)? at the (center|centerLeft|centerRight|bottomCenter|bottomLeft|bottomRight|previous|topCenter|topLeft|topRight|\d+,\d+) position of the screen$/,
+When(/^(?::screen: )?I (circle|click|expect|park|hover|shake|wave) mouse(?: (\d+) times)? at the (center|centerLeft|centerRight|bottomCenter|bottomLeft|bottomRight|previous|topCenter|topLeft|topRight|\d+,\d+) position of the screen$/,
 { timeout: 60 * 1000 },
 function (mouseAction, timesCount, screenLocation) {
     const myDISPLAYSIZE = process.env.DISPLAYSIZE;
@@ -200,7 +200,7 @@ function (mouseAction, timesCount, screenLocation) {
     }
 });
 
-When(/^I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" image|screen area) to( not)* display the (text|regex) "(.*)?"$/,
+When(/^(?::screen: )?I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" image|screen area) to( not)* display the (text|regex) "(.*)?"$/,
 { timeout: 60 * 60 * 1000 },
 function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, falseState, expectType, expectedText) {
     // parse input
@@ -279,7 +279,7 @@ function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, false
 });
 
 
-When(/^I (click|hoverClick|rightClick|doubleClick|hover|wave|shake|circle)(?: (\d+) times)? (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/,
+When(/^(?::screen: )?I (click|hoverClick|rightClick|doubleClick|hover|wave|shake|circle)(?: (\d+) times)? (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/,
 { timeout: 60 * 1000 },
 function (mouseAction, timesCount, targetType, imageNameOne, imageNameTwo) {
     // re imageNameOne

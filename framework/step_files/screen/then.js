@@ -6,7 +6,7 @@ const screen_session = require(FrameworkPath + '/framework/libs/screen_session')
 const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
 const fuzz = require('fuzzball');
 
-Then(/^I expect (?:that )?the "([^"]*)?" image does( not)* appear(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
+Then(/^(?::screen: )?I expect (?:that )?the "([^"]*)?" image does( not)* appear(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
 { timeout: 60 * 1000 },
 function (imageName, falseCase, compareAction, expectedNumber) {
     const parsedImageName = parseExpectedText(imageName);
@@ -57,7 +57,7 @@ function (imageName, falseCase, compareAction, expectedNumber) {
     }
 });
 
-Then(/^I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the (?:"([^"]*)?" )?(image|screen area) does( not)* (contain|equal|mimic|match) the (text|regex) "(.*)?"$/,
+Then(/^(?::screen: )?I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the (?:"([^"]*)?" )?(image|screen area) does( not)* (contain|equal|mimic|match) the (text|regex) "(.*)?"$/,
     { timeout: 60 * 1000 },
     function (firstOrLast, lineCount, targetName, targetArea, falseCase, compareAction, expectType, expectedText) {
         const myExpectedText = parseExpectedText(expectedText);
@@ -176,7 +176,7 @@ Then(/^I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)?
     }
 );
 
-Then(/^I should(?: still)?( not)* see the "([^"]*)" image on the screen$/, { timeout: 60 * 1000 }, function (falseCase, imageName) {
+Then(/^(?::screen: )?I should(?: still)?( not)* see the "([^"]*)" image on the screen$/, { timeout: 60 * 1000 }, function (falseCase, imageName) {
     const parsedImageName = parseExpectedText(imageName);
     const [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = fs_session.getTestImageParms(parsedImageName);
     const imagePathList = fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
