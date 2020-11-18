@@ -28,7 +28,6 @@ logs/
 tmp/
 .tmp/
 .DS_Store
-.vscode/
 .settings/
 .pytest_cache/
 __pycache__/

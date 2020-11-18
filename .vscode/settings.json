@@ -1,0 +1,28 @@
+{
+    "cucumberautocomplete.steps": [
+        "framework/step_files/browser/*.js",
+        "framework/step_files/maven/*.js",
+        "framework/step_files/postman/*.js",
+        "framework/step_files/screen/*.js",
+        "framework/step_files/shell/*.js",
+        "framework/step_files/vcenter/*.js"
+    ],
+    "cucumberautocomplete.syncfeatures": "test-projects/**/features/**/*.feature",
+    "cucumberautocomplete.strictGherkinCompletion": true,
+    "cucumberautocomplete.strictGherkinValidation": true,
+    "cucumberautocomplete.smartSnippets": true,
+    "cucumberautocomplete.stepsInvariants": true,
+    "cucumberautocomplete.skipDocStringsFormat": true,
+    "cucumberautocomplete.formatConfOverride": {
+        "And": 3,
+        "But": "relative",
+    },
+    "cucumberautocomplete.onTypeFormat": true,
+    "editor.quickSuggestions": {
+        "comments": false,
+        "strings": true,
+        "other": true
+    },
+    "cucumberautocomplete.gherkinDefinitionPart": "(Given|When|Then)\\(",
+    "cucumberautocomplete.stepRegExSymbol": "/",
+}
