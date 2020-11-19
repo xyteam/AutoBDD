@@ -37,7 +37,8 @@ if [ "$USER" != "root" ]; then
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
     mkdir -p /run/sshd
 fi
-
+# set BDD_PROJECT from .env in .bash_profile
+sed -i "s|__BDD_PROJECT__|$BDD_PROJEDT|" $HOME/.bash_profile
 # run test by taking additional parameters
 sudo -E su $USER -m -s /bin/bash -c ". .bash_profile && $@"
 

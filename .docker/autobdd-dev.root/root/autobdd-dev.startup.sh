@@ -61,7 +61,8 @@ if [ "$USER" != "root" ]; then
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
     mkdir -p /run/sshd
 fi
-
+# set BDD_PROJECT from .env in .bash_profile
+sed -i "s|__BDD_PROJECT__|$BDD_PROJEDT|" $HOME/.bash_profile
 # start supervisord
 exec /bin/tini -- /usr/local/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
 

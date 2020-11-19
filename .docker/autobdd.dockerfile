@@ -139,14 +139,7 @@ RUN cd /${USER}/Projects/AutoBDD && \
 
 # copy preset ubuntu system env
 COPY .docker/autobdd-dev.root /
-
-# insert autobdd-dev entry point
-COPY .docker/autobdd-dev.startup.sh /
-RUN chmod +x /autobdd-dev.startup.sh
-
-# insert autobdd-run entry point
-COPY .docker/autobdd-run.startup.sh /
-RUN chmod +x /autobdd-run.startup.sh
+RUN chmod +x /root/.bash_profile /root/autobdd-run.startup.sh /root/autobdd-dev.startup.sh 
 
 # tini
 ARG TINI_VERSION=v0.19.0
@@ -158,6 +151,5 @@ WORKDIR /root
 ENV HOME=/root \
     SHELL=/bin/bash    
 HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://127.0.0.1:6079/api/health
-ENTRYPOINT ["/autobdd-dev.startup.sh"]
 EXPOSE 5900
 EXPOSE 22

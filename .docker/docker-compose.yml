@@ -42,7 +42,7 @@ services:
       PASSWORD: ${PASSWORD}
       VNC_PASSWORD: ${VNC_PASSWORD}
       RESOLUTION: 1920x1200x24
-    entrypoint: "/autobdd-dev.startup.sh"
+    entrypoint: "/root/autobdd-dev.startup.sh"
 
   # run container for running autobdd test
   autobdd-run:
@@ -59,4 +59,4 @@ services:
       HOSTOS: ${HOSTOS}
       USERID: ${USERID}
       GROUPID: ${GROUPID}
-    entrypoint: "/autobdd-run.startup.sh"
+    entrypoint: "/root/autobdd-run.startup.sh"
