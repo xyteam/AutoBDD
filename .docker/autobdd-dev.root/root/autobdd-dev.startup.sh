@@ -62,7 +62,7 @@ if [ "$USER" != "root" ]; then
     mkdir -p /run/sshd
 fi
 # set BDD_PROJECT from .env in .bash_profile
-sed -i "s|__BDD_PROJECT__|$BDD_PROJEDT|" $HOME/.bash_profile
+sed -i "s|__BDD_PROJECT__|$BDD_PROJECT|" $HOME/.bash_profile
 # start supervisord
 exec /bin/tini -- /usr/local/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
 
