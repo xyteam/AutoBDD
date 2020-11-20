@@ -4,3 +4,4 @@ npm config set script-shell /bin/bash
 cd ~/Projects/AutoBDD
 . .autoPathrc.sh
 cd test-projects/__BDD_PROJECT__
+export BDD_PROJECT=__BDD_PROJECT__
