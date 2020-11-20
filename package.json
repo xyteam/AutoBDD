@@ -3,7 +3,6 @@
   "version": "2.2.0",
   "description": "BDD Automaiton",
   "scripts": {
-    "postinstall": "xvfb-run -a npm test",
     "test": ". .autoPathrc.sh; cd ./test-projects/autobdd-test; make test-all; make clean"
   },
   "dependencies": {
