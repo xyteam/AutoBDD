@@ -34,14 +34,14 @@ services:
       - "5922:5900"
       - "2222:22"
     environment:
-      USER: ${USER}
-      BDD_PROJECT: ${BDD_PROJECT}
-      HOSTOS: ${HOSTOS}
-      USERID: ${USERID}
-      GROUPID: ${GROUPID}
-      PASSWORD: ${PASSWORD}
-      VNC_PASSWORD: ${VNC_PASSWORD}
-      RESOLUTION: 1920x1200x24
+      - USER=${USER}
+      - BDD_PROJECT=${BDD_PROJECT}
+      - HOSTOS=${HOSTOS}
+      - USERID=${USERID}
+      - GROUPID=${GROUPID}
+      - PASSWORD=${PASSWORD}
+      - VNC_PASSWORD=${VNC_PASSWORD}
+      - RESOLUTION=1920x1200x24
     entrypoint: "/root/autobdd-dev.startup.sh"
 
   # run container for running autobdd test
@@ -54,9 +54,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:delegated
     environment:
-      USER: root
-      BDD_PROJECT: ${BDD_PROJECT}
-      HOSTOS: ${HOSTOS}
-      USERID: ${USERID}
-      GROUPID: ${GROUPID}
+      - USER=root
+      - BDD_PROJECT=${BDD_PROJECT}
+      - HOSTOS=${HOSTOS}
+      - USERID=${USERID}
+      - GROUPID=${GROUPID}
     entrypoint: "/root/autobdd-run.startup.sh"
