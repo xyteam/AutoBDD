@@ -4,7 +4,6 @@
 
 FROM ubuntu:20.04
 USER root
-ENV USER root
 ENV DEBIAN_FRONTEND noninteractive
 ARG AutoBDD_Ver
 
@@ -123,13 +122,13 @@ RUN update-alternatives --install /usr/bin/python python $(which $(readlink $(wh
     echo "fs.inotify.max_user_watches = 524288" | sudo tee -a /etc/sysctl.conf; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
     mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \
-    mkdir -p /${USER}/Projects
+    mkdir -p /root/Projects
 
 # install AutoBDD
-ADD . /${USER}/Projects/AutoBDD
+ADD . /root/Projects/AutoBDD
 
 # setup AutoBDD
-RUN cd /${USER}/Projects/AutoBDD && \
+RUN cd /root/Projects/AutoBDD && \
     pip install -r requirement.txt && \
     npm config set script-shell "/bin/bash" && \
     npm cache clean --force && \
@@ -149,6 +148,7 @@ RUN chmod +x /bin/tini
 WORKDIR /root
 ENV HOME=/root \
     SHELL=/bin/bash    
-HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://127.0.0.1:6079/api/health
+HEALTHCHECK NONE
 EXPOSE 5900
+EXPOSE 8000
 EXPOSE 22
