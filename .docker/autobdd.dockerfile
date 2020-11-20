@@ -132,7 +132,9 @@ RUN cd /root/Projects/AutoBDD && \
     pip install -r requirement.txt && \
     npm config set script-shell "/bin/bash" && \
     npm cache clean --force && \
-    xvfb-run -a npm --loglevel=error install && \
+    npm --loglevel=error install && \
+    npm run --loglevel=error test-init && \
+    npm run --loglevel=error clean && \
     rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/autobdd-test/test-results
 
 # copy preset ubuntu system env
