@@ -3,7 +3,8 @@
   "version": "2.2.0",
   "description": "BDD Automaiton",
   "scripts": {
-    "test": ". .autoPathrc.sh; cd ./test-projects/autobdd-test; make test-all; make clean"
+    "test-init": ". .autoPathrc.sh; cd ./test-projects/autobdd-test; xvfb-runner.sh make e2e-arunner",
+    "clean": ". .autoPathrc.sh; cd ./test-projects/autobdd-test; make clean"
   },
   "dependencies": {
     "@hapi/hapi": "^20.0.2",
