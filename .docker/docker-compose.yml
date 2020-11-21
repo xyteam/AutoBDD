@@ -55,7 +55,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:delegated
     environment:
-      - USER=root
+      - USER=${USER}
       - BDD_PROJECT=${BDD_PROJECT}
       - HOSTOS=${HOSTOS}
       - USERID=${USERID}
