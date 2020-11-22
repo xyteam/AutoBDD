@@ -1,7 +1,3 @@
-# controls what test-projects to be included in the framework
-test-projects/*
-!test-projects/autobdd-test/
-
 # files to ignore
 *.run
 *.pyc
@@ -17,7 +13,6 @@ sikulixapi*.jar
 package-lock.json
 .project
 nohup.out
-test-projects/autobdd-test/e2e-test/*/*-*.json
 
 # dirs to ignore
 .screenshots/
