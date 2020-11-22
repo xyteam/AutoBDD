@@ -133,12 +133,12 @@ RUN cd /root/Projects/AutoBDD && \
     npm config set script-shell "/bin/bash" && \
     npm cache clean --force && \
     npm --loglevel=error install && \
-    npm run --loglevel=error test-init && \
+    npm run --loglevel=error test && \
     npm run --loglevel=error clean && \
     rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/autobdd-test/test-results
 
 # copy preset ubuntu system env
-COPY .docker/autobdd-dev.root /
+COPY .docker/autobdd.root /
 RUN chmod +x /root/.bash_profile /root/autobdd-run.startup.sh /root/autobdd-dev.startup.sh 
 
 # tini

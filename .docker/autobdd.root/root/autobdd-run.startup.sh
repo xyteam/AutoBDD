@@ -1,25 +1,5 @@
 #!/bin/bash
 
-if [ -n "$VNC_PASSWORD" ]; then
-    echo -n "$VNC_PASSWORD" > /.password1
-    x11vnc -storepasswd $(cat /.password1) /.password2
-    chmod 400 /.password*
-    sed -i 's/^command=x11vnc.*/& -rfbauth \/.password2/' /etc/supervisor/conf.d/supervisord.conf
-    unset VNC_PASSWORD
-fi
-
-if [ -n "$X11VNC_ARGS" ]; then
-    sed -i "s/^command=x11vnc.*/& ${X11VNC_ARGS}/" /etc/supervisor/conf.d/supervisord.conf
-fi
-
-if [ -n "$OPENBOX_ARGS" ]; then
-    sed -i "s#^command=/usr/bin/openbox.*#& ${OPENBOX_ARGS}#" /etc/supervisor/conf.d/supervisord.conf
-fi
-
-if [ -n "$RESOLUTION" ]; then
-    sed -i "s/1024x768x16/$RESOLUTION/" /usr/local/bin/xvfb.sh
-fi
-
 USER=${USER:-root}
 HOME=/root
 if [ "$USER" != "root" ]; then
@@ -46,8 +26,6 @@ if [ "$USER" != "root" ]; then
     [ ! -d "$HOME/Projects/AutoBDD/framework" ] \
         && (echo "updating Projects/AutoBDD" && cd /root; tar -cf - Projects/AutoBDD | (cd $HOME; tar xf -)) \
         || (echo "only updating Projects/AutoBDD/node_modules" && cd /root; tar cf - Projects/AutoBDD/node_modules | (cd $HOME; tar xf -))
-    mkdir -p $HOME/.config/pcmanfm/LXDE/
-    ln -sf /usr/local/share/doro-lxde-wallpapers/desktop-items-0.conf $HOME/.config/pcmanfm/LXDE/
     # update file ownership inside docker
     if [ "$HOSTOS" == "Linux" ]; then
       chown -R $USERID:$GROUPID $HOME
@@ -56,13 +34,16 @@ if [ "$USER" != "root" ]; then
     fi
 
     # OTHER
-    sed -i "s|%USER%|$USER|" /etc/supervisor/conf.d/supervisord.conf
-    sed -i "s|%HOME%|$HOME|" /etc/supervisor/conf.d/supervisord.conf
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
     mkdir -p /run/sshd
 fi
 # set BDD_PROJECT from .env in .bash_profile
-sed -i "s|__BDD_PROJECT__|$BDD_PROJECT|" $HOME/.bash_profile
-# start supervisord
-exec /bin/tini -- /usr/local/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
+if [[ ! -z "$BDD_PROJECT" ]]; then
+cat >> $HOME/.bash_profile <<EOL
+    export BDD_PROJECT=$BDD_PROJECT
+    cd test-projects/\$BDD_PROJECT
+EOL
+fi
+
+su - $USER -c "$@"
 
