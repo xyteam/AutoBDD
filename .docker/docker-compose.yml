@@ -13,7 +13,7 @@ services:
   # main container for build and pull
   autobdd:
     build:
-      context: ~/${ProjectsBase:-Projects}/AutoBDD
+      context: ${HOME}/${ProjectsBase:-Projects}/AutoBDD
       dockerfile: .docker/autobdd.dockerfile
       args:
         AutoBDD_Ver: ${AutoBDD_Ver}
