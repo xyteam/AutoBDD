@@ -45,5 +45,5 @@ cat >> $HOME/.bash_profile <<EOL
 EOL
 fi
 
-su - $USER -c "$@"
+su $USER -c ". .bash_profile; $@"
 
