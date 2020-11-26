@@ -44,6 +44,5 @@ cat >> $HOME/.bash_profile <<EOL
     cd test-projects/\$BDD_PROJECT
 EOL
 fi
-
-su $USER -c ". .bash_profile; $@"
+sudo -E su $USER -m -c "source .bash_profile; $@"
 
