@@ -37,6 +37,7 @@ if [ "$USER" != "root" ]; then
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
     mkdir -p /run/sshd
 fi
+
 # set BDD_PROJECT from .env in .bash_profile
 if [[ ! -z "$BDD_PROJECT" ]]; then
 cat >> $HOME/.bash_profile <<EOL
@@ -44,5 +45,7 @@ cat >> $HOME/.bash_profile <<EOL
     cd test-projects/\$BDD_PROJECT
 EOL
 fi
+
+# this strange sudo command is necessary to accomodate some older docker versions
 sudo -E su $USER -m -c "source .bash_profile; $@"
 
