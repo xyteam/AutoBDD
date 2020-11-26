@@ -46,6 +46,4 @@ cat >> $HOME/.bash_profile <<EOL
 EOL
 fi
 
-# this strange sudo command is necessary to accomodate some older docker versions
-sudo -E su $USER -m -c "source .bash_profile; $@"
-
+sudo -EH -u $USER /bin/bash -c "cd; . .bash_profile; $@"
