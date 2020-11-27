@@ -1,10 +1,10 @@
 // derive running env-vars
 const path = require('path');
 process.env.PROJECTBASE = process.env.PROJECTBASE || 'test-projects';
-process.env.BDD_PROJECT = process.env.BDD_PROJECT || path.resolve().split(process.env.PROJECTBASE)[1].split('/')[1]
-process.env.PROJECTRUNPATH = path.resolve().split(process.env.BDD_PROJECT)[0] + process.env.BDD_PROJECT
-process.env.TestDir = path.resolve().split(process.env.BDD_PROJECT)[1].split('/')[1];
-process.env.TestModule = path.resolve().split(process.env.BDD_PROJECT)[1].split('/')[2];
+process.env.ABDD_PROJECT = process.env.ABDD_PROJECT || path.resolve().split(process.env.PROJECTBASE)[1].split('/')[1]
+process.env.PROJECTRUNPATH = path.resolve().split(process.env.ABDD_PROJECT)[0] + process.env.ABDD_PROJECT
+process.env.TestDir = path.resolve().split(process.env.ABDD_PROJECT)[1].split('/')[1];
+process.env.TestModule = path.resolve().split(process.env.ABDD_PROJECT)[1].split('/')[2];
 // require module - project - framework env-vars
 require('./support/env.js');
 require(`${process.env.PROJECTRUNPATH}/${process.env.TestDir}/support/env.js`);
