@@ -3,8 +3,7 @@ echo running feature files with 1 processes
 rm -rf logs/*
 echo
 
-if [ "$1" == "-x" ]; then
-    shift
+if [ "${@: -1}" == "-x" ]; then
     RUN_CMD="xvfb-runner.sh npx wdio abdd.js"
 else
     RUN_CMD="npx wdio abdd.js"
