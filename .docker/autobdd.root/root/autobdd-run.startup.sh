@@ -46,7 +46,7 @@ cat >> $HOME/.bash_profile <<EOL
     if [[ -x .abdd_startup.sh ]]; then
         . .abdd_startup.sh
     fi
-    if [[ ! -z $ABDD_STARTUP_SCRIPT ]] && [[ -x $ABDD_STARTUP_SCRIPT ]]; then
+    if [[ ! -z "$ABDD_STARTUP_SCRIPT" ]] && [[ -x "$ABDD_STARTUP_SCRIPT" ]]; then
         . $ABDD_STARTUP_SCRIPT
     fi
 EOL
