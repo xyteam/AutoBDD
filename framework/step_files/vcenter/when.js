@@ -1,7 +1,7 @@
 const cmdline_session = require(process.env.FrameworkPath + '/framework/libs/cmdline_session.js');
 const browser_session = require(process.env.FrameworkPath + '/framework/libs/browser_session.js');
 const screen_session = require(process.env.FrameworkPath + '/framework/libs/screen_session.js');
-const parseExpectedText = require(process.env.FrameworkPath + '/framework/functions/common/parseExpectedText.js');
+const parseExpectedText = require(process.env.FrameworkPath + '/framework/step_functions/common/parseExpectedText.js');
 const path = require('path');
 
 const { When } = require('cucumber');
