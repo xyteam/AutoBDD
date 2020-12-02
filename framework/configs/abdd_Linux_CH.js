@@ -9,6 +9,7 @@ const myDISPLAYSIZE = safeQuote(process.env.DISPLAYSIZE);
 const { hooks } = require(`${FrameworkPath}/framework/support/module_hooks.js`);
 const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
 const myCombinedStepPath = [`${FrameworkPath}/framework/step_files/browser/*.js`,
+                            `${FrameworkPath}/framework/step_files/nodejs/*.js`,
                             `${FrameworkPath}/framework/step_files/screen/*.js`,
                             `${FrameworkPath}/framework/step_files/shell/*.js`,
                             `${FrameworkPath}/framework/step_files/vcenter/*.js`,
