@@ -13,8 +13,6 @@ const switchToOrCloseOpenedWindow = require(FrameworkPath + '/framework/step_fun
 const handleModal = require(FrameworkPath + '/framework/step_functions/action/handleModal');
 const moveToElement = require(FrameworkPath + '/framework/step_functions/action/moveToElement');
 const pause = require(FrameworkPath + '/framework/step_functions/action/pause');
-const pressKeyTimes = require(FrameworkPath + '/framework/step_functions/action/pressKeyTimes');
-const clickMouseKeyTimes = require(FrameworkPath + '/framework/step_functions/action/clickMouseKeyTimes');
 const scroll = require(FrameworkPath + '/framework/step_functions/action/scroll');
 const selectOption = require(FrameworkPath + '/framework/step_functions/action/selectOption');
 const selectOptionByIndex = require(FrameworkPath + '/framework/step_functions/action/selectOptionByIndex');
@@ -23,7 +21,6 @@ const setCookie = require(FrameworkPath + '/framework/step_functions/action/setC
 const setInputFieldWithEnvVars = require(FrameworkPath + '/framework/step_functions/action/setInputFieldWithEnvVars');
 const setPromptText = require(FrameworkPath + '/framework/step_functions/action/setPromptText');
 const switchIframe = require(FrameworkPath + '/framework/step_functions/action/switchIframe');
-const typeText = require(FrameworkPath + '/framework/step_functions/action/typeText');
 const waitAndActOnElement = require(FrameworkPath + '/framework/step_functions/action/waitAndActOnElement');
 const waitOnElementInsideParentElementToBeConditon = require(FrameworkPath + '/framework/step_functions/action/waitOnElementInsideParentElementToBeConditon');
 const waitForDownload = require(FrameworkPath + '/framework/step_functions/action/waitForDownload');
@@ -96,21 +93,6 @@ When(
 When(
     /^(?::browser: )?I delete the cookie "(.*)?"$/,
     deleteCookie
-);
-
-When(
-    /^(?::browser: )?I (press|toggle up|toggle down) the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
-    pressKeyTimes
-);
-
-When(
-    /^(?::browser: )?I (double )?click the (left|middle|right) mouse key(?: (\d+) time(?:s)?)?$/,
-    clickMouseKeyTimes
-);
-
-When(
-    /^(?::browser: )?I type the "(.*)?" string to the screen$/,
-    typeText
 );
 
 When(
