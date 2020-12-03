@@ -5,7 +5,8 @@
         "framework/step_files/postman/*.js",
         "framework/step_files/screen/*.js",
         "framework/step_files/shell/*.js",
-        "framework/step_files/vcenter/*.js"
+        "framework/step_files/vcenter/*.js",
+        "framework/step_files/nodejs/*.js",
     ],
     "cucumberautocomplete.syncfeatures": "test-projects/**/features/**/*.feature",
     "cucumberautocomplete.strictGherkinCompletion": true,
