@@ -4,8 +4,14 @@ const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
 const parseExpectedText = require(FrameworkPath + '/framework/step_functions/common/parseExpectedText');
-const typeText = require(FrameworkPath + '/framework/step_functions/action/typeText');
 const pressKeyTimes = require(FrameworkPath + '/framework/step_functions/action/pressKeyTimes');
+const clickMouseKeyTimes = require(FrameworkPath + '/framework/step_functions/action/clickMouseKeyTimes');
+const typeText = require(FrameworkPath + '/framework/step_functions/action/typeText');
+
+When(
+    /^(?::browser: )?I (double )?click the (left|middle|right) mouse key(?: (\d+) time(?:s)?)?$/,
+    clickMouseKeyTimes
+);
 
 When(
     /^(?::screen: )?I (press|toggle up|toggle down) the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
