@@ -1,9 +1,21 @@
 const { When } = require('cucumber');
 
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const parseExpectedText = require(FrameworkPath + '/framework/step_functions/common/parseExpectedText');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
+const parseExpectedText = require(FrameworkPath + '/framework/step_functions/common/parseExpectedText');
+const typeText = require(FrameworkPath + '/framework/step_functions/action/typeText');
+const pressKeyTimes = require(FrameworkPath + '/framework/step_functions/action/pressKeyTimes');
+
+When(
+    /^(?::screen: )?I (press|toggle up|toggle down) the "([^"]*)?" key(?: (\d+) time(?:s)?)? to the screen$/,
+    pressKeyTimes
+);
+
+When(
+    /^(?::screen: )?I type the "(.*)?" string to the screen$/,
+    typeText
+);
 
 When(/^(?::screen: )?I select the "([^"]*)?" file for upload$/, {timeout: 300*1000},
 (fullFileName) => {
