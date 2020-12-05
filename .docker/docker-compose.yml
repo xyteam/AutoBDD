@@ -1,20 +1,21 @@
-# run test with autobdd-run
-# docker-compose run --rm autobdd-run "make test-all"
-#
-# spin up autobdd-dev for test development:
-# docker-compose up -d autobdd-dev
-# docker-compose logs -f autobdd-dev
-# ssh localhost -p 2222
-# vnc localhost:5922
-# 
 version: '3.5'
 services:
 
-  # main container for build and pull
+  # base container for pre-build
+  autobdd-ubuntu:
+    build:
+      context: ${PWD}/..
+      dockerfile: .docker/autobdd-ubuntu.dockerfile
+      args:
+        AutoBDD_Ver: ${AutoBDD_Ver}
+    image: "xyteam/autobdd-ubuntu:${AutoBDD_Ver}"
+    container_name: autobdd-ubuntu
+
+  # main container for build and pull/push
   autobdd:
     build:
       context: ${PWD}/..
-      dockerfile: .docker/autobdd.dockerfile
+      dockerfile: .docker/autobdd-image.dockerfile
       args:
         AutoBDD_Ver: ${AutoBDD_Ver}
     image: "xyteam/autobdd:${AutoBDD_Ver}"
@@ -61,3 +62,4 @@ services:
       - USERID=${USERID}
       - GROUPID=${GROUPID}
     entrypoint: "/root/autobdd-run.startup.sh"
+

@@ -4,8 +4,10 @@ install:
 	sudo groupadd docker
 	sudo usermod -aG docker $USER
 	newgrp docker
-autobdd:
-	docker-compose build --compress --force-rm --parallel
+autobdd-ubuntu:
+	docker-compose build --compress --force-rm --parallel autobdd-ubuntu
+autobdd-image:
+	docker-compose build --compress --force-rm --parallel autobdd
 down:
 	docker-compose down
 push:
