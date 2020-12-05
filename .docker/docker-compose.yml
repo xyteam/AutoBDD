@@ -7,8 +7,8 @@ services:
       context: ${PWD}/..
       dockerfile: .docker/autobdd-ubuntu.dockerfile
       args:
-        AutoBDD_Ver: ${AutoBDD_Ver}
-    image: "xyteam/autobdd-ubuntu:${AutoBDD_Ver}"
+        AUTOBDD_VERSION: ${AUTOBDD_VERSION}
+    image: "xyteam/autobdd-ubuntu:${AUTOBDD_VERSION}"
     container_name: autobdd-ubuntu
 
   # main container for build and pull/push
@@ -17,13 +17,13 @@ services:
       context: ${PWD}/..
       dockerfile: .docker/autobdd-image.dockerfile
       args:
-        AutoBDD_Ver: ${AutoBDD_Ver}
-    image: "xyteam/autobdd:${AutoBDD_Ver}"
+        AUTOBDD_VERSION: ${AUTOBDD_VERSION}
+    image: "xyteam/autobdd:${AUTOBDD_VERSION}"
     container_name: autobdd
 
   # dev container for developing autobdd test
   autobdd-dev:
-    image: "xyteam/autobdd:${AutoBDD_Ver}"
+    image: "xyteam/autobdd:${AUTOBDD_VERSION}"
     container_name: autobdd-dev
     shm_size: 1536M
     user: root
@@ -48,7 +48,7 @@ services:
 
   # run container for running autobdd test
   autobdd-run:
-    image: "xyteam/autobdd:${AutoBDD_Ver}"
+    image: "xyteam/autobdd:${AUTOBDD_VERSION}"
     container_name: autobdd-run
     shm_size: 1536M
     user: root

@@ -5,7 +5,7 @@
 FROM ubuntu:20.04
 USER root
 ENV DEBIAN_FRONTEND noninteractive
-ARG AutoBDD_Ver
+ARG AUTOBDD_VERSION
 
 # switch to faster/local ubuntu archive, uncomment a line or add a line
 # RUN sed -i 's#http://archive.ubuntu.com/#http://tw.archive.ubuntu.com/#' /etc/apt/sources.list;
