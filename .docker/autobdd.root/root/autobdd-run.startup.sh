@@ -40,14 +40,14 @@ fi
 
 # set ABDD_PROJECT from .env in .bash_profile
 if [[ ! -z "$ABDD_PROJECT" ]]; then
+    if [[ -x $HOME/Projects/AutoBDD/test-projects/$ABDD_PROJECT/.abdd_startup.sh ]]; then
+        /bin/bash $HOME/Projects/AutoBDD/test-projects/$ABDD_PROJECT/.abdd_startup.sh
+    fi
 cat >> $HOME/.bash_profile <<EOL
     export ABDD_PROJECT=$ABDD_PROJECT
     cd test-projects/\$ABDD_PROJECT
-    if [[ -x .abdd_startup.sh ]]; then
-        . .abdd_startup.sh
-    fi
-    if [[ ! -z "$ABDD_STARTUP_SCRIPT" ]] && [[ -x "$ABDD_STARTUP_SCRIPT" ]]; then
-        . $ABDD_STARTUP_SCRIPT
+    if [[ -x .abdd_env.sh ]]; then
+        . .abdd_env.sh
     fi
 EOL
 fi

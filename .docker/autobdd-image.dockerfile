@@ -8,6 +8,7 @@ ADD . /root/Projects/AutoBDD
 
 # setup AutoBDD
 RUN cd /root/Projects/AutoBDD && \
+    pip install -r requirement.txt && \
     npm config set script-shell "/bin/bash" && \
     npm cache clean --force && \
     npm --loglevel=error install && \

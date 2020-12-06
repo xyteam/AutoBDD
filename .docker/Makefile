@@ -1,8 +1,7 @@
 install:
-	sudo apt update
-	sudo apt install docker.io docker-compose
-	sudo groupadd docker
-	sudo usermod -aG docker $USER
+	sudo apt update -y
+	sudo apt install -y docker.io docker-compose
+	sudo usermod -aG docker $$USER
 	newgrp docker
 autobdd-ubuntu:
 	docker-compose build --compress --force-rm --parallel autobdd-ubuntu
