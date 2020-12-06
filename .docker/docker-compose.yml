@@ -1,7 +1,7 @@
 version: '3.5'
 services:
 
-  # base container for pre-build
+  # base ubuntu packafges for pre-build
   autobdd-ubuntu:
     build:
       context: ${PWD}/..
@@ -10,6 +10,16 @@ services:
         AUTOBDD_VERSION: ${AUTOBDD_VERSION}
     image: "xyteam/autobdd-ubuntu:${AUTOBDD_VERSION}"
     container_name: autobdd-ubuntu
+
+  # add non-ubuntu packages
+  autobdd-nodejs:
+    build:
+      context: ${PWD}/..
+      dockerfile: .docker/autobdd-nodejs.dockerfile
+      args:
+        AUTOBDD_VERSION: ${AUTOBDD_VERSION}
+    image: "xyteam/autobdd-nodejs:${AUTOBDD_VERSION}"
+    container_name: autobdd-nodejs
 
   # main container for build and pull/push
   autobdd:

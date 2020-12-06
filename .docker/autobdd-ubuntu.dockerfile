@@ -75,18 +75,13 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         fonts-wqy-microhei \
         ttf-wqy-zenhei; \
     # install python2, pip2 and python2 pytest to support py2 test projects (autobdd does not need py2, this section can be removed)
-    apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-        python2 \
-        libpython2.7-stdlib \
-        python-dev; \
-    curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py; \
-    python2 get-pip.py; \
-    pip2 install pytest; \
-    # system configuration update
-    ldconfig; \
-    update-ca-certificates; \
-    rm -rf /var/lib/apt/lists/*; \
-    pip install supervisor; \
+    # apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+        # python2 \
+        # libpython2.7-stdlib \
+        # python-dev; \
+    # curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py; \
+    # python2 get-pip.py; \
+    # pip2 install pytest; \
     # final autoremove
     apt --purge autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold";
 
@@ -96,7 +91,11 @@ RUN update-alternatives --install /usr/bin/python python $(which $(readlink $(wh
     update-alternatives --install /usr/local/bin/pip pip $(which pip3) 10; \
     echo "fs.inotify.max_user_watches = 524288" | sudo tee -a /etc/sysctl.conf; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
-    mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix;
+    mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \
+    ldconfig; \
+    update-ca-certificates; \
+    rm -rf /var/lib/apt/lists/*; \
+    pip3 install supervisor;
 
 # tini
 ARG TINI_VERSION=v0.19.0

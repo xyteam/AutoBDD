@@ -6,6 +6,8 @@ install:
 	newgrp docker
 autobdd-ubuntu:
 	docker-compose build --compress --force-rm --parallel autobdd-ubuntu
+autobdd-nodejs:
+	docker-compose build --compress --force-rm --parallel autobdd-nodejs
 autobdd-image:
 	docker-compose build --compress --force-rm --parallel autobdd
 down:
