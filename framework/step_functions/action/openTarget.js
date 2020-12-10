@@ -20,25 +20,25 @@ module.exports = (targetType, targetName) => {
         case "download file":
             fileTarget = getDownloadDir() + parsedTargetName.replace(/ /g, '\\ ');
             urlTarget = encodeURI('file://' + globSync(fileTarget)[0]); // we take the first match
-            console.log(urlTarget)
+            console.log(urlTarget);
             browser.url(urlTarget);
             break;
         case "file":
             fileTarget = parsedTargetName.replace(/^~\//, process.env.HOME + '/').replace(/ /g, '\ ');
             urlTarget = encodeURI('file://' + globSync(fileTarget)[0]); // we take the first match
-            console.log(urlTarget)
+            console.log(urlTarget);
             browser.url(urlTarget);
             break;
         case "path":
             urlTarget = encodeURI(browser.options.baseUrl + parsedTargetName);
-            console.log(urlTarget)
+            console.log(urlTarget);
             browser.url(urlTarget);
             break;
         case "url":
         default:
             urlTarget = encodeURI(parsedTargetName);
             try {
-                console.log(urlTarget)
+                console.log(urlTarget);
                 browser.url(urlTarget);
             } catch (e) {
                 console.log(e.message);
