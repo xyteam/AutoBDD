@@ -84,7 +84,10 @@ if (process.env.PLATFORM == 'Linux') {
         process.env.chromeDriverVersion = '86.0.4240.22';
         break;
       case / 87\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '87.0.4280.20';
+        process.env.chromeDriverVersion = '87.0.4280.88';
+        break;  
+      case / 88\./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '88.0.4324.27';
         break;  
     }
     console.log('Chrome Driver ' + process.env.chromeDriverVersion)  
