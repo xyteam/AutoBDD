@@ -1,13 +1,11 @@
 // cmdline_session.js provides functions to run test in command line
 
-const assert = require('assert');
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 const spawn= require('child_process').spawn;
 const stripAnsi = require('strip-ansi');
 
 // remote command
-const myPlatformIdDes = process.env.HOME + '/.ssh/platform_id_rsa';
 const myPlatformKnownHosts = process.env.HOME + '/.ssh/known_hosts';
 
 module.exports = {
@@ -27,6 +25,7 @@ module.exports = {
     const returnVal = {output: result, exitcode: exitcode};
     const returnString = JSON.stringify(returnVal);
     console.log(returnString);
+
     return returnString;
   },
 
@@ -50,7 +49,10 @@ module.exports = {
       console.log(`${mySshHost} hostkey needs to be replaced in known_hosts`);
       const cmd_correct_hostKey = `ssh-keygen -f "${myPlatformKnownHosts}" -R "${mySshHost}"`;
       const correct_hostKey_result = JSON.parse(this.runCmd(cmd_correct_hostKey));
-      }
+      console.log(correct_hostKey_result);
+    }
+
+    return true;
   },
 
   remoteCopy: function(src, dst, sshPort, sshPass, sshKeyFile) {
@@ -82,6 +84,7 @@ module.exports = {
     const returnVal = {cmd: mySshCommand, output: result, exitcode: exitcode};
     const returnString = JSON.stringify(returnVal);
     console.log(returnString);
+
     return returnString;
   },
 
@@ -117,6 +120,7 @@ module.exports = {
     const returnVal = {cmd: runCommand, output: result, exitcode: exitcode};
     const returnString = JSON.stringify(returnVal);
     console.log(returnString);
+    
     return returnString;
   },
 
