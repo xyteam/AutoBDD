@@ -31,7 +31,6 @@
     "moment": "^2.29.1",
     "newman": "^5.2.1",
     "node-cmd": "^4.0.0",
-    "npm-path": ">=2.0.4",
     "path": ">=0.12.7",
     "pdf-parse": ">=1.1.1",
     "python-shell": "^2.0.2",
