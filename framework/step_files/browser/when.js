@@ -61,7 +61,7 @@ When(
 );
 
 When(
-    /^(?::browser: )?I (add|set)(?: (env var))? "(.*)?" to the (inputfield|textarea) "([^"]*)?"$/,
+    /^(?::browser: )?I (add|set)(?: (env var))? "(.*)?" to the(?: (\d+(?:st|nd|rd|th)))? (inputfield|textarea) "([^"]*)?"$/,
     setInputFieldWithEnvVars
 );
 
