@@ -9,18 +9,17 @@
  */
 const checkIfElementExists = require('../check/checkIfElementExists');
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (method, isEnvVar, value, fieldType, element) => {
+module.exports = (method, isEnvVar, value, index, fieldType, element) => {
     /**
      * The command to perform on the browser object (addValue or setValue)
      * @type {String}
      */
     const command = (method === 'add') ? 'addValue' : 'setValue';
     var inputValue = (!value) ? '' : (isEnvVar) ? eval('process.env.' + value) : parseExpectedText(value);
-
+    const myNthIndex = (index) ? parseInt(index, 10) - 1 : 0;
     const myElement = parseExpectedText(element);
-    checkIfElementExists(myElement, false, 1);
-
-    const currentValue = (fieldType == 'inputfield') ? $(myElement).getValue() : $(myElement).getText()
+    checkIfElementExists(myElement, false, myNthIndex + 1);
+    const currentValue = (fieldType == 'inputfield') ? $$(myElement)[myNthIndex].getValue() : $$(myElement)[myNthIndex].getText()
     if (command == 'addValue') inputValue = currentValue + inputValue;
-    $(myElement).setValue(inputValue);
+    $$(myElement)[myNthIndex].setValue(inputValue);
 };
