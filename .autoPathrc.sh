@@ -2,7 +2,9 @@
 export FrameworkPath=$(pwd)
 PATH=${PATH}:${FrameworkPath}/framework/scripts
 
-# assign current node_modules/.bin to PATH
-if [ -f ./node_modules/.bin/npm-path ]; then
-  export PATH=$(./node_modules/.bin/npm-path)
-fi
+# assign node_modules/.bin to PATH
+for dn in $(find $(pwd) -maxdepth 2 -type d -name node_modules); do
+    if [[ ":$PATH:" != *":$dn/.bin:"* ]]; then PATH=${PATH}:$dn/.bin; fi
+    export PATH
+done
+
