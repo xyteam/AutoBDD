@@ -29,4 +29,4 @@ report.generate({
     // }
 });
 
-cmdline_session.runCmd('mv Passed_*.* Failed_*.* features/ 2>/dev/null');
+cmdline_session.runCmd('mv Passed_*.* Failed_*.* Step_*.* features/ 2>/dev/null');
