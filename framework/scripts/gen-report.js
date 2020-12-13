@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const cmdline_session = require(`${process.env.FrameworkPath}/framework/libs/cmdline_session.js`);
 const report = require('multiple-cucumber-html-reporter');
  
@@ -28,4 +30,3 @@ report.generate({
 });
 
 cmdline_session.runCmd('mv Passed_*.* Failed_*.* features/ 2>/dev/null');
-
