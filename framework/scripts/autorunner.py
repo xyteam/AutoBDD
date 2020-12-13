@@ -275,7 +275,7 @@ def run_test(FrameworkPath,
         if isMaven: #isMaven on Linux
             cmd = 'cd ' + module_full_path + ';' + \
                 ' PROJECTBASE=' + project_base + \
-                ' PROJECTNAME=' + project_name + \
+                ' ABDD_PROJECT=' + project_name + \
                 ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
                 ' RELATIVEREPORTDIR=' + report_dir_relative + \
                 ' MOVIE=' + movie + \
@@ -294,7 +294,7 @@ def run_test(FrameworkPath,
         else: #isAbdd on Linux
             cmd = 'cd ' + module_full_path + ';' + \
                 ' PROJECTBASE=' + project_base + \
-                ' PROJECTNAME=' + project_name + \
+                ' ABDD_PROJECT=' + project_name + \
                 ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
                 ' RELATIVEREPORTDIR=' + report_dir_relative + \
                 ' MOVIE=' + movie + \
@@ -324,7 +324,7 @@ def run_test(FrameworkPath,
                     print(' > Running remote Maven command:')
                     cmd = 'cd ' + module_full_path + ';' + \
                         ' PROJECTBASE=' + project_base + \
-                        ' PROJECTNAME=' + project_name + \
+                        ' ABDD_PROJECT=' + project_name + \
                         ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
                         ' RELATIVEREPORTDIR=' + report_dir_relative + \
                         ' MOVIE=' + movie + \
@@ -355,7 +355,7 @@ def run_test(FrameworkPath,
                     open(lock_file, 'a').close()
                     cmd = 'cd ' + module_full_path + ';' + \
                         ' PROJECTBASE=' + project_base + \
-                        ' PROJECTNAME=' + project_name + \
+                        ' ABDD_PROJECT=' + project_name + \
                         ' REPORTDIR=' + report_dir_base + '/' + report_dir_relative + \
                         ' RELATIVEREPORTDIR=' + report_dir_relative + \
                         ' MOVIE=' + movie + \

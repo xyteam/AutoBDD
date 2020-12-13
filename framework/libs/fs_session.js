@@ -24,14 +24,14 @@ module.exports = {
     var testFileFullPath = null;
 
     // Search order: Module, Project, Framework, will return null if not found
-    if (testFileFullPath == null && process.env.PROJECTNAME && process.env.TestModule) {
+    if (testFileFullPath == null && process.env.ABDD_PROJECT && process.env.TestModule) {
       testFileExt.some(function(ext) {
         var filePath = ModuleTestfilesPath + '/' + fileName + '.' + ext;
         console.log(`searching: ${filePath}`);
         if (fs.existsSync(filePath)) testFileFullPath = filePath;
       })
     }
-    if (testFileFullPath == null && process.env.PROJECTNAME) {
+    if (testFileFullPath == null && process.env.ABDD_PROJECT) {
       testFileExt.some(function(ext) {
         var filePath = ProjectTestfilesPath + '/' + fileName + '.' + ext;
         console.log(`searching: ${filePath}`);
