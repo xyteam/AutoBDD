@@ -85,5 +85,5 @@ time REPORTDIR=${REPORTDIR} parallel --jobs=${JOBS_COUNT} --results=logs xvfb-ru
 
 # gen report
 cd ${REPORTDIR}
-node `which gen-report.js` .
+gen-report.js .
 cd -
