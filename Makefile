@@ -16,3 +16,9 @@ autobdd-test:
 	cd ../autobdd-test && \
 	docker-compose run --rm autobdd-test-run "xvfb-runner.sh make test-all" || exit $?
 	cd -
+autobdd-up:
+	cd .docker && make autobdd-up || exit $?
+autobdd-down:
+	cd .docker && make autobdd-down || exit $?
+autobdd-push:
+	cd .docker && make autobdd-push || exit $?
