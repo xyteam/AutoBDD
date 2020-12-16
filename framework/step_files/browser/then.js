@@ -26,6 +26,7 @@ const compareText = require(FrameworkPath + '/framework/step_functions/check/com
 const checkIfElementExistsInsideParentElement = require(FrameworkPath + '/framework/step_functions/check/checkIfElementExistsInsideParentElement');
 const checkIfElementInsideParentElementEqualsMatchesTextOrValue = require(FrameworkPath + '/framework/step_functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue');
 const checkIfElementInsideParentElementEqualsMatchesTextOrValue2 = require(FrameworkPath + '/framework/step_functions/check/checkIfElementInsideParentElementEqualsMatchesTextOrValue2');
+const checkIfParentElementEqualsMatchesTextOrValue = require(FrameworkPath + '/framework/step_functions/check/checkIfParentElementEqualsMatchesTextOrValue');
 
 Then(/^(?::browser: )?I expect the( last)* browser console log should( not)* contain "([^"]*)" words$/,
 function (last, falseCase, regexWords) {
@@ -128,6 +129,11 @@ Then(
 Then(
     /^(?::browser: )?I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? (?:is|does)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
     checkIfElementInsideParentElementEqualsMatchesTextOrValue2
+);
+
+Then(
+    /^(?::browser: )?I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?" of the child element "([^"]*)?" (?:is|does)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
+    checkIfParentElementEqualsMatchesTextOrValue
 );
 
 Then(
