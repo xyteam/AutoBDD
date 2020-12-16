@@ -47,13 +47,13 @@ services:
       - "8002:8000"
     environment:
       - USER=${USER}
-      - ABDD_PROJECT=${ABDD_PROJECT}
-      - HOSTOS=${HOSTOS}
       - USERID=${USERID}
       - GROUPID=${GROUPID}
+      - HOSTOS=${HOSTOS}
       - PASSWORD=${PASSWORD}
       - VNC_PASSWORD=${VNC_PASSWORD}
       - RESOLUTION=1920x1200x24
+      - ABDD_PROJECT=${ABDD_PROJECT}
     entrypoint: "/root/autobdd-dev.startup.sh"
 
   # run container for running autobdd test
@@ -67,9 +67,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:delegated
     environment:
       - USER=${USER}
-      - ABDD_PROJECT=${ABDD_PROJECT}
-      - HOSTOS=${HOSTOS}
       - USERID=${USERID}
       - GROUPID=${GROUPID}
+      - HOSTOS=${HOSTOS}
+      - ABDD_PROJECT=${ABDD_PROJECT}
     entrypoint: "/root/autobdd-run.startup.sh"
 
