@@ -180,7 +180,7 @@ const frameworkHooks = {
   },
 
   afterScenario: function(uri, feature, scenario, result, sourceLocation) {
-    
+    console.log(scenario.locations);
     // scenario status
     if (result.status == 'passed') {
       currentScenarioStatus = 'Passed';

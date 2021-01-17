@@ -76,12 +76,12 @@ echo ${SPEC_LIST} | tr " " "\n"
 REPORTDIR=${REPORTDIR:-test-results}
 rm -rf logs/*
 rm -rf ${REPORTDIR}/*
-echo "to monitor progress"
-echo "tail -f ${RUNDIR}/logs/1/.*.feature/stdout"
-echo
+# echo "to monitor progress"
+# echo "tail -f ${RUNDIR}/logs/1/.*.feature/stdout"
+# echo
 
 # run test
-time REPORTDIR=${REPORTDIR} parallel --jobs=${JOBS_COUNT} --results=logs xvfb-runner.sh npx wdio abdd.js ${RUN_OPTS} --spec={1} ${PARAMS} ::: ${SPEC_LIST}
+time REPORTDIR=${REPORTDIR} parallel --jobs=${JOBS_COUNT} --results=${REPORTDIR}/logs.csv xvfb-runner.sh npx wdio abdd.js ${RUN_OPTS} --spec={1} ${PARAMS} ::: ${SPEC_LIST}
 
 # gen report
 cd ${REPORTDIR}
