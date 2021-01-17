@@ -16,7 +16,6 @@ const pause = require(FrameworkPath + '/framework/step_functions/action/pause');
 const scroll = require(FrameworkPath + '/framework/step_functions/action/scroll');
 const selectOption = require(FrameworkPath + '/framework/step_functions/action/selectOption');
 const selectOptionByIndex = require(FrameworkPath + '/framework/step_functions/action/selectOptionByIndex');
-const selectFileFromDownloadFolder = require(FrameworkPath + '/framework/step_functions/action/selectFileFromDownloadFolder');
 const setCookie = require(FrameworkPath + '/framework/step_functions/action/setCookie');
 const setInputFieldWithEnvVars = require(FrameworkPath + '/framework/step_functions/action/setInputFieldWithEnvVars');
 const setPromptText = require(FrameworkPath + '/framework/step_functions/action/setPromptText');
@@ -51,7 +50,7 @@ When(
 );
 
 When(
-    /^(?::browser: )?I (clear|click|tryClick|deepClick|moveTo) the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?(?: (if exists))?$/,
+    /^(?::browser: )?I (clear|click|tryClick|deepClick|moveTo) the(?: (\d+(?:st|nd|rd|th))|last)? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th))|last)? parent element "([^"]*)?")?(?: (if exists))?$/,
     clickElementInsideParentElement
 );
 
@@ -83,11 +82,6 @@ When(
 When(
     /^(?::browser: )?I set a cookie "([^"]*)?" with the content "(.*)?"$/,
     setCookie
-);
-
-When(
-    /^(?::browser: )?I select the "([^"]*)?" file from the download folder$/, {timeout: 30*1000},
-    selectFileFromDownloadFolder
 );
 
 When(

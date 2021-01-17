@@ -6,6 +6,7 @@ const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
 const parseExpectedText = require(FrameworkPath + '/framework/step_functions/common/parseExpectedText');
 const pressKeyTimes = require(FrameworkPath + '/framework/step_functions/action/pressKeyTimes');
 const clickMouseKeyTimes = require(FrameworkPath + '/framework/step_functions/action/clickMouseKeyTimes');
+const selectFileFromDownloadFolder = require(FrameworkPath + '/framework/step_functions/action/selectFileFromDownloadFolder');
 const typeText = require(FrameworkPath + '/framework/step_functions/action/typeText');
 
 When(
@@ -82,6 +83,11 @@ function (fileType, downloadUrl) {
     // pass download Url for steps after
     this.downloadUrl = downloadUrl;
 });
+
+When(
+    /^(?::screen: )?I select the "([^"]*)?" file from the download folder$/, {timeout: 30*1000},
+    selectFileFromDownloadFolder
+);
 
 When(/^(?::screen: )?I drag "([^"]*)" and drop to "([^"]*)"$/,
 function (imageNameOne, imageNameTwo) {
