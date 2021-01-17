@@ -2,7 +2,8 @@
  * Return variables in VAR:varName form by look up varFile.json in the order of Module, Project and Framework
  */
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-const FrameworkTestfilesPath = FrameworkPath + '/framework/testfiles';
+const fs_session =require(`${FrameworkPath}/framework/libs/fs_session.js`);
+const FrameworkTestfilesPath = `${FrameworkPath}/framework/testfiles`;
 const ProjectPath = process.env.PROJECTRUNPATH;
 const TestDir = process.env.TestDir;
 const TestModule = process.env.TestModule;
@@ -96,6 +97,18 @@ module.exports = (expectedText) => {
         // console.log(`Var => ${textArray.join('')}`);
         return textArray.join('');
     }
+    // Testfile{MyTestfile}
+    const parseTestfile = (text) => {
+        let textArray = text.split('Testfile{');
+        for (i = 1; i < textArray.length; i++) {
+            const str = textArray[i].split('}')[0];
+            const fileName = str.substring(0, str.lastIndexOf("."));
+            const fileExt = str.substring(str.lastIndexOf(".") + 1, str.length);
+            textArray[i] = textArray[i].includes('}') ? fs_session.getTestFileFullPath(fileName, fileExt) + textArray[i].split('}').slice(1).join('}') : textArray[i];
+        }
+        // console.log(`Env => ${textArray.join('')}`);
+        return textArray.join('');
+    }    
 
     var myExpectedText = expectedText || '';
     var loopCount = 2;
@@ -110,6 +123,7 @@ module.exports = (expectedText) => {
         myExpectedText = myExpectedText.includes('VAR:') ? parseVAR(myExpectedText) : myExpectedText;
         myExpectedText = myExpectedText.includes('Env{') ? parseEnv(myExpectedText) : myExpectedText;
         myExpectedText = myExpectedText.includes('Var{') ? parseVar(myExpectedText) : myExpectedText;
+        myExpectedText = myExpectedText.includes('Testfile{') ? parseTestfile(myExpectedText) : myExpectedText;
     }
     return myExpectedText;
 };
