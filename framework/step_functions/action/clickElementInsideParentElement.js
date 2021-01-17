@@ -20,9 +20,10 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
         var targetElementIdElement;
         if (parentElement) {
             $(myParentElement).waitForExist();
-            targetElementIdElement = browser.$$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
+            const targetParentElement = (parentElementIndex == 'last') ? $$(myParentElement).slice(-1) : $$(myParentElement)[parentElementIndexInt];
+            targetElementIdElement = (targetElementIndex == 'last') ? targetParentElement.$$(myTargetElement).slice(-1) : targetParentElement.$$(myTargetElement)[targetElementIndexInt];
         } else {
-            targetElementIdElement = browser.$$(myTargetElement)[targetElementIndexInt];
+            targetElementIdElement = (targetElementIndex == 'last') ? $$(myTargetElement).slice(-1) : $$(myTargetElement)[targetElementIndexInt];
         }
         // console.log(myTargetElement);
     
