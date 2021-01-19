@@ -29,7 +29,7 @@ Given(
 );
 
 Given(
-    /^(?::browser: )?I assign the (text|value|number) from the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? as "(.*)?"$/,
+    /^(?::browser: )?I assign the (text|value|number) from the(?: (\d+(?:st|nd|rd|th)))? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? as "(.*)?"(?: (if exists))?$/,
     assignValueOfElementInsideParentElementAs
 );
 
