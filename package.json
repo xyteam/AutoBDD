@@ -5,7 +5,7 @@
   "scripts": {
     "download-test": "mkdir -p ./test-projects && cd ./test-projects && npx degit https://github.com/xyteam/autobdd-test.git#main autobdd-test",
     "test-init": ". .autoPathrc.sh && cd ./test-projects/autobdd-test && xvfb-runner.sh make e2e-arunner",
-    "test" : "npm run download-test && npm run test-init",
+    "test": "npm run download-test && npm run test-init",
     "clean": "rm -rf ./test-projects/autobdd-test"
   },
   "dependencies": {

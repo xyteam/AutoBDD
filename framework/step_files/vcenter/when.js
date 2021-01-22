@@ -51,11 +51,12 @@ When(/^(?::vcenter: )?I connect the "(.*)" to "(.*)" for the VM "(.*)" inside es
   }
 );
 
-When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)"$/,
+When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)" esxi host "(.*)"$/,
   { timeout: 15 * 60 * 1000 },
-  (esxiCmd, vmName, dcName) => {
+  (esxiCmd, vmName, dcName, esxiHost) => {
     const myVmName = parseExpectedText(vmName);
     const myDcName = parseExpectedText(dcName);
+    const myEsxiHost = parseExpectedText(esxiHost);
     var govcCmd;
     switch (esxiCmd) {
       case 'power on':
@@ -69,16 +70,16 @@ When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi d
         break;
     }
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    const cmdString = `govc ${govcCmd} -u=${myVCenterURL} -k=true -dc=${myDcName} ${myVmName}`;
+    const cmdString = `govc ${govcCmd} -u=${myVCenterURL} -k=true -dc=${myDcName} /${myDcName}/host/${myEsxiHost}/${myEsxiHost}/${myVmName}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     browser_session.displayMessage(browser, resultString);
     const exitCode = JSON.parse(resultString).exitcode;
     if (exitCode == 0) {
-      console.log('power action accepted, waiting 90 seconds...');
+      console.log('action accepted, waiting 90 seconds...');
       browser.pause(9000);
     } else {
-      console.log('power action not needed');
+      console.log('action not needed');
     }
   }
 );
