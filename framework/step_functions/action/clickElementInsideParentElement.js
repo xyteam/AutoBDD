@@ -5,13 +5,15 @@
  * @param  {String}  targetElement      target element selector
  * @param  {String}  parentElementIndex The nth parent element start from 1st,2nd,3rd,4th
  * @param  {String}  parentElement      parent element selector
+ * @param  {String}  containsTheText    containing text that identifies the parent element
  * @param  {String}  ifExists           if exists
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (action, targetElementIndex, targetElement, parentElementIndex, parentElement, ifExists) => {
+module.exports = (action, targetElementIndex, targetElement, parentElementIndex, parentElement, containsTheText, ifExists) => {
     const myTargetElement = parseExpectedText(targetElement);
     const myParentElement = parseExpectedText(parentElement);
+    const myContainsTheText = parseExpectedText(containsTheText) || '';
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     const deepClick = function(argument) { $(argument).click() };
@@ -20,7 +22,8 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
         var targetElementIdElement;
         if (parentElement) {
             $(myParentElement).waitForExist();
-            const targetParentElement = (parentElementIndex == 'last') ? $$(myParentElement).slice(-1) : $$(myParentElement)[parentElementIndexInt];
+            const myFilteredParentElement = $$(myParentElement).filter(elem => elem.getText().includes(myContainsTheText));
+            const targetParentElement = (parentElementIndex == 'last') ? myFilteredParentElement.slice(-1) : myFilteredParentElement[parentElementIndexInt];
             targetElementIdElement = (targetElementIndex == 'last') ? targetParentElement.$$(myTargetElement).slice(-1) : targetParentElement.$$(myTargetElement)[targetElementIndexInt];
         } else {
             targetElementIdElement = (targetElementIndex == 'last') ? $$(myTargetElement).slice(-1) : $$(myTargetElement)[targetElementIndexInt];

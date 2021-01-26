@@ -4,6 +4,7 @@
  * @param  {String}  targetElement      target element selector
  * @param  {String}  parentElementIndex The nth parent element start from 1st,2nd,3rd,4th
  * @param  {String}  parentElement      parent element selector
+ * @param  {String}  containsTheText    containing text that identifies the parent element
  * @param  {Boolean} falseCase          Check if the element (does not) exists
  * @param  {String}  action             is, equals, contains or matches
  * @param  {String}  targetType         text or value
@@ -103,21 +104,23 @@ const checkElement = (targetElementIdElement, targetElementIndex, targetElement,
     }
 }
 
-module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, targetType, expectedText) => {
+module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, containsTheText, falseCase, action, targetType, expectedText) => {
     const myExpectedText = parseExpectedText(expectedText);
     const myTargetElement = parseExpectedText(targetElement);
     const myParentElement = parseExpectedText(parentElement);
+    const myContainsTheText = parseExpectedText(containsTheText) || '';
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
-    const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : -1; // -1 indicates no parent element
+    const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : (parentElement) ? 0 : -1;  // -1 indicates no parent element
 
     var targetElementIdElement;
     if (myParentElement) {
         $(myParentElement).waitForExist();
+        const myFilteredParentElement = $$(myParentElement).filter(elem => elem.getText().includes(myContainsTheText));
         if (parentElementIndexInt >= 0) {
-            targetElementIdElement = $$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
+            targetElementIdElement = myFilteredParentElement[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
             checkElement(targetElementIdElement, targetElementIndex, myTargetElement, parentElementIndex, myParentElement, falseCase, action, targetType, myExpectedText);
         } else {
-            $$(myParentElement).forEach((pElement, pIndex) => {
+            myFilteredParentElement.forEach((pElement, pIndex) => {
                 targetElementIdElement = $$(pElement.selector)[pIndex].$$(myTargetElement)[targetElementIndexInt];
                 checkElement(targetElementIdElement, targetElementIndex, myTargetElement, pIndex + 1, myParentElement, falseCase, action, targetType, myExpectedText);    
             });

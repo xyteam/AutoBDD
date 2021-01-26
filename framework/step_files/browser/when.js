@@ -50,7 +50,7 @@ When(
 );
 
 When(
-    /^(?::browser: )?I (clear|click|tryClick|deepClick|moveTo) the(?: (\d+(?:st|nd|rd|th))|last)? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th))|last)? parent element "([^"]*)?")?(?: (if exists))?$/,
+    /^(?::browser: )?I (clear|click|tryClick|deepClick|moveTo) the(?: (\d+(?:st|nd|rd|th))|last)? element "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th))|last)? parent element "([^"]*)?"(?: that contains the text "([^"]*)?")?)?(?: (if exists))?$/,
     clickElementInsideParentElement
 );
 
@@ -60,7 +60,7 @@ When(
 );
 
 When(
-    /^(?::browser: )?I (add|set)(?: (env var))? "(.*)?" to the(?: (\d+(?:st|nd|rd|th)))? (inputfield|textarea) "([^"]*)?"$/,
+    /^(?::browser: )?I (add|set)(?: (env var))? "(.*)?" to the(?: (\d+(?:st|nd|rd|th)))? (inputfield|textarea) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th))|last)? parent element "([^"]*)?"(?: that contains the text "([^"]*)?")?)?$/,
     setInputFieldWithEnvVars
 );
 

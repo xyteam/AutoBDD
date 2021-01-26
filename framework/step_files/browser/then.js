@@ -127,7 +127,7 @@ Then(
 );
 
 Then(
-    /^(?::browser: )?I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")? (?:is|does)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
+    /^(?::browser: )?I expect (?:that )?the(?: (\d+(?:st|nd|rd|th)))? (?:element|checkbox) "([^"]*)?"(?: inside the(?: (\d+(?:st|nd|rd|th)))? parent element "([^"]*)?")?(?: that contains the text "([^"]*)?")? (?:is|does)( not)* (existing|displayed|visible|enabled|clickable|focused|selected|checked|contain|equal|match)(?: the (text|regex|value) "(.*)?")*$/,
     checkIfElementInsideParentElementEqualsMatchesTextOrValue2
 );
 
