@@ -20,32 +20,31 @@ const supportedImageExt = ['gif', 'jpg', 'png'];
 
 module.exports = {
   getTestFileFullPath: function(fileName, fileExt) {
-    var testFileExt = (fileExt) ? [fileExt] : ['json'];
+    const autoFileExts = ['txt', 'text', 'js', 'json', 'yaml', 'png', 'jpg', 'jpeg', 'gif'];
+    var testFileExts = (fileExt) ? [fileExt] : autoFileExts;
     var testFileFullPath = null;
 
+    const searchFile = (searchPath) => {
+      var returnPath = null;
+      var tryPath = searchPath + '/' + fileName;
+      console.log(`trying: ${tryPath}`);
+      if (fs.existsSync(tryPath)) {
+        returnPath = tryPath;
+      } else {
+        testFileExts.some(function(ext) {
+          tryPath = searchPath + '/' + fileName + '.' + ext;
+          console.log(`trying: ${tryPath}`);
+          if (fs.existsSync(tryPath)) returnPath = tryPath;
+        });  
+      }
+      return returnPath;
+    }
+
     // Search order: Module, Project, Framework, will return null if not found
-    if (testFileFullPath == null && process.env.ABDD_PROJECT && process.env.TestModule) {
-      testFileExt.some(function(ext) {
-        var filePath = ModuleTestfilesPath + '/' + fileName + '.' + ext;
-        console.log(`searching: ${filePath}`);
-        if (fs.existsSync(filePath)) testFileFullPath = filePath;
-      })
-    }
-    if (testFileFullPath == null && process.env.ABDD_PROJECT) {
-      testFileExt.some(function(ext) {
-        var filePath = ProjectTestfilesPath + '/' + fileName + '.' + ext;
-        console.log(`searching: ${filePath}`);
-        if (fs.existsSync(filePath)) testFileFullPath = filePath;
-      })
-    }
-    if (testFileFullPath == null && process.env.FrameworkPath) {
-      testFileExt.some(function(ext) {
-        var filePath = FrameworkTestfilesPath + '/' + fileName + '.' + ext;
-        console.log(`searching: ${filePath}`);
-        if (fs.existsSync(filePath)) testFileFullPath = filePath;
-      })
-    }
-    console.log(`return: ${testFileFullPath}`)
+    if (testFileFullPath == null && process.env.ABDD_PROJECT && process.env.TestModule) testFileFullPath = searchFile(ModuleTestfilesPath);
+    if (testFileFullPath == null && process.env.ABDD_PROJECT) testFileFullPath = searchFile(ProjectTestfilesPath);
+    if (testFileFullPath == null && process.env.FrameworkPath) testFileFullPath = searchFile(FrameworkTestfilesPath);
+    console.log(`return: ${testFileFullPath}`);
     return testFileFullPath;
   },
 
