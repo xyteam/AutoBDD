@@ -79,7 +79,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         # python2 \
         # libpython2.7-stdlib \
         # python-dev; \
-    # curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py; \
+    # curl https://bootstrap.pypa.io/2.7/get-pip.py --output get-pip.py && \
     # python2 get-pip.py; \
     # pip2 install pytest; \
     # final autoremove

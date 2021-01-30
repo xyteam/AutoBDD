@@ -5,8 +5,14 @@
         python2 \
         libpython2.7-stdlib \
         python-dev; \
-    curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py && \
+    curl https://bootstrap.pypa.io/2.7/get-pip.py --output get-pip.py && \
         python2 get-pip.py && \
         rm -f get-pip.py; \
+# preserve python3 as default
+    update-alternatives --install /usr/bin/python python $(which $(readlink $(which python3))) 10; \
+    update-alternatives --install /usr/bin/pip pip $(which pip3) 10; \
+    update-alternatives --install /usr/local/bin/pip pip $(which pip3) 10; \
+
+# load requirement for python2 and python3 env
     cd /root/Projects/AutoBDD && \
-        pip install -r requirement.txt;
+        pip2 install -r requirement.txt;

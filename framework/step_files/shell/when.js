@@ -154,28 +154,77 @@ function (consoleName) {
     this.myConsoleData[myConsoleName].stdout = '';
 });
 
-When(/^(?::shell: )?I (?:type|press) (?:the )?"(.*)" (key|string) (?:(\d+) time(?:s)? )?to the console "(.*)"$/,
+When(/^(?::shell: )?I (?:type|press) (?:the )?"(.*)" (key|string) (?:(\d+) time(?:s)? )?to the console "(.*)"(?: if the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of the console does( not)* (contain|equal|match) the (text|regex) "(.*)?")?$/,
 { timeout: 60 * 1000 },
-function (inputContent, inputType, repeatTimes, consoleName) {
+function (inputContent, inputType, repeatTimes, consoleName, firstOrLast, lineCount, falseCase, compareAction, expectType, expectedText) {
     // parse input
     const myInputContent = parseExpectedText(inputContent);
     const myRepeatTimes = repeatTimes || 1;
     const myConsoleName = parseExpectedText(consoleName);
 
+    const typePressAction = () => {
+        switch (inputType) {
+            case 'key':
+                const myKeyCode = String.fromCharCode((myInputContent.toLowerCase() == 'cancel') ? 3 : keycode(myInputContent));
+                for (i = 0; i < myRepeatTimes; i++) {
+                    myConsole.stdin.write(myKeyCode);
+                }
+                break;
+            case 'string':
+                for (i = 0; i < myRepeatTimes; i++) {
+                    myConsole.stdin.write(myInputContent);
+                }
+                break;
+        }
+    }
     // get consoleData object set up by previous step
     const myConsole = this.myConsoles[myConsoleName];
     myConsole.stdin.setEncoding = 'utf-8';
-    switch (inputType) {
-        case 'key':
-            const myKeyCode = String.fromCharCode((myInputContent.toLowerCase() == 'cancel') ? 3 : keycode(myInputContent));
-            for (i = 0; i < myRepeatTimes; i++) {
-                myConsole.stdin.write(myKeyCode);
-            }
-            break;
-        case 'string':
-            for (i = 0; i < myRepeatTimes; i++) {
-                myConsole.stdin.write(myInputContent);
-            }
-            break;
+
+    if (compareAction) {
+        // with condition
+        const myExpectedText = parseExpectedText(expectedText);
+        const myFirstOrLast = firstOrLast || '';
+
+        // get consoleData object set up by previous step
+        const myConsoleData = this.myConsoleData;
+        const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
+        browser_session.displayMessage(browser, lineArray.join('\n'));
+
+        var lineText;
+        switch (myFirstOrLast.trim()) {
+            case 'first':
+                lineText = lineArray.slice(0, lineCount).join('\n');
+                break;
+            case 'last':
+                lineText = lineArray.slice(-lineCount).join('\n');
+                break;
+            default:
+                if (lineCount) {
+                    lineText = lineArray[lineCount - 1];
+                } else {
+                    lineText = lineArray.join('\n');
+                }
+        }
+
+        let boolFalseCase = !!falseCase;
+        let actionDecision = false;
+        switch (compareAction) {
+            case 'contain':
+                actionDecision = (lineText.includes(myExpectedText) != boolFalseCase);
+                break;
+            case 'equal':
+                actionDecision = ((lineText == myExpectedText) != boolFalseCase);
+                break;
+            case 'match':
+                actionDecision = ((new RegExp(myExpectedText).test(lineText)) != boolFalseCase);
+                break;
+            default:
+                actionDecision = false;
+        }
+        if (compareAction) typePressAction();
+    } else {
+        // no condition
+        typePressAction();
     }
 });
