@@ -9,9 +9,13 @@ autobdd-nodejs:
 	docker-compose build --compress --force-rm --parallel autobdd-nodejs
 autobdd-image:
 	docker-compose build --compress --force-rm --parallel autobdd
+autobdd-run-bash:
+	docker-compose run --rm autobdd-run "/bin/bash"
 autobdd-up:
 	docker-compose up -d autobdd-dev
 autobdd-down:
 	docker-compose down
 autobdd-push:
 	docker-compose push
+autobdd-pull:
+	docker-compose pull
