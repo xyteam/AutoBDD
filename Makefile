@@ -5,6 +5,24 @@ docker-run:
 	cd .docker && docker-compose run --rm autobdd-run "make $(jobs)" || exit $?
 	cd -
 
+autobdd-clean-all: autobdd-clean-image autobdd-clean-nodejs autobdd-clean-ubuntu
+autobdd-clean-ubuntu:
+	@echo make $@
+	if docker images --filter=reference="xyteam/autobdd-ubuntu:*" | grep autobdd; then \
+		docker images --filter=reference="xyteam/autobdd-ubuntu:*" -q | xargs docker rmi -f; \
+	fi
+autobdd-clean-nodejs:
+	@echo make $@
+	if docker images --filter=reference="xyteam/autobdd-nodejs:*" | grep autobdd; then \
+		docker images --filter=reference="xyteam/autobdd-nodejs:*" -q | xargs docker rmi -f; \
+	fi
+autobdd-clean-image:
+	@echo make $@
+	if docker images --filter=reference="xyteam/autobdd:*" | grep autobdd; then \
+		docker images --filter=reference="xyteam/autobdd:*" -q | xargs docker rmi -f; \
+	fi
+
+autobdd-build-all: autobdd-ubuntu autobdd-nodejs autobdd-image
 autobdd-ubuntu:
 	cd .docker && make autobdd-ubuntu || exit $?
 	cd -
