@@ -4,7 +4,7 @@
  * @param  {String}   templateFileName    Template file name to check against
  */
 
-const Ajv = require('ajv');
+const Ajv = require("ajv").default;
 const fs_session = require('../../libs/fs_session');
 const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
@@ -24,9 +24,9 @@ module.exports = (jsonFileName, templateFileName) => {
     const jsonSchemaEscapedString = jsonSchemaParsedString.replace(/\\/g, "\\\\");
     console.log(jsonSchemaEscapedString);
     const jsonSchema = JSON.parse(jsonSchemaEscapedString);
-    let ajv = new Ajv({ allErrors: true });
-    let validate = ajv.compile(jsonSchema);
-    let checkData = (jsonData.items) ? jsonData.items : jsonData; 
+    const ajv = new Ajv();
+    const validate = ajv.compile(jsonSchema);
+    const checkData = (jsonData.items) ? jsonData.items : jsonData; 
     checkData.forEach(data => {
         let valid = validate(data);
         expect(valid).toBe(true, `Invalid data entry:\ndata:\n${JSON.stringify(data)}\nerror:\n${ajv.errorsText(validate.errors)}`);

@@ -7,7 +7,8 @@ ENV DEBIAN_FRONTEND noninteractive
 ADD . /root/Projects/AutoBDD
 
 # setup AutoBDD
-RUN cd /root/Projects/AutoBDD && \
+RUN mkdir -p /root/Downloads && \
+    cd /root/Projects/AutoBDD && \
     pip install -r requirement.txt && \
     npm config set script-shell "/bin/bash" && \
     npm cache clean --force && \
