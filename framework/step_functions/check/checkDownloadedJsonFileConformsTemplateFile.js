@@ -24,9 +24,9 @@ module.exports = (jsonFileName, templateFileName) => {
     const jsonSchemaEscapedString = jsonSchemaParsedString.replace(/\\/g, "\\\\");
     console.log(jsonSchemaEscapedString);
     const jsonSchema = JSON.parse(jsonSchemaEscapedString);
-    const ajv = new Ajv();
-    const validate = ajv.compile(jsonSchema);
-    const checkData = (jsonData.items) ? jsonData.items : jsonData; 
+    let ajv = new Ajv({ allErrors: true });
+    let validate = ajv.compile(jsonSchema);
+    let checkData = (jsonData.items) ? jsonData.items : jsonData; 
     checkData.forEach(data => {
         let valid = validate(data);
         expect(valid).toBe(true, `Invalid data entry:\ndata:\n${JSON.stringify(data)}\nerror:\n${ajv.errorsText(validate.errors)}`);

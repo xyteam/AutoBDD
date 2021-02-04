@@ -123,7 +123,8 @@ RUN update-alternatives --install /usr/bin/python python $(which $(readlink $(wh
     echo "fs.inotify.max_user_watches = 524288" | sudo tee -a /etc/sysctl.conf; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
     mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \
-    mkdir -p /root/Projects
+    mkdir -p /root/Projects; \
+    mkdir -p /root/Downloads
 
 # install AutoBDD
 ADD . /root/Projects/AutoBDD
