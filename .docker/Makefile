@@ -19,6 +19,12 @@ autobdd-run-bash:
 autobdd-up:
 	@echo make $@
 	docker-compose up -d autobdd-dev
+autobdd-logs:
+	@echo make $@
+	docker-compose logs autobdd-dev
+autobdd-logs-f:
+	@echo make $@
+	docker-compose logs -f autobdd-dev
 autobdd-down:
 	@echo make $@
 	docker-compose down
