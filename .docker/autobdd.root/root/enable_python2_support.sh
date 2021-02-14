@@ -12,7 +12,3 @@
     update-alternatives --install /usr/bin/python python $(which $(readlink $(which python3))) 10; \
     update-alternatives --install /usr/bin/pip pip $(which pip3) 10; \
     update-alternatives --install /usr/local/bin/pip pip $(which pip3) 10; \
-
-# load requirement for python2 and python3 env
-    cd /root/Projects/AutoBDD && \
-        pip2 install -r requirement.txt;
