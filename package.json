@@ -66,10 +66,10 @@
   "author": "xyteam",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.12.10",
+    "@babel/core": "^7.12.16",
     "@babel/register": "^7.12.10",
-    "@rpii/wdio-html-reporter": "^6.3.1",
-    "@shelex/cypress-allure-plugin": "^2.0.3",
+    "@rpii/wdio-html-reporter": "^6.3.2",
+    "@shelex/cypress-allure-plugin": "^2.3.1",
     "@wdio/allure-reporter": "^6.11.0",
     "@wdio/cli": "^6.12.1",
     "@wdio/cucumber-framework": "^6.11.1",
