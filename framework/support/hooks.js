@@ -1,5 +1,6 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 var cucumberJsReporter = require('wdio-cucumberjs-json-reporter').default;
+const safeQuote = require(FrameworkPath + '/framework/libs/safequote');
 const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
@@ -180,7 +181,6 @@ const frameworkHooks = {
   },
 
   afterScenario: function(uri, feature, scenario, result, sourceLocation) {
-    console.log(scenario.locations);
     // scenario status
     if (result.status == 'passed') {
       currentScenarioStatus = 'Passed';
@@ -204,7 +204,8 @@ const frameworkHooks = {
     }
 
     // process tags for report attachement
-    const runlog_tag = framework_libs.getRunlogTag();
+    const feature_runlog = safeQuote(process.env.RUNREPORT) || feature.uri.replace('features/', '') + '.log';
+    const runlog_tag = framework_libs.getRunlogTag(feature_runlog);
     cucumberJsReporter.attach(runlog_tag, 'text/html');
 
     var scenarioBeginImage_tag, scenarioEndImage_tag, video_tag;

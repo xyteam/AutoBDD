@@ -44,11 +44,13 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         net-tools \
         ntpdate \
         openssh-server \
+        libssl-dev \
         parallel \
         python3-dev \
         python3-pip \
         rdesktop \
         rsync \
+        rustc \
         sshpass \
         tcpreplay \
         tesseract-ocr \

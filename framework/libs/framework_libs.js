@@ -14,9 +14,9 @@ const myDISPLAY = safeQuote(process.env.DISPLAY);
 // safe quote env vars - test related
 const myPLATFORM = safeQuote(process.env.PLATFORM);
 const myDISPLAYSIZE = safeQuote(process.env.DISPLAYSIZE);
-const myRUNREPORT = safeQuote(process.env.RUNREPORT);
 const myReportDir = safeQuote(process.env.REPORTDIR);
 const myRELATIVEREPORTDIR = safeQuote(process.env.RELATIVEREPORTDIR);
+const myTestModule = safeQuote(process.env.TestModule);
 
 // safe quote env vars - framework essential
 const myBROWSER = safeQuote(process.env.BROWSER);
@@ -176,7 +176,7 @@ module.exports = {
   recordingRunning: function(scenarioName) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
-    const recordingFile_fullPath = `${myReportDir}/Recording_${scenario_mp4}`;
+    const recordingFile_fullPath = `${myReportDir}/${myTestModule}/Recording_${scenario_mp4}`;
     const cmd_check_recording = `pgrep -f "ffmpeg .*${recordingFile_fullPath}"`;
     var pidCount = execSync(cmd_check_recording).toString().split('\n').filter(Boolean).length
     if (pidCount >= 2) {
@@ -188,7 +188,7 @@ module.exports = {
   startRecording: function(scenarioName) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
-    const recordingFile_fullPath = `${myReportDir}/Recording_${scenario_mp4}`;
+    const recordingFile_fullPath = `${myReportDir}/${myTestModule}/Recording_${scenario_mp4}`;
     const cmd_start_recording = 'ffmpeg -y -s ' + myDISPLAYSIZE
         + ' -f x11grab -an -nostdin -r ' + myMOVIEFR
         + ' -i ' + myDISPLAY
@@ -206,7 +206,8 @@ module.exports = {
   stopRecording: function(scenarioName) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
-    const recordingFile_fullPath = `${myReportDir}/Recording_${scenario_mp4}`;
+    fs.existsSync(`${myReportDir}/${myTestModule}`) || fs.mkdirSync(`${myReportDir}/${myTestModule}`);
+    const recordingFile_fullPath = `${myReportDir}/${myTestModule}/Recording_${scenario_mp4}`;
     const cmd_stop_recording = `sleep 1; pkill -INT -f "ffmpeg .*${recordingFile_fullPath}"; sleep 1`;
     if (myScenarioName) {
       if (this.recordingRunning(myScenarioName))
@@ -225,8 +226,8 @@ module.exports = {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const myResultPrefix = safeQuote(resultPrefix);
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
-    const recordingFile_fullPath = `${myReportDir}/Recording_${scenario_mp4}`;
-    const finalFile_fullPath = `${myReportDir}/${myResultPrefix}_${scenario_mp4}`;
+    const recordingFile_fullPath = `${myReportDir}/${myTestModule}/Recording_${scenario_mp4}`;
+    const finalFile_fullPath = `${myReportDir}/${myTestModule}/${myResultPrefix}_${scenario_mp4}`;
     const cmd_rename_movie = 'mv ' + recordingFile_fullPath + ' ' + finalFile_fullPath;
     while (this.recordingRunning(myScenarioName)) {
       browser.pause(1000);
@@ -246,7 +247,8 @@ module.exports = {
     const myTextColor = safeQuote(textColor) || 'green';
     const myFontSize = parseInt(fontSize) || 20;
     const scenario_png = `${this.convertScenarioNameToFileBase(myScenarioName)}.${myStepIndex}.png`;
-    const cmd_take_screenshot = `import -silent -display ${myDISPLAY} -window root ${myReportDir}/${myResultPrefix}_${scenario_png}`;
+    fs.existsSync(`${myReportDir}/${myTestModule}`) || fs.mkdirSync(`${myReportDir}/${myTestModule}`);
+    const cmd_take_screenshot = `import -silent -display ${myDISPLAY} -window root ${myReportDir}/${myTestModule}/${myResultPrefix}_${scenario_png}`;
     if (myScenarioName) {
       var childProcess;
       if (myText && myText.length > 0 ) {
@@ -280,12 +282,11 @@ module.exports = {
     const scenario_base = this.convertScenarioNameToFileBase(myScenarioName);
     const scenario_mp4 = `${scenario_base}.mp4`;
     const scenario_png = `${scenario_base}.${myStepIndex}.png`;
-    const image_tag = `<img src="${myRELATIVEREPORTDIR}/${myResultPrefix}_${encodeURIComponent(scenario_png)}" style="max-width: 100%; height: auto;" alt="${myResultPrefix}_${scenario_png}">`;
-    const video_tag = `<video src="${myRELATIVEREPORTDIR}/${myResultPrefix}_${encodeURIComponent(scenario_mp4)}" style="max-width: 100%; height: auto;" controls autoplay/>Your browser does not support the video tag.</video>`; 
+    const image_tag = `<img src="${myRELATIVEREPORTDIR}/${myTestModule}/${myResultPrefix}_${encodeURIComponent(scenario_png)}" style="max-width: 100%; height: auto;" alt="${myResultPrefix}_${scenario_png}">`;
+    const video_tag = `<video src="${myRELATIVEREPORTDIR}/${myTestModule}/${myResultPrefix}_${encodeURIComponent(scenario_mp4)}" style="max-width: 100%; height: auto;" controls autoplay/>Your browser does not support the video tag.</video>`; 
     return [image_tag, video_tag];
   },
-  getRunlogTag: function() {
-    const feature_runlog = myRUNREPORT;
+  getRunlogTag: function(feature_runlog) {
     const runlog_tag = `<a href="${myRELATIVEREPORTDIR}/${feature_runlog}.html" style="max-width: 100%; height: auto;"/>${feature_runlog}</a>`;
     return runlog_tag;
   }

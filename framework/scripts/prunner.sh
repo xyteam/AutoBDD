@@ -69,21 +69,25 @@ if [[ "${JOBS_COUNT}" == "" ]]; then JOBS_COUNT=${CPU_COUNT}; fi
 if [[ "${JOBS_COUNT}" == *"/"* ]]; then JOBS_COUNT=`expr ${CPU_COUNT} \* ${JOBS_COUNT/\// \/ }`; fi
 if [[ "${JOBS_COUNT}" == *"-"* ]]; then JOBS_COUNT=`expr ${CPU_COUNT} ${JOBS_COUNT/-/ \- }`; fi
 if [[ "${JOBS_COUNT}" == *"-"* ]] || [[ "${JOBS_COUNT}" == "0" ]]; then JOBS_COUNT=1; fi
-SPEC_FILTER=${@:-.}
-SPEC_LIST=$(find ${SPEC_FILTER} -type f -name "*.feature" | sort)
-echo running $(echo ${SPEC_LIST} | wc -w) feature files with ${JOBS_COUNT} processes
-echo ${SPEC_LIST} | tr " " "\n"
 REPORTDIR=${REPORTDIR:-test-results}
+mkdir -p ${REPORTDIR}
 rm -rf logs/*
 rm -rf ${REPORTDIR}/*
-# echo "to monitor progress"
-# echo "tail -f ${RUNDIR}/logs/1/.*.feature/stdout"
-# echo
 
-# run test
-time REPORTDIR=${REPORTDIR} parallel --jobs=${JOBS_COUNT} --results=${REPORTDIR}/logs.csv xvfb-runner.sh npx wdio abdd.js ${RUN_OPTS} --spec={1} ${PARAMS} ::: ${SPEC_LIST}
+SPEC_FILTER=${@:-.}
+
+MODULE_LIST=$(find ${SPEC_FILTER} -type d ! -path ${REPORTDIR} -name "features" | xargs dirname | sort -u)
+for MODULE in ${MODULE_LIST}; do
+  SPEC_LIST="${SPEC_LIST} $(find . -type f -path */${MODULE}/* -name *.feature | sort -u)"
+done
+
+echo running $(echo ${SPEC_LIST} | wc -w) feature files with ${JOBS_COUNT} processes
+echo ${SPEC_LIST} | tr " " "\n"
+
+time REPORTDIR=${REPORTDIR} parallel --jobs=${JOBS_COUNT} --results=${REPORTDIR}/logs.csv xvfb-runner.sh npx wdio '{=1 s:/features/.+:/abdd.js: =}' ${RUN_OPTS} --spec={1} ${PARAMS} ::: ${SPEC_LIST}
 
 # gen report
 cd ${REPORTDIR}
-gen-report.js .
+parseRunnerLog.js
+gen-report.js
 cd -

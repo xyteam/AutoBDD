@@ -1,4 +1,5 @@
 {
+    "editor.emptySelectionClipboard": false,
     "cucumberautocomplete.steps": [
         "framework/step_files/browser/*.js",
         "framework/step_files/maven/*.js",

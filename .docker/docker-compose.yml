@@ -44,7 +44,7 @@ services:
     ports:
       - "5922:5900"
       - "2222:22"
-      - "8002:8000"
+      - "8022:8000"
     environment:
       - USER=${USER}
       - USERID=${USERID}
