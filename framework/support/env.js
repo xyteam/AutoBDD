@@ -1,6 +1,9 @@
 const execSync = require('child_process').execSync;
 const fs = require('fs');
+const path = require('path');
 const cmd_get_screensize='xrandr --query | grep "screen connected" | cut -d\+ -f1 | cut -d" " -f3';
+
+// for framework
 process.env.PLATFORM = process.env.PLATFORM || 'Linux';
 process.env.BROWSER = process.env.BROWSER || 'CH';
 process.env.DISPLAYSIZE = process.env.DISPLAYSIZE || execSync(cmd_get_screensize).toString('utf8').trim();
@@ -14,6 +17,11 @@ process.env.DownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1)
 process.env.TESSDATA_PREFIX = '/usr/share/tesseract-ocr/4.00/tessdata';
 process.env.LastBrowserLog = '';
 fs.existsSync(process.env.DownloadPathLocal) || fs.mkdirSync(process.env.DownloadPathLocal);
+
+// for user test-project env
+process.env.PROJECTBASE = process.env.PROJECTBASE || 'test-projects';
+process.env.PROJECTNAME = process.env.PROJECTNAME || path.resolve().split(process.env.PROJECTBASE)[1].split('/')[1]
+process.env.PROJECTRUNPATH = `${process.env.FrameworkPath}/${process.env.PROJECTBASE}/${process.env.PROJECTNAME}`;
 
 // xvfb
 process.env.XVFB_CHROME_PIXEL_OFFSET_X = process.env.XVFB_CHROME_PIXEL_OFFSET_X || 0;
