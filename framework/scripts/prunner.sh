@@ -75,10 +75,13 @@ rm -rf logs/*
 rm -rf ${REPORTDIR}/*
 
 SPEC_FILTER=${@:-.}
-
-MODULE_LIST=$(find ${SPEC_FILTER} -type d ! -path ${REPORTDIR} -name "features" | xargs dirname | sort -u)
+MODULE_LIST=$(find ${SPEC_FILTER} -type d -name "features" ! -path "*/${REPORTDIR}/*" | xargs dirname | sort -u)
 for MODULE in ${MODULE_LIST}; do
-  SPEC_LIST="${SPEC_LIST} $(find . -type f -path */${MODULE}/* -name *.feature | sort -u)"
+  if [[ "$MODULE" == "." ]]; then
+    SPEC_LIST="${SPEC_LIST} $(find . -type f -name *.feature | sort -u)"
+  else
+    SPEC_LIST="${SPEC_LIST} $(find . -type f -path */${MODULE}/* -name *.feature | sort -u)"
+  fi
 done
 
 echo running $(echo ${SPEC_LIST} | wc -w) feature files with ${JOBS_COUNT} processes
