@@ -20,7 +20,9 @@ done
 
 REPORTDIR=${REPORTDIR:-arunner-report}
 mkdir -p ${REPORTDIR}
-rm -rf ${REPORTDIR}/*
+if [[ "$CLEANOLDREPORT" == "1"]]; then
+    rm -rf ${REPORTDIR}/*
+fi
 
 echo REPORTDIR=${REPORTDIR} $RUN_CMD $RUN_ARGS
 time REPORTDIR=${REPORTDIR} $RUN_CMD $RUN_ARGS | tee ${REPORTDIR}/arunner.log

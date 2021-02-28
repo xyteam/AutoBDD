@@ -70,7 +70,9 @@ if [[ "${JOBS_COUNT}" == *"-"* ]]; then JOBS_COUNT=`expr ${CPU_COUNT} ${JOBS_COU
 if [[ "${JOBS_COUNT}" == *"-"* ]] || [[ "${JOBS_COUNT}" == "0" ]]; then JOBS_COUNT=1; fi
 REPORTDIR=${REPORTDIR:-prunner-report}
 mkdir -p ${REPORTDIR}
-rm -rf ${REPORTDIR}/*
+if [[ "$CLEANOLDREPORT" == "1"]]; then
+    rm -rf ${REPORTDIR}/*
+fi
 
 SPEC_FILTER=${@:-.}
 MODULE_LIST=$(find ${SPEC_FILTER} -type d -name "features" ! -path "*/${REPORTDIR}/*" | xargs dirname | sort -u)
