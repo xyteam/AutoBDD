@@ -43,7 +43,7 @@ logArray.forEach(line => {
 
 // print feature file array
 var featurePath, testModulePath, testFeaturePath;
-for (index = 1; index < runLogIndex; index++) {
+for (index = 1; index <= runLogIndex; index++) {
     featurePath = runLogArray[index][0].split(' - ')[1];
     [testModulePath, testFeaturePath] = featurePath.split('/features/');
     if (testModulePath == '') testModulePath = './';

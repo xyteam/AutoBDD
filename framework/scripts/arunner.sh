@@ -20,7 +20,7 @@ done
 
 REPORTDIR=${REPORTDIR:-arunner-report}
 mkdir -p ${REPORTDIR}
-if [[ "$CLEANOLDREPORT" == "1"]]; then
+if [[ "$CLEANOLDREPORT" == "1" ]]; then
     rm -rf ${REPORTDIR}/*
 fi
 
