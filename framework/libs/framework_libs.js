@@ -189,6 +189,7 @@ module.exports = {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
     const recordingFile_fullPath = `${myReportDir}/${myTestModule}/Recording_${scenario_mp4}`;
+    if (!fs.existsSync(`${myReportDir}/${myTestModule}`)) fs.mkdirSync(`${myReportDir}/${myTestModule}`);
     const cmd_start_recording = 'ffmpeg -y -s ' + myDISPLAYSIZE
         + ' -f x11grab -an -nostdin -r ' + myMOVIEFR
         + ' -i ' + myDISPLAY

@@ -18,5 +18,15 @@ do
     RUN_ARGS="$RUN_ARGS $element"
 done
 
-echo $RUN_CMD $RUN_ARGS
-time $RUN_CMD $RUN_ARGS
+REPORTDIR=${REPORTDIR:-arunner-report}
+mkdir -p ${REPORTDIR}
+rm -rf ${REPORTDIR}/*
+
+echo REPORTDIR=${REPORTDIR} $RUN_CMD $RUN_ARGS
+time REPORTDIR=${REPORTDIR} $RUN_CMD $RUN_ARGS | tee ${REPORTDIR}/arunner.log
+
+# gen report
+cd ${REPORTDIR}
+parseARunnerLog.js
+gen-report.js
+cd -

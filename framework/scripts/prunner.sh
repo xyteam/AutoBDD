@@ -5,7 +5,6 @@ PARAMS=""
 RUN_OPTS=""
 JOBS_COUNT=""
 ABDD_PROJECT=$(pwd | sed 's/.*test-projects\///' | sed 's/\/.*//')
-RUNDIR="~/Projects/$(pwd | sed 's/.*test-projects\///')"
 
 while (( "$#" )); do
   case "$1" in
@@ -69,9 +68,8 @@ if [[ "${JOBS_COUNT}" == "" ]]; then JOBS_COUNT=${CPU_COUNT}; fi
 if [[ "${JOBS_COUNT}" == *"/"* ]]; then JOBS_COUNT=`expr ${CPU_COUNT} \* ${JOBS_COUNT/\// \/ }`; fi
 if [[ "${JOBS_COUNT}" == *"-"* ]]; then JOBS_COUNT=`expr ${CPU_COUNT} ${JOBS_COUNT/-/ \- }`; fi
 if [[ "${JOBS_COUNT}" == *"-"* ]] || [[ "${JOBS_COUNT}" == "0" ]]; then JOBS_COUNT=1; fi
-REPORTDIR=${REPORTDIR:-test-results}
+REPORTDIR=${REPORTDIR:-prunner-report}
 mkdir -p ${REPORTDIR}
-rm -rf logs/*
 rm -rf ${REPORTDIR}/*
 
 SPEC_FILTER=${@:-.}
@@ -91,6 +89,6 @@ time REPORTDIR=${REPORTDIR} parallel --jobs=${JOBS_COUNT} --results=${REPORTDIR}
 
 # gen report
 cd ${REPORTDIR}
-parseRunnerLog.js
+parsePRunnerLog.js
 gen-report.js
 cd -
