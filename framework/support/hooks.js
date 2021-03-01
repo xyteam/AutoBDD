@@ -204,7 +204,9 @@ const frameworkHooks = {
     }
 
     // process tags for report attachement
-    const feature_runlog = safeQuote(process.env.RUNREPORT) || feature.uri.replace('features/', '') + '.log';
+    const module_path = feature.uri.split('features/')[0];
+    const feature_path = feature.uri.split('features/')[1].replace('/', '_');
+    const feature_runlog = safeQuote(process.env.RUNREPORT) ||  `${module_path}${feature_path}.log`;
     const runlog_tag = framework_libs.getRunlogTag(feature_runlog);
     cucumberJsReporter.attach(runlog_tag, 'text/html');
 
@@ -228,7 +230,9 @@ const frameworkHooks = {
     }
 
     // need to perform these steps before tear down RDP
-    changeBrowserZoom(100);
+    if (process.env.SSHHOST && process.env.SSHPORT) {
+      changeBrowserZoom(100);
+    }
 
     // need this pause for screenshots rename procss to finish
     browser.pause(1000);

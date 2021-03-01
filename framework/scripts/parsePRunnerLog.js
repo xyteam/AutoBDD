@@ -14,6 +14,7 @@ fs.createReadStream('logs.csv')
     results.forEach(r => {
       // Seq,Host,Starttime,JobRuntime,Send,Receive,Exitval,Signal,Command,V1,Stdout,Stderr
       var [testModulePath, testFeaturePath] = r['V1'].split('/features/');
+      if (testModulePath == '') testModulePath = './';
       testFeaturePath = testFeaturePath.replace('/', '_');
       if (!fs.existsSync(testModulePath)) fs.mkdirSync(testModulePath);
       fs.writeFileSync(`${testModulePath}/${testFeaturePath}.log`, stripAnsi(r['Stdout']));

@@ -47,6 +47,7 @@ for (index = 1; index <= runLogIndex; index++) {
     featurePath = runLogArray[index][0].split(' - ')[1];
     [testModulePath, testFeaturePath] = featurePath.split('/features/');
     if (testModulePath == '') testModulePath = './';
+    testFeaturePath = testFeaturePath.replace('/', '_');
     if (!fs.existsSync(testModulePath)) fs.mkdirSync(testModulePath);
     fs.writeFileSync(`${testModulePath}/${testFeaturePath}.log`, stripAnsi(runLogArray[index].concat(specReportArray[index]).join('\n')));
     cmdline_session.runCmd(`cat ${testModulePath}/${testFeaturePath}.log | ansi2html > ${testModulePath}/${testFeaturePath}.log.html`);
