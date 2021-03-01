@@ -44,7 +44,7 @@
     "uuid-random": "^1.3.2",
     "words-to-numbers": ">=1.5.1",
     "xlsx": "^0.16.9",
-    "xysikulixapi": "git+https://github.com/xyteam/xySikulixApi.git"
+    "xysikulixapi": "^0.0.7"
   },
   "repository": {
     "type": "git",
