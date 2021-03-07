@@ -6,7 +6,7 @@ const cmd = require('node-cmd');
 
 // safe quote env vars - general and system
 const spaceChar_regex = /\s+/g;
-const invalidFileNameChar_regex = /[\:\;\,\(\)\/\'\"\.\&\%\<\>\#\-\=]/g;
+const invalidFileNameChar_regex = /[\:\;\,\(\)\[\]\{\}\/\'\"\.\&\%\<\>\#\-\=]/g;
 const invalidEchoChar_regex = /[\(\)\<\>]/g;
 const myHOME = safeQuote(process.env.HOME);
 const myDISPLAY = safeQuote(process.env.DISPLAY);
@@ -32,6 +32,8 @@ const myRDPUSER = safeQuote(process.env.RDPUSER) || mySSHUSER;
 const myRDPPASS = safeQuote(process.env.RDPPASS) || mySSHPASS;
 const myMOVIEFR = safeQuote(process.env.MOVIEFR) || '8';
 const myMOVIERR = safeQuote(process.env.MOVIERR) || '1';
+const mySCREENSHOT_PCT = safeQuote(process.env.SCREENSHOT_PCT) || '30%';
+const myMOVIESIZE_PCT = safeQuote(process.env.MOVIESIZE_PCT) || '30%';
 
 // safe quote env vars - framework deducted
 const myDownloadPathLocal = safeQuote(process.env.DownloadPathLocal) || '/tmp/download_' + myDISPLAY.substr(1);
@@ -283,8 +285,8 @@ module.exports = {
     const scenario_base = this.convertScenarioNameToFileBase(myScenarioName);
     const scenario_mp4 = `${scenario_base}.mp4`;
     const scenario_png = `${scenario_base}.${myStepIndex}.png`;
-    const image_tag = `<img src="${myRELATIVEREPORTDIR}/${myTestModule}/${myResultPrefix}_${encodeURIComponent(scenario_png)}" style="max-width: 100%; height: auto;" alt="${myResultPrefix}_${scenario_png}">`;
-    const video_tag = `<video src="${myRELATIVEREPORTDIR}/${myTestModule}/${myResultPrefix}_${encodeURIComponent(scenario_mp4)}" style="max-width: 100%; height: auto;" controls autoplay/>Your browser does not support the video tag.</video>`; 
+    const image_tag = `<img src="${myRELATIVEREPORTDIR}/${myTestModule}/${myResultPrefix}_${encodeURIComponent(scenario_png)}" style="max-width: ${mySCREENSHOT_PCT}; height: auto;" alt="${myResultPrefix}_${scenario_png}">`;
+    const video_tag = `<video src="${myRELATIVEREPORTDIR}/${myTestModule}/${myResultPrefix}_${encodeURIComponent(scenario_mp4)}" style="max-width: ${myMOVIESIZE_PCT}; height: auto;" controls autoplay/>Your browser does not support the video tag.</video>`; 
     return [image_tag, video_tag];
   },
   getRunlogTag: function(feature_runlog) {
