@@ -1,5 +1,3 @@
-// cmdline_session.js provides functions to run test in command line
-
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 const spawn= require('child_process').spawn;
@@ -7,6 +5,24 @@ const stripAnsi = require('strip-ansi');
 
 // remote command
 const myPlatformKnownHosts = process.env.HOME + '/.ssh/known_hosts';
+
+const sshAction = (sshCommand) => {
+  var result;
+  var exitcode;
+  try {
+    let rawResult = execSync(sshCommand).toString();
+    let stringArray = rawResult.split('\r');
+    // reduce retracted result for display
+    result = stringArray.slice(Math.max(stringArray.length - 10, 0)).join('\n');    
+    exitcode = 0;
+  } catch(e) {
+    result = e.stdout.toString();
+    exitcode = e.status;
+  }
+  const returnVal = {cmd: sshCommand, output: result, exitcode: exitcode};
+  const returnString = JSON.stringify(returnVal);
+  return returnString;
+}
 
 module.exports = {
   runCmd: function(command) {
@@ -59,33 +75,23 @@ module.exports = {
     const mySshPort = sshPort || 22;
     const myKeyFile = sshKeyFile || process.env.HOME + '/.ssh/id_rsa';
     const mySshHost = src.includes('@') ? src.split('@')[1].split(':')[0] : dst.split('@')[1].split(':')[0];
+    const mySshCommandWithoutCredential = `scp -P ${mySshPort} -o StrictHostKeyChecking=no -r ${src} ${dst}`;
+    const mySshCommandwithKeyFile = `scp -P ${mySshPort} -o IdentityFile=${myKeyFile} -o StrictHostKeyChecking=no -r ${src} ${dst}`;
+    const mySshCommandwithPassword = `sshpass -e scp -P ${mySshPort} -o StrictHostKeyChecking=no -r ${src} ${dst}`;
+    var mySshResult;
+
     this.correctHostKey(mySshHost, mySshPort);
-
-    if (typeof(sshPass) != 'undefined') {
-      process.env.SSHPASS = sshPass;
-      mySshCommand = `sshpass -e scp -P ${mySshPort} -o StrictHostKeyChecking=no -r ${src} ${dst}`;
-    } else if (typeof(sshKeyFile) != 'undefined') {
-      mySshCommand = `scp -P ${mySshPort} -o IdentityFile=${myKeyFile} -o StrictHostKeyChecking=no -r ${src} ${dst}`;
+    if (typeof(sshPass) == 'undefined' && typeof(sshKeyFile) == 'undefined') {
+      mySshResult = sshAction(mySshCommandWithoutCredential);
     } else {
-      mySshCommand = `scp -P ${mySshPort} -o StrictHostKeyChecking=no -r ${src} ${dst}`
+      mySshResult = sshAction(mySshCommandwithKeyFile);
+      if (mySshResult.exitcode == 5) {
+        process.env.SSHPASS = sshPass;
+        mySshResult = sshAction(mySshCommandwithPassword);  
+      }
     }
-    var result;
-    var exitcode;
-    try {
-      let rawResult = execSync(mySshCommand).toString();
-      let stringArray = rawResult.split('\r');
-      // reduce retracted result for display
-      result = stringArray.slice(Math.max(stringArray.length - 10, 0)).join('\n');    
-      exitcode = 0;
-    } catch(e) {
-      result = e.stdout.toString();
-      exitcode = e.status;
-    }
-    const returnVal = {cmd: mySshCommand, output: result, exitcode: exitcode};
-    const returnString = JSON.stringify(returnVal);
-    console.log(returnString);
-
-    return returnString;
+    console.log(mySshResult);
+    return mySshResult;
   },
 
   remoteRunCmd: function(runCommand, sshLogin, sshPort, sshPass, sshKeyFile) {
@@ -94,34 +100,23 @@ module.exports = {
     const myKeyFile = sshKeyFile || process.env.HOME + '/.ssh/id_rsa';
     const myRunCommand = ' "' + runCommand + '"';
     const mySshHost = sshLogin.split('@')[1];
-    this.correctHostKey(mySshHost, mySshPort);
+    const mySshCommandWithoutCredential =  `ssh ${mySshLogin} -p ${mySshPort}  -o StrictHostKeyChecking=no ${myRunCommand}`;
+    const mySshCommandwithKeyFile = `ssh ${mySshLogin} -p ${mySshPort}  -o IdentityFile=${myKeyFile} -o StrictHostKeyChecking=no ${myRunCommand}`;
+    const mySshCommandwithPassword = `sshpass -e ssh ${mySshLogin} -p ${mySshPort} -o StrictHostKeyChecking=no ${myRunCommand}`;
+    var mySshResult;
 
-    var mySshCommand;
-    if (typeof(sshPass) != 'undefined') {
-      process.env.SSHPASS = sshPass;
-      mySshCommand = `sshpass -e ssh ${mySshLogin} -p ${mySshPort} -o StrictHostKeyChecking=no ${myRunCommand}`;
-    } else if (typeof(sshKeyFile) != 'undefined') {
-      mySshCommand = `ssh ${mySshLogin} -p ${mySshPort}  -o IdentityFile=${myKeyFile} -o StrictHostKeyChecking=no ${myRunCommand}`;
+    this.correctHostKey(mySshHost, mySshPort);
+    if (typeof(sshPass) == 'undefined' && typeof(sshKeyFile) == 'undefined') {
+      mySshResult = sshAction(mySshCommandWithoutCredential);
     } else {
-      mySshCommand = `ssh ${mySshLogin} -p ${mySshPort}  -o StrictHostKeyChecking=no ${myRunCommand}`;
+      mySshResult = sshAction(mySshCommandwithKeyFile);
+      if (mySshResult.exitcode == 5) {
+        process.env.SSHPASS = sshPass;
+        mySshResult = sshAction(mySshCommandwithPassword);  
+      }
     }
-    var result;
-    var exitcode;
-    try {
-      let rawResult = execSync(mySshCommand).toString();
-      let stringArray = rawResult.split('\r');
-      // reduce retracted result for display
-      result = stringArray.slice(Math.max(stringArray.length - 10, 0)).join('\n');    
-      exitcode = 0;
-    } catch(e) {
-      result = e.stdout.toString();
-      exitcode = e.status;
-    }
-    const returnVal = {cmd: runCommand, output: result, exitcode: exitcode};
-    const returnString = JSON.stringify(returnVal);
-    console.log(returnString);
-    
-    return returnString;
+    console.log(mySshResult);    
+    return mySshResult;
   },
 
   remoteConsole: function(sshLogin, sshPort, sshPass, sshKeyFile) {
@@ -132,39 +127,59 @@ module.exports = {
     this.correctHostKey(mySshHost, mySshPort);
 
     var mySshCommand, mySshArgs, mySshArgsArray;
-    if (typeof(sshPass) != 'undefined') {
-      process.env.SSHPASS = sshPass;
-      mySshCommand = 'sshpass';
-      mySshArgs = `-e ssh ${mySshLogin} -p ${mySshPort} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -tt`;
-    } else if (typeof(sshKeyFile) != 'undefined') {
-      mySshCommand = 'ssh';
-      mySshArgs = `${mySshLogin} -p ${mySshPort} -o IdentityFile=${myKeyFile} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -tt`;
-    } else {
-      mySshCommand = 'ssh';
-      mySshArgs = `${mySshLogin} -p ${mySshPort} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -tt`;
+    const cmdWithoutCredential = {
+      cmd: 'ssh',
+      args: `${mySshLogin} -p ${mySshPort} -o ServerAliveInterval=30 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -tt`
     }
-    mySshArgsArray = mySshArgs.split(' ');
+    const cmdWithKeyFile = {
+      cmd: 'ssh',
+      args: `${mySshLogin} -p ${mySshPort} -o ServerAliveInterval=30 -o IdentityFile=${myKeyFile} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -tt`
+    }
+    const cmdWithPassword = {
+      cmd: 'sshpass',
+      args: `-e ssh ${mySshLogin} -p ${mySshPort} -o ServerAliveInterval=30 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -tt`
+    }
+
     const consoleSpawnOption = {
       shell: true
     };
-
     var myConsoleData = {stdout: '', stderr: ''};
-    const myConsole = spawn(mySshCommand, mySshArgsArray, consoleSpawnOption);
-    myConsole.stdout.on('data', function (data) {
-      const myData = stripAnsi(data.toString());
-      myConsoleData.stdout += myData;
-      console.log('stdout: ' + myData);
-    });
-    myConsole.stderr.on('data', function (data) {
-      const myData = stripAnsi(data.toString());
-      myConsoleData.stdout += myData;
-      console.log('stderr: ' + myData);
-    });
-    myConsole.on('close', function (code) {
-      myConsoleData.stdout += `\n** SSH console closed with code: ${code}**\n`;
-      console.log('child process exited with code ' + code);
-    });
+    var myConsole;
+    if (typeof(sshPass) == 'undefined' && typeof(sshKeyFile) == 'undefined') {
+      myConsole = spawn(cmdWithoutCredential.cmd, cmdWithoutCredential.args.split(' '), consoleSpawnOption);
+      console.log('NOCRED');
+    } else {
+      myConsole = spawn(cmdWithKeyFile.cmd, cmdWithKeyFile.args.split(' '), consoleSpawnOption);
+      console.log('withkey');
+      if (!myConsole.stderr) {
+        process.env.SSHPASS = sshPass;
+        myConsole = spawn(cmdWithPassword.cmd, cmdWithPassword.args.split(' '), consoleSpawnOption);
+        console.log('withpass');
+      }
+    }
 
-    return [myConsole, myConsoleData];
+    if (myConsole.stderr) {
+      myConsole.stdout.setEncoding('utf8');
+      myConsole.stdin.on('data', (data) => {
+        if (data.endsWith('\r')) myConsole.stdout.write('\n');
+      });
+      myConsole.stdout.on('data', (data) => {
+        const myData = stripAnsi(data.toString());
+        myConsoleData.stdout += myData;
+        console.log('stdout: ' + myData);
+      });
+      myConsole.stderr.on('data', (data) => {
+        const myData = stripAnsi(data.toString());
+        myConsoleData.stdout += myData;
+        console.log('stderr: ' + myData);
+      });
+      myConsole.on('close', (code) => {
+        myConsoleData.stdout += `\n** SSH console closed with code: ${code}**\n`;
+        console.log('child process exited with code ' + code);
+      });
+      return [myConsole, myConsoleData];  
+    } else {
+      return null;
+    }
   }
 }
