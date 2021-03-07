@@ -15,8 +15,7 @@ const myCombinedStepPath = [`${FrameworkPath}/framework/step_files/browser/*.js`
                             `${FrameworkPath}/framework/step_files/vcenter/*.js`,
                             `${FrameworkPath}/framework/step_files/postman/*.js`,
                             `${FrameworkPath}/framework/step_files/maven/*.js`,
-                            `${ProjectPath}/${myTestDir}/support/steps/**/*.js`,
-                            `support/steps/*.js`];
+                            `${ProjectPath}/${myTestDir}/support/steps/**/*.js`];
 const myDownloadPathLocal = safeQuote(process.env.DownloadPathLocal) || '/tmp/download_' + process.env.DISPLAY.substr(1);
 const myParallelRunPort = 4444 + parseInt(process.env.DISPLAY.slice(-3).replace(':', ''));
 
