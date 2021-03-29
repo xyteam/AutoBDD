@@ -14,17 +14,36 @@ When(/^(?::shell: )?I assign "([^"]*)?" value to(?: the)? "([^"]*)?" ENV if nece
   }
 );
 
-When(/^(?::shell: )?I open a SSH console to the host "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
+When(/^(?::shell: )?I (?:(re-))?open a SSH console to the host "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
 { timeout: 15 * 60 * 1000 },
-function (hostName, userName, passWord, consoleName) {
+function (reopen, hostName, userName, passWord, consoleName) {
     const myHostName = parseExpectedText(hostName);
     const myUserName = parseExpectedText(userName);
     const myPassWord = parseExpectedText(passWord);
+    const myConsoleName = parseExpectedText(consoleName);
+    if (this.myConsoleData[myConsoleName] && reopen) this.myConsoleData[myConsoleName].kill('SIGHUP');
     var [myConsole, myConsoleData] = cmdline_session.remoteConsole(`${myUserName}@${myHostName}`, 22, myPassWord);
     this.myConsoles = {};
-    this.myConsoles[consoleName] = myConsole;
+    this.myConsoles[myConsoleName] = myConsole;
     this.myConsoleData = {};
-    this.myConsoleData[consoleName] = myConsoleData;
+    this.myConsoleData[myConsoleName] = myConsoleData;
+});
+
+When(/^(?::shell: )?I close console "(.*)" console$/,
+{ timeout: 15 * 60 * 1000 },
+function (consoleName) {
+    const myConsoleName = parseExpectedText(consoleName);
+    // close
+    this.myConsoleData[myConsoleName].kill('SIGHUP');
+});
+
+When(/^(?::shell: )?I flush the "(.*)" console output$/,
+{ timeout: 60 * 1000 },
+function (consoleName) {
+    // parse input
+    const myConsoleName = parseExpectedText(consoleName);
+    // flush
+    this.myConsoleData[myConsoleName].stdout = '';
 });
 
 When(/^(?::shell: )?I copy (test file|downloaded file|folder) "(.*)" to scp target "(.*)" with password "(.*)"$/,
@@ -143,15 +162,6 @@ function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, consoleName, fals
 
     // clear timeout
     clearInterval(handle);
-});
-
-When(/^(?::shell: )?I flush the "(.*)" console output$/,
-{ timeout: 60 * 1000 },
-function (consoleName) {
-    // parse input
-    const myConsoleName = parseExpectedText(consoleName);
-    // flush
-    this.myConsoleData[myConsoleName].stdout = '';
 });
 
 When(/^(?::shell: )?I (?:type|press) (?:the )?"(.*)" (key|string) (?:(\d+) time(?:s)? )?to the console "(.*)"(?: if the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of the console does( not)* (contain|equal|match) the (text|regex) "(.*)?")?$/,
