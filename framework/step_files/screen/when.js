@@ -225,7 +225,7 @@ function (mouseAction, timesCount, screenLocation) {
 });
 
 When(/^(?::screen: )?I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" image|screen area) to( not)* display the (text|regex) "(.*)?"$/,
-{ timeout: 60 * 60 * 1000 },
+{ timeout: 120 * 60 * 1000 },
 function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, falseState, expectType, expectedText) {
     // parse input
     const myExpectedText = parseExpectedText(expectedText);
