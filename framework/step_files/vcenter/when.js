@@ -84,11 +84,12 @@ When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi d
   }
 );
 
-When(/^(?::vcenter: )?I open the HTML5 console to the VM "(.*)" inside esxi dc "(.*)"$/,
+When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside esxi dc "(.*)"$/,
   { timeout: 15 * 60 * 1000 },
-  (vmName, dcName) => {
+  (reopen, vmName, dcName) => {
     const myVmName = parseExpectedText(vmName);
     const myDcName = parseExpectedText(dcName);
+    var myReopen = reopen || false;
     const govcCmd = 'vm.console';
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
     const myVCenterHost = myVCenterURL.substring(myVCenterURL.lastIndexOf('@') + 1);
@@ -136,7 +137,8 @@ When(/^(?::vcenter: )?I open the HTML5 console to the VM "(.*)" inside esxi dc "
     browser.refresh();
     // take a peek and re-login if the console is disconnected
     var consoleScreenText = JSON.parse(screen_session.screenFindImage('Screen-60'))[0].text;
-    while (browser.$('a=Back to login screen').isExisting() || consoleScreenText.join(' ').includes('The console has been disconnected')) {
+    while (myReopen || browser.$('a=Back to login screen').isExisting() || consoleScreenText.join(' ').includes('The console has been disconnected')) {
+      myReopen = false;
       // open vSphere HTML5 ui, logout and re-login, in order to get a new session
       browser.url(`https://${myVCenterHost}/ui/`);
       try {
@@ -152,13 +154,14 @@ When(/^(?::vcenter: )?I open the HTML5 console to the VM "(.*)" inside esxi dc "
   }
 );
 
-When(/^(?::vcenter: )?I open the SSH console to the VM "(.*)" inside esxi dc "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
+When(/^(?::vcenter: )?I (?:(re-))?open the SSH console to the VM "(.*)" inside esxi dc "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
   { timeout: 15 * 60 * 1000 },
-  function (vmName, dcName, userName, passWord, consoleName) {
+  function (reopen, vmName, dcName, userName, passWord, consoleName) {
     const myVmName = parseExpectedText(vmName);
     const myDcName = parseExpectedText(dcName);
     const myUserName = parseExpectedText(userName);
     const myPassWord = parseExpectedText(passWord);
+    const myConsoleName = parseExpectedText(consoleName);
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
     // retrieve ssh IP address
     const govcCmd = 'vm.ip';
@@ -168,11 +171,12 @@ When(/^(?::vcenter: )?I open the SSH console to the VM "(.*)" inside esxi dc "(.
     const resultObject = JSON.parse(resultString);
     const mySshHost = resultObject.output.replace('\n', '');
     console.log(`ssh: ${myUserName}@${mySshHost}`);
+    if (this.myConsoleData && this.myConsoleData[myConsoleName] && reopen) this.myConsoleData[myConsoleName].kill('SIGHUP');
     var [myConsole, myConsoleData] = cmdline_session.remoteConsole(`${myUserName}@${mySshHost}`, 22, myPassWord);
     this.myConsoles = {};
-    this.myConsoles[consoleName] = myConsole;
+    this.myConsoles[myConsoleName] = myConsole;
     this.myConsoleData = {};
-    this.myConsoleData[consoleName] = myConsoleData;
+    this.myConsoleData[myConsoleName] = myConsoleData;
   }
 );
 
