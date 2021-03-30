@@ -21,7 +21,7 @@ function (reopen, hostName, userName, passWord, consoleName) {
     const myUserName = parseExpectedText(userName);
     const myPassWord = parseExpectedText(passWord);
     const myConsoleName = parseExpectedText(consoleName);
-    if (this.myConsoleData[myConsoleName] && reopen) this.myConsoleData[myConsoleName].kill('SIGHUP');
+    if (this.myConsoleData && this.myConsoleData[myConsoleName] && reopen) this.myConsoleData[myConsoleName].kill('SIGHUP');
     var [myConsole, myConsoleData] = cmdline_session.remoteConsole(`${myUserName}@${myHostName}`, 22, myPassWord);
     this.myConsoles = {};
     this.myConsoles[myConsoleName] = myConsole;
