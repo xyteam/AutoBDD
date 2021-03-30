@@ -225,13 +225,20 @@ function (mouseAction, timesCount, screenLocation) {
 });
 
 When(/^(?::screen: )?I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" image|screen area) to( not)* display the (text|regex) "(.*)?"$/,
-{ timeout: 120 * 60 * 1000 },
+{ timeout: 60 * 60 * 1000 },
 function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, falseState, expectType, expectedText) {
     // parse input
     const myExpectedText = parseExpectedText(expectedText);
     const myWaitTimeoutMnt = parseInt(waitTimeoutMnt) || 1;
     const myWaitIntvSec = parseInt(waitIntvSec) || 5;
-
+    if (myWaitTimeoutMnt > 60) {
+        console.log(`
+        BDD Warning: Each BDD statement can not wait for more than 60 minutes.
+        Repeat this statement multiple times to achieve longer wait time.
+        Shorten the wait tiime to 60 minutes in thhis BDD statement.
+        `);
+        myWaitTimeoutMnt = 60;
+    }
     // process target before check
     var imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText, imagePathList, imageScore;
     if (targetName) {
