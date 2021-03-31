@@ -20,6 +20,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         # autobdd-run
         aosd-cat \
         autofs \
+        awscli \
         binutils \
         build-essential \
         colorized-logs \
@@ -30,6 +31,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         gnupg2 \
         gpg-agent \
         imagemagick \
+        jq \
         libappindicator3-1 \
         libatk-bridge2.0-0 \
         libgtk-3-0 \
@@ -38,6 +40,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         libopencv-dev \
         libpng++-dev \
         libpython3-stdlib \
+        libssl-dev \
         libtesseract-dev \
         libxss1 \
         libxtst-dev \
@@ -51,6 +54,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         rdesktop \
         rsync \
         rustc \
+        ssh-askpass \
         sshpass \
         tcpreplay \
         tesseract-ocr \
@@ -94,6 +98,8 @@ RUN update-alternatives --install /usr/bin/python python $(which $(readlink $(wh
     echo "fs.inotify.max_user_watches = 524288" | sudo tee -a /etc/sysctl.conf; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
     mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \
+    mkdir -p /root/Projects; \
+    mkdir -p /root/Downloads; \
     ldconfig; \
     update-ca-certificates; \
     rm -rf /var/lib/apt/lists/*; \
