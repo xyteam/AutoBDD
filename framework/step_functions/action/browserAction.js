@@ -4,7 +4,11 @@
  */
 module.exports = (command) => {
     try {
-        browser[command]();
+        if (command == 'reload') {
+            browser.reloadSession();
+        } else {
+            browser[command]();
+        }    
     } catch (e) {
         console.log(`browser ${command} failed`);
     }

@@ -24,6 +24,12 @@ const openTarget = require(FrameworkPath + '/framework/step_functions/action/ope
 const resizeScreenSize = require(FrameworkPath + '/framework/step_functions/action/resizeScreenSize');
 
 Given(
+    /^(?::browser: )?I (back|close|debug|forward|refresh|reload|reset) browser$/,
+    {timeout: 3600*1000},
+    browserAction
+);
+
+Given(
     /^(?::browser: )?I announce message(?: at (console|browser))?: "([^"]*)?"$/,
     announceMessage
 );
