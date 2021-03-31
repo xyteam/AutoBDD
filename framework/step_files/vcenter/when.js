@@ -105,8 +105,6 @@ When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside
     }
     // define login function
     const loginVcenter = () => {
-      browser.url(`https://${myVCenterHost}/ui/`);
-      bypassChromeWarning();
       if (browser.$('#username').waitForExist(3000)) {
         browser.$('#username').setValue(myVCenterUser);
         browser.$('#password').setValue(myVCenterPass);
@@ -116,8 +114,6 @@ When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside
     }
     // define logout function
     const logoutVcenter = () => {
-      browser.url(`https://${myVCenterHost}/ui/`);
-      bypassChromeWarning();
       if (browser.$('.nav-icon.user-menu-large').waitForExist(3000)) {
         browser.$('.nav-icon.user-menu-large').click();
         browser.$('a=Logout').click();
@@ -131,23 +127,37 @@ When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside
     const resultString = cmdline_session.runCmd(cmdString);
     const resultObject = JSON.parse(resultString);
     const myConsoleUrl = resultObject.output.replace('\n', '');
+    // re-login if re-open
     if (myReopen) {
-      logoutVcenter();
-      loginVcenter();
+      browser.url(`https://${myVCenterHost}/ui/`);
+      try {
+        loginVcenter();
+      } catch(e) {
+        logoutVcenter();
+        loginVcenter();
+      }
     }
-    // open console
+    // open VM console
     try {
       browser.url(myConsoleUrl);
+      browser.pause(500);  
+      bypassChromeWarning();
     } catch(e) {
-      logoutVcenter();
-      loginVcenter();
+      browser.url(`https://${myVCenterHost}/ui/`);
+      try {
+        loginVcenter();
+      } catch(e) {
+        logoutVcenter();
+        loginVcenter();
+      }
       browser.url(myConsoleUrl);
     }
-    browser.pause(500);
+    browser.refresh();
     // take a peek and re-login if the console is disconnected
     var consoleScreenText = JSON.parse(screen_session.screenFindImage('Screen-60'))[0].text;
     while (browser.$('a=Back to login screen').isExisting() || consoleScreenText.join(' ').includes('The console has been disconnected')) {
-      myReopen = false;
+      // open vSphere HTML5 ui, logout and re-login, in order to get a new session
+      browser.url(`https://${myVCenterHost}/ui/`);
       try {
         loginVcenter();
       } catch(e) {
@@ -164,7 +174,6 @@ When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside
 When(/^(?::vcenter: )?I (?:(re-))?open the SSH console to the VM "(.*)" inside esxi dc "(.*)" with username "(.*)" and password "(.*)" as "(.*)"$/,
   { timeout: 15 * 60 * 1000 },
   function (reopen, vmName, dcName, userName, passWord, consoleName) {
-    var myReopen = reopen || false;
     const myVmName = parseExpectedText(vmName);
     const myDcName = parseExpectedText(dcName);
     const myUserName = parseExpectedText(userName);
@@ -179,7 +188,7 @@ When(/^(?::vcenter: )?I (?:(re-))?open the SSH console to the VM "(.*)" inside e
     const resultObject = JSON.parse(resultString);
     const mySshHost = resultObject.output.replace('\n', '');
     console.log(`ssh: ${myUserName}@${mySshHost}`);
-    if (this.myConsoleData && this.myConsoleData[myConsoleName] && myReopen) this.myConsoleData[myConsoleName].kill('SIGHUP');
+    if (this.myConsoleData && this.myConsoleData[myConsoleName] && reopen) this.myConsoleData[myConsoleName].kill('SIGHUP');
     var [myConsole, myConsoleData] = cmdline_session.remoteConsole(`${myUserName}@${mySshHost}`, 22, myPassWord);
     this.myConsoles = {};
     this.myConsoles[myConsoleName] = myConsole;
