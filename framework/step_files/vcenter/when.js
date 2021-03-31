@@ -128,7 +128,13 @@ When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside
     const resultObject = JSON.parse(resultString);
     const myConsoleUrl = resultObject.output.replace('\n', '');
     // open console
-    browser.url(myConsoleUrl);
+    try {
+      browser.url(myConsoleUrl);
+    } catch(e) {
+      logoutVcenter();
+      loginVcenter();
+      browser.url(myConsoleUrl);
+    }
     browser.pause(500);
     // deal with chrome warning
     try {
