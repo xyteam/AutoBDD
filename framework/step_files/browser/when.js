@@ -39,12 +39,6 @@ function (elementText, elementName) {
 });
 
 When(
-    /^(?::browser: )?I (back|close|debug|forward|refresh|reload|reset) browser$/,
-    {timeout: 3600*1000},
-    browserAction
-);
-
-When(
     /^(?::browser: )?I (?:wait (?:(\d+)ms )?and )?((?:left |middle |right |double )?click|hover) on the (\S*) "([^"]*)?"(?: (if exists))?$/,
     waitAndActOnElement
 );
