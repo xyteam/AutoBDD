@@ -12,7 +12,7 @@ module.exports = {
 
     // define login function
     loginVcenter: function(session, vCenterURL) {
-        const [vCenterHost, vCenterUser, vCenterPass] = getVcenterInfo(vCenterURL);
+        const [vCenterHost, vCenterUser, vCenterPass] = this.getVcenterInfo(vCenterURL);
         session.url(`https://${vCenterHost}/ui/`);
         session.pause(500); 
         browser_session.bypassChromeWarningIfEncounter(session);
@@ -32,7 +32,7 @@ module.exports = {
 
     // define logout function
     logoutVcenter: function(session, vCenterURL) {
-        const [vCenterHost, vCenterUser, vCenterPass] = getVcenterInfo(vCenterURL);
+        const [vCenterHost, vCenterUser, vCenterPass] = this.getVcenterInfo(vCenterURL);
         session.url(`https://${vCenterHost}/ui/`);
         session.pause(500);
         browser_session.bypassChromeWarningIfEncounter(session);
@@ -50,7 +50,7 @@ module.exports = {
     },
 
     reLoginVcenter: function(session, vCenterURL) {
-        logoutVcenter(session, vCenterURL);
-        return loginVcenter(session, vCenterURL);
+        this.logoutVcenter(session, vCenterURL);
+        return this.loginVcenter(session, vCenterURL);
     },
 }
