@@ -80,16 +80,11 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         # fonts
         fonts-wqy-microhei \
         ttf-wqy-zenhei; \
-    # install python2, pip2 and python2 pytest to support py2 test projects (autobdd does not need py2, this section can be removed)
-    # apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-        # python2 \
-        # libpython2.7-stdlib \
-        # python-dev; \
-    # curl https://bootstrap.pypa.io/2.7/get-pip.py --output get-pip.py && \
-    # python2 get-pip.py; \
-    # pip2 install pytest; \
     # final autoremove
     apt --purge autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold";
+    # python2 is disabled for forward looking
+    # if python2 support is needed, 
+    # run sudo /root/enable_python2_support.sh in docker container
 
 # run finishing set up
 RUN update-alternatives --install /usr/bin/python python $(which $(readlink $(which python3))) 10; \
