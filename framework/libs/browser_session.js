@@ -70,5 +70,19 @@ module.exports = {
     });
     session.pause(timeout)
     return;
-  }
+  },
+  
+  // define bypass chrome warning function
+  bypassChromeWarningIfEncounter: function(session) {
+    try {
+      if (session.$('button=Advanced').waitForExist(3000)) {
+        session.$('button=Advanced').click();
+        session.$('a*=Proceed to').click();
+        return true;
+      }  
+    } catch(e) {
+      return false;
+    }
+  },
+
 }

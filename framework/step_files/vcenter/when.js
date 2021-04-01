@@ -1,6 +1,7 @@
 const cmdline_session = require(process.env.FrameworkPath + '/framework/libs/cmdline_session.js');
 const browser_session = require(process.env.FrameworkPath + '/framework/libs/browser_session.js');
 const screen_session = require(process.env.FrameworkPath + '/framework/libs/screen_session.js');
+const vcenter_session = require(process.env.FrameworkPath + '/framework/libs/vcenter_session.js');
 const parseExpectedText = require(process.env.FrameworkPath + '/framework/step_functions/common/parseExpectedText.js');
 const path = require('path');
 
@@ -92,34 +93,6 @@ When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside
     const myReopen = reopen || false;
     const govcCmd = 'vm.console';
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    const myVCenterHost = myVCenterURL.substring(myVCenterURL.lastIndexOf('@') + 1);
-    const myVCenterPassPhase = myVCenterURL.substring(myVCenterURL.indexOf('://') + 3, myVCenterURL.lastIndexOf('@')).split(':');
-    const myVCenterUser = myVCenterPassPhase[0].replace(/["]/g, '');
-    const myVCenterPass = myVCenterPassPhase[1].replace(/["]/g, '');
-    // define bypass chrome warning function
-    const bypassChromeWarning = () => {
-      if (browser.$('button=Advanced').waitForExist(3000)) {
-        browser.$('button=Advanced').click();
-        browser.$('a*=Proceed to').click();
-      }
-    }
-    // define login function
-    const loginVcenter = () => {
-      if (browser.$('#username').waitForExist(3000)) {
-        browser.$('#username').setValue(myVCenterUser);
-        browser.$('#password').setValue(myVCenterPass);
-        browser.$('#submit').click();
-      }
-      browser.$('.settings').waitForDisplayed(30 * 1000);
-    }
-    // define logout function
-    const logoutVcenter = () => {
-      if (browser.$('.nav-icon.user-menu-large').waitForExist(3000)) {
-        browser.$('.nav-icon.user-menu-large').click();
-        browser.$('a=Logout').click();
-      }
-      browser.$('#password').waitForDisplayed(30 * 1000);
-    }
 
     // get VM console URL
     const cmdString = `govc ${govcCmd} -u=${myVCenterURL} -k=true -h5=true -dc=${myDcName} ${myVmName}`;
@@ -129,49 +102,27 @@ When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside
     const myConsoleUrl = resultObject.output.replace('\n', '');
     // re-login if re-open
     if (myReopen) {
-      browser.url(`https://${myVCenterHost}/ui/`);
-      browser.pause(500);  
-      bypassChromeWarning();
-      try {
-        loginVcenter();
-      } catch(e) {
-        logoutVcenter();
-        loginVcenter();
-      }
+      vcenter_session.reLoginVcenter(browser, myVCenterURL);
+    } else {
+      vcenter_session.loginVcenter(browser, myVCenterURL);
     }
     // open VM console
     try {
       browser.url(myConsoleUrl);
-      browser.pause(500);  
-      bypassChromeWarning();
     } catch(e) {
-      browser.url(`https://${myVCenterHost}/ui/`);
-      browser.pause(500);  
-      bypassChromeWarning();
-      try {
-        loginVcenter();
-      } catch(e) {
-        logoutVcenter();
-        loginVcenter();
-      }
+      vcenter_session.reLoginVcenter(browser, myVCenterURL);
       browser.url(myConsoleUrl);
     }
-    browser.refresh();
-    // take a peek and re-login if the console is disconnected
+    browser.pause(3000);
     var consoleScreenText = JSON.parse(screen_session.screenFindImage('Screen-60'))[0].text;
-    while (browser.$('a=Back to login screen').isExisting() || consoleScreenText.join(' ').includes('The console has been disconnected')) {
+    let loopCount = 3;
+    // take a peek and re-login if the console is disconnected
+    while (loopCount > 0 && (browser.$('a=Back to login screen').isExisting() || consoleScreenText.length == 0 || consoleScreenText.join(' ').includes('The console has been disconnected'))) {
+      loopCount--;
       // open vSphere HTML5 ui, logout and re-login, in order to get a new session
-      browser.url(`https://${myVCenterHost}/ui/`);
-      browser.pause(500);  
-      bypassChromeWarning();
-      try {
-        loginVcenter();
-      } catch(e) {
-        logoutVcenter();
-        loginVcenter();
-      }
+      vcenter_session.reLoginVcenter(browser, myVCenterURL);
       browser.url(myConsoleUrl);
-      browser.refresh();
+      browser.pause(3000);
       consoleScreenText = JSON.parse(screen_session.screenFindImage('Screen-60'))[0].text;
     }
   }
