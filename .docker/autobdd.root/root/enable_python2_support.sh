@@ -5,7 +5,7 @@
         python2 \
         libpython2.7-stdlib \
         python-dev; \
-    curl https://bootstrap.pypa.io/2.7/get-pip.py --output get-pip.py && \
+    curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py && \
         python2 get-pip.py && \
         rm -f get-pip.py; \
 # preserve python3 as default
