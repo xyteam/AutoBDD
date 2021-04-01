@@ -7,7 +7,6 @@ const clearInputField = require(FrameworkPath + '/framework/step_functions/actio
 const clickElementInsideParentElement = require(FrameworkPath + '/framework/step_functions/action/clickElementInsideParentElement');
 const clickToCondition = require(FrameworkPath + '/framework/step_functions/action/clickToCondition');
 const deleteCookie = require(FrameworkPath + '/framework/step_functions/action/deleteCookie');
-const browserAction = require(FrameworkPath + '/framework/step_functions/action/browserAction');
 const dragElement = require(FrameworkPath + '/framework/step_functions/action/dragElement');
 const switchToOrCloseOpenedWindow = require(FrameworkPath + '/framework/step_functions/action/switchToOrCloseOpenedWindow');
 const handleModal = require(FrameworkPath + '/framework/step_functions/action/handleModal');

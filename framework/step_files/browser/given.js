@@ -3,6 +3,7 @@ const { Given } = require('cucumber');
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const announceMessage = require(FrameworkPath + '/framework/step_functions/action/announceMessage');
 const assignValueOfElementInsideParentElementAs = require(FrameworkPath + '/framework/step_functions/action/assignValueOfElementInsideParentElementAs');
+const browserAction = require(FrameworkPath + '/framework/step_functions/action/browserAction');
 const bypassChromeSafetyWarning = require(FrameworkPath + '/framework/step_functions/action/bypassChromeSafetyWarning');
 const checkContainsAnyTextOrValue = require(FrameworkPath + '/framework/step_functions/check/checkContainsAnyTextOrValue');
 const checkElementTextValueIsEmpty = require(FrameworkPath + '/framework/step_functions/check/checkElementTextValueIsEmpty');
