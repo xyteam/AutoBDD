@@ -99,11 +99,11 @@ module.exports = {
     const mySshLogin = sshLogin || 'vagrant@localhost';
     const mySshPort = sshPort || 22;
     const myKeyFile = sshKeyFile || process.env.HOME + '/.ssh/id_rsa';
-    const myRunCommand = ' "' + runCommand + '"';
+    const myRunCommand = runCommand;
     const mySshHost = sshLogin.split('@')[1];
-    const mySshCommandWithoutCredential =  `ssh ${mySshLogin} -p ${mySshPort}  -o StrictHostKeyChecking=no ${myRunCommand}`;
-    const mySshCommandwithKeyFile = `ssh ${mySshLogin} -p ${mySshPort}  -o IdentityFile=${myKeyFile} -o StrictHostKeyChecking=no ${myRunCommand}`;
-    const mySshCommandwithPassword = `sshpass -e ssh ${mySshLogin} -p ${mySshPort} -o StrictHostKeyChecking=no ${myRunCommand}`;
+    const mySshCommandWithoutCredential =  `ssh ${mySshLogin} -p ${mySshPort}  -o StrictHostKeyChecking=no "${myRunCommand}"`;
+    const mySshCommandwithKeyFile = `ssh ${mySshLogin} -p ${mySshPort}  -o IdentityFile=${myKeyFile} -o StrictHostKeyChecking=no "${myRunCommand}"`;
+    const mySshCommandwithPassword = `sshpass -e ssh ${mySshLogin} -p ${mySshPort} -o StrictHostKeyChecking=no "${myRunCommand}"`;
     var mySshResult;
     this.correctHostKey(mySshHost, mySshPort);
     if (typeof(sshPass) == 'undefined' && typeof(sshKeyFile) == 'undefined') {
