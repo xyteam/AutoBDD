@@ -1,4 +1,4 @@
-const { Then } = require('cucumber');
+const { Then } = require('@cucumber/cucumber');
 
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');

@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # apt set keys for additional packages
 RUN \
     # set apt-key for nodejs 12.x
-    curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - && \
+    curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && \
     # set apt-key for google-chrome
     rm -f /etc/apt/sources.list.d/google-chrome.list && \
     echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \

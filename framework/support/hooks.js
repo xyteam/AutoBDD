@@ -89,7 +89,7 @@ const frameworkHooks = {
    * cucumber framework hooks
    **/ 
 
-   beforeFeature: function(uri, feature, scenarios) {
+   beforeFeature: function(uri, feature) {
     console.log(`Feature: ${feature.document.feature.name}\n`);
     currentScenarioName = '';
     currentStepNumber = 0;
@@ -121,9 +121,9 @@ const frameworkHooks = {
     }
   },
 
-  beforeScenario: function(uri, feature, scenario, sourceLocation) {
-    console.log(`Scenario: ${scenario.name}\n`);
-    const scenarioName = scenario.name;
+  beforeScenario: function(context) {
+    console.log(`Scenario: ${context.pickle.name}\n`);
+    const scenarioName = context.pickle.name;
     currentScenarioName = scenarioName;
     currentStepNumber = 0;
     browser.windowHandleMaximize();
@@ -131,18 +131,18 @@ const frameworkHooks = {
     browser.setTimeouts(null, null, 3600*1000);
   },
 
-  beforeStep: function({uri, feature, step}, context) {
-    // console.log(step.step);
+  beforeStep: function(step, context) {
+    // console.log(step);
     // only count real steps (do not count after steps)
-    if (step.step.text.length > 0) {
+    if (step.text.length > 0) {
       currentStepNumber++;
-      console.log(step.step.text);
+      console.log(step.text);
     }
   },
 
-  afterStep: function({uri, feature, step}, context, {error, result, duration, passed}) {
+  afterStep: function(step, context, {error, result, duration, passed}) {
     // to be done for real steps
-    if (step.step.text.length > 0) {
+    if (step.text.length > 0) {
       // start recording
       if (process.env.MOVIE == 1 && currentStepNumber == 1) framework_libs.startRecording(currentScenarioName);
 
@@ -151,7 +151,7 @@ const frameworkHooks = {
       const remarkScenarioName = (currentScenarioNameArray.length <= 10) ? currentScenarioName : currentScenarioNameArray.slice(0, 6).join(' ') +
                                  ' .. ' +
                                  currentScenarioNameArray.slice(currentScenarioNameArray.length - 3).join(' ');
-      const remarkStepName = step.step.text;
+      const remarkStepName = step.text;
       const remarkTextBase = `${remarkScenarioName} ... Step ${currentStepNumber} : ${remarkStepName}`;
       var remarkText, remarkColor;
       if (passed) {
@@ -180,7 +180,7 @@ const frameworkHooks = {
     }
   },
 
-  afterScenario: function(uri, feature, scenario, result, sourceLocation) {
+  afterScenario: function(context) {
     // scenario status
     if (result.status == 'passed') {
       currentScenarioStatus = 'Passed';
@@ -238,7 +238,7 @@ const frameworkHooks = {
     browser.pause(1000);
   },
   
-  afterFeature: function(uri, feature, scenarios) {
+  afterFeature: function(uri, feature) {
     if (process.env.SSHHOST && process.env.SSHPORT) {
       try {
         framework_libs.stopRdesktop();

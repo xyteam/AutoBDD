@@ -1,4 +1,4 @@
-const { Then } = require('cucumber');
+const { Then } = require('@cucumber/cucumber');
 
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const checkClass = require(FrameworkPath + '/framework/step_functions/check/checkClass');

@@ -1,4 +1,4 @@
-const { Given } = require('cucumber');
+const { Given } = require('@cucumber/cucumber');
 
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const announceMessage = require(FrameworkPath + '/framework/step_functions/action/announceMessage');

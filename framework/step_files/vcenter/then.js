@@ -2,7 +2,7 @@ const cmdline_session = require(process.env.FrameworkPath + '/framework/libs/cmd
 const browser_session = require(process.env.FrameworkPath + '/framework/libs/browser_session.js');
 const parseExpectedText = require(process.env.FrameworkPath + '/framework/step_functions/common/parseExpectedText.js');
 
-const { Then } = require('cucumber');
+const { Then } = require('@cucumber/cucumber');
 
 Then(/^(?::vcenter: )?The VM "(.*)" (?:should|does)( not)* exist in esxi host "(.*)" inside esxi dc "(.*)"$/,
   (vmName, falseCase, hostIP, dcName) => {

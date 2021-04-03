@@ -1,7 +1,7 @@
 const cmdline_session = require(`${process.env.FrameworkPath}/framework/libs/cmdline_session.js`);
 const parseExpectedText = require(`${process.env.FrameworkPath}/framework/step_functions/common/parseExpectedText.js`);
 
-const { Given } = require('cucumber');
+const { Given } = require('@cucumber/cucumber');
 
 Given(/^(?::nodejs: )?I call (?:(framework|project|module) )?function "([^"]*)?" with parameters "([^"]*)?"(?: and assign ouput as "([^"]*)?")?(?: in order to .*)?$/,
     (funcType, funcName, funcParms, varName) => {

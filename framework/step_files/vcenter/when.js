@@ -5,7 +5,7 @@ const vcenter_session = require(process.env.FrameworkPath + '/framework/libs/vce
 const parseExpectedText = require(process.env.FrameworkPath + '/framework/step_functions/common/parseExpectedText.js');
 const path = require('path');
 
-const { When } = require('cucumber');
+const { When } = require('@cucumber/cucumber');
 
 When(/^(?::vcenter: )?I change the VM with config below:$/,
   { timeout: 15 * 60 * 1000 },

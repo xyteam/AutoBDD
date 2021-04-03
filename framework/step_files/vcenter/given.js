@@ -2,7 +2,7 @@ const cmdline_session = require(process.env.FrameworkPath + '/framework/libs/cmd
 const browser_session = require(process.env.FrameworkPath + '/framework/libs/browser_session.js');
 const parseExpectedText = require(process.env.FrameworkPath + '/framework/step_functions/common/parseExpectedText.js');
 
-const { Given } = require('cucumber');
+const { Given } = require('@cucumber/cucumber');
 
 Given(/^(?::vcenter: )?I have the "(.*)" command installed locally$/,
   (cmdName) => {

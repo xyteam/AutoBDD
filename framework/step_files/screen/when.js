@@ -1,4 +1,4 @@
-const { When } = require('cucumber');
+const { When } = require('@cucumber/cucumber');
 
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
