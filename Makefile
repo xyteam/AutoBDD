@@ -45,6 +45,7 @@ autobdd-logs:
 autobdd-logs-f:
 	cd .docker && make autobdd-logs-f || exit $?
 autobdd-ssh:
+	ssh-keygen -f "$${HOME}/.ssh/known_hosts" -R "[localhost]:2222"
 	ssh $$USER@localhost -p 2222 || exit $?
 autobdd-down:
 	cd .docker && make autobdd-down || exit $?
