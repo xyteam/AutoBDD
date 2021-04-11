@@ -74,20 +74,19 @@ if [[ "$CLEANOLDREPORT" == "1" ]]; then
     rm -rf ${REPORTDIR}/*
 fi
 
-SPEC_FILTER=${@:-.}
-MODULE_LIST=$(find ${SPEC_FILTER} -type d -name "features" ! -path "*/${REPORTDIR}/*" | xargs dirname | sort -u)
-for MODULE in ${MODULE_LIST}; do
-  if [[ "$MODULE" == "." ]]; then
-    SPEC_LIST="${SPEC_LIST} $(find . -type f -name *.feature | sort -u)"
-  else
-    SPEC_LIST="${SPEC_LIST} $(find . -type f -path */${MODULE}/* -name *.feature | sort -u)"
-  fi
-done
+SPEC_LIST="$(find . -type f -name *.feature | sort -u)"
 
 echo running $(echo ${SPEC_LIST} | wc -w) feature files with ${JOBS_COUNT} processes
 echo ${SPEC_LIST} | tr " " "\n"
 
-time REPORTDIR=${REPORTDIR} parallel --jobs=${JOBS_COUNT} --results=${REPORTDIR}/logs.csv xvfb-runner.sh npx wdio '{=1 s:/features/.+:/abdd.js: =}' ${RUN_OPTS} --spec={1} ${PARAMS} ::: ${SPEC_LIST}
+REPORTDIR=${REPORTDIR:-prunner-report}
+MODULEDIR=$(pwd | awk -F 'e2e-test/' '{print $2}')
+mkdir -p ${REPORTDIR}/${MODULEDIR}
+if [[ "$CLEANOLDREPORT" == "1" ]]; then
+    rm -rf ${REPORTDIR}/${MODULEDIR}/*
+fi
+
+time REPORTDIR=${REPORTDIR} parallel --jobs=${JOBS_COUNT} --results=${REPORTDIR}/${MODULEDIR}/logs.csv xvfb-runner.sh npx wdio '{=1 s:/features/.+:/abdd.js: =}' ${RUN_OPTS} --spec={1} ${PARAMS} ::: ${SPEC_LIST}
 
 # gen report
 cd ${REPORTDIR}

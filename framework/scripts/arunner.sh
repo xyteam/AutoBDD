@@ -19,13 +19,14 @@ do
 done
 
 REPORTDIR=${REPORTDIR:-arunner-report}
-mkdir -p ${REPORTDIR}
+MODULEDIR=$(pwd | awk -F 'e2e-test/' '{print $2}')
+mkdir -p ${REPORTDIR}/${MODULEDIR}
 if [[ "$CLEANOLDREPORT" == "1" ]]; then
-    rm -rf ${REPORTDIR}/*
+    rm -rf ${REPORTDIR}/${MODULEDIR}/*
 fi
 
 echo REPORTDIR=${REPORTDIR} $RUN_CMD $RUN_ARGS
-time REPORTDIR=${REPORTDIR} $RUN_CMD $RUN_ARGS | tee ${REPORTDIR}/arunner.log
+time REPORTDIR=${REPORTDIR} $RUN_CMD $RUN_ARGS | tee ${REPORTDIR}/${MODULEDIR}/arunner.log
 
 # gen report
 cd ${REPORTDIR}
