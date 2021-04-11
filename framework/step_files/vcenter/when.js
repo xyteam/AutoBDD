@@ -169,7 +169,7 @@ When(/^(?::vcenter: )?I use the OVA URL to deploy an VM with config below:$/,
     const myPool = `/${myDataCenter}/host/${myEsxiHost}/Resources`;
     const myTargetOvaUrl = process.env.myTargetOvaUrl;
 
-    const cmdString = `time govc import.ova -options=${process.env.PROJECTRUNPATH}/e2e-test/testfiles/${myOptionFile} -u=${myVCenterURL} -k=true -dc=${myDataCenter} -ds=${myDataStore} -pool=${myPool} -name=${myVmName} ${myTargetOvaUrl}`;
+    const cmdString = `time govc import.ova -options=${process.env.PROJECTRUNPATH}/${process.env.TestDir}/testfiles/${myOptionFile} -u=${myVCenterURL} -k=true -dc=${myDataCenter} -ds=${myDataStore} -pool=${myPool} -name=${myVmName} ${myTargetOvaUrl}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     try {
