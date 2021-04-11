@@ -181,8 +181,11 @@ const frameworkHooks = {
   },
 
   afterScenario: function(context) {
-    // scenario status
-    if (result.status == 'passed') {
+    // console.log(context);
+    const resultStatus = context.result.status;
+    const feature_uri = context.gherkinDocument.uri;
+    // context.result.status = 1 means passed
+    if (resultStatus == '1') {
       currentScenarioStatus = 'Passed';
     } else {
       currentScenarioStatus = 'Failed'
@@ -191,6 +194,7 @@ const frameworkHooks = {
     }
     const remarkText = (process.env.SCREENREMARK == 0) ? '' : `Scenario ${currentScenarioStatus}: ${currentScenarioName}`;
     const remarkColor = (currentScenarioStatus == 'Passed') ? 'green' : 'red';
+    // console.log([remarkText, remarkColor]);
 
     // final screenshot and end movie with it
     if (process.env.SCREENSHOT >= 1) {
@@ -204,9 +208,9 @@ const frameworkHooks = {
     }
 
     // process tags for report attachement
-    const module_path = feature.uri.split('features/')[0];
-    const feature_path = feature.uri.split('features/')[1].replace('/', '_');
-    const feature_runlog = safeQuote(process.env.RUNREPORT) ||  `${module_path}${feature_path}.log`;
+    const module_path = feature_uri.split('features/')[0].split(`${process.env.TestDir}/`)[1];
+    const feature_path = feature_uri.split('features/')[1].replace('/', '_');
+    const feature_runlog = safeQuote(process.env.RUNREPORT) || `${module_path}${feature_path}.log`;
     const runlog_tag = framework_libs.getRunlogTag(feature_runlog);
     cucumberJsReporter.attach(runlog_tag, 'text/html');
 
