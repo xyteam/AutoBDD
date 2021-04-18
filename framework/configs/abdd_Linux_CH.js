@@ -5,6 +5,7 @@ const FrameworkPath = safeQuote(process.env.FrameworkPath);
 const ProjectPath = safeQuote(process.env.PROJECTRUNPATH);
 const myReportDir = safeQuote(process.env.REPORTDIR);
 const myTestDir = safeQuote(process.env.TestDir);
+const myTestModule = safeQuote(process.env.TestModule);
 const myDISPLAYSIZE = safeQuote(process.env.DISPLAYSIZE);
 const { hooks } = require(`${FrameworkPath}/framework/support/module_hooks.js`);
 const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
@@ -213,7 +214,7 @@ exports.config = {
     reporters: [
         'spec',
         [ 'cucumberjs-json', {
-            jsonFolder: `${myReportDir}`,
+            jsonFolder: `${myReportDir}/${myTestModule}`,
             language: 'en'
         }]
     ],

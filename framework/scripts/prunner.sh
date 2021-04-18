@@ -5,6 +5,8 @@ PARAMS=""
 RUN_OPTS=""
 JOBS_COUNT=""
 ABDD_PROJECT=$(pwd | sed 's/.*test-projects\///' | sed 's/\/.*//')
+MODULEDIR=$(pwd | awk -F 'e2e-test/' '{print $2}')
+REPORTDIR=${REPORTDIR:-prunner-report}
 
 while (( "$#" )); do
   case "$1" in
@@ -79,8 +81,6 @@ SPEC_LIST="$(find . -type f -name *.feature | sort -u)"
 echo running $(echo ${SPEC_LIST} | wc -w) feature files with ${JOBS_COUNT} processes
 echo ${SPEC_LIST} | tr " " "\n"
 
-REPORTDIR=${REPORTDIR:-prunner-report}
-MODULEDIR=$(pwd | awk -F 'e2e-test/' '{print $2}')
 mkdir -p ${REPORTDIR}/${MODULEDIR}
 if [[ "$CLEANOLDREPORT" == "1" ]]; then
     rm -rf ${REPORTDIR}/${MODULEDIR}/*
