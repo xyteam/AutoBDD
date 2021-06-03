@@ -3,7 +3,7 @@ const { Then } = require('@cucumber/cucumber');
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/step_functions/common/parseExpectedText');
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
-const stripAnsi = require('strip-ansi');
+const stripAnsi = require('strip-ansi-control-characters');
 
 Then(/^(?::shell: )?I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the "(.*)?" console does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
     { timeout: 60 * 1000 },
@@ -16,7 +16,7 @@ Then(/^(?::shell: )?I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th
         // get consoleData object set up by previous step
         browser.pause(500);
         const myConsoleData = this.myConsoleData;
-        const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
+        const lineArray = stripAnsi.string(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
         browser_session.displayMessage(browser, lineArray.join('\n'));
 
         var lineText;

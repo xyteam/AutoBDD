@@ -3,7 +3,7 @@
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 const spawn= require('child_process').spawn;
-const stripAnsi = require('strip-ansi');
+const stripAnsi = require('strip-ansi-control-characters');
 
 // remote command
 const myPlatformKnownHosts = process.env.HOME + '/.ssh/known_hosts';
@@ -152,12 +152,12 @@ module.exports = {
 
     if (myConsole.stderr) {
       myConsole.stdout.on('data', (data) => {
-        const myData = stripAnsi(data.toString().replace(/\r\n/g, '\n'));
+        const myData = stripAnsi.string(data.toString().replace(/\r\n/g, '\n'));
         myConsoleData.stdout += myData;
         // console.log('stdout: ' + myData);
       });
       myConsole.stderr.on('data', (data) => {
-        const myData = stripAnsi(data.toString().replace(/\r\n/g, '\n'));
+        const myData = stripAnsi.string(data.toString().replace(/\r\n/g, '\n'));
         myConsoleData.stderr += myData;
         // console.log('stderr: ' + myData);
       });

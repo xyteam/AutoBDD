@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const csv = require('csv-parser');
-const stripAnsi = require('strip-ansi');
+const stripAnsi = require('strip-ansi-control-characters');
 const glob = require('glob');
 const fs = require('fs');
 const cmdline_session = require(`${process.env.FrameworkPath}/framework/libs/cmdline_session.js`);
@@ -20,7 +20,7 @@ const parseLog = (logFilePath) => {
         console.log(testModulePath)
         testFeaturePath = testFeaturePath.replace('/', '_');
         if (!fs.existsSync(testModulePath)) fs.mkdirSync(testModulePath);
-        fs.writeFileSync(`${testModulePath}/${testFeaturePath}.log`, stripAnsi(r['Stdout']));
+        fs.writeFileSync(`${testModulePath}/${testFeaturePath}.log`, stripAnsi.string(r['Stdout']));
         cmdline_session.runCmd(`cat ${testModulePath}/${testFeaturePath}.log | ansi2html > ${testModulePath}/${testFeaturePath}.log.html`);
       })
     });

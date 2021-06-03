@@ -5,7 +5,7 @@ const parseExpectedText = require(FrameworkPath + '/framework/step_functions/com
 const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
 const cmdline_session = require(FrameworkPath + '/framework/libs/cmdline_session');
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
-const stripAnsi = require('strip-ansi');
+const stripAnsi = require('strip-ansi-control-characters');
 const keycode = require('keycode');
 
 When(/^(?::shell: )?I assign "([^"]*)?" value to(?: the)? "([^"]*)?" ENV if necessary$/,
@@ -125,7 +125,7 @@ function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, consoleName, fals
         // check
         // only keep 10k text
         const myReadIndex = ((Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240) > 0) ? Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240 : 0;
-        const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout.slice(myReadIndex)).split(/[\r\n]+/);
+        const lineArray = stripAnsi.string(myConsoleData[myConsoleName].stdout.slice(myReadIndex)).split(/[\r\n]+/);
         browser_session.displayMessage(browser, lineArray.join('\n'));
         var lineText;
         switch (firstOrLast) {
@@ -198,7 +198,7 @@ function (inputContent, inputType, repeatTimes, consoleName, firstOrLast, lineCo
 
         // get consoleData object set up by previous step
         const myConsoleData = this.myConsoleData;
-        const lineArray = stripAnsi(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
+        const lineArray = stripAnsi.string(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
         browser_session.displayMessage(browser, lineArray.join('\n'));
 
         var lineText;
