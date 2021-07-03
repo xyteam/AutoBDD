@@ -4,7 +4,7 @@ const parseExpectedText = require(process.env.FrameworkPath + '/framework/step_f
 
 const { Then } = require('@cucumber/cucumber');
 
-Then(/^(?::vcenter: )?The VM "(.*)" (?:should|does)( not)* exist in esxi host "(.*)" inside esxi dc "(.*)"(?: under path "(.*)")$/,
+Then(/^(?::vcenter: )?The VM "(.*)" (?:should|does)( not)* exist in esxi host "(.*)" inside esxi dc "(.*)" under path "(.*)"$/,
   (vmName, falseCase, hostIP, dcName, dcPath) => {
     let boolFalseCase = !!falseCase;
     const myVmName = parseExpectedText(vmName);
