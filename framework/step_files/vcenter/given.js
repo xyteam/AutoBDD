@@ -24,7 +24,7 @@ Given(/^(?::vcenter: )?I have govc access to my vcenter with the URL "(.*)"$/,
     const myVCenterURL = parseExpectedText(vCenterURL);
     // push myVCenterURL to be runtime global variable
     process.env.myVCenterURL = myVCenterURL;
-    const cmdString = `govc about.cert -u=${myVCenterURL} -k=true`;
+    const cmdString = `govc about.cert -u="${myVCenterURL}" -k=true`;
     const resultString = cmdline_session.runCmd(cmdString);
     browser_session.displayMessage(browser, resultString);
     const resultObject = JSON.parse(resultString);
