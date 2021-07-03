@@ -13,7 +13,7 @@ Then(/^(?::vcenter: )?The VM "(.*)" (?:should|does)( not)* exist in esxi host "(
     const myDcName = parseExpectedText(dcName);
     const myDcPath = parseExpectedText(dcPath) || 'host';
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    const cmdString = `govc ls -u=${myVCenterURL} -k=true -dc="${myDcName}" ${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}`;
+    const cmdString = `govc ls -u="${myVCenterURL}" -k=true -dc="${myDcName}" "${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}"`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     browser_session.displayMessage(browser, resultString);
@@ -35,7 +35,7 @@ Then(/^(?::vcenter: )?The VM "(.*)" information inside esxi dc "(.*)" (?:should|
     const myDcName = parseExpectedText(dcName);
     const myExpectedText = parseExpectedText(expectedText);
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    const cmdString = `govc vm.info -u=${myVCenterURL} -k=true -dc="${myDcName}" ${myVmName}`;
+    const cmdString = `govc vm.info -u="${myVCenterURL}" -k=true -dc="${myDcName}" "${myVmName}"`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     browser_session.displayMessage(browser, resultString);
