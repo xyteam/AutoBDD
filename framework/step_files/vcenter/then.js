@@ -30,7 +30,7 @@ Then(/^(?::vcenter: )?The VM "(.*)" (?:should|does)( not)* exist in esxi host "(
 );
 
 Then(/^(?::vcenter: )?The VM "(.*)" information inside esxi dc "(.*)" (?:should|does)( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
-  (vmName, dcName, dcPath, falseCase, compareAction, expectType, expectedText) => {
+  (vmName, dcName, falseCase, compareAction, expectType, expectedText) => {
     const myVmName = parseExpectedText(vmName);
     const myDcName = parseExpectedText(dcName);
     const myExpectedText = parseExpectedText(expectedText);
