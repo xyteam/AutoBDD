@@ -4,37 +4,38 @@ const parseExpectedText = require(process.env.FrameworkPath + '/framework/step_f
 
 const { Then } = require('cucumber');
 
-Then(/^(?::vcenter: )?The VM "(.*)" (?:should|does)( not)* exist in esxi host "(.*)" inside esxi dc "(.*)"$/,
-  (vmName, falseCase, hostIP, dcName) => {
+Then(/^(?::vcenter: )?The VM "(.*)" (?:should|does)( not)* exist in esxi host "(.*)" inside esxi dc "(.*)"(?: under path "(.*)")$/,
+  (vmName, falseCase, hostIP, dcName, dcPath) => {
     let boolFalseCase = !!falseCase;
     const myVmName = parseExpectedText(vmName);
     const myEsxiHost = parseExpectedText(hostIP);
     const myClusterIP = process.env.myClusterIP || myEsxiHost;
     const myDcName = parseExpectedText(dcName);
+    const myDcPath = parseExpectedText(dcPath) || 'host';
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    const cmdString = `govc ls -u=${myVCenterURL} -k=true -dc=${myDcName} host/${myClusterIP}/${myEsxiHost}/${myVmName}`;
+    const cmdString = `govc ls -u=${myVCenterURL} -k=true -dc="${myDcName}" ${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     browser_session.displayMessage(browser, resultString);
     const resultObject = JSON.parse(resultString);
     if (boolFalseCase) {
-      expect(resultObject.output).not.toContain(`host/${myClusterIP}/${myEsxiHost}/${myVmName}`);
+      expect(resultObject.output).not.toContain(`${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}`);
       expect(resultObject.exitcode).toBe(0);
     }
     else {
-      expect(resultObject.output).toContain(`host/${myClusterIP}/${myEsxiHost}/${myVmName}`);
+      expect(resultObject.output).toContain(`${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}`);
       expect(resultObject.exitcode).toBe(0);
     }
   }
 );
 
 Then(/^(?::vcenter: )?The VM "(.*)" information inside esxi dc "(.*)" (?:should|does)( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
-  (vmName, dcName, falseCase, compareAction, expectType, expectedText) => {
+  (vmName, dcName, dcPath, falseCase, compareAction, expectType, expectedText) => {
     const myVmName = parseExpectedText(vmName);
     const myDcName = parseExpectedText(dcName);
     const myExpectedText = parseExpectedText(expectedText);
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    const cmdString = `govc vm.info -u=${myVCenterURL} -k=true -dc=${myDcName} ${myVmName}`;
+    const cmdString = `govc vm.info -u=${myVCenterURL} -k=true -dc="${myDcName}" ${myVmName}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     browser_session.displayMessage(browser, resultString);

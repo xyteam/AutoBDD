@@ -17,7 +17,7 @@ When(/^(?::vcenter: )?I change the VM with config below:$/,
     const myMemReservation = parseExpectedText(config.memReservation);
     const myMemShares = parseExpectedText(config.memShares);
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    const cmdString = `govc vm.change -m ${myMemLimit} -mem.limit=${myMemLimit} -mem.reservation=${myMemReservation} -mem.shares=${myMemShares} -u=${myVCenterURL} -k=true -dc=${myDcName} -vm=${myVmName}`;
+    const cmdString = `govc vm.change -m ${myMemLimit} -mem.limit=${myMemLimit} -mem.reservation=${myMemReservation} -mem.shares=${myMemShares} -u=${myVCenterURL} -k=true -dc="${myDcName}" -vm=${myVmName}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     browser_session.displayMessage(browser, resultString);
@@ -39,7 +39,7 @@ When(/^(?::vcenter: )?I connect the "(.*)" to "(.*)" for the VM "(.*)" inside es
     const myDcName = parseExpectedText(dcName);
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
     const govcCmd = 'vm.network.change';
-    const cmdString = `govc ${govcCmd} -u=${myVCenterURL} -k=true -dc=${myDcName} -vm=${myVmName} -net "${myNetName}" ${myNicName}`;
+    const cmdString = `govc ${govcCmd} -u=${myVCenterURL} -k=true -dc="${myDcName}" -vm=${myVmName} -net "${myNetName}" ${myNicName}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     browser_session.displayMessage(browser, resultString);
@@ -52,11 +52,12 @@ When(/^(?::vcenter: )?I connect the "(.*)" to "(.*)" for the VM "(.*)" inside es
   }
 );
 
-When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)" esxi host "(.*)"$/,
+When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)"(?: path "(.*)") esxi host "(.*)"$/,
   { timeout: 15 * 60 * 1000 },
   (esxiCmd, vmName, dcName, esxiHost) => {
     const myVmName = parseExpectedText(vmName);
     const myDcName = parseExpectedText(dcName);
+    const myDcPath = parseExpectedText(dcPath) || 'host';
     const myEsxiHost = parseExpectedText(esxiHost);
     var govcCmd;
     switch (esxiCmd) {
@@ -71,7 +72,7 @@ When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi d
         break;
     }
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    const cmdString = `govc ${govcCmd} -u=${myVCenterURL} -k=true -dc=${myDcName} /${myDcName}/host/${myEsxiHost}/${myEsxiHost}/${myVmName}`;
+    const cmdString = `govc ${govcCmd} -u=${myVCenterURL} -k=true -dc="${myDcName}" /${myDcName}/${myDcPath}/${myEsxiHost}/${myEsxiHost}/${myVmName}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     browser_session.displayMessage(browser, resultString);
@@ -95,7 +96,7 @@ When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
 
     // get VM console URL
-    const cmdString = `govc ${govcCmd} -u=${myVCenterURL} -k=true -h5=true -dc=${myDcName} ${myVmName}`;
+    const cmdString = `govc ${govcCmd} -u=${myVCenterURL} -k=true -h5=true -dc="${myDcName}" ${myVmName}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     const resultObject = JSON.parse(resultString);
@@ -140,7 +141,7 @@ When(/^(?::vcenter: )?I (?:(re-))?open the SSH console to the VM "(.*)" inside e
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
     // retrieve ssh IP address
     const govcCmd = 'vm.ip';
-    const cmdString = `govc ${govcCmd} -u=${myVCenterURL} -k=true -dc=${myDcName} ${myVmName}`;
+    const cmdString = `govc ${govcCmd} -u=${myVCenterURL} -k=true -dc="${myDcName}" ${myVmName}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     const resultObject = JSON.parse(resultString);
@@ -159,17 +160,18 @@ When(/^(?::vcenter: )?I use the OVA URL to deploy an VM with config below:$/,
   { timeout: 60 * 60 * 1000 },
   (table) => {
     const config = table.rowsHash();
-    const myDataCenter = parseExpectedText(config.dcName);
+    const myDcName = parseExpectedText(config.dcName);
+    const myDcPath = parseExpectedText(config.dcPath) || 'host';
     const myHostIP = parseExpectedText(config.esxiHost);
     const myDataStore = parseExpectedText(config.dataStore);
     const myVmName = parseExpectedText(config.vmName);
     const myOptionFile = parseExpectedText(config.optionFile);
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
     let myEsxiHost = process.env.myClusterIP ? process.env.myClusterIP : myHostIP;
-    const myPool = `/${myDataCenter}/host/${myEsxiHost}/Resources`;
+    const myPool = `/${myDcName}/${myDcPath}/${myEsxiHost}/Resources`;
     const myTargetOvaUrl = process.env.myTargetOvaUrl;
 
-    const cmdString = `time govc import.ova -options=${process.env.PROJECTRUNPATH}/e2e-test/testfiles/${myOptionFile} -u=${myVCenterURL} -k=true -dc=${myDataCenter} -ds=${myDataStore} -pool=${myPool} -name=${myVmName} ${myTargetOvaUrl}`;
+    const cmdString = `time govc import.ova -options=${process.env.PROJECTRUNPATH}/${process.env.TestDir}/testfiles/${myOptionFile} -u=${myVCenterURL} -k=true -dc=${myDcName} -ds=${myDataStore} -pool=${myPool} -name=${myVmName} ${myTargetOvaUrl}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     try {
