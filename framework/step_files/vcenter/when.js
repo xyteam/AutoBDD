@@ -52,7 +52,7 @@ When(/^(?::vcenter: )?I connect the "(.*)" to "(.*)" for the VM "(.*)" inside es
   }
 );
 
-When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)"(?: path "(.*)") esxi host "(.*)"$/,
+When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)" path "(.*)" esxi host "(.*)"$/,
   { timeout: 15 * 60 * 1000 },
   (esxiCmd, vmName, dcName, dcPath, esxiHost) => {
     const myVmName = parseExpectedText(vmName);
