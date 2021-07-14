@@ -17,7 +17,7 @@ module.exports = {
     var outputBuffer;
     var outputString;
     var returnVal;
-    var runCommand = 'findTargetImage.js'
+    var runCommand = 'findTargetImage'
                     + ' --imagePath=' + imagePath
                     + ' --imageSimilarity=' + imageSimilarity
                     + ' --maxSim=' + maxSim
