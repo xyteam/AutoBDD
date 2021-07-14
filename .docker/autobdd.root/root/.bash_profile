@@ -6,4 +6,4 @@ npm config set script-shell /bin/bash
 PATH=$(echo "${PATH//:/$'\n'}" | grep -v node_modules\/.bin | paste -sd ":" -)
 
 cd ~/Projects/AutoBDD
-. .autoPathrc.sh
+. ./.autoPathrc.sh
