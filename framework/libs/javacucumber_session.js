@@ -30,7 +30,7 @@ module.exports = {
     var javaProjectPath = FrameworkPath + '/test-projects/' + javaProject;
     var javaProjectModulePath = javaProjectPath + '/' + module;
     var mvn_command = 'cd ' + FrameworkPath + '; ';
-    mvn_command += '. .autoPathrc.sh; ';
+    mvn_command += '. ./.autoPathrc.sh; ';
     mvn_command += 'cd ' + javaProjectModulePath + '; ';
     mvn_command += 'DISPLAY=' + process.env.DISPLAY + ' mvn test ';
     mvn_command += '-Dbrowser=\"chrome\" ';

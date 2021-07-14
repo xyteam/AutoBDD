@@ -10,14 +10,29 @@ const { When } = require('cucumber');
 When(/^(?::vcenter: )?I change the VM with config below:$/,
   { timeout: 15 * 60 * 1000 },
   (table) => {
+    // process config table
     const config = table.rowsHash();
     const myVmName = parseExpectedText(config.vmName);
     const myDcName = parseExpectedText(config.dcName);
+    const myCpuCount = parseExpectedText(config.cpuCount);
+    const myMemSize = parseExpectedText(config.memSize);
     const myMemLimit = parseExpectedText(config.memLimit);
     const myMemReservation = parseExpectedText(config.memReservation);
     const myMemShares = parseExpectedText(config.memShares);
+    // TODO: to add other govc vm.change supported parms
+
+    // construct command paramaters
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    const cmdString = `govc vm.change -m ${myMemLimit} -mem.limit=${myMemLimit} -mem.reservation=${myMemReservation} -mem.shares=${myMemShares} -u="${myVCenterURL}" -k=true -dc="${myDcName}" -vm="${myVmName}"`;
+    const parmVCenterURL = `-u="${myVCenterURL}"`;
+    const parmVmName = `-vm="${myVmName}"`;
+    const parmDcName = `-dc="${myDcName}"`;
+    const parmCpuCount = myCpuCount ? `-c=${myCpuCount}` : '';
+    const parmMemSize = myMemSize ? `-m=${myMemSize}` : '';
+    const parmMemLimit = myMemLimit ? `-mem.limit=${myMemLimit}` : '';
+    const parmMemReservation = parmMemReservation ? `-mem.reservation=${myMemReservation}` : '';
+    const parmMemShares = myMemShares ? `-mem.shares=${myMemShares}` : '';
+
+    const cmdString = `govc vm.change -cpu-hot-add-enabled -memory-hot-add-enabled -latency=high ${parmCpuCount} ${parmMemSize} ${parmMemLimit} ${parmMemReservation} ${parmMemShares} ${parmVCenterURL} -k=true ${parmDcName} ${parmVmName}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     browser_session.displayMessage(browser, resultString);
