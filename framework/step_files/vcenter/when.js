@@ -29,7 +29,7 @@ When(/^(?::vcenter: )?I change the VM with config below:$/,
     const parmCpuCount = myCpuCount ? `-c=${myCpuCount}` : '';
     const parmMemSize = myMemSize ? `-m=${myMemSize}` : '';
     const parmMemLimit = myMemLimit ? `-mem.limit=${myMemLimit}` : '';
-    const parmMemReservation = parmMemReservation ? `-mem.reservation=${myMemReservation}` : '';
+    const parmMemReservation = myMemReservation ? `-mem.reservation=${myMemReservation}` : '';
     const parmMemShares = myMemShares ? `-mem.shares=${myMemShares}` : '';
 
     const cmdString = `govc vm.change -cpu-hot-add-enabled -memory-hot-add-enabled -latency=high ${parmCpuCount} ${parmMemSize} ${parmMemLimit} ${parmMemReservation} ${parmMemShares} ${parmVCenterURL} -k=true ${parmDcName} ${parmVmName}`;
