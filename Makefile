@@ -34,7 +34,7 @@ autobdd-image:
 	cd -
 autobdd-test:
 	cd ../autobdd-test && \
-	make docker-run jobs="clean e2e-test cy-test js-test py3-test py2-test k6-test" || exit $?
+	make docker-run jobs="clean e2e-test cy-test js-test py3-test k6-test" || exit $?
 	cd -
 autobdd-bash:
 	cd .docker && make autobdd-run-bash || exit $?
