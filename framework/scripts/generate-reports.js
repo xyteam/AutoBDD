@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const meow = require('meow');
 const fs = require('fs');
 const bootStrapHtmlReporter = require('cucumber-html-reporter');
 const searchableHtmlReporter = require('multiple-cucumber-html-reporter');
+const args = require('args-parser')(process.argv);
 
 optionHelp = `
     Usage
@@ -24,73 +24,20 @@ optionHelp = `
         --testRunDuration, how long it took to run the entire test
         --testRunnerArgs, the run arguments used for running the test, i.e., --modulelist moduleA module B, --tags @SmokeTest, etc. 
 `;
-optionFlags = {
-    reportType: {
-        type: 'string',
-        default: 'searchable'
-    },
-    reportJson: {
-        type: 'string',
-        default: './cucumber-report.json'
-    },
-    reportName: {
-        type: 'string',
-        default: 'AutoBDD'
-    },
-    reportTitle: {
-        type: 'string',
-        default: 'AutoBDD Test Report'
-    },
-    testPlatform: {
-        type: 'string',
-        default: 'Linux'
-    },
-    testPlatformVer: {
-        type: 'string',
-        default: 'Ubuntu 20.04'
-    },
-    testDevice: {
-        type: 'string',
-        default: 'NA'
-    },
-    testBrowser: {
-        type: 'string',
-        default: 'Chrome'
-    },
-    testBrowserVer: {
-        type: 'string'
-    },
-    testThreads: {
-        type: 'string'
-    },
-    testStartTime: {
-        type: 'string'
-    },
-    testRunDuration: {
-        type: 'string'
-    },
-    testRerunPath: {
-        type: 'string'
-    },
-    testRunnerArgs: {
-        type: 'string'
-    }
-}
 
-const cli = meow(optionHelp, {flags: optionFlags});
-var reportType = cli.flags.reportType;
-var reportJson = cli.flags.reportJson;
-var reportName = cli.flags.reportName;
-var reportTitle = cli.flags.reportTitle;
-var testPlatform = cli.flags.testPlatform;
-var testPlatformVer = cli.flags.testPlatformVer;
-var testDevice = cli.flags.testDevice;
-var testBrowser = cli.flags.testBrowser;
-var testBrowserVer = cli.flags.testBrowserVer;
-var testThreads = cli.flags.testThreads;
-var testStartTime = cli.flags.testStartTime;
-var testRunDuration = cli.flags.testRunDuration;
-var testRunnerArgs = cli.flags.testRunnerArgs;
+var reportType = args.reportType || 'searchable';
+var reportJson = args.reportJson || './cucumber-report.json';
+var reportName = args.reportName || 'AutoBDD';
+var reportTitle = args.reportTitle || 'AutoBDD Test Report';
+var testPlatform = args.testPlatform || 'Linux';
+var testPlatformVer = args.testPlatformVer || 'Ubuntu 20.04';
+var testDevice = args.testDevice || 'NA';
+var testBrowser = args.testBrowser || 'Chrome';
+var testBrowserVer = args.testBrowserVer;
+var testThreads = args.testThreads;
+var testStartTime = args.testStartTime;
+var testRunDuration = args.testRunDuration;
+var testRunnerArgs = args.testRunnerArgs;
 
 var bootStrapHtmlReporter_options = {
     launchReport: false,
