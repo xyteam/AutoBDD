@@ -3,7 +3,7 @@
   "version": "2.3.0",
   "description": "BDD Automaiton",
   "scripts": {
-    "download-test": "mkdir -p ./test-projects/autobdd-test && cd ./test-projects/autobdd-test && npx degit --force https://github.com/xyteam/autobdd-test.git#v3master",
+    "download-test": "mkdir -p ./test-projects/autobdd-test && cd ./test-projects/autobdd-test && npx degit --force https://github.com/xyteam/autobdd-test.git#v2master",
     "test-init": ". ./.autoPathrc.sh && cd ./test-projects/autobdd-test && xvfb-runner.sh make e2e-arunner",
     "test": "npm run download-test && npm run test-init",
     "clean": "rm -rf ./test-projects/autobdd-test"
