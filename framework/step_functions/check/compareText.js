@@ -5,7 +5,7 @@
  *                              elements match or not
  * @param  {String}   element2  Element selector for the second element
  */
-module.exports = (element1, falseCase, element2) => {
+module.exports = async (element1, falseCase, element2) => {
     /**
      * The text of the first element
      * @type {String}

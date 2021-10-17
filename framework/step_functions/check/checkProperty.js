@@ -12,7 +12,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) => {
+module.exports = async (isCSS, attrName, selector, action, falseCase, expectedValue) => {
     const  mySelector = parseExpectedText(selector);
     var  myExpectedValue = parseExpectedText(expectedValue);
     /**

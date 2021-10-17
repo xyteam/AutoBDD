@@ -6,7 +6,7 @@
  * @param  {String}   falseCase    Check for a visible or a hidden element
  */
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (partOf, element, waitAction, falseCase) => {
+module.exports = async (partOf, element, waitAction, falseCase) => {
     const myElement = parseExpectedText(element);
     const myPartOf = partOf || 'some';
     if (waitAction == 'becomes') {

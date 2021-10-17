@@ -14,7 +14,7 @@ const parseExpectedText = require('../common/parseExpectedText');
 const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
 
-module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedText) => {
+module.exports = async (fileName, rowNumber, colNumber, falseCase, action, expectedText) => {
     const myAction = (action) ? action.trim() : 'contains';
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;

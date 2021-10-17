@@ -9,7 +9,7 @@ const fs_session = require('../../libs/fs_session');
 const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (jsonFileName, templateFileName) => {
+module.exports = async (jsonFileName, templateFileName) => {
     const jsonFile_extSplit = jsonFileName.split('.');
     const jsonFileExt = jsonFile_extSplit.length > 1 ? jsonFile_extSplit.pop() : 'json';
     const myJsonFileName = jsonFile_extSplit.join('.');

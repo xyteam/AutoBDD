@@ -6,13 +6,13 @@
  * @param  {String}   expectedText The value to match against
  */
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (target, falseCase, action, expectedText) => {
+module.exports = async (target, falseCase, action, expectedText) => {
     const myExpectedText = parseExpectedText(expectedText);
     /**
      * The URL of the current browser window
      * @type {String}
      */
-    const currentUrl = browser.getUrl();
+    const currentUrl = await browser.getUrl();
     const currentUrlProtocol = (currentUrl.includes('://')) ? currentUrl.split('://')[0] : '';
     const currentUrlHost = (currentUrl.includes('://')) ? currentUrl.split('://')[1].split('/')[0].split(':')[0] : '';
     const currentUrlHostPort = (currentUrl.includes('://')) ? currentUrl.split('://')[1].split('/')[0].split(':')[1] : '';

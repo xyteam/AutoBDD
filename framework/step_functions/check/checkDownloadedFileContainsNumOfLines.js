@@ -10,7 +10,7 @@ const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (fileName, compareAction, expectedNumOfLines) => {
+module.exports = async (fileName, compareAction, expectedNumOfLines) => {
     const myCompareAction = (compareAction) ? compareAction.trim() : 'exactly';
     const myExpectedNumber = (expectedNumOfLines) ? parseInt(parseExpectedText(expectedNumOfLines)) : 0;
     const fileName_extSplit = fileName.split('.');

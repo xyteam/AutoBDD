@@ -6,7 +6,7 @@
  * @param  {String}   expectedText  The text to check against
  */
 const assert = require('assert');
-module.exports = (modalType, falseState, expectedText) => {
+module.exports = async (modalType, falseState, expectedText) => {
     try {
         /**
          * The text of the current modal

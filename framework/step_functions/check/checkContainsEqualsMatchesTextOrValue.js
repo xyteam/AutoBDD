@@ -10,7 +10,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (element, falseCase, action, type, expectedText) => {
+module.exports = async (element, falseCase, action, type, expectedText) => {
     /**
      * The expected text to validate against
      * @type {String}

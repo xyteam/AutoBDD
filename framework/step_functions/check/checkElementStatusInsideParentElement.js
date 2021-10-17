@@ -9,7 +9,7 @@
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, expectedStauts) => {
+module.exports = async (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, expectedStauts) => {
     const myTargetElement = parseExpectedText(targetElement);
     const myParentElement = parseExpectedText(parentElement);
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;

@@ -7,7 +7,7 @@
  * @param  {String}   state        checked element state
  */
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (partOf, element, verb, falseCase, state) => {
+module.exports = async (partOf, element, verb, falseCase, state) => {
     const myElem = parseExpectedText(element);
     const myPartOf = partOf || 'some';
     var checkAction = `is${state.charAt(0).toUpperCase()}${state.slice(1)}`;

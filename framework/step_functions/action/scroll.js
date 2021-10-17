@@ -11,5 +11,7 @@ module.exports = (selector) => {
      * @type {String}
      */
     var parsedSelector = parseExpectedText(selector);
-    browser.$(parsedSelector).scrollIntoView();
+    console.log(parsedSelector);
+
+    $(parsedSelector).scrollIntoView();
 };

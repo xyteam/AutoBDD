@@ -12,7 +12,8 @@
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
-const checkElement = (targetElementIdElement, targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, targetType, myExpectedText) => {
+const filterAsync = require('node-filter-async').default;
+const checkElement = async (targetElementIdElement, targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, targetType, myExpectedText) => {
     var retrivedValue;
     // Check for empty text
     if (typeof myExpectedText === 'undefined' && typeof falseCase === 'undefined') {
@@ -26,9 +27,9 @@ const checkElement = (targetElementIdElement, targetElementIndex, targetElement,
         case 'value':
             if (typeof(targetElementIdElement) != 'undefined' && targetElementIdElement.isExisting()) {
                 if (targetElementIdElement.getTagName() == 'input') {
-                    retrivedValue = targetElementIdElement.getValue();
+                    retrivedValue = await targetElementIdElement.getValue();
                 } else {
-                    retrivedValue = browser.getElementAttribute(targetElementIdElement, targetType);
+                    retrivedValue = await browser.getElementAttribute(targetElementIdElement, targetType);
                 }    
             } else {
                 retrivedValue = '';
@@ -104,7 +105,7 @@ const checkElement = (targetElementIdElement, targetElementIndex, targetElement,
     }
 }
 
-module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, containsTheText, falseCase, action, targetType, expectedText) => {
+module.exports = async (targetElementIndex, targetElement, parentElementIndex, parentElement, containsTheText, falseCase, action, targetType, expectedText) => {
     const myExpectedText = parseExpectedText(expectedText);
     const myTargetElement = parseExpectedText(targetElement);
     const myParentElement = parseExpectedText(parentElement);
@@ -115,7 +116,8 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     var targetElementIdElement;
     if (myParentElement) {
         $(myParentElement).waitForExist();
-        const myFilteredParentElement = $$(myParentElement).filter(elem => elem.getText().includes(myContainsTheText));
+        const elemArray = await $$(myParentElement);
+        const myFilteredParentElement = await filterAsync(elemArray, async (elem, index) => { const elemText = await elem.getText(); return elemText.includes(myContainsTheText) });
         if (parentElementIndexInt >= 0) {
             targetElementIdElement = myFilteredParentElement[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
             checkElement(targetElementIdElement, targetElementIndex, myTargetElement, parentElementIndex, myParentElement, falseCase, action, targetType, myExpectedText);

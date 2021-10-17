@@ -4,7 +4,7 @@
  * @param  {String}   falseCase Whether to check if the element is visible
  *                              within the current viewport or not
  */
-module.exports = (element, falseCase) => {
+module.exports = async (element, falseCase) => {
     /**
      * The state of visibility of the given element inside the viewport
      * @type {Boolean}

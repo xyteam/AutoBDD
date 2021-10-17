@@ -7,7 +7,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (cookieName, falseCase) => {
+module.exports = async (cookieName, falseCase) => {
     /**
      * The expected text to validate against
      * @type {String}

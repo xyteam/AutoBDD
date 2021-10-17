@@ -9,7 +9,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (falseCase, action, type, expectedText) => {
+module.exports = async (falseCase, action, type, expectedText) => {
     /**
      * The expected text to validate against
      * @type {String}
@@ -34,7 +34,7 @@ module.exports = (falseCase, action, type, expectedText) => {
         boolFalseCase = true;
     }
 
-    const retrivedTitle = browser.getTitle();
+    const retrivedTitle = await browser.getTitle();
     // console.log(`${type} : ${retrivedTitle}`)
 
     if (boolFalseCase) {

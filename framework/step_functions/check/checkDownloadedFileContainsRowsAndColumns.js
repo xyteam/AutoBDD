@@ -12,7 +12,7 @@ const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (fileName, rowCompareAction, expectedNumOfRows, rowType, colCompareAction, expectedNumOfColumns, columnType) => {
+module.exports = async (fileName, rowCompareAction, expectedNumOfRows, rowType, colCompareAction, expectedNumOfColumns, columnType) => {
     const myRowCompareAction = (rowCompareAction) ? rowCompareAction.trim() : 'exactly';
     const myColCompareAction = (colCompareAction) ? colCompareAction.trim() : 'exactly';
     const fileName_extSplit = fileName.split('.');

@@ -121,7 +121,7 @@ const findElement = (nthTarget, parentElement, childElement, falseCase, action, 
     return findResult;
 }
 
-module.exports = (nthTarget, parentElement, childElement, falseCase, action, targetType, myExpectedText) => {
+module.exports = async (nthTarget, parentElement, childElement, falseCase, action, targetType, myExpectedText) => {
     const targetParentElement = findElement(nthTarget, parentElement, childElement, falseCase, action, targetType, myExpectedText);
     checkElement(targetParentElement, childElement, falseCase, action, targetType, myExpectedText);
 };
