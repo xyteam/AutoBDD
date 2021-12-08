@@ -108,7 +108,22 @@ if (process.env.PLATFORM == 'Linux') {
         break;
       case / 92\./.test(process.env.chromeVersion):
         process.env.chromeDriverVersion = '92.0.4515.43';
+        break;
+      case / 93\./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '93.0.4577.63';
+        break;
+      case / 94\./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '94.0.4606.113';
         break;      
+      case / 95\./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '95.0.4638.69';
+        break;
+      case / 96\./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '96.0.4664.45';
+        break;      
+      case / 97\./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '97.0.4692.36';
+        break;                    
     }
     console.log('Chrome Driver ' + process.env.chromeDriverVersion)  
   }
