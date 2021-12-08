@@ -115,7 +115,8 @@ When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     const resultObject = JSON.parse(resultString);
-    const myConsoleUrl = resultObject.output.replace('\n', '');
+    const myConsoleUrl = resultObject.output.replace('\n', '&numMksConnections=0&locale=en-US');
+    console.log(`updated console url: ${myConsoleUrl}`);
     // re-login if re-open
     if (myReopen) {
       vcenter_session.reLoginVcenter(browser, myVCenterURL);
