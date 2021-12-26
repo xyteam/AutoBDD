@@ -12,7 +12,7 @@ RUN mkdir -p /root/Downloads && \
     pip install -r requirement.txt && \
     npm config set script-shell "/bin/bash" && \
     npm cache clean --force && \
-    npm --loglevel=error install && \
+    npm --loglevel=error --legacy-peer-deps install && \
     npm run --loglevel=error test && \
     npm run --loglevel=error clean && \
     rm -rf /tmp/chrome_profile_* /tmp/download_*

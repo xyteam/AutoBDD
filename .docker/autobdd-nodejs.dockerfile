@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # apt set keys for additional packages
 RUN \
     # set apt-key for nodejs 14.x. 16.x breaks fiber, avoid unil fiber provides fix
-    curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash - && \
+    curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - && \
     # set apt-key for google-chrome
     rm -f /etc/apt/sources.list.d/google-chrome.list && \
     echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
