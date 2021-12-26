@@ -189,7 +189,7 @@ exports.config = {
             },
             args: {
                 drivers: selenium_standalone_config.drivers,
-                seleniumArgs: ['-host', '127.0.0.1','-port', `${myParallelRunPort}`]
+                seleniumArgs: ['--host', '127.0.0.1','--port', `${myParallelRunPort}`]
             },
         }]
     ],
