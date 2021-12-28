@@ -18,6 +18,7 @@ nohup.out
 .screenshots/
 videos/
 node_modules/
+test-projects/
 test-results/
 logs/
 tmp/
