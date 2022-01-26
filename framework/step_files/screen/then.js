@@ -57,7 +57,7 @@ function (imageName, falseCase, compareAction, expectedNumber) {
     }
 });
 
-Then(/^(?::screen: )?I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the (?:"([^"]*)?" )?(image|screen area) does( not)* (contain|equal|mimic|match) the (text|regex) "(.*)?"$/,
+Then(/^(?::screen: )?I expect (?:that )?(?:the( first| last| minus)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the (?:"([^"]*)?" )?(image|screen area) does( not)* (contain|equal|mimic|match) the (text|regex) "(.*)?"$/,
     { timeout: 60 * 1000 },
     function (firstOrLast, lineCount, targetName, targetArea, falseCase, compareAction, expectType, expectedText) {
         const myExpectedText = parseExpectedText(expectedText);
@@ -91,6 +91,13 @@ Then(/^(?::screen: )?I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|t
             case 'last':
                 lineText = lineArray.slice(-lineCount).join('\n');
                 break;
+            case 'minus':
+                if (lineCount) {
+                    lineText = lineArray[lineArray.length - lineCount];
+                } else {
+                    lineText = lineArray.join(' ');
+                }
+                break;    
             default:
                 if (lineCount) {
                     lineText = lineArray[lineCount - 1];
