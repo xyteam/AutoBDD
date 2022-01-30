@@ -5,6 +5,10 @@ docker-run:
 	cd .docker && docker-compose run --rm autobdd-run "make $(jobs)" || exit $?
 	cd -
 
+docker-clean:
+	@echo make $@
+	docker-compose rm -vsf autobdd-run
+
 autobdd-clean-all: autobdd-clean-image autobdd-clean-nodejs autobdd-clean-ubuntu
 autobdd-clean-ubuntu:
 	@echo make $@
