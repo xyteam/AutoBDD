@@ -6,6 +6,7 @@ if [ "$USER" != "root" ]; then
     # USER
     echo "* enable custom user: $USER"
     if [ "$HOSTOS" == "Linux" ]; then
+        groupadd --force --gid GROUPID $USER
         useradd --uid $USERID --gid $GROUPID --create-home --shell /bin/bash --groups adm,sudo $USER
     else
         useradd --create-home --shell /bin/bash --user-group --groups adm,sudo $USER
