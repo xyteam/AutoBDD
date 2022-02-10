@@ -8,6 +8,7 @@ const pressKeyTimes = require(FrameworkPath + '/framework/step_functions/action/
 const clickMouseKeyTimes = require(FrameworkPath + '/framework/step_functions/action/clickMouseKeyTimes');
 const selectFileFromDownloadFolder = require(FrameworkPath + '/framework/step_functions/action/selectFileFromDownloadFolder');
 const typeText = require(FrameworkPath + '/framework/step_functions/action/typeText');
+const fuzz = require('fuzzball');
 
 When(
     /^(?::browser: )?I (double )?click the (left|middle|right) mouse key(?: (\d+) time(?:s)?)?$/,
@@ -224,9 +225,9 @@ function (mouseAction, timesCount, screenLocation) {
     }
 });
 
-When(/^(?::screen: )?I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" image|screen area) to( not)* display the (text|regex) "(.*)?"$/,
+When(/^(?::screen: )?I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" image|screen area) to( not)* (display|mimic) the (text|regex) "(.*)?"$/,
 { timeout: 60 * 60 * 1000 },
-function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, falseState, expectType, expectedText) {
+function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, falseState, expectAction, expectType, expectedText) {
     // parse input
     const myExpectedText = parseExpectedText(expectedText);
     const myWaitTimeoutMnt = parseInt(waitTimeoutMnt) || 1;
@@ -293,7 +294,11 @@ function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, false
                 break;
             case 'text':
             default:
-                keepWaiting = !lineText.includes(myExpectedText);
+                if (expectAction == 'mimic') {
+                    keepWaiting = !(fuzz.partial_ratio(lineText, myExpectedText) >= 60)
+                } else {
+                    keepWaiting = !lineText.includes(myExpectedText);
+                }
                 break;
         }
         if (boolFalseState) {
