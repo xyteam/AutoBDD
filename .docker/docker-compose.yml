@@ -54,6 +54,7 @@ services:
       - VNC_PASSWORD=${VNC_PASSWORD}
       - RESOLUTION=1920x1200x24
       - ABDD_PROJECT=${ABDD_PROJECT}
+      - SikulixApiVer=${SikulixApiVer}
     entrypoint: "/root/autobdd-dev.startup.sh"
 
   # run container for running autobdd test
@@ -71,5 +72,6 @@ services:
       - GROUPID=${GROUPID}
       - HOSTOS=${HOSTOS}
       - ABDD_PROJECT=${ABDD_PROJECT}
+      - SikulixApiVer=${SikulixApiVer}
     entrypoint: "/root/autobdd-run.startup.sh"
 
