@@ -182,9 +182,9 @@ When(/^(?::vcenter: )?I use the OVA URL to deploy an VM with config below:$/,
     const myDataStore = parseExpectedText(config.dataStore);
     const myVmName = parseExpectedText(config.vmName);
     const myOptionFile = parseExpectedText(config.optionFile);
+    const myPool = parseExpectedText(config.resourcesPath) || `/${myDcName}/${myDcPath}/${myEsxiHost}/Resources`;
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
     let myEsxiHost = process.env.myClusterIP ? process.env.myClusterIP : myHostIP;
-    const myPool = `/${myDcName}/${myDcPath}/${myEsxiHost}/Resources`;
     const myTargetOvaUrl = process.env.myTargetOvaUrl;
 
     const cmdString = `time govc import.ova -options="${process.env.PROJECTRUNPATH}/${process.env.TestDir}/testfiles/${myOptionFile}" -u="${myVCenterURL}" -k=true -dc="${myDcName}" -ds="${myDataStore}" -pool="${myPool}" -name="${myVmName}" "${myTargetOvaUrl}"`;
