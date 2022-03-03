@@ -4,27 +4,22 @@ const parseExpectedText = require(process.env.FrameworkPath + '/framework/step_f
 
 const { Then } = require('cucumber');
 
-Then(/^(?::vcenter: )?The VM "(.*)" (?:should|does)( not)* exist in esxi host "(.*)" inside esxi dc "(.*)" under path "(.*)"$/,
-  (vmName, falseCase, hostIP, dcName, dcPath) => {
+Then(/^(?::vcenter: )?The VM "(.*)" (?:should|does)( not)* exist inside esxi dc "(.*)"$/,
+  (vmName, falseCase, dcName) => {
     let boolFalseCase = !!falseCase;
     const myVmName = parseExpectedText(vmName);
-    const myEsxiHost = parseExpectedText(hostIP);
-    const myClusterIP = process.env.myClusterIP || myEsxiHost;
     const myDcName = parseExpectedText(dcName);
-    const myDcPath = parseExpectedText(dcPath) || 'host';
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    const cmdString = `govc ls -u="${myVCenterURL}" -k=true -dc="${myDcName}" "${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}"`;
-    console.log(cmdString);
-    const resultString = cmdline_session.runCmd(cmdString);
-    browser_session.displayMessage(browser, resultString);
-    const resultObject = JSON.parse(resultString);
+    const myFindVmCmd = `govc find -u="${myVCenterURL}" -k=true -dc="${myDcName}" -name "${myVmName}"`;
+    console.log(myFindVmCmd);
+    const myFindVmResult = cmdline_session.runCmd(myFindVmCmd);
+    browser_session.displayMessage(browser, myFindVmResult);
+    const myResultList = JSON.parse(myFindVmResult).output.split('\n').filter(e => e);
     if (boolFalseCase) {
-      expect(resultObject.output).not.toContain(`${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}`);
-      expect(resultObject.exitcode).toBe(0);
+      expect(myResultList.length).toBe(0);
     }
     else {
-      expect(resultObject.output).toContain(`${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}`);
-      expect(resultObject.exitcode).toBe(0);
+      expect(myResultList.length).toBe(1);
     }
   }
 );

@@ -67,36 +67,46 @@ When(/^(?::vcenter: )?I connect the "(.*)" to "(.*)" for the VM "(.*)" inside es
   }
 );
 
-When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)" path "(.*)" esxi host "(.*)"$/,
-  { timeout: 15 * 60 * 1000 },
-  (esxiCmd, vmName, dcName, dcPath, esxiHost) => {
+When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)"$/,
+  (esxiCmd, vmName, dcName) => {
     const myVmName = parseExpectedText(vmName);
     const myDcName = parseExpectedText(dcName);
-    const myDcPath = parseExpectedText(dcPath) || 'host';
-    const myEsxiHost = parseExpectedText(esxiHost);
-    var govcCmd;
-    switch (esxiCmd) {
-      case 'power on':
-        govcCmd = 'vm.power -on';
-        break;
-      case 'power off':
-        govcCmd = 'vm.power -off -force=true';
-        break;
-      case 'destroy':
-        govcCmd = 'vm.destroy';
-        break;
-    }
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    const cmdString = `govc ${govcCmd} -u="${myVCenterURL}" -k=true -dc="${myDcName}" "/${myDcName}/${myDcPath}/${myEsxiHost}/${myEsxiHost}/${myVmName}"`;
-    console.log(cmdString);
-    const resultString = cmdline_session.runCmd(cmdString);
-    browser_session.displayMessage(browser, resultString);
-    const exitCode = JSON.parse(resultString).exitcode;
-    if (exitCode == 0) {
-      console.log('action accepted, waiting 90 seconds...');
-      browser.pause(9000);
+    const myFindVmCmd = `govc find -u="${myVCenterURL}" -k=true -dc="${myDcName}" -name "${myVmName}"`;
+    console.log(myFindVmCmd);
+    const myFindVmResult = cmdline_session.runCmd(myFindVmCmd);
+    browser_session.displayMessage(browser, myFindVmResult);
+    const myResultList = JSON.parse(myFindVmResult).output.split('\n').filter(e => e);
+    console.log(myResultList);
+    if (myResultList.length == 0) {
+      console.log('no VM found, action is not needed.');
+    } else if (myResultList.length > 1) {
+      throw new Error('found multiple targets, action cannot be performed');
     } else {
-      console.log('action not needed');
+      // action block
+      var govcCmd;
+      switch (esxiCmd) {
+        case 'power on':
+          govcCmd = 'vm.power -on';
+          break;
+        case 'power off':
+          govcCmd = 'vm.power -off -force=true';
+          break;
+        case 'destroy':
+          govcCmd = 'vm.destroy';
+          break;
+      }
+      const vmActionCmdString = `govc ${govcCmd} -u="${myVCenterURL}" -k=true -dc="${myDcName}" "${myResultList[0]}"`;
+      console.log(vmActionCmdString);
+      const vmActionResultString = cmdline_session.runCmd(vmActionCmdString);
+      browser_session.displayMessage(browser, vmActionResultString);
+      const exitCode = JSON.parse(vmActionResultString).exitcode;
+      if (exitCode == 0) {
+        console.log('action is accepted, waiting 30 seconds...');
+        browser.pause(3000);
+      } else {
+        console.log('action is not needed');
+      }  
     }
   }
 );
@@ -177,14 +187,12 @@ When(/^(?::vcenter: )?I use the OVA URL to deploy an VM with config below:$/,
   (table) => {
     const config = table.rowsHash();
     const myDcName = parseExpectedText(config.dcName);
-    const myDcPath = parseExpectedText(config.dcPath) || 'host';
-    const myHostIP = parseExpectedText(config.esxiHost);
+    const myEsxiHost = parseExpectedText(config.esxiHost);
     const myDataStore = parseExpectedText(config.dataStore);
     const myVmName = parseExpectedText(config.vmName);
     const myOptionFile = parseExpectedText(config.optionFile);
-    const myPool = parseExpectedText(config.dcResourcePath).trim().length > 0 ? parseExpectedText(config.dcResourcePath) : `/${myDcName}/${myDcPath}/${myEsxiHost}/Resources`;
+    const myPool = parseExpectedText(config.dcResourcePath).trim().length > 0 ? parseExpectedText(config.dcResourcePath) : `/${myDcName}/host/${myEsxiHost}/Resources`;
     const myVCenterURL = process.env.myVCenterURL || process.env.vCenterURL;
-    let myEsxiHost = process.env.myClusterIP ? process.env.myClusterIP : myHostIP;
     const myTargetOvaUrl = process.env.myTargetOvaUrl;
 
     const cmdString = `time govc import.ova -options="${process.env.PROJECTRUNPATH}/${process.env.TestDir}/testfiles/${myOptionFile}" -u="${myVCenterURL}" -k=true -dc="${myDcName}" -ds="${myDataStore}" -pool="${myPool}" -name="${myVmName}" "${myTargetOvaUrl}"`;

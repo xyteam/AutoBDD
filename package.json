@@ -1,6 +1,6 @@
 {
   "name": "autobdd",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "BDD Automaiton",
   "scripts": {
     "download-test": "mkdir -p ./test-projects/autobdd-test && cd ./test-projects/autobdd-test && npx degit --force https://github.com/xyteam/autobdd-test.git#v2master",
