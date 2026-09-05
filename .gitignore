@@ -18,6 +18,7 @@ nohup.out
 .screenshots/
 videos/
 node_modules/
+third_party/xysikulixapi/build/
 test-results/
 logs/
 tmp/
