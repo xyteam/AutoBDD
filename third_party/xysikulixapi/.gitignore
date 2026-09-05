@@ -1,0 +1,7 @@
+# files to ignore
+*.jar
+*.class
+package-lock.json
+
+# dirs to ignore
+node_modules/

@@ -1,0 +1,30 @@
+{
+  "name": "xysikulixapi",
+  "version": "0.0.12",
+  "description": "",
+  "bin": {
+    "findTargetImage": "bin/findTargetImage.js"
+  },
+  "main": "lib/xysikulixapi.js",
+  "dependencies": {
+    "java": "^0.12.2",
+    "minimist": "^1.2.5",
+    "node-gyp": "^8.4.1",
+    "request": "^2.88.0",
+    "shell-quote": "^1.7.3"
+  },
+  "scripts": {
+    "postinstall": "node bin/downloadSikulixApiJar.js",
+    "download": "node bin/downloadSikulixApiJar.js",
+    "up-target": "google-chrome --no-first-run `pwd`/test_images/targetImage.png > /dev/null 2>&1 &",
+    "down-target": "pkill -f 'google-chrome --no-first-run .*/test_images/targetImage.png'",
+    "test-positive": "node bin/findTargetImage.js --onArea=onScreen --imagePath=`pwd`/test_images/sampleImage.png --textHint='Databases' | grep UTC",
+    "test-negative": "node bin/findTargetImage.js --onArea=onScreen --imagePath=`pwd`/test_images/sampleImage.png --textHint='Fake' | grep notFound",
+    "test-detail1": "node bin/findTargetImage.js --onArea=onScreen --imagePath=`pwd`/test_images/sampleImage.png --textHint='Sessions Data First Seen' | grep 'Last Seen'",
+    "test-detail2": "node bin/findTargetImage.js --onArea=onScreen --imagePath=`pwd`/test_images/sampleImage.png --textHint='Sep 3, 2019 23:00' | grep 'Sessions Data First Seen'",
+    "test-detail3": "node bin/findTargetImage.js --onArea=onScreen --imagePath=`pwd`/test_images/sampleImage.png --textHint='UTC' | grep 'Workload'",
+    "test": "npm run up-target && npm run test-positive && npm run test-negative && npm run test-detail1 && npm run test-detail2 && npm run test-detail3 && npm run down-target"
+  },
+  "author": "xywang68@gmail.com",
+  "license": "ISC"
+}

@@ -224,7 +224,13 @@ autobdd-test / AutoBDD-example                   ← separate repos, pull xyteam
 
 ## 3. Phased implementation plan
 
-Each phase is independently verifiable. Gates after phases 1, 3, 5.
+Each phase is independently verifiable; each ends with a gate.
+
+> **Renumbering note (2026-09-05):** Phase 1 below is a new *repo-consolidation* phase
+> added ahead of the previously-numbered stack-upgrade phases. Historical references in
+> sections 0–2 ("Phase 1–6") used the pre-consolidation numbering; the authoritative phase
+> numbers are now those in this section (consolidation = Phase 1, Docker = 2,
+> screen-bridge = 3, hygiene = 4, wdio = 5, reporting = 6, example cutover = 7, cleanup = 8).
 
 ### Phase 0 — Spike (highest risk, do first)
 
@@ -240,108 +246,153 @@ Build the Docker image with the new stack and verify the two riskiest native pie
 - **0.3** Ubuntu 22.04 package check: `aosd-cat`, `libpng++-dev`, `libopencv-dev`,
   `ttf-wqy-zenhei`, `rdesktop`/`freerdp`, tesseract-ocr.
 
-**Gate 1:** a minimal container boots, `npm install` succeeds, a bare Chrome session
+**Gate 0:** a minimal container boots, `npm install` succeeds, a bare Chrome session
 launches, and an Oculix `find` on a sample image returns a match.
 
-### Phase 1 — Docker foundation
+### Phase 1 — Repo consolidation: single AutoBDD monorepo (dominant topology change)
 
-- **1.1** `autobdd-ubuntu.dockerfile`: ubuntu 22.04; replace `apt-key add/adv` with
+> **Status: DONE (2026-09-05).** autobdd-test folded into `test-projects/autobdd-test` as
+> the internal test suite; xySikulixApi vendored into `third_party/xysikulixapi` and
+> consumed via a `file:` dependency. Verified: `make e2e-test` passes against the baked
+> `xyteam/autobdd:3.0.0` image (all runners, exit 0). AutoBDD is self-contained (no
+> external `xysikulixapi`/`autobdd-test` deps).
+
+Reduce the four aligned repos to **one** (AutoBDD) plus one external demo
+(AutoBDD-example).
+
+**1.1 — Fold `xySikulixApi` into AutoBDD as an internal library**
+- Move the `xySikulixApi` source (the java-bridge/Oculix screen bridge:
+  `bin/{findTargetImage,downloadSikulixApiJar}.js`, `lib/xysikulixapi.js`,
+  `lib/oculixapi-4.0.0-complete-lux.jar`) into AutoBDD — e.g. `framework/third_party/
+  sikulix/` or a top-level `sikulix/` module — so AutoBDD is self-contained for the screen
+  bridge (no external `xysikulixapi` npm dep, no separate repo, no per-repo publish).
+- Convert it to an internal module: `framework/libs/screen_session.js` consumes it
+  directly (`require`) instead of `execSync('findTargetImage')` through
+  `node_modules/.bin`, or keep the CLI but resolve it from the internal path.
+- Drop the `xysikulixapi` npm dependency and the orphaned
+  `framework/scripts/old-findTargetImage.js`.
+
+**1.2 — Fold `autobdd-test` into AutoBDD as the internal test suite**
+- Move `autobdd-test`'s test content under AutoBDD (`test-projects/autobdd-test/` — the
+  shell already exists — or `framework/tests/`), committed in-repo instead of
+  `npx degit`-fetched at build time.
+- The internal suite becomes AutoBDD's own regression gate (e2e-test
+  single/parallel/auto runners, jest, cypress, pytest, k6) run against the working tree /
+  baked image via `make autobdd-test`.
+- Update `package.json` `download-test`/`test-init`/`test`/`clean` scripts and the docker
+  build (no build-time `degit`; tests bake or mount with the framework).
+
+**1.3 — Keep `AutoBDD-example` as the external demo suite**
+- AutoBDD-example stays a separate repo consuming the `xyteam/autobdd:${AutoBDD_Ver}`
+  image — the documented way third parties use AutoBDD.
+- It is not part of the AutoBDD build/test cycle; only the demo/`@Demo` cutover in
+  Phase 7 touches it.
+
+**Gate 1:** AutoBDD is a single self-contained repo (no `xysikulixapi`/`autobdd-test`
+external deps); `npm install` + the internal test suite run green against the working
+tree; `make autobdd-test` exercises the folded-in suite.
+
+### Phase 2 — Docker foundation
+
+- **2.1** `autobdd-ubuntu.dockerfile`: ubuntu 22.04; replace `apt-key add/adv` with
   `gpg --dearmor`; drop python2 support file (`enable_python2_support.sh` removed);
   bump Python.
-- **1.2** `autobdd-nodejs.dockerfile`: Node 20 LTS (nodesource `setup_20.x`); delete the
+- **2.2** `autobdd-nodejs.dockerfile`: Node 20 LTS (nodesource `setup_20.x`); delete the
   obsolete "16.x breaks fiber" comment (fiber was only for wdio sync). Refresh google-
   chrome / k6 / terraform / hashicorp apt keys via gpg-dearmor.
-- **1.3** `autobdd-image.dockerfile` + `autobdd.root/`: install requirements, `npm
-  install`, wire the Oculix jar download into the build (or into xysikulixapi postinstall).
-- **1.4** `docker-compose.yml` (AutoBDD + example + test): drop `version:` key; `.docker/
+- **2.3** `autobdd-image.dockerfile` + `autobdd.root/`: install requirements, `npm
+  install`; wire the Oculix jar (now internal to AutoBDD per Phase 1) into the build; no
+  build-time `degit` of autobdd-test (internal now).
+- **2.4** `docker-compose.yml` (AutoBDD + AutoBDD-example): drop `version:` key; `.docker/
   Makefile`: drop `--compress`.
-- **1.5** Bump `AUTOBDD_VERSION`/`AutoBDD_Ver` consistently to a new release version.
+- **2.5** Bump `AUTOBDD_VERSION`/`AutoBDD_Ver` consistently to a new release version.
 
-**Gate 2:** `make autobdd-build-all` succeeds; `autobdd-bash` opens a shell; python
-dry-run passes.
+**Gate 2:** `make autobdd-build-all` succeeds; `autobdd-bash` opens a shell; the internal
+python dry-run passes.
 
-### Phase 2 — Screen bridge: SikuliX → Oculix (xySikulixApi)
+### Phase 3 — Screen bridge: SikuliX → Oculix (now internal to AutoBDD)
 
-- **2.1** In `../xySikulixApi` (now cloned locally):
+- **3.1** In the folded-in internal module (from Phase 1):
   - swap `java` → `node-java-bridge` (same `java.import`/`java.classpath` surface);
   - download Oculix `oculixapi-4.0.0.jar` instead of `sikulixapi-2.0.4.jar`
     (`downloadSikulixApiJar.js`: URL → Maven Central);
   - confirm all `org.sikuli.script.*` imports still resolve against Oculix.
-- **2.2** Publish/bump `xysikulixapi` to a new version (e.g. 0.1.0) pointing at Oculix.
-- **2.3** AutoBDD `package.json`: bump `xysikulixapi`; remove `java` dep (now inside the
-  bridge). Keep `fuzzball` (used by screen/then.js).
-- **2.4** Decide robotjs fate per 0.2; if migrating input to Oculix, update
+- **3.2** `screen_session.js` and any direct consumers require the internal module; remove
+  the `xysikulixapi` npm dep and orphaned `old-findTargetImage.js` if not already done in
+  1.1. Keep `fuzzball` (used by screen/then.js).
+- **3.3** Decide robotjs fate per 0.2; if migrating input to Oculix, update
   `screen_session.js` keyboard/mouse functions accordingly.
-- **2.5** Delete orphaned `framework/scripts/old-findTargetImage.js` and its only deps
-  (`java`, `xysikulixapi` in AutoBDD package.json if not elsewhere used).
-- **2.6** Verify `getImageText.js` (tesseract OCR) against the new image; keep or fold
+- **3.4** Verify `getImageText.js` (tesseract OCR) against the new image; keep or fold
   into Oculix OCR.
 
 **Gate 3:** `findTargetImage` and screen image-finding work end-to-end against Oculix on
-the new image (both real display and xvfb).
+the new image (both real display and xvfb), driven by the internal module.
 
-### Phase 3 — Dependency hygiene (isolate variables before the wdio bump)
+### Phase 4 — Dependency hygiene (isolate variables before the wdio bump)
 
-- **3.1** Remove Node built-ins as deps: `child_process`, `path`, `assert`.
-- **3.2** Remove/verify dead deps: `@hapi/hapi`, `hoek`, `cryptiles`, `moment` (or →dayjs),
-  `java`+`xysikulixapi` (per 2.5), `request` (→ global `fetch`), `url-parse` if only
-  transitive, `newman` → ^6, `npm-check-updates` → latest, `allure-commandline` → latest.
-- **3.3** `xlsx` ^0.17.0 (known CVEs) → ^0.18.5 or `exceljs` (used in `libs/fs_session.js`).
-- **3.4** `fs-ext` (`safexvfb.js` flockSync) → pure-JS `proper-lockfile` (drop native dep).
-- **3.5** Run full test suite on **wdio v7 still** to confirm hygiene didn't break the
+- **4.1** Remove Node built-ins as deps: `child_process`, `path`, `assert`.
+- **4.2** Remove/verify dead deps: `@hapi/hapi`, `hoek`, `cryptiles`, `moment` (or →dayjs),
+  `java`+`xysikulixapi` (removed in Phase 1/3), `request` (→ global `fetch`), `url-parse`
+  if only transitive, `newman` → ^6, `npm-check-updates` → latest,
+  `allure-commandline` → latest.
+- **4.3** `xlsx` ^0.17.0 (known CVEs) → ^0.18.5 or `exceljs` (used in `libs/fs_session.js`).
+- **4.4** `fs-ext` (`safexvfb.js` flockSync) → pure-JS `proper-lockfile` (drop native dep).
+- **4.5** Run the internal test suite on **wdio v7 still** to confirm hygiene didn't break
   pre-upgrade behavior.
 
-**Gate 4:** `npm install` clean, existing (pre-upgrade) tests still pass on wdio v7.
+**Gate 4:** `npm install` clean, existing (pre-upgrade) internal tests still pass on wdio v7.
 
-### Phase 4 — WebdriverIO v7 → v9 (dominant effort)
+### Phase 5 — WebdriverIO v7 → v9 (dominant effort)
 
-- **4.1** Sync → async: `await` every `browser.*`, `$()`, `$$()`, `expect()`; make every
+- **5.1** Sync → async: `await` every `browser.*`, `$()`, `$$()`, `expect()`; make every
   step def + hook `async`. Files: `framework/step_functions/**`,
   `framework/step_files/{browser,screen,shell,vcenter,nodejs,postman,maven}/**`,
   `framework/libs/{browser_session,fs_session,framework_libs,vcenter_session}.js`,
   `framework/support/hooks.js`.
-- **4.2** Command renames: `windowHandleMaximize`→`maximizeWindow`;
+- **5.2** Command renames: `windowHandleMaximize`→`maximizeWindow`;
   `getWindowHandle().on('DOMContentLoaded')`→`browser.execute(readyState)`/`waitUntil`;
   `waitForExist`→`waitForExists` (v9).
-- **4.3** Cucumber: `cucumberOpts.tagExpression`→`tags` in all configs; update hook
+- **5.3** Cucumber: `cucumberOpts.tagExpression`→`tags` in all configs; update hook
   signatures; rewrite legacy `this.Then`→`const {Then}=require('@cucumber/cucumber')`.
-- **4.4** Dep bumps (root devDeps): `@wdio/*`→^9.30, remove `@wdio/sync`,
+- **5.4** Dep bumps (root devDeps): `@wdio/*`→^9.30, remove `@wdio/sync`,
   `@wdio/jasmine-framework`, `@rpii/wdio-html-reporter`, `wdio-chromedriver-service`,
   `devtools`+`automationProtocol`; add `@wdio/globals`; bump `expect-webdriverio`→^6,
   `wdio-cucumberjs-json-reporter`→^6.
-- **4.5** Configs: `abdd_Linux_CH.js`, `abdd_Linux_FF.js`, `abdd_Win10_*.js` — reporter
+- **5.5** Configs: `abdd_Linux_CH.js`, `abdd_Linux_FF.js`, `abdd_Win10_*.js` — reporter
   blocks to cucumberjs-json v6 names; selenium-standalone service to Selenium 4; confirm
   `abdd_local.js` (legacy Chimp) dead → remove.
 
-**Gate 5:** one feature runs end-to-end against a real browser via `abdd_Linux_CH.js`.
+**Gate 5:** one feature runs end-to-end against a real browser via `abdd_Linux_CH.js`,
+and the internal test suite (folded-in in Phase 1) passes on wdio v9.
 
-### Phase 5 — Reporting pipeline
+### Phase 6 — Reporting pipeline
 
-- **5.1** `wdio-cucumberjs-json-reporter` v6 config keys; `multiple-cucumber-html-reporter`
+- **6.1** `wdio-cucumberjs-json-reporter` v6 config keys; `multiple-cucumber-html-reporter`
   v3 (or replacement) parsing cucumber v10/wdio v9 JSON.
-- **5.2** Re-verify `scripts/{gen-report,generate-reports,testrail-reports}.js`,
+- **6.2** Re-verify `scripts/{gen-report,generate-reports,testrail-reports}.js`,
   `parse-single-runner-log.js`, `auto-runner.py` (tagExpression→tags translation).
-- **5.3** Python tooling: bump per Phase 1; smoke auto-runner dry-run + parallel run.
+- **6.3** Python tooling: bump per Phase 2; smoke auto-runner dry-run + parallel run.
 
 **Gate 6:** full HTML report with step screenshots + movie generated from a real run.
 
-### Phase 6 — Test-project cutover (two repos)
+### Phase 7 — AutoBDD-example cutover (external demo only)
 
-- **6.1** autobdd-test: bump package.json to wdio v9; rewrite legacy `this.Then` steps;
-  update `Makefile`/`docker-compose.yml` to new image tag + compose v2; verify each test
-  family (`e2e-test`, `js-test` jest, `cy-test` cypress, `py3-test`, `k6-test`).
-- **6.2** AutoBDD-example: same; verify `@Demo` tag run end-to-end; confirm report output.
-- **6.3** Coordinated release: bump framework + both test repos; cut over the degit URL/tag
-  in AutoBDD `package.json` `download-test` script (currently `#v3master`).
+autobdd-test is now AutoBDD's internal suite (Phase 1), so this phase only migrates the
+external demo repo.
 
-**Gate 7:** both projects' smoke runs pass on the new image.
+- **7.1** AutoBDD-example: bump to wdio v9; rewrite legacy `this.Then` steps; update
+  `Makefile`/`docker-compose.yml` to the new image tag + compose v2; verify the `@Demo`
+  run end-to-end and confirm report output.
+- **7.2** Coordinated release: bump AutoBDD (framework + internal suite) and
+  AutoBDD-example; AutoBDD-example's `AutoBDD_Ver` points at the new image.
 
-### Phase 7 — Obsolete platform cleanup
+**Gate 7:** AutoBDD-example's `@Demo` smoke run passes on the new image.
 
-- **7.1** Drop IE (`abdd_Win10_IE.js`, IE driver) — IE EOL 2022.
-- **7.2** Edge via msedgedriver (replace 2015-era `MicrosoftWebDriver.exe`).
-- **7.3** Remove `abdd_local.js` (legacy Chimp config) if confirmed dead.
-- **7.4** Remove dead/legacy scripts and docs; update READMEs; bump versions; tag release.
+### Phase 8 — Obsolete platform cleanup
+
+- **8.1** Drop IE (`abdd_Win10_IE.js`, IE driver) — IE EOL 2022.
+- **8.2** Edge via msedgedriver (replace 2015-era `MicrosoftWebDriver.exe`).
+- **8.3** Remove `abdd_local.js` (legacy Chimp config) if confirmed dead.
 
 ---
 
@@ -350,24 +401,28 @@ the new image (both real display and xvfb).
 | # | Decision / risk | Mitigation |
 |---|---|---|
 | D1 | **`java` (node-java) is broken on Node 20** — top blocker | Phase 0 spike: `node-java-bridge` (prebuilt Rust/napi, same API) first; fallback: spawn JVM + JSON-RPC (operix-js model) |
-| D2 | **Oculix vs SikuliX jar** — Oculix keeps `org.sikuli.script.*` | Repoint xysikulixapi at oculixapi-4.0.0.jar; verify each import resolves |
+| D2 | **Oculix vs SikuliX jar** — Oculix keeps `org.sikuli.script.*` | Folded-in internal module (Phase 1) repointed at oculixapi-4.0.0.jar (Phase 3); verify each import resolves |
 | D3 | **robotjs** unmaintained, won't build on Node 20 | Prefer Oculix Mouse/Keyboard (removes dep); else `@nut-tree/nut-js`; decided in 0.2 |
 | D4 | **Ubuntu 22.04 vs 24.04** | Default 22.04 (rdesktop present); only go 24.04 if 22.04 package set fails |
-| D5 | **wdio v9 sync→async is large** | Sequence: hygiene on v7 first (Phase 3), then one wdio bump with a canary feature per browser |
-| D6 | **wdio v9 JSON vs old reporters** | Spike reporter parsing in Phase 5; swap `multiple-cucumber-html-reporter` if it can't read v9 JSON |
-| D7 | **"worked 6 years ago" unverified** | No assumption; every phase's gate re-proves behavior end-to-end from a clean container |
+| D5 | **wdio v9 sync→async is large** | Sequence: hygiene on v7 first (Phase 4), then one wdio bump (Phase 5) with a canary feature per browser |
+| D6 | **wdio v9 JSON vs old reporters** | Spike reporter parsing in Phase 6; swap `multiple-cucumber-html-reporter` if it can't read v9 JSON |
+| D7 | **Repo consolidation is broad** | Do it first (Phase 1) on the *current* wdio v7 stack so the topology change is decoupled from the wdio bump (Phase 5) |
+| D8 | **"worked 6 years ago" unverified** | No assumption; every phase's gate re-proves behavior end-to-end from a clean container |
 
 ---
 
 ## 5. Definition of done
 
+- AutoBDD is a **single self-contained repo**: `xySikulixApi` folded in as an internal
+  screen-bridge library and `autobdd-test` folded in as the internal test suite
+  (Phase 1). `AutoBDD-example` remains the external demo repo.
 - `make autobdd-build-all` builds a modern image (Ubuntu 22.04, Node 20, Python 3.10+,
   Selenium 4, Oculix-based screen bridge).
-- `make autobdd-test` (or the test-project equivalent) runs **all** test families green:
+- `make autobdd-test` runs the **internal** suite green on the working tree / baked image:
   e2e (browser + screen/image + shell + nodejs + maven + postman + vcenter), jest, cypress,
   py3, k6.
 - AutoBDD-example `@Demo` run produces a valid searchable HTML report with screenshots and
   movie.
 - All libraries and internal components upgraded to the latest compatible versions; dead
-  code (IE, Chimp config, orphaned `old-findTargetImage.js`, obsolete deps) removed.
-- Both test projects consume the new framework version via a coordinated release.
+  code (IE, Chimp config, orphaned `old-findTargetImage.js`, obsolete deps, external
+  `xysikulixapi`/`autobdd-test` deps) removed.

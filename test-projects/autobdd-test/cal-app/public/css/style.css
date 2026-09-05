@@ -1,0 +1,29 @@
+
+
+input[type=button]{
+	background: #5c42f4;
+	/* width: 20%; */
+	/* font-size: 40px; */
+	font-weight: 500;
+	margin: 2%;
+	border-radius: 4px;
+}
+
+input[type=text]{
+	width: 90%;
+	font-size: 20px;
+	border: 2px inset #f442df;
+	border-width: 3px;
+}
+
+body{
+	background-image: url("../img/math.jpg");
+	background-size: cover;
+	background-attachment: fixed;
+}
+
+
+form { 
+margin: 0 auto; 
+width:250px;
+}

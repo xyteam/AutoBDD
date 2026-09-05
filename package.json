@@ -3,9 +3,8 @@
   "version": "3.0.0",
   "description": "BDD Automaiton",
   "scripts": {
-    "download-test": "mkdir -p ./test-projects/autobdd-test && cd ./test-projects/autobdd-test && npx degit --force https://github.com/xywang68/autobdd-test.git#phase-0",
     "test-init": ". ./.autoPathrc.sh && cd ./test-projects/autobdd-test && xvfb-runner.sh make e2e-single-runner",
-    "test": "npm run download-test && npm run test-init",
+    "test": "npm run test-init",
     "clean": "rm -rf ./test-projects/autobdd-test"
   },
   "dependencies": {
@@ -23,7 +22,6 @@
     "fuzzball": "^2.0.0",
     "glob": "^7.2.3",
     "hoek": ">=6.1.3",
-    "java": "^0.12.2",
     "json-diff": ">=0.5.4",
     "jsonfile": "^6.1.0",
     "keycode": "^2.2.0",
@@ -44,7 +42,7 @@
     "uuid-random": "^1.3.2",
     "words-to-numbers": ">=1.5.1",
     "xlsx": "^0.17.0",
-    "xysikulixapi": "^0.0.11",
+    "xysikulixapi": "file:./third_party/xysikulixapi",
     "inquirer": "8.2.6"
   },
   "repository": {
