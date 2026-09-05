@@ -10,10 +10,11 @@
 # vnc localhost:5924
 # docker-compose down
 #
-# DEV-MODE: mount the working-tree AutoBDD over the image's baked copy so autobdd-test
-# runs against live AutoBDD source (phase-0) instead of the stale image.
-#   * AUTOBDD_SRC defaults to the sibling ../AutoBDD directory. Set it explicitly to
-#     point at your checkout:  AUTOBDD_SRC=/abs/path/to/AutoBDD docker-compose ...
+# DEV-MODE: mount the working-tree AutoBDD (this monorepo root) over the image's baked
+# copy so autobdd-test runs against live AutoBDD source instead of the stale image.
+#   * This file lives at <AutoBDD>/test-projects/autobdd-test/, so AUTOBDD_SRC defaults
+#     to ../.. (the AutoBDD monorepo root). Override it to point at another checkout:
+#     AUTOBDD_SRC=/abs/path/to/AutoBDD docker-compose ...
 #   * Patched startup scripts (dev/*.startup.sh) are bind-mounted over the image's
 #     baked copies; they skip the node_modules refresh when AUTOBDD_DEV_MOUNT=1 so the
 #     working tree's own node_modules (wdio 7) is never clobbered by the image's (wdio 6).
@@ -30,7 +31,7 @@ services:
       - "apparmor=docker-default"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
-      - ${AUTOBDD_SRC:-../AutoBDD}:/home/${USER}/Projects/AutoBDD:rw
+      - ${AUTOBDD_SRC:-../..}:/home/${USER}/Projects/AutoBDD:rw
       - ${PWD}:/home/${USER}/Projects/AutoBDD/test-projects/${ABDD_PROJECT}:rw
       - ${PWD}/dev/autobdd-dev.startup.sh:/root/autobdd-dev.startup.sh:ro
     ports:
@@ -60,7 +61,7 @@ services:
       - "apparmor=docker-default"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
-      - ${AUTOBDD_SRC:-../AutoBDD}:/home/${USER}/Projects/AutoBDD:rw
+      - ${AUTOBDD_SRC:-../..}:/home/${USER}/Projects/AutoBDD:rw
       - ${PWD}:/home/${USER}/Projects/AutoBDD/test-projects/${ABDD_PROJECT}:rw
       - ${PWD}/dev/autobdd-run.startup.sh:/root/autobdd-run.startup.sh:ro
     environment:

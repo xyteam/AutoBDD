@@ -16,6 +16,7 @@
     "fs-ext": "^2.0.0",
     "fuzzball": "^2.0.0",
     "glob": "^7.2.3",
+    "inquirer": "8.2.6",
     "jsonfile": "^6.1.0",
     "keycode": "^2.2.0",
     "minimist": "^1.2.5",
@@ -63,9 +64,5 @@
     "expect-webdriverio": "^3.1.0",
     "multiple-cucumber-html-reporter": "^1.18.0",
     "wdio-cucumberjs-json-reporter": "^4.0.0"
-  },
-  "overrides": {
-    "inquirer": "8.2.6",
-    "@inquirer/external-editor": "1.0.3"
   }
 }
