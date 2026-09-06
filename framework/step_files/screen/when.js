@@ -35,9 +35,9 @@ When(/^(?::screen: )?I select the "([^"]*)?" file for upload$/, {timeout: 300*10
 });
   
 When(/^(?::screen: )?I download the (PDF) file by clicking "([^"]*)"$/, { timeout: 60 * 1000 * 2 },
-function (fileType, imageName) {
+async function (fileType, imageName) {
     // delete previous download file
-    var downloadUrl = browser.getUrl();
+    var downloadUrl = await browser.getUrl();
     var fileName = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.')));
     var fileExt = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('.') + 1));
     fs_session.deleteDownloadFile(fileName, fileExt);
@@ -55,7 +55,7 @@ function (fileType, imageName) {
     // click PDF download icon
     var screenActionResultOne;
     screenActionResultOne = JSON.parse(screen_session.screenClickImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
-    expect(screenActionResultOne.length).not.toEqual(0, 'failed to click PDF download icon');
+    await expect(screenActionResultOne.length).not.toEqual(0, 'failed to click PDF download icon');
 
     // process FileSave_button
     const parsedImageNameTwo = parseExpectedText('FileSave_button:save');
@@ -63,23 +63,23 @@ function (fileType, imageName) {
     const imagePathListTwo = fs_session.globalSearchImageList(__dirname, imageFileNametwo, imageFileExtTwo);
     // click FileSave_button
     screenActionResult = JSON.parse(screen_session.screenClickImage(imagePathListTwo, imageSimilarityTwo, maxSimilarityOrTextTwo));
-    expect(screenActionResult.length).not.toEqual(0, 'failed to click FileSave button');
-    const downloadFilePath = fs_session.checkDownloadFile(fileName, fileExt);
-    expect(downloadFilePath).toContain(fileName + '.' + fileExt);
+    await expect(screenActionResult.length).not.toEqual(0, 'failed to click FileSave button');
+    const downloadFilePath = await fs_session.checkDownloadFile(fileName, fileExt);
+    await expect(downloadFilePath).toContain(fileName + '.' + fileExt);
 });
 
 When(/^(?::screen: )?I download the (XLS|PDF) file by going to URL "([^"]*)"$/,
 { timeout: 60 * 1000 * 2 },
-function (fileType, downloadUrl) {
+async function (fileType, downloadUrl) {
     // delete previous download file
     var fileName = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1, downloadUrl.lastIndexOf('.')));
     var fileExt = decodeURI(downloadUrl.substring(downloadUrl.lastIndexOf('.') + 1));
     fs_session.deleteDownloadFile(fileName, fileExt);
 
     // download file from URL
-    browser.url(downloadUrl)
-    var downloadFilePath = fs_session.checkDownloadFile(fileName, fileExt);
-    expect(downloadFilePath).toContain(fileName + '.' + fileExt);
+    await browser.url(downloadUrl)
+    var downloadFilePath = await fs_session.checkDownloadFile(fileName, fileExt);
+    await expect(downloadFilePath).toContain(fileName + '.' + fileExt);
     // pass download Url for steps after
     this.downloadUrl = downloadUrl;
 });
@@ -90,7 +90,7 @@ When(
 );
 
 When(/^(?::screen: )?I drag "([^"]*)" and drop to "([^"]*)"$/,
-function (imageNameOne, imageNameTwo) {
+async function (imageNameOne, imageNameTwo) {
     // re imageNameOne
     const parsedImageNameOne = parseExpectedText(imageNameOne);
     const [imageFileNameOne, imageFileExtOne, imageSimilarityOne, maxSimilarityOrTextOne] = fs_session.getTestImageParms(parsedImageNameOne);
@@ -111,17 +111,17 @@ function (imageNameOne, imageNameTwo) {
     }
 
     var locationOne = JSON.parse(screen_session.screenFindImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
-    expect(locationOne.length).not.toEqual(0, `can not locate the "${imageNameOne}" image on the screen`);
+    await expect(locationOne.length).not.toEqual(0, `can not locate the "${imageNameOne}" image on the screen`);
     var locationTwo = JSON.parse(screen_session.screenFindImage(imagePathListTwo, imageSimilarityTwo, maxSimilarityOrTextTwo));
-    expect(locationTwo.length).not.toEqual(0, `can not locate the "${imageNameTwo}" image on the screen`);
+    await expect(locationTwo.length).not.toEqual(0, `can not locate the "${imageNameTwo}" image on the screen`);
     screen_session.drag_and_drop(locationOne[0].center, locationTwo[0].center);
-    browser.pause(1000);
+    await browser.pause(1000);
 });
 
 
 When(/^(?::screen: )?I (circle|click|expect|park|hover|shake|wave) mouse(?: (\d+) times)? at the (center|centerLeft|centerRight|bottomCenter|bottomLeft|bottomRight|previous|topCenter|topLeft|topRight|\d+,\d+) position of the screen$/,
 { timeout: 60 * 1000 },
-function (mouseAction, timesCount, screenLocation) {
+async function (mouseAction, timesCount, screenLocation) {
     const myDISPLAYSIZE = process.env.DISPLAYSIZE;
     const [myScreenX, myScreenY] = myDISPLAYSIZE.split('x');
     var targetLocation = { x: 0, y: 0 };
@@ -183,8 +183,8 @@ function (mouseAction, timesCount, screenLocation) {
                 const mousePos = JSON.parse(screen_session.getMousePos());
                 const deltaX = Math.abs(mousePos.x - targetLocation.x);
                 const deltaY = Math.abs(mousePos.y - targetLocation.y);
-                expect(deltaX).not.toBeGreaterThan(5);
-                expect(deltaY).not.toBeGreaterThan(5);
+                await expect(deltaX).not.toBeGreaterThan(5);
+                await expect(deltaY).not.toBeGreaterThan(5);
                 break;
             case 'move':
             case 'park':
@@ -226,7 +226,7 @@ function (mouseAction, timesCount, screenLocation) {
 
 When(/^(?::screen: )?I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the (?:"([^"]*)?" image|screen area) to( not)* display the (text|regex) "(.*)?"$/,
 { timeout: 60 * 60 * 1000 },
-function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, falseState, expectType, expectedText) {
+async function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, falseState, expectType, expectedText) {
     // parse input
     const myExpectedText = parseExpectedText(expectedText);
     const myWaitTimeoutMnt = parseInt(waitTimeoutMnt) || 1;
@@ -265,7 +265,7 @@ function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, false
     var screenFindResult;
     do {
         // wait
-        browser.pause(myWaitIntvSec * 1000)
+        await browser.pause(myWaitIntvSec * 1000)
         // check
         if (targetName) {
             screenFindResult = JSON.parse(screen_session.screenFindImage(imagePathList, imageScore, maxSimilarityOrText));
@@ -312,7 +312,7 @@ function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, targetName, false
 
 When(/^(?::screen: )?I (click|hoverClick|rightClick|doubleClick|hover|wave|shake|circle)(?: (\d+) times)? (on|between) the "([^"]*)" image(?: and the "([^"]*)" image)? on the screen$/,
 { timeout: 60 * 1000 },
-function (mouseAction, timesCount, targetType, imageNameOne, imageNameTwo) {
+async function (mouseAction, timesCount, targetType, imageNameOne, imageNameTwo) {
     // re imageNameOne
     const parsedImageNameOne = parseExpectedText(imageNameOne);
     const [imageFileNameOne, imageFileExtOne, imageSimilarityOne, maxSimilarityOrTextOne] = fs_session.getTestImageParms(parsedImageNameOne);
@@ -337,9 +337,9 @@ function (mouseAction, timesCount, targetType, imageNameOne, imageNameTwo) {
             var locationOne, locationTwo;
             var targetLocation = {};
             locationOne = JSON.parse(screen_session.screenFindImage(imagePathListOne, imageSimilarityOne, maxSimilarityOrTextOne));
-            expect(locationOne.length).not.toEqual(0, `can not locate the "${imageNameOne}" image on the screen`);
+            await expect(locationOne.length).not.toEqual(0, `can not locate the "${imageNameOne}" image on the screen`);
             locationTwo = JSON.parse(screen_session.screenFindImage(imagePathListTwo, imageSimilarityTwo, maxSimilarityOrTextTwo));
-            expect(locationTwo.length).not.toEqual(0, `can not locate the "${imageNameTwo}" image on the screen`);
+            await expect(locationTwo.length).not.toEqual(0, `can not locate the "${imageNameTwo}" image on the screen`);
             targetLocation.x = (locationOne[0].center.x + locationTwo[0].center.x) / 2;
             targetLocation.y = (locationOne[0].center.y + locationTwo[0].center.y) / 2;
             var myTimesCount = timesCount || 1;
@@ -458,7 +458,7 @@ function (mouseAction, timesCount, targetType, imageNameOne, imageNameTwo) {
                 myTimesCount--;
             }
             console.log(screenFindResult);
-            expect(screenFindResult.length).not.toEqual(0, `can not ${mouseAction} the "${imageNameOne}" image on the screen`);
+            await expect(screenFindResult.length).not.toEqual(0, `can not ${mouseAction} the "${imageNameOne}" image on the screen`);
             break;
     }
 });

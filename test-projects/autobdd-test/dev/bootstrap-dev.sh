@@ -1,7 +1,7 @@
 #!/bin/bash
 # Dev-loop bootstrap for autobdd-test against the mounted working-tree AutoBDD.
 # Run AFTER any `npm install` in AutoBDD, which wipes native build artifacts
-# (fibers) and selenium-standalone drivers. Safe to re-run idempotently.
+# (selenium-standalone drivers). Safe to re-run idempotently.
 #
 # Usage:  AutoBDD_DEV_ROOT=/abs/path/to/AutoBDD bash dev/bootstrap-dev.sh
 set -euo pipefail
@@ -17,13 +17,7 @@ fi
 AUTODIR="$(cd "$ABDD" && pwd)"
 echo "AutoBDD working tree: $AUTODIR"
 
-# 1. Rebuild fibers (needed by @wdio/sync on Node 12; no prebuilt binary).
-#    Only inside the container (Node 12) — host Node 22 would produce a wrong ABI.
-if [ -d "$AUTODIR/node_modules/fibers" ] && [ "${AUTOBDD_DEV_MOUNT:-}" = "1" ]; then
-  echo "* rebuilding fibers for Node $(node -v)..."
-  (cd "$AUTODIR/node_modules/fibers" && node-gyp rebuild >/dev/null 2>&1)
-  node -e "require('$AUTODIR/node_modules/fibers')" && echo "  fibers OK"
-fi
+# 1. (removed) @wdio/sync + fibers no longer used (async conversion, Phase 3).
 
 # 2. Ensure selenium-standalone drivers exist (npm install wipes .selenium/)
 DRIVER_VERSION="${CHROME_DRIVER_VERSION:-96.0.4664.45}"

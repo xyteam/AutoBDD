@@ -11,7 +11,7 @@
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, targetType, expectedText) => {
+module.exports = async (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, action, targetType, expectedText) => {
     const myTargetElement = parseExpectedText(targetElement);
     const myParentElement = parseExpectedText(parentElement);
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
@@ -19,10 +19,11 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     
     var targetElementIdElement;
     if (parentElement) {
-        $(myParentElement).waitForExist();
-        targetElementIdElement = browser.$$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
+        await (await $(myParentElement)).waitForExist();
+        const myParentElements = await browser.$$(myParentElement);
+        targetElementIdElement = (await myParentElements[parentElementIndexInt].$$(myTargetElement))[targetElementIndexInt];
     } else {
-        targetElementIdElement = browser.$$(myTargetElement)[targetElementIndexInt];
+        targetElementIdElement = (await browser.$$(myTargetElement))[targetElementIndexInt];
     }
 
     /**
@@ -51,15 +52,15 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     var retrivedValue;
     switch (targetType) {
         case 'value':
-            if (targetElementIdElement.getTagName() == 'input') {
-                retrivedValue = targetElementIdElement.getValue();
+            if ((await targetElementIdElement.getTagName()) == 'input') {
+                retrivedValue = await targetElementIdElement.getValue();
             } else {
-                retrivedValue = browser.getElementAttribute(targetElementIdElement, targetType);
+                retrivedValue = await browser.getElementAttribute(targetElementIdElement, targetType);
             }
             break;
         case 'text':
         default:
-            retrivedValue = targetElementIdElement.getText();
+            retrivedValue = await targetElementIdElement.getText();
     }
 
     retrivedValue = retrivedValue.replace(/[^\x00-\x7F]/g, '');
@@ -68,7 +69,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
         switch (action) {
             case 'contain':
             case 'contains':
-                expect(retrivedValue).not.toContain(
+                await expect(retrivedValue).not.toContain(
                     myExpectedText,
                     `target element "${targetElement}" inside parent element "${parentElement}" should not contain ${targetType} ` +
                     `"${myExpectedText}"`
@@ -76,7 +77,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                 break;
             case 'equal':
             case 'equals':
-                expect(retrivedValue).not.toEqual(
+                await expect(retrivedValue).not.toEqual(
                     myExpectedText,
                     `target element "${targetElement}" inside parent element "${parentElement}" should not equal ${targetType} ` +
                     `"${myExpectedText}"`
@@ -84,20 +85,20 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                 break;
             case 'match':
             case 'matches':
-                expect(retrivedValue).not.toMatch(
+                await expect(retrivedValue).not.toMatch(
                     RegExp(myExpectedText),
                     `target element "${targetElement}" inside parent element "${parentElement}" should not match ${targetType} ` +
                     `"${myExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toEqual(true, `action ${action} should be one of contains, equals or matches`);
+                await expect(false).toEqual(true, `action ${action} should be one of contains, equals or matches`);
         }
     } else {
         switch (action) {
             case 'contain':
             case 'contains':
-                expect(retrivedValue).toContain(
+                await expect(retrivedValue).toContain(
                     myExpectedText,
                     `target element "${targetElement}" inside parent element "${parentElement}" should contain ${targetType} ` +
                     `"${myExpectedText}"`
@@ -105,7 +106,7 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                 break;
             case 'equal':
             case 'equals':
-                expect(retrivedValue).toEqual(
+                await expect(retrivedValue).toEqual(
                     myExpectedText,
                     `target element "${targetElement}" inside parent element "${parentElement}" should equal ${targetType} ` +
                     `"${myExpectedText}"`
@@ -113,14 +114,14 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                 break;
             case 'match':
             case 'matches':
-                expect(retrivedValue).toMatch(
+                await expect(retrivedValue).toMatch(
                     RegExp(myExpectedText),
                     `target element "${targetElement}" inside parent element "${parentElement}" should match ${targetType} ` +
                     `"${myExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toEqual(true, `action ${action} should be one of contains, equals or matches`);
+                await expect(false).toEqual(true, `action ${action} should be one of contains, equals or matches`);
         }
     }
 };

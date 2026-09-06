@@ -9,7 +9,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (element, falseCase, expectedSize, dimension) => {
+module.exports = async (element, falseCase, expectedSize, dimension) => {
     /**
      * The expected text to validate against
      * @type {String}
@@ -26,7 +26,7 @@ module.exports = (element, falseCase, expectedSize, dimension) => {
      * The size of the given element
      * @type {Object}
      */
-    const elementSize = browser.$(parsedElement).getSize();
+    const elementSize = await (await browser.$(parsedElement)).getSize();
 
     /**
      * Parsed size to check for
@@ -52,13 +52,13 @@ module.exports = (element, falseCase, expectedSize, dimension) => {
     }
 
     if (falseCase) {
-        expect(originalSize).not.toEqual(
+        await expect(originalSize).not.toEqual(
                 intExpectedSize,
                 `Element "${parsedElement}" should not have a ${label} of ` +
                 `${intExpectedSize}px`
             );
     } else {
-        expect(originalSize).toEqual(
+        await expect(originalSize).toEqual(
                 intExpectedSize,
                 `Element "${parsedElement}" should have a ${label} of ` +
                 `${intExpectedSize}px, but is ${originalSize}px`

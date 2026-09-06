@@ -9,7 +9,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (elementType, element, falseCase, expectedText) => {
+module.exports = async (elementType, element, falseCase, expectedText) => {
     /**
      * The expected text to validate against
      * @type {String}
@@ -29,8 +29,8 @@ module.exports = (elementType, element, falseCase, expectedText) => {
     let command = 'getText';
 
     if (
-        browser.$(parsedElement).getText() == '' &&
-        browser.$(parsedElement).getAttribute('value') !== null
+        (await (await browser.$(parsedElement)).getText()) == '' &&
+        (await (await browser.$(parsedElement)).getAttribute('value')) !== null
     ) {
         command = 'getValue';
     }
@@ -45,7 +45,7 @@ module.exports = (elementType, element, falseCase, expectedText) => {
      * The text of the element
      * @type {String}
      */
-    const text = browser.$(parsedElement)[command]();
+    const text = await (await browser.$(parsedElement))[command]();
 
     if (typeof expectedText === 'undefined') {
         myExpectedText = falseCase;
@@ -55,8 +55,8 @@ module.exports = (elementType, element, falseCase, expectedText) => {
     }
 
     if (boolFalseCase) {
-        expect(text).not.toContain(myExpectedText);
+        await expect(text).not.toContain(myExpectedText);
     } else {
-        expect(text).toContain(myExpectedText);
+        await expect(text).toContain(myExpectedText);
     }
 };

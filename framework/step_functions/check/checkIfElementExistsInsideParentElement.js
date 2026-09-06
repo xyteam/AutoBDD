@@ -9,7 +9,7 @@
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (targetElement, parentElementIndex, parentElement, falseCase, compareAction, expectedNumber) => {
+module.exports = async (targetElement, parentElementIndex, parentElement, falseCase, compareAction, expectedNumber) => {
     const myTargetElement = parseExpectedText(targetElement);
     const myParentElement = parseExpectedText(parentElement);
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
@@ -18,46 +18,47 @@ module.exports = (targetElement, parentElementIndex, parentElement, falseCase, c
 
     var appearanceNumber;
     if (parentElement) {
-        $(myParentElement).waitForExist();
-        appearanceNumber = browser.$$(myParentElement)[parentElementIndexInt].$$(myTargetElement).length;
+        await (await $(myParentElement)).waitForExist();
+        const myParentElements = await browser.$$(myParentElement);
+        appearanceNumber = (await myParentElements[parentElementIndexInt].$$(myTargetElement)).length;
     } else {
-        appearanceNumber = browser.$$(myTargetElement).length;
+        appearanceNumber = (await browser.$$(myTargetElement)).length;
     }
 
     if (!!falseCase) {
-        expect(myCompareAction).not.toContain('no', 'do not support double negative statement');
-        expect(myCompareAction).not.toContain('at least', 'do not support no at least statement');    
+        await expect(myCompareAction).not.toContain('no', 'do not support double negative statement');
+        await expect(myCompareAction).not.toContain('at least', 'do not support no at least statement');    
         switch (myCompareAction) {
             case 'exactly':
-                expect(appearanceNumber).not.toEqual(myExpectedNumber);
+                await expect(appearanceNumber).not.toEqual(myExpectedNumber);
                 break;
             case 'more than':
-                expect(appearanceNumber).not.toBeGreaterThan(myExpectedNumber);
+                await expect(appearanceNumber).not.toBeGreaterThan(myExpectedNumber);
                 break;
             case 'less than':
-                expect(appearanceNumber).not.toBeLessThan(myExpectedNumber);
+                await expect(appearanceNumber).not.toBeLessThan(myExpectedNumber);
                 break;
         }
     } else {
         switch (myCompareAction) {
             case 'exactly':
-                expect(appearanceNumber).toEqual(myExpectedNumber);
+                await expect(appearanceNumber).toEqual(myExpectedNumber);
                 break;
             case 'not exactly':
-                expect(appearanceNumber).not.toEqual(myExpectedNumber);
+                await expect(appearanceNumber).not.toEqual(myExpectedNumber);
                 break;
             case 'more than':
-                expect(appearanceNumber).toBeGreaterThan(myExpectedNumber);
+                await expect(appearanceNumber).toBeGreaterThan(myExpectedNumber);
                 break;
             case 'no more than':
-                expect(appearanceNumber).not.toBeGreaterThan(myExpectedNumber);
+                await expect(appearanceNumber).not.toBeGreaterThan(myExpectedNumber);
                 break;
             case 'less than':
-                expect(appearanceNumber).toBeLessThan(myExpectedNumber);
+                await expect(appearanceNumber).toBeLessThan(myExpectedNumber);
                 break;
             case 'at least':
             case 'no less than':
-                expect(appearanceNumber).not.toBeLessThan(myExpectedNumber);
+                await expect(appearanceNumber).not.toBeLessThan(myExpectedNumber);
                 break;
         }        
     }

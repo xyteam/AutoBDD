@@ -225,7 +225,7 @@ module.exports = {
         return false;
       }
   },
-  renameRecording: function(scenarioName, resultPrefix) {
+  renameRecording: async function(scenarioName, resultPrefix) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const myResultPrefix = safeQuote(resultPrefix);
     const scenario_mp4 = this.convertScenarioNameToFileBase(myScenarioName) + '.mp4';
@@ -233,7 +233,7 @@ module.exports = {
     const finalFile_fullPath = `${myReportDir}/${myTestModule}/${myResultPrefix}_${scenario_mp4}`;
     const cmd_rename_movie = 'mv ' + recordingFile_fullPath + ' ' + finalFile_fullPath;
     while (this.recordingRunning(myScenarioName)) {
-      browser.pause(1000);
+      await browser.pause(1000);
     }
     try{
       execSync(cmd_rename_movie);

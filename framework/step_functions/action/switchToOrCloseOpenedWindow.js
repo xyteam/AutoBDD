@@ -3,14 +3,14 @@
  * @param  {String}   action switch to or close
  * @param  {String}   index  The index of the tab
  */
-module.exports = (action, index) => {
+module.exports = async (action, index) => {
     if (index && index == 'last') {
-        const lastWindowHandle = browser.getWindowHandles().slice(-1)[0];
-        browser.switchToWindow(lastWindowHandle);
+        const lastWindowHandle = (await browser.getWindowHandles()).slice(-1)[0];
+        await browser.switchToWindow(lastWindowHandle);
     } else {
         const optionIndex = parseInt(index, 10) - 1;
-        const windowHandle = browser.getWindowHandles()[optionIndex];
-        browser.switchToWindow(windowHandle);
+        const windowHandle = (await browser.getWindowHandles())[optionIndex];
+        await browser.switchToWindow(windowHandle);
     }
-    if (action == 'close') browser.closeWindow();
+    if (action == 'close') await browser.closeWindow();
 };

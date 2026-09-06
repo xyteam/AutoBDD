@@ -4,7 +4,7 @@
  * @param  {String}   x        X coordinate to move to
  * @param  {String}   y        Y coordinate to move to
  */
-module.exports = (element, x, y) => {
+module.exports = async (element, x, y) => {
     /**
      * X coordinate
      * @type {Int}
@@ -17,5 +17,5 @@ module.exports = (element, x, y) => {
      */
     const intY = parseInt(y, 10) || undefined;
 
-    browser.$(element).moveTo(intX, intY);
+    await (await browser.$(element)).moveTo(intX, intY);
 };

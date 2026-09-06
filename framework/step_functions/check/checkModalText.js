@@ -6,23 +6,23 @@
  * @param  {String}   expectedText  The text to check against
  */
 const assert = require('assert');
-module.exports = (modalType, falseState, expectedText) => {
+module.exports = async (modalType, falseState, expectedText) => {
     try {
         /**
          * The text of the current modal
          * @type {String}
          */
-        const text = browser.getAlertText();
+        const text = await browser.getAlertText();
         console.log(text)
 
         if (!!falseState) {
-            expect(text).not.toEqual(
+            await expect(text).not.toEqual(
                 expectedText,
                 `Expected the text of ${modalType} not to equal ` +
                 `"${expectedText}"`
             );
         } else {
-            expect(text).toEqual(
+            await expect(text).toEqual(
                 expectedText,
                 `Expected the text of ${modalType} to equal ` +
                 `"${expectedText}", instead found "${text}"`

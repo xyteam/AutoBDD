@@ -9,7 +9,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (falseCase, action, type, expectedText) => {
+module.exports = async (falseCase, action, type, expectedText) => {
     /**
      * The expected text to validate against
      * @type {String}
@@ -34,14 +34,14 @@ module.exports = (falseCase, action, type, expectedText) => {
         boolFalseCase = true;
     }
 
-    const retrivedTitle = browser.getTitle();
+    const retrivedTitle = await browser.getTitle();
     // console.log(`${type} : ${retrivedTitle}`)
 
     if (boolFalseCase) {
         switch (action) {
             case 'contain':
             case 'contains':
-                expect(retrivedTitle).not.toContain(
+                await expect(retrivedTitle).not.toContain(
                     myExpectedText,
                     `page title does not contain ${type} ` +
                     `"${myExpectedText}"`
@@ -49,7 +49,7 @@ module.exports = (falseCase, action, type, expectedText) => {
                 break;
             case 'equal':
             case 'equals':
-                expect(retrivedTitle).not.toEqual(
+                await expect(retrivedTitle).not.toEqual(
                     myExpectedText,
                     `page title does not equal ${type} ` +
                     `"${myExpectedText}"`
@@ -57,20 +57,20 @@ module.exports = (falseCase, action, type, expectedText) => {
                 break;
             case 'match':
             case 'matches':
-                expect(retrivedTitle).not.toMatch(
+                await expect(retrivedTitle).not.toMatch(
                     RegExp(myExpectedText),
                     `page title does not match ${type} ` +
                     `"${myExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
+                await expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
         }
     } else {
         switch (action) {
             case 'contain':
             case 'contains':
-                expect(retrivedTitle).toContain(
+                await expect(retrivedTitle).toContain(
                     myExpectedText,
                     `page title does contain ${type} ` +
                     `"${myExpectedText}"`
@@ -78,7 +78,7 @@ module.exports = (falseCase, action, type, expectedText) => {
                 break;
             case 'equal':
             case 'equals':
-                expect(retrivedTitle).toEqual(
+                await expect(retrivedTitle).toEqual(
                     myExpectedText,
                     `page title does equal ${type} ` +
                     `"${myExpectedText}"`
@@ -86,14 +86,14 @@ module.exports = (falseCase, action, type, expectedText) => {
                 break;
             case 'match':
             case 'matches':
-                expect(retrivedTitle).toMatch(
+                await expect(retrivedTitle).toMatch(
                     RegExp(myExpectedText),
                     `page title does match ${type} ` +
                     `"${myExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
+                await expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
         }
     }
 }

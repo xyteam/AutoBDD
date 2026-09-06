@@ -12,7 +12,7 @@
 const parseExpectedText = require('../common/parseExpectedText');
 const waitForCondition = require('./waitForCondition');
 
-module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, ms, falseCase, state) => {
+module.exports = async (targetElementIndex, targetElement, parentElementIndex, parentElement, ms, falseCase, state) => {
     const myTargetElement = parseExpectedText(targetElement);
     const myParentElement = parseExpectedText(parentElement);
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
@@ -22,29 +22,30 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
 
     var targetElementIdElement;
     if (myParentElement) {
-        $(myParentElement).waitForExist();
+        await (await $(myParentElement)).waitForExist();
+        const parentElementList = await $$(myParentElement);
         if (parentElementIndexInt >= 0) {
-            $$(myParentElement)[parentElementIndexInt].$(myTargetElement).waitForExist(existOption);
+            const parentElementInstance = parentElementList[parentElementIndexInt];
+            await (await parentElementInstance.$(myTargetElement)).waitForExist(existOption);
             try {
-                targetElementIdElement = $$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
+                targetElementIdElement = (await parentElementInstance.$$(myTargetElement))[targetElementIndexInt];
             } catch(e) { /* no-op */ }
-            if (targetElementIdElement) waitForCondition(targetElementIdElement, intMs, !!falseCase, state);
+            if (targetElementIdElement) await waitForCondition(targetElementIdElement, intMs, !!falseCase, state);
         } else {
-            $$(myParentElement).forEach((pElement, pIndex) => {
-                $$(pElement.selector)[pIndex].$(myTargetElement).waitForExist(existOption);
+            for (const [pIndex, pElement] of parentElementList.entries()) {
+                await (await (await $$(pElement.selector))[pIndex].$(myTargetElement)).waitForExist(existOption);
                 try {
-                    targetElementIdElement = $$(pElement.selector)[pIndex].$$(myTargetElement)[targetElementIndexInt];
+                    targetElementIdElement = (await (await $$(pElement.selector))[pIndex].$$(myTargetElement))[targetElementIndexInt];
                 } catch(e) { /* no-op */ }
-                if (targetElementIdElement) waitForCondition(targetElementIdElement, intMs, !!falseCase, state);    
-            });
+                if (targetElementIdElement) await waitForCondition(targetElementIdElement, intMs, !!falseCase, state);    
+            }
         }
     } else {
         try {
-            $(myTargetElement).waitForExist(existOption);
+            await (await $(myTargetElement)).waitForExist(existOption);
         } catch(e) { /* no-op */ }
-        targetElementIdElement = $$(myTargetElement)[targetElementIndexInt];
-        if (targetElementIdElement) waitForCondition(targetElementIdElement, intMs, !!falseCase, state);
+        targetElementIdElement = (await $$(myTargetElement))[targetElementIndexInt];
+        if (targetElementIdElement) await waitForCondition(targetElementIdElement, intMs, !!falseCase, state);
     }
-    browser.pause(500);
+    await browser.pause(500);
 };
-

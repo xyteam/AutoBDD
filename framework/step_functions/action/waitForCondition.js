@@ -7,11 +7,12 @@
  * @param  {String}   state                    State to check for (default
  *                                             existence)
  */
-const waitForContent = (element, ms, getWhat, falseCase) => {
+const waitForContent = async (element, ms, getWhat, falseCase) => {
     try {
-        return browser.waitUntil(
+        const myElement = await $(element);
+        return await browser.waitUntil(
             // getText, getValue
-            () => { return $(element)[getWhat]().length > 0 == !falseCase },
+            async () => { return (await myElement[getWhat]()).length > 0 == !falseCase },
             {
                 timeout: ms,
                 timeoutMsg: `$(${element}).${getWhat}().length > 0 == ${!falseCase} timeout`
@@ -22,12 +23,13 @@ const waitForContent = (element, ms, getWhat, falseCase) => {
     }
 }
 
-const waitForCondition = (element, ms, isWhat, falseCase, element2) => {
+const waitForCondition = async (element, ms, isWhat, falseCase, element2) => {
     // isClickable, isDisplayed, isDisplayedInViewPort, isEnabled, isExisting, isFocused, isSelected,
     // isEqual(with element2)
     try {
-        return browser.waitUntil(
-            () => { return $(element)[isWhat](element2) == !falseCase },
+        const myElement = await $(element);
+        return await browser.waitUntil(
+            async () => { return (await myElement[isWhat](element2)) == !falseCase },
             {
                 timeout: ms,
                 timeoutMsg: `$(${element}).${isWhat}(${element2}) == ${!falseCase} timeout`
@@ -41,7 +43,7 @@ const waitForCondition = (element, ms, isWhat, falseCase, element2) => {
 const parseExpectedText = require('../common/parseExpectedText');
 
 module.exports =
-(elem, ms, falseCase, state) => {
+async (elem, ms, falseCase, state) => {
     /**
      * Parsed element selector
      * @type {String}
@@ -62,7 +64,7 @@ module.exports =
 
     try {
         const existOption = {timeout: intMs, reverse: !!falseCase};
-        $(myElem).waitForExist(existOption);
+        await (await $(myElem)).waitForExist(existOption);
     } catch(e) {/*no-op*/}
 
     if (['existing', 'enabled', 'displayed', 'clickable'].includes(myState)) {
@@ -74,17 +76,17 @@ module.exports =
             reverse: !!falseCase,
             timeoutMsg: `${myElem}.$waitFor${myState} == ${!falseCase} timeout`
         }
-        if ($(myElem).isExisting()) $(myElem)[waitForCommand](option);
+        if (await (await $(myElem)).isExisting()) await (await $(myElem))[waitForCommand](option);
     } else if (myState.includes('containing')) { // 'containing a text', 'containing a value'
         if (myState.includes('value')) myState = 'getValue';
         if (myState.includes('text')) myState = 'getText';
-        if ($(myElem).isExisting()) waitForContent(myElem, intMs, myState, !!falseCase);
+        if (await (await $(myElem)).isExisting()) await waitForContent(myElem, intMs, myState, !!falseCase);
     } else {
         // convert conditions
         var checkAction = `is${myState.charAt(0).toUpperCase()}${myState.slice(1)}`;
         // "is visible" = CSS-visible (isDisplayed), not in-viewport
         if (checkAction == 'isVisible') checkAction = 'isDisplayed';
         if (checkAction == 'isChecked') checkAction = 'isSelected';
-        if ($(myElem).isExisting()) waitForCondition(myElem, intMs, checkAction, !!falseCase);
+        if (await (await $(myElem)).isExisting()) await waitForCondition(myElem, intMs, checkAction, !!falseCase);
     }
 };

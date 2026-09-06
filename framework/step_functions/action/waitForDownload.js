@@ -7,7 +7,7 @@
  */
 const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
-module.exports = (targetName, ms, falseState) => {
+module.exports = async (targetName, ms, falseState) => {
     let fileTarget = getDownloadDir() + targetName.replace(/ /g, '\\ ');
     /**
      * Maximum number of milliseconds to wait, default 3000
@@ -28,13 +28,13 @@ module.exports = (targetName, ms, falseState) => {
     }, intMs);
     if (boolFalseState) {
         while (globSync(fileTarget)[0] && !timeOut) {
-            browser.pause(3000);
+            await browser.pause(3000);
         }
     } else {
         while (!globSync(fileTarget)[0] && !timeOut) {
-            browser.pause(3000);
+            await browser.pause(3000);
         }
     }
     clearInterval(handle);
-    browser.pause(2000);
+    await browser.pause(2000);
 };

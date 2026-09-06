@@ -5,7 +5,7 @@ const parseExpectedText = require(process.env.FrameworkPath + '/framework/step_f
 const { Then } = require('@cucumber/cucumber');
 
 Then(/^(?::vcenter: )?The VM "(.*)" (?:should|does)( not)* exist in esxi host "(.*)" inside esxi dc "(.*)" under path "(.*)"$/,
-  (vmName, falseCase, hostIP, dcName, dcPath) => {
+  async (vmName, falseCase, hostIP, dcName, dcPath) => {
     let boolFalseCase = !!falseCase;
     const myVmName = parseExpectedText(vmName);
     const myEsxiHost = parseExpectedText(hostIP);
@@ -16,21 +16,21 @@ Then(/^(?::vcenter: )?The VM "(.*)" (?:should|does)( not)* exist in esxi host "(
     const cmdString = `govc ls -u="${myVCenterURL}" -k=true -dc="${myDcName}" "${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}"`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
-    browser_session.displayMessage(browser, resultString);
+    await browser_session.displayMessage(browser, resultString);
     const resultObject = JSON.parse(resultString);
     if (boolFalseCase) {
-      expect(resultObject.output).not.toContain(`${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}`);
-      expect(resultObject.exitcode).toBe(0);
+      await expect(resultObject.output).not.toContain(`${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}`);
+      await expect(resultObject.exitcode).toBe(0);
     }
     else {
-      expect(resultObject.output).toContain(`${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}`);
-      expect(resultObject.exitcode).toBe(0);
+      await expect(resultObject.output).toContain(`${myDcPath}/${myClusterIP}/${myEsxiHost}/${myVmName}`);
+      await expect(resultObject.exitcode).toBe(0);
     }
   }
 );
 
 Then(/^(?::vcenter: )?The VM "(.*)" information inside esxi dc "(.*)" (?:should|does)( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
-  (vmName, dcName, dcPath, falseCase, compareAction, expectType, expectedText) => {
+  async (vmName, dcName, dcPath, falseCase, compareAction, expectType, expectedText) => {
     const myVmName = parseExpectedText(vmName);
     const myDcName = parseExpectedText(dcName);
     const myExpectedText = parseExpectedText(expectedText);
@@ -38,61 +38,61 @@ Then(/^(?::vcenter: )?The VM "(.*)" information inside esxi dc "(.*)" (?:should|
     const cmdString = `govc vm.info -u="${myVCenterURL}" -k=true -dc="${myDcName}" "${myVmName}"`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
-    browser_session.displayMessage(browser, resultString);
+    await browser_session.displayMessage(browser, resultString);
     const resultObject = JSON.parse(resultString);
     var lineText = resultObject.output;
     let boolFalseCase = !!falseCase;
     if (boolFalseCase) {
       switch (compareAction) {
         case 'contain':
-          expect(lineText).not.toContain(
+          await expect(lineText).not.toContain(
             myExpectedText,
             `console should not contain the ${expectType} ` +
             `"${myExpectedText}"`
           );        
           break;
         case 'equal':
-          expect(lineText).not.toEqual(
+          await expect(lineText).not.toEqual(
             myExpectedText,
             `console should not equal the ${expectType} ` +
             `"${myExpectedText}"`
           );        
           break;
         case 'match':
-            expect(lineText.toLowerCase()).not.toMatch(
+            await expect(lineText.toLowerCase()).not.toMatch(
               RegExp(myExpectedText.toLowerCase()),
               `console should match the ${expectType} ` +
               `"${myExpectedText}"`
             );        
           break;
         default:
-          expect(false).toBe(true, `compareAction ${compareAction} should be one of contain, equal or match`);
+          await expect(false).toBe(true, `compareAction ${compareAction} should be one of contain, equal or match`);
       }
     } else {
       switch (compareAction) {
           case 'contain':
-            expect(lineText).toContain(
+            await expect(lineText).toContain(
               myExpectedText,
               `console should contain the ${expectType} ` +
               `"${myExpectedText}"`
             );        
             break;
         case 'equal':
-            expect(lineText).toEqual(
+            await expect(lineText).toEqual(
               myExpectedText,
               `console should equal the ${expectType} ` +
               `"${myExpectedText}"`
             );        
             break;
           case 'match':
-            expect(lineText.toLowerCase()).toMatch(
+            await expect(lineText.toLowerCase()).toMatch(
               RegExp(myExpectedText.toLowerCase()),
               `console should match the ${expectType} ` +
               `"${myExpectedText}"`
             );        
             break;
           default:
-            expect(false).toBe(true, `compareAction ${compareAction} should be one of contain, equal or match`);
+            await expect(false).toBe(true, `compareAction ${compareAction} should be one of contain, equal or match`);
       }
     }
   }

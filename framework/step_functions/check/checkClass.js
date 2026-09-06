@@ -8,7 +8,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (element, falseCase, expectedClassName) => {
+module.exports = async (element, falseCase, expectedClassName) => {
     /**
      * The expected text to validate against
      * @type {String}
@@ -27,15 +27,15 @@ module.exports = (element, falseCase, expectedClassName) => {
      */
     // getAttribute('class') is null when the element has no class attribute at all;
     // treat that as "no classes" so 'does not have' assertions pass.
-    const classesList = browser.$(parsedElement).getAttribute('class') || '';
+    const classesList = (await (await browser.$(parsedElement)).getAttribute('class')) || '';
 
     if (falseCase === 'does not have') {
-        expect(classesList).not.toContain(
+        await expect(classesList).not.toContain(
                 parsedExpectedClassName,
                 `Element ${parsedElement} should not have the class ${parsedExpectedClassName}`
             );
     } else {
-        expect(classesList).toContain(
+        await expect(classesList).toContain(
                 parsedExpectedClassName,
                 `Element ${parsedElement} should have the class ${parsedExpectedClassName}`
             );
