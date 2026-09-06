@@ -10,8 +10,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -n "${AutoBDD_DEV_ROOT:-}" ]; then
   ABDD="$AutoBDD_DEV_ROOT"
 else
-  # dev/ is at autobdd-test/dev/; AutoBDD is the sibling repo next to autobdd-test
-  ABDD="$(cd "$SCRIPT_DIR/../../AutoBDD" 2>/dev/null && pwd)"
+  # Monorepo layout: dev/ is at <AutoBDD>/test-projects/autobdd-test/dev/, so the
+  # AutoBDD root is three levels up.
+  ABDD="$(cd "$SCRIPT_DIR/../../.." 2>/dev/null && pwd)"
 fi
 AUTODIR="$(cd "$ABDD" && pwd)"
 echo "AutoBDD working tree: $AUTODIR"
