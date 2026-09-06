@@ -5,7 +5,7 @@
 const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
 const screen_session = require('../../libs/screen_session');
-module.exports = (fileName) => {
+module.exports = async (fileName) => {
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
     const myFileName = fileName_extSplit.join('.');
@@ -13,7 +13,7 @@ module.exports = (fileName) => {
     if (myFilePath) {
         console.log(myFilePath);
         screen_session.typeString(myFilePath);
-        browser.pause(1000);
+        await browser.pause(1000);
     } else {
         console.log(`${myFilePath} not found`)
     }

@@ -4,8 +4,8 @@
  * @param  {String}   cookieName    The name of the cookie
  * @param  {String}   cookieContent The value of the cookie
  */
-module.exports = (cookieName, cookieContent) => {
-    browser.setCookies({
+module.exports = async (cookieName, cookieContent) => {
+    await browser.setCookies({
         name: cookieName,
         value: cookieContent,
     });

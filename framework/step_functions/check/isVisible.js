@@ -6,14 +6,14 @@
  * @param  {String}   falseCase    Check for a visible or a hidden element
  */
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (partOf, element, waitAction, falseCase) => {
+module.exports = async (partOf, element, waitAction, falseCase) => {
     const myElement = parseExpectedText(element);
     const myPartOf = partOf || 'some';
     if (waitAction == 'becomes') {
-        browser.$(myElement).waitForDisplayed(10000, !!falseCase);  
+        await (await browser.$(myElement)).waitForDisplayed(10000, !!falseCase);  
     }
-    browser.pause(1000);
-    const isVisible = browser.$(myElement).isDisplayed();
+    await browser.pause(1000);
+    const isVisible = await (await browser.$(myElement)).isDisplayed();
     if (typeof isVisible != 'boolean') {
         switch (myPartOf) {
             default:
@@ -27,8 +27,8 @@ module.exports = (partOf, element, waitAction, falseCase) => {
     }
 
     if (falseCase) {
-        expect(isVisible).not.toEqual(true, `Expected ${myPartOf} of element "${myElement}" not to be visible`);
+        await expect(isVisible).not.toEqual(true, `Expected ${myPartOf} of element "${myElement}" not to be visible`);
     } else {
-        expect(isVisible).toEqual(true, `Expected ${myPartOf} of element "${myElement}" to be visible`);
+        await expect(isVisible).toEqual(true, `Expected ${myPartOf} of element "${myElement}" to be visible`);
     }
 };

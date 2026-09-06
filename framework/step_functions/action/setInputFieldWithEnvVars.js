@@ -13,7 +13,7 @@
  */
 const checkIfElementExists = require('../check/checkIfElementExists');
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (method, isEnvVar, value, targetElementIndex, fieldType, targetElement, parentElementIndex, parentElement, containsTheText) => {
+module.exports = async (method, isEnvVar, value, targetElementIndex, fieldType, targetElement, parentElementIndex, parentElement, containsTheText) => {
     /**
      * The command to perform on the browser object (addValue or setValue)
      * @type {String}
@@ -28,15 +28,21 @@ module.exports = (method, isEnvVar, value, targetElementIndex, fieldType, target
     
     var targetElementIdElement;
     if (parentElement) {
-        $(myParentElement).waitForExist();
-        const myFilteredParentElement = $$(myParentElement).filter(elem => elem.getText().includes(myContainsTheText));
+        await (await $(myParentElement)).waitForExist();
+        const myParentElementList = await $$(myParentElement);
+        const myFilteredParentElement = [];
+        for (const elem of myParentElementList) {
+            if ((await elem.getText()).includes(myContainsTheText)) {
+                myFilteredParentElement.push(elem);
+            }
+        }
         const targetParentElement = (parentElementIndex == 'last') ? myFilteredParentElement.slice(-1) : myFilteredParentElement[parentElementIndexInt];
-        targetElementIdElement = (targetElementIndex == 'last') ? targetParentElement.$$(myTargetElement).slice(-1) : targetParentElement.$$(myTargetElement)[targetElementIndexInt];
+        targetElementIdElement = (targetElementIndex == 'last') ? (await targetParentElement.$$(myTargetElement)).slice(-1) : (await targetParentElement.$$(myTargetElement))[targetElementIndexInt];
     } else {
-        targetElementIdElement = (targetElementIndex == 'last') ? $$(myTargetElement).slice(-1) : $$(myTargetElement)[targetElementIndexInt];
+        targetElementIdElement = (targetElementIndex == 'last') ? (await $$(myTargetElement)).slice(-1) : (await $$(myTargetElement))[targetElementIndexInt];
     }
 
-    const currentValue = (fieldType == 'inputfield') ? targetElementIdElement.getValue() : targetElementIdElement.getText()
+    const currentValue = (fieldType == 'inputfield') ? await targetElementIdElement.getValue() : await targetElementIdElement.getText()
     if (command == 'addValue') inputValue = currentValue + inputValue;
-    targetElementIdElement.setValue(inputValue);
+    await targetElementIdElement.setValue(inputValue);
 };

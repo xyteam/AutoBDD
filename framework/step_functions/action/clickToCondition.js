@@ -6,7 +6,7 @@
  * @param  {String}  falseCase     fasle case
  * @param  {String}  state         checked element state
  */
-module.exports = (clickElement, clickCount, checkElement, falseCase, state) => {
+module.exports = async (clickElement, clickCount, checkElement, falseCase, state) => {
     var myClickCount = clickCount || 2;
     var myState = state || 'existing';
     // convert conditions
@@ -16,10 +16,10 @@ module.exports = (clickElement, clickCount, checkElement, falseCase, state) => {
     if (checkAction == 'isChecked') checkAction = 'isSelected';
     var keepGoing = true;
     do {
-      browser.$(clickElement).click();
+      await (await browser.$(clickElement)).click();
       myClickCount--;
-      browser.pause(300);
-      keepGoing = !browser.$(checkElement)[checkAction]();
+      await browser.pause(300);
+      keepGoing = !(await (await browser.$(checkElement))[checkAction]());
       if (falseCase) keepGoing = !keepGoing;
     } while (myClickCount > 0 && keepGoing);
 };

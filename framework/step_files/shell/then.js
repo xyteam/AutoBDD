@@ -7,17 +7,17 @@ const stripAnsi = require('strip-ansi-control-characters');
 
 Then(/^(?::shell: )?I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of )?the "(.*)?" console does( not)* (contain|equal|match) the (text|regex) "(.*)?"$/,
     { timeout: 60 * 1000 },
-    function (firstOrLast, lineCount, consoleName, falseCase, compareAction, expectType, expectedText) {
+    async function (firstOrLast, lineCount, consoleName, falseCase, compareAction, expectType, expectedText) {
         // parse input
         const myConsoleName = parseExpectedText(consoleName);
         const myExpectedText = parseExpectedText(expectedText);
         const myFirstOrLast = firstOrLast || '';
 
         // get consoleData object set up by previous step
-        browser.pause(500);
+        await browser.pause(500);
         const myConsoleData = this.myConsoleData;
         const lineArray = stripAnsi.string(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
-        browser_session.displayMessage(browser, lineArray.join('\n'));
+        await browser_session.displayMessage(browser, lineArray.join('\n'));
 
         var lineText;
         switch (myFirstOrLast.trim()) {
@@ -39,54 +39,54 @@ Then(/^(?::shell: )?I expect (?:that )?(?:the( first| last)? (\d+)(?:st|nd|rd|th
         if (boolFalseCase) {
             switch (compareAction) {
                 case 'contain':
-                    expect(lineText).not.toContain(
+                    await expect(lineText).not.toContain(
                         myExpectedText,
                         `console should not contain the ${expectType} ` +
                         `"${myExpectedText}"`
                     );
                     break;
                 case 'equal':
-                    expect(lineText).not.toEqual(
+                    await expect(lineText).not.toEqual(
                         myExpectedText,
                         `console should not equal the ${expectType} ` +
                         `"${myExpectedText}"`
                     );
                     break;
                 case 'match':
-                    expect(lineText.toLowerCase()).not.toMatch(
+                    await expect(lineText.toLowerCase()).not.toMatch(
                         RegExp(myExpectedText.toLowerCase()),
                         `console should match the ${expectType} ` +
                         `"${myExpectedText}"`
                     );
                     break;
                 default:
-                    expect(false).toBe(true, `compareAction ${compareAction} should be one of contain, equal or match`);
+                    await expect(false).toBe(true, `compareAction ${compareAction} should be one of contain, equal or match`);
             }
         } else {
             switch (compareAction) {
                 case 'contain':
-                    expect(lineText).toContain(
+                    await expect(lineText).toContain(
                         myExpectedText,
                         `console should contain the ${expectType} ` +
                         `"${myExpectedText}"`
                     );
                     break;
                 case 'equal':
-                    expect(lineText).toEqual(
+                    await expect(lineText).toEqual(
                         myExpectedText,
                         `console should equal the ${expectType} ` +
                         `"${myExpectedText}"`
                     );
                     break;
                 case 'match':
-                    expect(lineText.toLowerCase()).toMatch(
+                    await expect(lineText.toLowerCase()).toMatch(
                         RegExp(myExpectedText.toLowerCase()),
                         `console should match the ${expectType} ` +
                         `"${myExpectedText}"`
                     );
                     break;
                 default:
-                    expect(false).toBe(true, `compareAction ${compareAction} should be one of contain, equal or match`);
+                    await expect(false).toBe(true, `compareAction ${compareAction} should be one of contain, equal or match`);
             }
         }
     }

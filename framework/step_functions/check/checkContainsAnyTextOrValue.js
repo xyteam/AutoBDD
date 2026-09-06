@@ -8,7 +8,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (element, falseCase, type) => {
+module.exports = async (element, falseCase, type) => {
     /**
      * The expected text to validate against
      * @type {String}
@@ -16,14 +16,14 @@ module.exports = (element, falseCase, type) => {
     var parsedElement = parseExpectedText(element);
     var retrivedValue;
     if (type == 'value') {
-        retrivedValue = browser.$(parsedElement).getValue();
+        retrivedValue = await (await browser.$(parsedElement)).getValue();
     } else {
-        retrivedValue = browser.$(parsedElement).getText();
+        retrivedValue = await (await browser.$(parsedElement)).getText();
     }
 
     if (!!falseCase) {
-        expect(retrivedValue).toEqual('');
+        await expect(retrivedValue).toEqual('');
     } else {
-        expect(retrivedValue).not.toEqual('');
+        await expect(retrivedValue).not.toEqual('');
     }
 };

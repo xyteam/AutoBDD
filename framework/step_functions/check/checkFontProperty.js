@@ -8,7 +8,7 @@
  *                                  attribute matches or not
  * @param  {String}   expectedValue The value to match against
  */
-module.exports = (isCSS, attrName, elem, falseCase, expectedValue) => {
+module.exports = async (isCSS, attrName, elem, falseCase, expectedValue) => {
     /**
      * The command to use for fetching the expected value
      * @type {String}
@@ -25,7 +25,7 @@ module.exports = (isCSS, attrName, elem, falseCase, expectedValue) => {
      * The actual attribute value
      * @type {Mixed}
      */
-    let attributeValue = browser.$(elem)[command](attrName);
+    let attributeValue = await (await browser.$(elem))[command](attrName);
 
     /**
      * when getting something with a color or font-weight WebdriverIO returns a
@@ -36,13 +36,13 @@ module.exports = (isCSS, attrName, elem, falseCase, expectedValue) => {
     }
 
     if (falseCase) {
-        expect(attributeValue).not.toEqual(
+        await expect(attributeValue).not.toEqual(
                 expectedValue,
                 `${attrType}: ${attrName} of element "${elem}" should not contain ` +
                 `"${expectedValue}"`
             );
     } else {
-        expect(attributeValue).toEqual(
+        await expect(attributeValue).toEqual(
                 expectedValue,
                 `${attrType}: ${attrName} of element "${elem}" should contain ` +
                 `"${expectedValue}", but got "${attributeValue}"`

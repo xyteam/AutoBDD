@@ -7,7 +7,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (cookieName, falseCase) => {
+module.exports = async (cookieName, falseCase) => {
     /**
      * The expected text to validate against
      * @type {String}
@@ -18,15 +18,15 @@ module.exports = (cookieName, falseCase) => {
      * The cookie as retrieved from the browser
      * @type {Object}
      */
-    const cookie = browser.getCookies([parsedCookieName])[0];
+    const cookie = (await browser.getCookies([parsedCookieName]))[0];
 
     if (falseCase) {
-        expect(typeof(cookie)).toEqual(
+        await expect(typeof(cookie)).toEqual(
             'undefined',
             `Expected cookie "${parsedCookieName}" not to exists but it does`
         );
     } else {
-        expect(typeof(cookie)).not.toEqual(
+        await expect(typeof(cookie)).not.toEqual(
             'undefined',
             `Expected cookie "${parsedCookieName}" to exists but it does not`
         );

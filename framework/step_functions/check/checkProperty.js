@@ -12,7 +12,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) => {
+module.exports = async (isCSS, attrName, selector, action, falseCase, expectedValue) => {
     const  mySelector = parseExpectedText(selector);
     var  myExpectedValue = parseExpectedText(expectedValue);
     /**
@@ -31,7 +31,7 @@ module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) =
      * The actual attribute value
      * @type {Mixed}
      */
-    let attributeValue = $(mySelector)[command](attrName);
+    let attributeValue = await (await $(mySelector))[command](attrName);
 
     // eslint-disable-next-line
     myExpectedValue = isFinite(myExpectedValue) ?
@@ -51,7 +51,7 @@ module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) =
         switch (action) {
             case 'be':
             case 'is':
-                expect(attributeValue).not.toEqual(
+                await expect(attributeValue).not.toEqual(
                     myExpectedValue,
                     `${attrType}: ${attrName} of mySelector "${mySelector}" should not be ` +
                     `"${myExpectedValue}"`
@@ -59,7 +59,7 @@ module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) =
                 break;
             case 'contain':
             case 'contains':
-                expect(attributeValue).not.toContain(
+                await expect(attributeValue).not.toContain(
                     myExpectedValue,
                     `${attrType}: ${attrName} of mySelector "${mySelector}" should not contain ` +
                     `"${myExpectedValue}"`
@@ -67,7 +67,7 @@ module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) =
                 break;
             case 'match':
             case 'matches':
-                expect(attributeValue).not.toMatch(
+                await expect(attributeValue).not.toMatch(
                     RegExp(myExpectedValue),
                     `${attrType}: ${attrName} of mySelector "${mySelector}" should not match ` +
                     `"${myExpectedValue}"`
@@ -78,7 +78,7 @@ module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) =
         switch (action) {
             case 'be':
             case 'is':
-                expect(attributeValue).toEqual(
+                await expect(attributeValue).toEqual(
                     myExpectedValue,
                     `${attrType}: ${attrName} of mySelector "${mySelector}" should be ` +
                     `"${myExpectedValue}"`
@@ -86,7 +86,7 @@ module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) =
                 break;
             case 'contain':
             case 'contains':
-                expect(attributeValue).toContain(
+                await expect(attributeValue).toContain(
                     myExpectedValue,
                     `${attrType}: ${attrName} of mySelector "${mySelector}" should contain ` +
                     `"${myExpectedValue}"`
@@ -94,7 +94,7 @@ module.exports = (isCSS, attrName, selector, action, falseCase, expectedValue) =
                 break;
             case 'match':
             case 'matches':
-                expect(attributeValue).toMatch(
+                await expect(attributeValue).toMatch(
                     RegExp(myExpectedValue),
                     `${attrType}: ${attrName} of mySelector "${mySelector}" should match ` +
                     `"${myExpectedValue}"`

@@ -2,12 +2,12 @@
  * Simple browser action
  * @param  {String}   command name of browser action without parameter, i.e. back, forward, reload, 
  */
-module.exports = (command) => {
+module.exports = async (command) => {
     try {
         if (command == 'reload') {
-            browser.reloadSession();
+            await browser.reloadSession();
         } else {
-            browser[command]();
+            await browser[command]();
         }    
     } catch (e) {
         console.log(`browser ${command} failed`);

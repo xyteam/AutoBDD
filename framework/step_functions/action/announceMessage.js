@@ -1,12 +1,12 @@
 const browser_session = require('../../libs/browser_session');
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (target, message) => {
+module.exports = async (target, message) => {
     const myMessage = parseExpectedText(message);
     if (target) {
         switch (target) {
             case 'browser':
-                browser_session.displayMessage(browser, myMessage);
+                await browser_session.displayMessage(browser, myMessage);
                 break;
         }    
     }

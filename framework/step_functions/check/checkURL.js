@@ -6,13 +6,13 @@
  * @param  {String}   expectedText The value to match against
  */
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (target, falseCase, action, expectedText) => {
+module.exports = async (target, falseCase, action, expectedText) => {
     const myExpectedText = parseExpectedText(expectedText);
     /**
      * The URL of the current browser window
      * @type {String}
      */
-    const currentUrl = browser.getUrl();
+    const currentUrl = await browser.getUrl();
     const currentUrlProtocol = (currentUrl.includes('://')) ? currentUrl.split('://')[0] : '';
     const currentUrlHost = (currentUrl.includes('://')) ? currentUrl.split('://')[1].split('/')[0].split(':')[0] : '';
     const currentUrlHostPort = (currentUrl.includes('://')) ? currentUrl.split('://')[1].split('/')[0].split(':')[1] : '';
@@ -40,7 +40,7 @@ module.exports = (target, falseCase, action, expectedText) => {
         switch (action) {
             case 'be':
             case 'is':
-                expect(myTestTarget).not.toEqual(
+                await expect(myTestTarget).not.toEqual(
                     myExpectedText,
                     `The current ${target} should not be ` +
                     `"${myExpectedText}"`
@@ -48,7 +48,7 @@ module.exports = (target, falseCase, action, expectedText) => {
                 break;
             case 'contain':
             case 'contains':
-                expect(myTestTarget).not.toContain(
+                await expect(myTestTarget).not.toContain(
                     myExpectedText,
                     `The current ${target} should not contain ` +
                     `"${myExpectedText}"`
@@ -56,7 +56,7 @@ module.exports = (target, falseCase, action, expectedText) => {
                 break;
             case 'match':
             case 'matches':
-                expect(myTestTarget).not.toMatch(
+                await expect(myTestTarget).not.toMatch(
                     RegExp(myExpectedText),
                     `The current ${target} should not match ` +
                     `"${myExpectedText}"`
@@ -67,7 +67,7 @@ module.exports = (target, falseCase, action, expectedText) => {
         switch (action) {
             case 'be':
             case 'is':
-                expect(myTestTarget).toEqual(
+                await expect(myTestTarget).toEqual(
                     myExpectedText,
                     `The current ${target} should be ` +
                     `"${myExpectedText}"`
@@ -75,7 +75,7 @@ module.exports = (target, falseCase, action, expectedText) => {
                 break;
             case 'contain':
             case 'contains':
-                expect(myTestTarget).toContain(
+                await expect(myTestTarget).toContain(
                     myExpectedText,
                     `The current ${target} should contain ` +
                     `"${myExpectedText}"`
@@ -83,7 +83,7 @@ module.exports = (target, falseCase, action, expectedText) => {
                 break;
             case 'match':
             case 'matches':
-                expect(myTestTarget).toMatch(
+                await expect(myTestTarget).toMatch(
                     RegExp(myExpectedText),
                     `The current ${target} should match ` +
                     `"${myExpectedText}"`

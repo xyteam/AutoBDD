@@ -6,12 +6,12 @@
  *
  * @todo  merge with selectOption
  */
-module.exports = (index, obsolete, selectElem) => {
+module.exports = async (index, obsolete, selectElem) => {
     /**
      * The index of the option to select
      * @type {Int}
      */
     const optionIndex = parseInt(index, 10);
 
-    browser.$(selectElem).selectByIndex(optionIndex);
+    await (await browser.$(selectElem)).selectByIndex(optionIndex);
 };

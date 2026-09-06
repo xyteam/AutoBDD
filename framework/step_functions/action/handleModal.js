@@ -6,7 +6,7 @@ const browserAction = require("./browserAction");
  * @param  {String}   modalType Type of modal (alertbox, confirmbox, prompt)
  */
 const screen_session = require('../../libs/screen_session');
-module.exports = (action, modalType) => {
+module.exports = async (action, modalType) => {
     /**
      * The command to perform on the browser object
      * @type {String}
@@ -25,6 +25,6 @@ module.exports = (action, modalType) => {
         screen_session.keyTap();
     }
     else {
-        browserAction(command);
+        await browserAction(command);
     }
 };

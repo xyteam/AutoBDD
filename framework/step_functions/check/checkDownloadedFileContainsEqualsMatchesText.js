@@ -14,7 +14,7 @@ const parseExpectedText = require('../common/parseExpectedText');
 const getDownloadDir = require('../common/getDownloadDir');
 const fs_session = require('../../libs/fs_session');
 
-module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedText) => {
+module.exports = async (fileName, rowNumber, colNumber, falseCase, action, expectedText) => {
     const myAction = (action) ? action.trim() : 'contains';
     const fileName_extSplit = fileName.split('.');
     const myFileExt = fileName_extSplit.length > 1 ? fileName_extSplit.pop() : null;
@@ -31,7 +31,7 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
     switch (myFileExt) {
         case 'pdf':
         case 'PDF':
-            downloadFileContent = fs_session.readPdfData(myFilePath).text;
+            downloadFileContent = (await fs_session.readPdfData(myFilePath)).text;
             if (rowNumber) {
                 readTargetContent = downloadFileContent.split('\n')[rowNumber];
             } else {
@@ -84,53 +84,53 @@ module.exports = (fileName, rowNumber, colNumber, falseCase, action, expectedTex
         switch (myAction) {
             case 'contain':
             case 'contains':
-                expect(readTargetContent).not.toContain(
+                await expect(readTargetContent).not.toContain(
                     myExpectedText,
                     `file "${fileName}" should not contain text "${myExpectedText}"`
                 );        
                 break;
             case 'equal':
             case 'equals':
-                expect(readTargetContent).not.toEqual(
+                await expect(readTargetContent).not.toEqual(
                     myExpectedText,
                     `file "${fileName}" should not equal text "${myExpectedText}"`
                 );        
                 break;
             case 'match':
             case 'matches':
-                expect(readTargetContent).not.toMatch(
+                await expect(readTargetContent).not.toMatch(
                     RegExp(myExpectedText),
                     `file "${fileName}" should not match text "${myExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toBe(true, `action ${myAction} should be one of contains, equals or matches`);
+                await expect(false).toBe(true, `action ${myAction} should be one of contains, equals or matches`);
         }
     } else {
         switch (myAction) {
             case 'contain':
             case 'contains':
-                expect(readTargetContent).toContain(
+                await expect(readTargetContent).toContain(
                     myExpectedText,
                     `file "${fileName}" should contain text "${myExpectedText}"`
                 );        
                 break;
             case 'equal':
             case 'equals':
-                expect(readTargetContent).toEqual(
+                await expect(readTargetContent).toEqual(
                     myExpectedText,
                     `file "${fileName}" should equal text "${myExpectedText}"`
                 );        
                 break;
             case 'match':
             case 'matches':
-                expect(readTargetContent).toMatch(
+                await expect(readTargetContent).toMatch(
                     RegExp(myExpectedText),
                     `file "${fileName}" should match text "${myExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toBe(true, `action ${myAction} should be one of contains, equals or matches`);
+                await expect(false).toBe(true, `action ${myAction} should be one of contains, equals or matches`);
         }
     }
 }

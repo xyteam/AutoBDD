@@ -48,7 +48,7 @@ function (consoleName) {
 
 When(/^(?::shell: )?I copy (test file|downloaded file|folder) "(.*)" to scp target "(.*)" with password "(.*)"$/,
 { timeout: 15 * 60 * 1000 },
-function (sourceType, sourceName, scpTarget, scpPassword) {
+async function (sourceType, sourceName, scpTarget, scpPassword) {
     var myFileName, myFileExt;
     if (sourceType.includes('file')) {
         const fileName = parseExpectedText(sourceName);
@@ -62,7 +62,7 @@ function (sourceType, sourceName, scpTarget, scpPassword) {
             sourceFullPath = fs_session.getTestFileFullPath(myFileName, myFileExt);
             break;
         case 'downloaded file':
-            sourceFullPath = fs_session.checkDownloadFile(myFileName, myFileExt);
+            sourceFullPath = await fs_session.checkDownloadFile(myFileName, myFileExt);
             break;
         case 'folder':
             sourceFullPath = sourceName;
@@ -100,7 +100,7 @@ function (table) {
 
 When(/^(?::shell: )?I wait (?:(?:every (\d+) seconds for )?(\d+) minute(?:s)? )?on (?:the (first|last) (\d+) line(?:s)? of )?the "([^"]*)?" console to( not)* display the (text|regex) "(.*)?"$/,
 { timeout: 60 * 60 * 1000 },
-function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, consoleName, falseState, expectType, expectedText) {
+async function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, consoleName, falseState, expectType, expectedText) {
     // parse input
     const myConsoleName = parseExpectedText(consoleName);
     const myExpectedText = parseExpectedText(expectedText);
@@ -121,12 +121,12 @@ function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, consoleName, fals
     // wait and check loop
     do {
         // wait
-        browser.pause(myWaitIntvSec * 1000)
+        await browser.pause(myWaitIntvSec * 1000)
         // check
         // only keep 10k text
         const myReadIndex = ((Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240) > 0) ? Buffer.byteLength(myConsoleData[myConsoleName].stdout) - 10240 : 0;
         const lineArray = stripAnsi.string(myConsoleData[myConsoleName].stdout.slice(myReadIndex)).split(/[\r\n]+/);
-        browser_session.displayMessage(browser, lineArray.join('\n'));
+        await browser_session.displayMessage(browser, lineArray.join('\n'));
         var lineText;
         switch (firstOrLast) {
             case 'first':
@@ -166,7 +166,7 @@ function (waitIntvSec, waitTimeoutMnt, firstOrLast, lineCount, consoleName, fals
 
 When(/^(?::shell: )?I (?:type|press) (?:the )?"(.*)" (key|string) (?:(\d+) time(?:s)? )?to the console "(.*)"(?: if the( first| last)? (\d+)(?:st|nd|rd|th)? line(?:s)? of the console does( not)* (contain|equal|match) the (text|regex) "(.*)?")?$/,
 { timeout: 60 * 1000 },
-function (inputContent, inputType, repeatTimes, consoleName, firstOrLast, lineCount, falseCase, compareAction, expectType, expectedText) {
+async function (inputContent, inputType, repeatTimes, consoleName, firstOrLast, lineCount, falseCase, compareAction, expectType, expectedText) {
     // parse input
     const myInputContent = parseExpectedText(inputContent);
     const myRepeatTimes = repeatTimes || 1;
@@ -199,7 +199,7 @@ function (inputContent, inputType, repeatTimes, consoleName, firstOrLast, lineCo
         // get consoleData object set up by previous step
         const myConsoleData = this.myConsoleData;
         const lineArray = stripAnsi.string(myConsoleData[myConsoleName].stdout).split(/[\r\n]+/);
-        browser_session.displayMessage(browser, lineArray.join('\n'));
+        await browser_session.displayMessage(browser, lineArray.join('\n'));
 
         var lineText;
         switch (myFirstOrLast.trim()) {

@@ -10,7 +10,7 @@
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (action, targetElementIndex, targetElement, parentElementIndex, parentElement, containsTheText, ifExists) => {
+module.exports = async (action, targetElementIndex, targetElement, parentElementIndex, parentElement, containsTheText, ifExists) => {
     const myTargetElement = parseExpectedText(targetElement);
     const myParentElement = parseExpectedText(parentElement);
     const myContainsTheText = parseExpectedText(containsTheText) || '';
@@ -18,53 +18,58 @@ module.exports = (action, targetElementIndex, targetElement, parentElementIndex,
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     const deepClick = function(argument) { $(argument).click() };
 
-    const clickAction = () => {
+    const clickAction = async () => {
         var targetElementIdElement;
         if (parentElement) {
-            $(myParentElement).waitForExist();
-            const myFilteredParentElement = $$(myParentElement).filter(elem => elem.getText().includes(myContainsTheText));
+            await (await $(myParentElement)).waitForExist();
+            const myParentElementList = await $$(myParentElement);
+            const myFilteredParentElement = [];
+            for (const elem of myParentElementList) {
+                if ((await elem.getText()).includes(myContainsTheText)) {
+                    myFilteredParentElement.push(elem);
+                }
+            }
             const targetParentElement = (parentElementIndex == 'last') ? myFilteredParentElement.slice(-1) : myFilteredParentElement[parentElementIndexInt];
-            targetElementIdElement = (targetElementIndex == 'last') ? targetParentElement.$$(myTargetElement).slice(-1) : targetParentElement.$$(myTargetElement)[targetElementIndexInt];
+            targetElementIdElement = (targetElementIndex == 'last') ? (await targetParentElement.$$(myTargetElement)).slice(-1) : (await targetParentElement.$$(myTargetElement))[targetElementIndexInt];
         } else {
-            targetElementIdElement = (targetElementIndex == 'last') ? $$(myTargetElement).slice(-1) : $$(myTargetElement)[targetElementIndexInt];
+            targetElementIdElement = (targetElementIndex == 'last') ? (await $$(myTargetElement)).slice(-1) : (await $$(myTargetElement))[targetElementIndexInt];
         }
         // console.log(myTargetElement);
     
         switch (action) {
             case 'moveTo':
-                browser.$(targetElementIdElement).moveTo();
+                await (await browser.$(targetElementIdElement)).moveTo();
                 break;
             case 'clear':
-                browser.$(targetElementIdElement).clearValue();
+                await (await browser.$(targetElementIdElement)).clearValue();
                 break;
             case 'tryClick':
                 try {
                     console.log('1st try with direct click ...')
-                    browser.$(targetElementIdElement).click();
+                    await (await browser.$(targetElementIdElement)).click();
                 } catch (e) {
                     console.log('2nd try with deep click ...')
-                    browser.execute(deepClick, targetElementIdElement);          
+                    await browser.execute(deepClick, targetElementIdElement);          
                 }
                 break;
             case 'deepClick':
                     console.log('do deep click ...')
-                    browser.execute(deepClick, targetElementIdElement);          
+                    await browser.execute(deepClick, targetElementIdElement);          
                     break;
             case 'click':
             default:
-                browser.$(targetElementIdElement).click();
+                await (await browser.$(targetElementIdElement)).click();
                 break;
         }    
     }
 
     if (ifExists) {
         try {
-            clickAction();
+            await clickAction();
         } catch (e) {
             console.log(`try: element ${targetElement} does not exist`);
         }
     } else {
-        clickAction();
+        await clickAction();
     }
 };
-

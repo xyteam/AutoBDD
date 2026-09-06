@@ -10,7 +10,7 @@ const waitForCondition = require('../action/waitForCondition');
  * @param  {String}   element           Element selector
  * @param  {String}   ifExists          if exists
  */
-module.exports = (waitMs, action, type, element, ifExists) => {
+module.exports = async (waitMs, action, type, element, ifExists) => {
     const myWaitMS = parseInt(waitMs, 10) || 3000;
     /**
      * Element to perform the action on
@@ -59,29 +59,29 @@ module.exports = (waitMs, action, type, element, ifExists) => {
             method = action;
     }
 
-    const actionBlock = () => {
-        waitFor(targetElement);
+    const actionBlock = async () => {
+        await waitFor(targetElement);
         if (method.toLowerCase().includes('click')) {
-            waitForCondition(targetElement, myWaitMS, null, 'clickable');
+            await waitForCondition(targetElement, myWaitMS, null, 'clickable');
         }
-        browser.$(targetElement).scrollIntoView();
-        checkCondition('some', targetElement, 'becomes', null, 'visible');
+        await (await browser.$(targetElement)).scrollIntoView();
+        await checkCondition('some', targetElement, 'becomes', null, 'visible');
         if (action == 'double click') {
             // use wdio's native doubleClick; the old jQuery $(el).dblclick()
             // required the page to load jQuery and threw '$ is not defined'
-            browser.$(targetElement).doubleClick();
+            await (await browser.$(targetElement)).doubleClick();
         } else {
-            browser.$(targetElement)[method](options);
+            await (await browser.$(targetElement))[method](options);
         }    
     }
     
     if (ifExists) {
         try {
-            actionBlock();
+            await actionBlock();
         } catch (e) {
             console.log(`try: element ${targetElement} does not exist`);
         }
     } else {
-        actionBlock();
+        await actionBlock();
     }
 };

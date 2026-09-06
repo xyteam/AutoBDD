@@ -12,7 +12,7 @@
 const { debug } = require('request/request');
 const parseExpectedText = require('../common/parseExpectedText');
 
-const checkElement = (parentElement, childElement, falseCase, action, targetType, myExpectedText) => {
+const checkElement = async (parentElement, childElement, falseCase, action, targetType, myExpectedText) => {
     var retrivedValue;
     // Check for empty text
     if (typeof myExpectedText === 'undefined' && typeof falseCase === 'undefined') {
@@ -24,11 +24,11 @@ const checkElement = (parentElement, childElement, falseCase, action, targetType
 
     switch (targetType) {
         case 'value':
-            if (typeof(parentElement) != 'undefined' && parentElement.isExisting()) {
-                if (parentElement.getTagName() == 'input') {
-                    retrivedValue = parentElement.getValue();
+            if (typeof(parentElement) != 'undefined' && await parentElement.isExisting()) {
+                if ((await parentElement.getTagName()) == 'input') {
+                    retrivedValue = await parentElement.getValue();
                 } else {
-                    retrivedValue = browser.getElementAttribute(parentElement, targetType);
+                    retrivedValue = await browser.getElementAttribute(parentElement, targetType);
                 }    
             } else {
                 retrivedValue = '';
@@ -36,7 +36,7 @@ const checkElement = (parentElement, childElement, falseCase, action, targetType
             break;
         case 'text':
         case 'regex':
-            retrivedValue = typeof(parentElement) != 'undefined' && parentElement.isExisting() ? parentElement.getText() : '';
+            retrivedValue = typeof(parentElement) != 'undefined' && await parentElement.isExisting() ? await parentElement.getText() : '';
     }
 
     if (['existing', 'displayed', 'visible', 'enabled', 'clickable', 'focused', 'selected', 'checked'].includes(action)) {
@@ -44,13 +44,13 @@ const checkElement = (parentElement, childElement, falseCase, action, targetType
         // "is visible" = CSS-visible (isDisplayed), not in-viewport
         if (checkAction == 'isVisible') checkAction = 'isDisplayed';
         if (checkAction == 'isChecked') checkAction = 'isSelected';
-        const myResult = typeof(parentElement) != 'undefined' && parentElement.isExisting() && parentElement[checkAction]();
-        expect(myResult).toBe(!falseCase, `Failed expectation: the parent element "${parentElement}" that contains the childelement "${childElement}" is ${falseCase} ${action}`);    
+        const myResult = typeof(parentElement) != 'undefined' && await parentElement.isExisting() && await parentElement[checkAction]();
+        await expect(myResult).toBe(!falseCase, `Failed expectation: the parent element "${parentElement}" that contains the childelement "${childElement}" is ${falseCase} ${action}`);    
     } else if (falseCase) {
         switch (action) {
             case 'contain':
             case 'contains':
-                expect(retrivedValue).not.toContain(
+                await expect(retrivedValue).not.toContain(
                     myExpectedText,
                     `the parent element "${parentElement}" that contains the childelement "${childElement}" should not contain ${targetType} ` +
                     `"${myExpectedText}"`
@@ -58,7 +58,7 @@ const checkElement = (parentElement, childElement, falseCase, action, targetType
                 break;
             case 'equal':
             case 'equals':
-                expect(retrivedValue).not.toEqual(
+                await expect(retrivedValue).not.toEqual(
                     myExpectedText,
                     `the parent element "${parentElement}" that contains the childelement "${childElement}" should not equal ${targetType} ` +
                     `"${myExpectedText}"`
@@ -66,7 +66,7 @@ const checkElement = (parentElement, childElement, falseCase, action, targetType
                 break;
             case 'match':
             case 'matches':
-                expect(retrivedValue).not.toMatch(
+                await expect(retrivedValue).not.toMatch(
                     RegExp(myExpectedText),
                     `the parent element "${parentElement}" that contains the childelement "${childElement}" should not match ${targetType} ` +
                     `"${myExpectedText}"`
@@ -77,7 +77,7 @@ const checkElement = (parentElement, childElement, falseCase, action, targetType
         switch (action) {
             case 'contain':
             case 'contains':
-                expect(retrivedValue).toContain(
+                await expect(retrivedValue).toContain(
                     myExpectedText,
                     `the parent element "${parentElement}" that contains the childelement "${childElement}" should contain ${targetType} ` +
                     `"${myExpectedText}"`
@@ -85,7 +85,7 @@ const checkElement = (parentElement, childElement, falseCase, action, targetType
                 break;
             case 'equal':
             case 'equals':
-                expect(retrivedValue).toEqual(
+                await expect(retrivedValue).toEqual(
                     myExpectedText,
                     `the parent element "${parentElement}" that contains the childelement "${childElement}" should equal ${targetType} ` +
                     `"${myExpectedText}"`
@@ -93,24 +93,24 @@ const checkElement = (parentElement, childElement, falseCase, action, targetType
                 break;
             case 'match':
             case 'matches':
-                expect(retrivedValue).toMatch(
+                await expect(retrivedValue).toMatch(
                     RegExp(myExpectedText),
                     `the parent element "${parentElement}" that contains the childelement "${childElement}" should match ${targetType} ` +
                     `"${myExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toEqual(true, `action ${action} should be one of contains, equals or matches`);
+                await expect(false).toEqual(true, `action ${action} should be one of contains, equals or matches`);
         }
     }
 }
 
-const findElement = (nthTarget, parentElement, childElement, falseCase, action, targetType, myExpectedText) => {
+const findElement = async (nthTarget, parentElement, childElement, falseCase, action, targetType, myExpectedText) => {
     const myElementIndex = parseInt(nthTarget) || 1;
-    const elementList = $$(parentElement);
+    const elementList = await $$(parentElement);
     var findResult;
     for (i=0; i<elementList.length; i++) {
-        if (elementList[i].$(childElement).isExisting()) {
+        if (await (await elementList[i].$(childElement)).isExisting()) {
             if (myElementIndex <= 1) {
                 findResult = elementList[i];
                 break;
@@ -122,8 +122,8 @@ const findElement = (nthTarget, parentElement, childElement, falseCase, action, 
     return findResult;
 }
 
-module.exports = (nthTarget, parentElement, childElement, falseCase, action, targetType, myExpectedText) => {
-    const targetParentElement = findElement(nthTarget, parentElement, childElement, falseCase, action, targetType, myExpectedText);
-    checkElement(targetParentElement, childElement, falseCase, action, targetType, myExpectedText);
+module.exports = async (nthTarget, parentElement, childElement, falseCase, action, targetType, myExpectedText) => {
+    const targetParentElement = await findElement(nthTarget, parentElement, childElement, falseCase, action, targetType, myExpectedText);
+    await checkElement(targetParentElement, childElement, falseCase, action, targetType, myExpectedText);
 };
 
