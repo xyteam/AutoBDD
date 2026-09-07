@@ -140,7 +140,8 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
       }
     }
   } catch(e) {
-    console.log(e);
+    const msg = (e && typeof e.getMessageSync === 'function') ? e.getMessageSync() : (e && e.message ? e.message : String(e));
+    console.log('findTargetImage ERROR:', msg);
     returnArray.push(notFoundStatus);
   } finally {
     return JSON.stringify(returnArray);
