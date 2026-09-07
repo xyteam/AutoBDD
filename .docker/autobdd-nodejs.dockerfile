@@ -3,38 +3,34 @@ FROM xyteam/autobdd-ubuntu:${AUTOBDD_VERSION}
 USER root
 ENV DEBIAN_FRONTEND noninteractive
 
-# NOTE: This stage is NOT rebuilt for 3.0.0. phase-0 (wdio7) only drives Chrome <= 97,
-# and Google purged Chrome <= 114 .debs from its apt repo, so a from-scratch build here
-# yields Chrome 152 (stable) which wdio7 cannot drive. The released autobdd:3.0.0 is
-# instead built ON the pre-existing xyteam/autobdd-nodejs:2.3.0 base (Node 12.22.7 +
-# Chrome 96), which is the exact runtime phase-0 wdio7 was verified against. That base
-# image carries this stage's output from when 2.3.0 was built (setup_12.x era), so it is
-# the source of truth for the Node/Chrome runtime. See autobdd-image.dockerfile: build
-# the autobdd layer with `--build-arg AUTOBDD_VERSION=2.3.0`.
+# Phase 5: runtime re-baseline on Ubuntu 22.04 -> Node 20 LTS + modern Chrome +
+# chromedriver-on-PATH + Java 17 (default-jdk on jammy, pulled by the ubuntu base).
+# wdio9's local runner drives the browser via the matching driver found on PATH.
 
-# apt set keys for additional packages
+# apt set keys for additional packages (gpg --dearmor keyrings; apt-key is deprecated)
 RUN \
-    # set apt-key for nodejs 14.x. 16.x breaks fiber, avoid unil fiber provides fix
-    curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash - ; \
-    # nodesource's setup script writes a signed-by=.../nodesource.gpg keyring that is
-    # empty of the current signing key (1655A0AB68576280), so apt cannot verify it.
-    # Import the key into trusted.gpg and drop the signed-by override so apt uses it.
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 1655A0AB68576280 ; \
-    sed -i "s| \[signed-by=/usr/share/keyrings/nodesource.gpg\]||" /etc/apt/sources.list.d/nodesource.list ; \
-    # set apt-key for google-chrome
+    # NodeSource for Node 20 LTS
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - ; \
+    # google-chrome stable (modern)
     rm -f /etc/apt/sources.list.d/google-chrome.list && \
-    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
-    wget -qO- --no-check-certificate https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    mkdir -p /etc/opt/chrome/policies/managed && \
-    echo "{\"CommandLineFlagSecurityWarningsEnabled\": false}" > /etc/opt/chrome/policies/managed/managed_policies.json && \
-    # set apt-key for k6
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69 && \
-    echo "deb https://dl.k6.io/deb stable main" | tee /etc/apt/sources.list.d/k6.list && \
-    # terraform omitted: HashiCorp no longer publishes it for Ubuntu 20.04/focal,
-    # and the phase-0 test suites do not use it.
-    # update and install additional packages
-    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
+    mkdir -p /usr/share/keyrings && \
+    curl -fsSL --no-check-certificate https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
+    # k6
+    curl -fsSL https://dl.k6.io/key.gpg | gpg --dearmor -o /usr/share/keyrings/k6.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/k6.gpg] https://dl.k6.io/deb stable main" > /etc/apt/sources.list.d/k6.list && \
+    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" && \
     apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    nodejs \
-    google-chrome-stable \
-    k6
+        nodejs \
+        google-chrome-stable \
+        k6 && \
+    # Install chromedriver matching the installed google-chrome-stable onto PATH
+    CHROME_VER=$(google-chrome --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+') && \
+    CHROME_MAJOR=$(echo "$CHROME_VER" | cut -d. -f1) && \
+    DRIVER_URL="https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR}" && \
+    CD_VER=$(curl -fsSL "$DRIVER_URL" | tr -d '\n') && \
+    curl -fsSL -o /tmp/chromedriver_linux64.zip "https://chromedriver.storage.googleapis.com/${CD_VER}/chromedriver_linux64.zip" && \
+    unzip -o /tmp/chromedriver_linux64.zip -d /usr/local/bin && \
+    chmod +x /usr/local/bin/chromedriver && \
+    rm -f /tmp/chromedriver_linux64.zip && \
+    echo "installed chrome ${CHROME_VER}, chromedriver ${CD_VER}"
