@@ -13,7 +13,6 @@
     "bottleneck": "^2.19.5",
     "csv-parser": "^3.0.0",
     "encodeurl": "^1.0.2",
-    "fs-ext": "^2.0.0",
     "fuzzball": "^2.0.0",
     "glob": "^7.2.3",
     "inquirer": "8.2.6",
@@ -60,6 +59,7 @@
     "cucumber-junit": "^1.7.1",
     "expect-webdriverio": "^6.0.0",
     "multiple-cucumber-html-reporter": "^1.18.0",
+    "node-gyp": "^10.0.0",
     "wdio-cucumberjs-json-reporter": "^6.0.1"
   }
 }
