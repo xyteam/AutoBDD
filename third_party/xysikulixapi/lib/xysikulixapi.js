@@ -11,9 +11,10 @@ const java = require('java-bridge');
 const safeQuote = require('../lib/safequote');
 
 // safe quote any external input
-const SikulixApiVer = safeQuote(process.env.SikulixApiVer) || '2.0.4';
+const SikulixApiVer = safeQuote(process.env.SikulixApiVer) || '4.0.0';
 
-const sikuliApiJar = `sikulixapi-${SikulixApiVer}.jar`;
+// Oculix self-contained Linux fat jar (preserves org.sikuli.script.* namespace)
+const sikuliApiJar = `oculixapi-${SikulixApiVer}-linux.jar`;
 const sikuliApiLibPath = `${__dirname}/../lib`;
 const sikuliApiJarPath = `${sikuliApiLibPath}/${sikuliApiJar}`;
 

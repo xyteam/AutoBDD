@@ -42,7 +42,8 @@ const Pattern = xysikulixapi.Pattern;
 const Region = xysikulixapi.Region;
 const Settings = xysikulixapi.Settings;
 const Screen = xysikulixapi.Screen;
-OCR.globalOptionsSync().dataPath(process.env.TESSDATA_PREFIX);
+// Oculix bundles its own tessdata and auto-configures OCR (eng by default); the
+// SikuliX-style OCR.globalOptions().dataPath(...) init is not applicable here.
 
 // defind findImage function
 const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount) => {

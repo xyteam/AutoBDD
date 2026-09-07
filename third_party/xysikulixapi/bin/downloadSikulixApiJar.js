@@ -4,12 +4,14 @@
 const safeQuote = require('../lib/safequote');
 
 // all external env vars should be parsed or quoted
-const SikulixApiVer = safeQuote(process.env.SikulixApiVer) || '2.0.4';
+const SikulixApiVer = safeQuote(process.env.SikulixApiVer) || '4.0.0';
 
-const sikuliApiJar = `sikulixapi-${SikulixApiVer}.jar`;
+// Oculix self-contained Linux fat jar from the v${SikulixApiVer} GitHub release
+// (preserves org.sikuli.script.*; bundles OpenCV + Tesseract + natives + tessdata)
+const sikuliApiJar = `oculixapi-${SikulixApiVer}-linux.jar`;
 const sikuliApiLibPath = `${__dirname}/../lib`;
 const sikuliApiJarPath = `${sikuliApiLibPath}/${sikuliApiJar}`
-const sikuliApiUrl = `https://launchpad.net/sikuli/sikulix/${SikulixApiVer}/+download/${sikuliApiJar}`;
+const sikuliApiUrl = `https://github.com/oculix-org/Oculix/releases/download/v${SikulixApiVer}/${sikuliApiJar}`;
 
 const fs = require('fs');
 const request = require('request');

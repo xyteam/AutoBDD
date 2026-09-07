@@ -23,7 +23,11 @@ RUN \
     apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
         nodejs \
         google-chrome-stable \
+        openjdk-17-jdk \
         k6 && \
+    # Oculix jars are built with release 17 -> make Java 17 the active JVM
+    update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java && \
+    update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac && \
     # Install chromedriver matching the installed google-chrome-stable onto PATH.
     # Modern chromedriver is published via Chrome for Testing (the old
     # chromedriver.storage.googleapis.com API no longer carries recent majors).
