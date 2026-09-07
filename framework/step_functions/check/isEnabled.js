@@ -12,7 +12,7 @@ module.exports = async (partOf, element, waitAction, falseCase) => {
     const myPartOf = partOf || 'some';
     if (waitAction == 'becomes') {
         const ms = 10000;
-        await browser.waitForEnabled(myElement, ms, !!falseCase);    
+        await (await browser.$(myElement)).waitForEnabled({ timeout: ms, reverse: !!falseCase });
     }
     var isEnabled = await (await browser.$(myElement)).isEnabled();
     if (typeof isEnabled != 'boolean') {

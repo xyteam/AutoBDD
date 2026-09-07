@@ -1,5 +1,5 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-var cucumberJsReporter = require('wdio-cucumberjs-json-reporter').default;
+const { attach } = require('wdio-cucumberjs-json-reporter');
 const safeQuote = require(FrameworkPath + '/framework/libs/safequote');
 const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
@@ -126,7 +126,7 @@ const frameworkHooks = {
     const scenarioName = context.pickle.name;
     currentScenarioName = scenarioName;
     currentStepNumber = 0;
-    await browser.windowHandleMaximize();
+    await browser.maximizeWindow();
     // browser.setTimeouts(implicit, pageLoad, script)
     await browser.setTimeouts(null, null, 3600*1000);
   },
@@ -180,12 +180,12 @@ const frameworkHooks = {
     }
   },
 
-  afterScenario: async function(context) {
+  afterScenario: async function(context, result) {
     // console.log(context);
-    const resultStatus = context.result.status;
+    // wdio9 passes (world, result /* {passed,error,duration} */). Use result.passed.
     const feature_uri = context.gherkinDocument.uri;
-    // context.result.status = 1 means passed
-    if (resultStatus == '1') {
+    const resultPassed = (result && result.passed === true);
+    if (resultPassed) {
       currentScenarioStatus = 'Passed';
     } else {
       currentScenarioStatus = 'Failed'
@@ -212,24 +212,24 @@ const frameworkHooks = {
     const feature_path = feature_uri.split('features/')[1].replace('/', '_');
     const feature_runlog = safeQuote(process.env.RUNREPORT) || `${module_path}${feature_path}.log`;
     const runlog_tag = framework_libs.getRunlogTag(feature_runlog);
-    cucumberJsReporter.attach(runlog_tag, 'text/html');
+    attach(runlog_tag, 'text/html');
 
     var scenarioBeginImage_tag, scenarioEndImage_tag, video_tag;
     [scenarioEndImage_tag, video_tag] = framework_libs.getImageMovieTags(currentScenarioName, currentScenarioStatus, currentStepNumber);
     if (process.env.SCREENSHOT == 1) { // SCREESHOT == 1 attach final screenshot and movie
-      cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
-      if (process.env.MOVIE == 1) cucumberJsReporter.attach(video_tag, 'text/html');
+      attach(scenarioEndImage_tag, 'text/html');
+      if (process.env.MOVIE == 1) attach(video_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 2) { // SCREESHOT == 2 attach first and final screenshots and movie
       scenarioBeginImage_tag = framework_libs.getImageMovieTags(currentScenarioName, 'Step', 1)[0];
-      cucumberJsReporter.attach(scenarioBeginImage_tag, 'text/html');
-      cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
-      if (process.env.MOVIE == 1) cucumberJsReporter.attach(video_tag, 'text/html');
+      attach(scenarioBeginImage_tag, 'text/html');
+      attach(scenarioEndImage_tag, 'text/html');
+      if (process.env.MOVIE == 1) attach(video_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 3) { // SCREESHOT == 3 attach attach final screenshot and movie and all step screenshots, skipped steps will get empty refernce
-      cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
-      if (process.env.MOVIE == 1) cucumberJsReporter.attach(video_tag, 'text/html');
+      attach(scenarioEndImage_tag, 'text/html');
+      if (process.env.MOVIE == 1) attach(video_tag, 'text/html');
       for (stepIndex = 1; stepIndex <= currentStepNumber; stepIndex++) {
         const stepImage_tag = framework_libs.getImageMovieTags(currentScenarioName, 'Step', stepIndex)[0];
-        cucumberJsReporter.attach(stepImage_tag, 'text/html');
+        attach(stepImage_tag, 'text/html');
       }
     }
 

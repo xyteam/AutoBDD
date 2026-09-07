@@ -1,5 +1,5 @@
 module.exports = async (wait, ifPresent) =>{
-    if (wait) try {await (await browser.$('button=Advanced')).waitForDisplayed(3000)} catch (e) {/*no-op*/};
+    if (wait) try {await (await browser.$('button=Advanced')).waitForDisplayed({ timeout: 3000 })} catch (e) {/*no-op*/};
     if (!ifPresent) {
       await expect(await (await browser.$('button=Advanced')).isExisting()).toBe(true);
     } 

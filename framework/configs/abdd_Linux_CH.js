@@ -8,7 +8,6 @@ const myTestDir = safeQuote(process.env.TestDir);
 const myTestModule = safeQuote(process.env.TestModule);
 const myDISPLAYSIZE = safeQuote(process.env.DISPLAYSIZE);
 const { hooks } = require(`${FrameworkPath}/framework/support/module_hooks.js`);
-const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
 const myCombinedStepPath = [`${FrameworkPath}/framework/step_files/browser/*.js`,
                             `${FrameworkPath}/framework/step_files/nodejs/*.js`,
                             `${FrameworkPath}/framework/step_files/screen/*.js`,
@@ -176,19 +175,11 @@ exports.config = {
     // Services take over a specific job you don't want to take care of. They enhance
     // your test setup with almost no effort. Unlike plugins, they don't add new
     // commands. Instead, they hook themselves up into the test process.
-    services: [
-        ['selenium-standalone', {
-            logPath: `${myReportDir}/logs`,
-            skipSeleniumInstall: true,
-            installArgs: {
-                drivers: selenium_standalone_config.drivers,
-            },
-            args: {
-                drivers: selenium_standalone_config.drivers,
-                seleniumArgs: ['-host', '127.0.0.1','-port', `${myParallelRunPort}`]
-            },
-        }]
-    ],
+    // NOTE (wdio9): @wdio/selenium-standalone-service has no v9 release. The wdio9
+    // local runner starts the local browser driver (chromedriver) from PATH itself,
+    // so no driver service is registered here. An external Selenium grid is reached
+    // by setting hostname/port/path in the capabilities.
+    services: [],
     //
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
@@ -217,8 +208,6 @@ exports.config = {
     cucumberOpts: {
         // <boolean> show full backtrace for errors
         backtrace: false,
-        // <string[]> module used for processing required features
-        requireModule: ['@babel/register'],
         // <boolean> Treat ambiguous definitions as errors
         failAmbiguousDefinitions: true,
         // <boolean> invoke formatters without executing steps
@@ -228,13 +217,6 @@ exports.config = {
         // <boolean> Enable this config to treat undefined definitions as
         // warnings
         ignoreUndefinedDefinitions: false,
-        // <string[]> ("extension:module") require files with the given
-        // EXTENSION after requiring MODULE (repeatable)
-        name: [],
-        // <boolean> hide step definition snippets for pending steps
-        snippets: true,
-        // <boolean> hide source uris
-        source: true,
         // <string[]> (name) specify the profile to use
         profile: [],
         // <string[]> (file/dir) require files before executing features
@@ -244,9 +226,8 @@ exports.config = {
         // <boolean> fail if there are any undefined or pending steps
         strict: true,
         // <string> (expression) only execute the features or scenarios with
-        // tags matching the expression, see
-        // https://docs.cucumber.io/tag-expressions/
-        tagExpression: 'not @Pending',
+        // tags matching the expression (wdio9 uses 'tags', not 'tagExpression')
+        tags: 'not @Pending',
         // <boolean> add cucumber tags to feature or scenario name
         tagsInTitle: false,
         // <number> timeout for step definitions
