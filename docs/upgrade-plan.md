@@ -162,16 +162,20 @@ Ordering is driven by hard coupling constraints (verified in §3/§Appendix):
 
 - **(a)** `@wdio/sync`/`fibers` only run on Node ≤~16 → cannot bump Node while sync.
 - **(b)** the vendored bridge uses `java` (node-gyp JNI) → `npm install` breaks on
-  Node ≥20 → swap to `java-bridge` **before** the Node-20 image phase (java-bridge is
-  N-API, works on Node 12 today).
+  Node ≥20 → swap to `java-bridge` (MarkusJx, N-API prebuilt). **`java-bridge` requires
+  Node ≥14** — its bundled JS uses optional chaining and will not even parse on the
+  Node-12 3.0.0 image (verified against 2.1.0–2.8.1). So the swap can only be landed
+  and verified on the Node-20 image → it is **folded into Phase 5**, not a standalone
+  Node-12 phase (original Phase 4).
 - **(c)** Oculix fat jar needs **Java 17** (R3) → oculix + robotjs→Oculix land only
   after the Docker phase ships Java 17.
 - **(d)** wdio7 async (no `@wdio/sync`, no fibers) runs on Node 12 → the big
   sync→async conversion can be done and gated **on the current image** before the
   runtime bump.
 
-Therefore the runtime rebuild (Docker + Node 20 + wdio9) is deliberately sequenced
-after the three de-risking phases that still run green on `xyteam/autobdd:3.0.0`.
+Therefore the runtime rebuild (Docker + Node 20 + wdio9, now also absorbing the
+`java`→`java-bridge` swap) is deliberately sequenced after the de-risking phases that
+still run green on `xyteam/autobdd:3.0.0`.
 
 ### Phase 1 — Green baseline (**DONE** — consolidation `98e3bee`, project phase-1)
 
@@ -182,7 +186,7 @@ after the three de-risking phases that still run green on `xyteam/autobdd:3.0.0`
   every later phase must keep green (on the 3.0.0 image until Phase 5 re-baselines
   onto a new image).
 
-### Phase 2 — Dependency hygiene on the current runtime
+### Phase 2 — Dependency hygiene on the current runtime (**DONE** — merged as #151)
 
 - **Goal:** shrink to a minimal, current-runtime-safe dependency set **without**
   changing the wdio/Node major (still Node-12-compatible).
@@ -194,7 +198,7 @@ after the three de-risking phases that still run green on `xyteam/autobdd:3.0.0`
   gate.
 - **Gate:** `npm install` clean; autobdd-test green on the 3.0.0 image.
 
-### Phase 3 — sync→async conversion (still wdio7 / Node 12)
+### Phase 3 — sync→async conversion (still wdio7 / Node 12) (**DONE** — PR #154)
 
 - **Goal:** remove `@wdio/sync` + `fibers`; convert the framework to async wdio so the
   runtime is no longer Node-12-locked. This is the de-risk that unlocks Node 20.
@@ -209,21 +213,25 @@ after the three de-risking phases that still run green on `xyteam/autobdd:3.0.0`
   fibers**.
 - **Gate:** autobdd-test green on the 3.0.0 image with fibers removed from the tree.
 
-### Phase 4 — Screen-bridge plumbing swap: `java` → `java-bridge` (keep Sikuli jar)
+### Phase 4 — Screen-bridge plumbing swap `java` → `java-bridge` (**FOLDED INTO PHASE 5**)
 
-- **Goal:** make the vendored bridge install/build on modern Node by replacing the
-  JNI `java` package with `java-bridge` (Rust/napi, N-API prebuilt) — removes the
-  hard Node ≥20 blocker (b).
-- **Scope:** `third_party/xysikulixapi/package.json` (`java ^0.12.2`,
-  `node-gyp`, `binding.gyp` → `java-bridge`), `lib/xysikulixapi.js`,
-  `bin/{findTargetImage,downloadSikulixApiJar}.js`: `java.classpath.push`→
-  `classpath.append`, `java.import`→`importClass`, `java.options`→`options`,
-  `java.newFloat`→bridge primitive, keep `*Sync()` names and the `findTargetImage`
-  CLI contract. Still loads `sikulixapi-2.0.4.jar` (runs on Java 11), so it is
-  verifiable on the current image.
-- **Risk:** the named blocker; mechanical per spike (Appendix).
-- **Gate:** root `npm install` no longer runs node-gyp JNI; `findTargetImage` works
-  end-to-end inside the 3.0.0 container; autobdd-test green.
+- **Status:** originally a standalone Node-12 phase; **not viable on the current
+  image.** De-risking proved `java-bridge` (MarkusJx 2.1.0–2.8.1) does **not** run on
+  Node 12 — its bundled JS uses optional chaining (`SyntaxError: Unexpected token '.'`),
+  needing Node ≥14. On Node 12 the incumbent `java` (JNI) works fine, so nothing on the
+  3.0.0 image is broken; the swap is only required and only verifiable once the runtime
+  is Node 20.
+- **Scope now lands in Phase 5** (with the Node-20 rebuild): swap
+  `third_party/xysikulixapi/package.json` (`java ^0.12.2`, `node-gyp`, `binding.gyp` →
+  `java-bridge`), `lib/xysikulixapi.js`, `bin/{findTargetImage,downloadSikulixApiJar}.js`:
+  `java.classpath.push`→`classpath.append`, `java.import`→`importClass`,
+  `java.options`→`ensureJvm({opts})`, `java.newFloat`→auto-converted number, call-style
+  `Region(x)`→`new Region(x)`; keep `*Sync()` names and the `findTargetImage` CLI
+  contract. Still loads `sikulixapi-2.0.4.jar` (Java 11-compatible) for Phase 5
+  verification; the OculiX jar + Java-17-only surface stays in Phase 6.
+- **Gate (in Phase 5):** root `npm install` on Node 20 runs no node-gyp JNI;
+  `findTargetImage` works end-to-end in the Node-20 container; autobdd-test green on
+  the new image.
 
 ### Phase 5 — Runtime re-baseline: Docker foundation + Node 20 + WebdriverIO v9
 
@@ -238,8 +246,8 @@ after the three de-risking phases that still run green on `xyteam/autobdd:3.0.0`
     `gpg --dearmor`; drop `apt-key`, python2 support; Java 17; compose v2; version →
     new tag.
   - 5b `package.json` devDeps: `@wdio/*` → ^9.30, drop `@wdio/sync`+`@wdio/jasmine`,
-    add `@wdio/globals`; `expect-webdriverio` → ^6; `@babel/*` latest; keep bridge per
-    Phase 4.
+    add `@wdio/globals`; `expect-webdriverio` → ^6; `@babel/*` latest. Includes the
+    folded Phase 4 bridge swap: `third_party/xysikulixapi` `java`→`java-bridge`.
   - 5c configs (`abdd_Linux_CH.js` etc.): `cucumberOpts.tagExpression` → `tags`;
     reporter + selenium blocks to wdio9 names; remove `devtools`/`automationProtocol`.
   - 5d command/API renames required by v9 (W5).
