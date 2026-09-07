@@ -10,5 +10,4 @@ require(path.resolve(__dirname) + '/support/env.js');
 var moduleAbdd = require(`${process.env.PROJECTRUNPATH}/${process.env.TestDir}/support/abdd.js`);
 // console.log(moduleAbdd);
 // modify or add abdd attributes as necessary
-moduleAbdd.config.services[0][1].skipSeleniumInstall = false;
 module.exports = moduleAbdd;

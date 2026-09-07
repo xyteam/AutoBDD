@@ -90,7 +90,10 @@ const frameworkHooks = {
    **/ 
 
    beforeFeature: async function(uri, feature) {
-    console.log(`Feature: ${feature.document.feature.name}\n`);
+    // wdio7 passed { document: { feature } }; wdio9 passes the gherkinDocument (has .feature).
+    const featureName = (feature.document && feature.document.feature) ? feature.document.feature.name
+      : (feature.feature ? feature.feature.name : (feature.name || ''));
+    console.log(`Feature: ${featureName}\n`);
     currentScenarioName = '';
     currentStepNumber = 0;
     // start RDP and sshfs

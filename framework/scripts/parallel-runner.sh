@@ -76,7 +76,7 @@ if [[ "$CLEANOLDREPORT" == "1" ]]; then
     rm -rf ${REPORTDIR}/*
 fi
 
-SPEC_LIST="$(find . -type f -name *.feature | sort -u)"
+SPEC_LIST="$(find $PWD -type f -name *.feature | sort -u)"
 
 echo running $(echo ${SPEC_LIST} | wc -w) feature files with ${JOBS_COUNT} processes
 echo ${SPEC_LIST} | tr " " "\n"

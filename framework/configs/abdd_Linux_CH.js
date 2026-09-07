@@ -97,7 +97,6 @@ exports.config = {
                 // "--start-maximized",
                 // '--window-size=1920,1200',
                 "--user-data-dir=" + myChromeProfilePath,      
-                "--incognito",
                 '--no-sandbox',
                 '--disable-gpu',
                 '--disable-setuid-sandbox',
@@ -117,8 +116,7 @@ exports.config = {
                 'default_directory': myDownloadPathLocal
               }
             }
-        },
-        port: myParallelRunPort
+        }
       }
     ],
     //
