@@ -13,7 +13,8 @@ const sikuliApiUrl = `https://launchpad.net/sikuli/sikulix/${SikulixApiVer}/+dow
 
 const fs = require('fs');
 const request = require('request');
-const java = require('java');
+// java-bridge (MarkusJx) replaces node-java (JNI); N-API prebuilt, Node >= 14.
+const java = require('java-bridge');
 
 const findJarStat = (filePath, getUrl) => {
   return new Promise(async (resolve, reject) => {
@@ -42,8 +43,8 @@ const findJarStat = (filePath, getUrl) => {
 
 findJarStat(sikuliApiJarPath, sikuliApiUrl).then(() => {
   try {
-    java.classpath.push(sikuliApiJarPath);
-    const Screen = java.import('org.sikuli.script.Screen');
+    java.classpath.append(sikuliApiJarPath);
+    const Screen = java.importClass('org.sikuli.script.Screen');
     console.log(sikuliApiJarPath + ' jar file is good');
     console.log('run \'SikulixApiVer=2.0.x npm run download\' to download different versions');
   } catch(e) {

@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+// java-bridge replaces node-java (JNI); set JVM options up front so they apply
+// before the JVM is started by the first class import/call below.
+const java = require('java-bridge');
+java.ensureJvm({ opts: ['-Xms128m', '-Xmx512m'] });
+
 // change path to your project
 const safeQuote = require('../lib/safequote');
 const xysikulixapi = require('../lib/xysikulixapi');
@@ -28,11 +33,6 @@ const imageMaxCount = parseInt((argv.imageMaxCount != null && argv.imageMaxCount
 // default output
 const notFoundStatus = {status: 'notFound'};
 
-// require stuff
-const java = require('java');
-java.options.push('-Xms128m');
-java.options.push('-Xmx512m');
-
 // Sikuli Property
 const App = xysikulixapi.App;
 const Button = xysikulixapi.Button;
@@ -57,7 +57,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
   const myImageMaxCount = parseInt(imageMaxCount || 1);
 
   const findRegion = new Screen();
-  findRegion.setAutoWaitTimeout(java.newFloat(myImageWaitTime));
+  findRegion.setAutoWaitTimeout(myImageWaitTime);
 
   try {
     var oneTarget;
@@ -71,13 +71,13 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
     }
     if (myImagePath.includes('Screen')) {
       const screenMargin = myImagePath.includes('-') ? parseInt(myImagePath.split('-')[1]) : 1;
-      oneTarget = Region(findRegion.getBoundsSync()).growSync(-screenMargin);
+      oneTarget = new Region(findRegion.getBoundsSync()).growSync(-screenMargin);
       returnItem.text = oneTarget.textSync().split('\n');
       [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(oneTarget);
       oneTarget.highlight(0.1);
       returnArray.push(returnItem);
     } else {
-      const oneSample = (new Pattern(myImagePath)).similarSync(java.newFloat(myImageSimilarity));
+      const oneSample = (new Pattern(myImagePath)).similarSync(myImageSimilarity);
       const findTargets = findRegion.findAllSync(oneSample);
       const myRegex = new RegExp(myTextHint, 'i');
       var matchCount = 0;
@@ -85,7 +85,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
         const oneMatch = findTargets.nextSync();
         returnItem.score = Math.floor(oneMatch.getScoreSync()*1000000)/1000000;
         [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(oneMatch);
-        oneTarget = Region(oneMatch);
+        oneTarget = new Region(oneMatch);
         returnItem.text = oneTarget.textSync().split('\n');
         if (returnItem.score >= myImageSimilarity && returnItem.score <= myMaxSim && returnItem.text.join('\n').match(myRegex)) {
           matchCount += 1;
@@ -136,7 +136,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
             break;
           }
           clickRegion.mouseUpSync();
-        }  
+        }
       }
     }
   } catch(e) {
