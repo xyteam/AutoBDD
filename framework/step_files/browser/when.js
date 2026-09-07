@@ -25,15 +25,15 @@ const waitForDownload = require(FrameworkPath + '/framework/step_functions/actio
 
 When(/^(?::browser: )?I click the "([^"]*)" (button|label|option|modalDialog) on the page$/,
 { timeout: 60 * 1000 },
-function (elementText, elementName) {
+async function (elementText, elementName) {
     const textedElements = require(FrameworkPath + '/framework/testfiles/textedElements');
     const targetElement = eval('textedElements.texted_' + elementName).replace('__TEXT__', elementText);
     switch (elementName) {
         case 'option':
-            browser.$(targetElement).$('..').click();
+            await (await (await browser.$(targetElement)).$('..')).click();
             break;
         default:
-            browser.$(targetElement).click();
+            await (await browser.$(targetElement)).click();
     }
 });
 

@@ -10,7 +10,7 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (element, falseCase, action, type, expectedText) => {
+module.exports = async (element, falseCase, action, type, expectedText) => {
     /**
      * The expected text to validate against
      * @type {String}
@@ -51,14 +51,14 @@ module.exports = (element, falseCase, action, type, expectedText) => {
         boolFalseCase = true;
     }
 
-    const retrivedValue = browser.$(parsedElement)[command]().toString();
+    const retrivedValue = (await (await browser.$(parsedElement))[command]()).toString();
     // console.log(`${type} : ${retrivedValue}`)
 
     if (boolFalseCase) {
         switch (action) {
             case 'contain':
             case 'contains':
-                expect(retrivedValue).not.toContain(
+                await expect(retrivedValue).not.toContain(
                     myExpectedText,
                     `element "${parsedElement}" should not contain ${type} ` +
                     `"${myExpectedText}"`
@@ -66,7 +66,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                 break;
             case 'equal':
             case 'equals':
-                expect(retrivedValue).not.toEqual(
+                await expect(retrivedValue).not.toEqual(
                     myExpectedText,
                     `element "${parsedElement}" should not equal ${type} ` +
                     `"${myExpectedText}"`
@@ -74,20 +74,20 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                 break;
             case 'match':
             case 'matches':
-                expect(retrivedValue).not.toMatch(
+                await expect(retrivedValue).not.toMatch(
                     RegExp(myExpectedText),
                     `element "${parsedElement}" should not match ${type} ` +
                     `"${myExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
+                await expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
         }
     } else {
         switch (action) {
             case 'contain':
             case 'contains':
-                expect(retrivedValue).toContain(
+                await expect(retrivedValue).toContain(
                     myExpectedText,
                     `element "${parsedElement}" should contain ${type} ` +
                     `"${myExpectedText}"`
@@ -95,7 +95,7 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                 break;
             case 'equal':
             case 'equals':
-                expect(retrivedValue).toEqual(
+                await expect(retrivedValue).toEqual(
                     myExpectedText,
                     `element "${parsedElement}" should equal ${type} ` +
                     `"${myExpectedText}"`
@@ -103,14 +103,14 @@ module.exports = (element, falseCase, action, type, expectedText) => {
                 break;
             case 'match':
             case 'matches':
-                expect(retrivedValue).toMatch(
+                await expect(retrivedValue).toMatch(
                     RegExp(myExpectedText),
                     `element "${parsedElement}" should match ${type} ` +
                     `"${myExpectedText}"`
                 );        
                 break;
             default:
-                expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
+                await expect(false).toBe(true, `action ${action} should be one of contains, equals or matches`);
         }
     }
 }

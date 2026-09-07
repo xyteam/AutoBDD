@@ -3,8 +3,8 @@
  * @param  {String}   element Element selector
  */
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (element) => {
+module.exports = async (element) => {
     const parsedElement = parseExpectedText(element);
-    browser.$(parsedElement).scrollIntoView();
-    browser.$(parsedElement).clearValue();
+    await (await browser.$(parsedElement)).scrollIntoView();
+    await (await browser.$(parsedElement)).clearValue();
 };

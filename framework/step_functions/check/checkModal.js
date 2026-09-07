@@ -4,7 +4,7 @@
  *                               confirmbox or prompt)
  * @param  {String}   falseState Whether to check if the modal was opened or not
  */
-module.exports = (modalType, falseState) => {
+module.exports = async (modalType, falseState) => {
     /**
      * The text of the prompt
      * @type {String}
@@ -12,10 +12,10 @@ module.exports = (modalType, falseState) => {
     let promptText = '';
 
     try {
-        promptText = browser.getAlertText();
+        promptText = await browser.getAlertText();
 
         if (!!falseState) {
-            expect(promptText).to.not
+            await expect(promptText).to.not
                 .equal(
                     null,
                     `A ${modalType} was opened when it shouldn't`
@@ -23,7 +23,7 @@ module.exports = (modalType, falseState) => {
         }
     } catch (e) {
         if (!!!falseState) {
-            expect(promptText).to
+            await expect(promptText).to
                 .equal(
                     null,
                     `A ${modalType} was not opened when it should have been`

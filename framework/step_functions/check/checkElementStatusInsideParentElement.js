@@ -9,7 +9,7 @@
  */
 
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, expectedStauts) => {
+module.exports = async (targetElementIndex, targetElement, parentElementIndex, parentElement, falseCase, expectedStauts) => {
     const myTargetElement = parseExpectedText(targetElement);
     const myParentElement = parseExpectedText(parentElement);
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
@@ -17,10 +17,11 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     
     var targetElementIdElement;
     if (parentElement) {
-        $(myParentElement).waitForExist();
-        targetElementIdElement = browser.$$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt];
+        await (await $(myParentElement)).waitForExist();
+        const myParentElements = await browser.$$(myParentElement);
+        targetElementIdElement = (await myParentElements[parentElementIndexInt].$$(myTargetElement))[targetElementIndexInt];
     } else {
-        targetElementIdElement = browser.$$(myTargetElement)[targetElementIndexInt];
+        targetElementIdElement = (await browser.$$(myTargetElement))[targetElementIndexInt];
     }
 
     /**
@@ -38,50 +39,50 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     if (boolFalseCase) {
         switch (expectedStauts) {
             case 'displayed':
-                expect(targetElementIdElement.isDisplayed()).not.toBe(
+                await expect(await targetElementIdElement.isDisplayed()).not.toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should not be ${expectedStauts}`
                 );        
                 break;
             case 'enabled':
-                expect(targetElementIdElement.isEnabled()).not.toBe(
+                await expect(await targetElementIdElement.isEnabled()).not.toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should not be ${expectedStauts}`
                 );        
                 break;
             case 'checked':
             case 'selected':
-                expect(targetElementIdElement.isSelected()).not.toBe(
+                await expect(await targetElementIdElement.isSelected()).not.toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should not be ${expectedStauts}`
                 );        
                 break;
             default:
-                expect(false).toEqual(true, `expectedStauts ${expectedStauts} should be one of displayed, enabled or selected`);
+                await expect(false).toEqual(true, `expectedStauts ${expectedStauts} should be one of displayed, enabled or selected`);
         }
     } else {
         switch (expectedStauts) {
             case 'displayed':
-                expect(targetElementIdElement.isDisplayed()).toBe(
+                await expect(await targetElementIdElement.isDisplayed()).toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should be ${expectedStauts}`
                 );        
                 break;
             case 'enabled':
-                expect(targetElementIdElement.isEnabled()).toBe(
+                await expect(await targetElementIdElement.isEnabled()).toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should be ${expectedStauts}`
                 );        
                 break;
             case 'checked':
             case 'selected':
-                expect(targetElementIdElement.isSelected()).toBe(
+                await expect(await targetElementIdElement.isSelected()).toBe(
                     true,
                     `target element "${targetElement}" inside parent element "${parentElement}" should be ${expectedStauts}`
                 );        
                 break;
             default:
-                expect(false).toEqual(true, `expectedStauts ${expectedStauts} should be one of displayed, enabled or selected`);
+                await expect(false).toEqual(true, `expectedStauts ${expectedStauts} should be one of displayed, enabled or selected`);
         }
     }
 };

@@ -5,81 +5,82 @@ const encodeUrl = require('encodeurl');
 const defaultTimeout = 15*1000;
 
 module.exports = {
-  resetAll: function(session) {
-    this.resetSession(session);
-    this.resetSize(session);
+  resetAll: async function(session) {
+    await this.resetSession(session);
+    await this.resetSize(session);
   },
 
-  resetSession: function(session) {
-    session.reload();
+  resetSession: async function(session) {
+    await session.reload();
   },
 
-  resetSize: function(session) {
+  resetSize: async function(session) {
     try {
-      session.windowHandleMaximize();
+      await session.windowHandleMaximize();
     } catch(e) {};
   },
 
-  openUrl: function(session, url) {
+  openUrl: async function(session, url) {
     var handle = setInterval(function() {
       session.refresh();
     }, defaultTimeout);
-    session.url(url);
+    await session.url(url);
     clearInterval(handle);
   },
-  
-  clickAndEnter: function(session, linkToClick) {
-    session.$(linkToClick).waitForExist(15000);
+
+  clickAndEnter: async function(session, linkToClick) {
+    await (await session.$(linkToClick)).waitForExist(15000);
     try {
-      session.$(linkToClick).click()
+      await (await session.$(linkToClick)).click();
       try {
-        session.pause(1000);
+        await session.pause(1000);
       } catch(e) {}
     } catch(e) {}
     screen_session.keyTap('enter');
   },
 
-  displayMessage: function(session, displayMsg) {
-    session.url('data:text/plain;charset=utf-8,' + encodeUrl(displayMsg, {charset: 'utf-8'}));
-    session.pause(1000);
+  displayMessage: async function(session, displayMsg) {
+    await session.url('data:text/plain;charset=utf-8,' + encodeUrl(displayMsg, {charset: 'utf-8'}));
+    await session.pause(1000);
   },
 
-  showErrorLog: function(session) {
+  showErrorLog: async function(session) {
     var anyRegexWords = 'failed|rejected|unhandled|unauthorized|error|invalid';
     var msgRegex = RegExp(anyRegexWords);
-    var targetLogArray = session.getLogs('browser').filter(log => msgRegex.test(log.message.toLowerCase()) === true);
+    var targetLogArray = await session.getLogs('browser');
+    targetLogArray = targetLogArray.filter(log => msgRegex.test(log.message.toLowerCase()) === true);
     process.env.LastBrowserLog = JSON.stringify(targetLogArray);
     console.log(process.env.LastBrowserLog);
   },
-  
+
   // wait until DOM content is loaded or timeout
-  waitDOMContentLoaded: function(session, timeout) {
+  waitDOMContentLoaded: async function(session, timeout) {
     var timeout = timeout || defaultTimeout;
     session.getWindowHandle().on('DOMContentLoaded', (event) => {
       return;
     });
-    session.pause(timeout)
+    await session.pause(timeout)
     return;
   },
 
   // wait until Image content is loaded or timeout
-  waitImageContentLoaded: function(session, timeout) {
+  waitImageContentLoaded: async function(session, timeout) {
     var timeout = timeout || defaultTimeout;
     session.getWindowHandle().on('onload', (event) => {
       return;
     });
-    session.pause(timeout)
+    await session.pause(timeout)
     return;
   },
-  
+
   // define bypass chrome warning function
-  bypassChromeWarningIfEncounter: function(session) {
+  bypassChromeWarningIfEncounter: async function(session) {
     try {
-      if (session.$('button=Advanced').waitForExist(3000)) {
-        session.$('button=Advanced').click();
-        session.$('a*=Proceed to').click();
+      if (await (await session.$('button=Advanced')).waitForExist(3000)) {
+        await (await session.$('button=Advanced')).click();
+        await (await session.$('a*=Proceed to')).click();
         return true;
-      }  
+      }
     } catch(e) {
       return false;
     }

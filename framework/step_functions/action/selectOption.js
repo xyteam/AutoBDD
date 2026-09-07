@@ -5,7 +5,7 @@
  * @param  {String}   selectionValue Value to select by
  * @param  {String}   selectElem     Element selector
  */
-module.exports = (selectionType, selectionValue, selectElem) => {
+module.exports = async (selectionType, selectionValue, selectElem) => {
     /**
      * The method to use for selecting the option
      * @type {String}
@@ -38,5 +38,5 @@ module.exports = (selectionType, selectionValue, selectElem) => {
         }
     }
 
-    browser.$(selectElem)[command](arg1, arg2);
+    await (await browser.$(selectElem))[command](arg1, arg2);
 };

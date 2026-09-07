@@ -29,61 +29,61 @@ const checkIfElementInsideParentElementEqualsMatchesTextOrValue2 = require(Frame
 const checkIfParentElementEqualsMatchesTextOrValue = require(FrameworkPath + '/framework/step_functions/check/checkIfParentElementEqualsMatchesTextOrValue');
 
 Then(/^(?::browser: )?I expect the( last)* browser console log should( not)* contain "([^"]*)" words$/,
-function (last, falseCase, regexWords) {
+async function (last, falseCase, regexWords) {
     const myRegexWords = regexWords.toLowerCase();
     const anyRegexWords = 'failed|rejected|unhandled|unauthorized|error|invalid';
     const msgRegex = (myRegexWords.indexOf('any error') >= 0) ? RegExp(anyRegexWords) : RegExp(myRegexWords);
-    const targetLogArray = (last) ? JSON.parse(process.env.LastBrowserLog) : browser.getLogs('browser').filter(log => msgRegex.test(log.message.toLowerCase()) === true);
+    const targetLogArray = (last) ? JSON.parse(process.env.LastBrowserLog) : (await browser.getLogs('browser')).filter(log => msgRegex.test(log.message.toLowerCase()) === true);
     process.env.LastBrowserLog = JSON.stringify(targetLogArray);
     console.log(process.env.LastBrowserLog);
     if (falseCase) {
-        expect(targetLogArray.length).not.toBeGreaterThan(0);
+        await expect(targetLogArray.length).not.toBeGreaterThan(0);
     } else {
-        expect(targetLogArray.length).toBeGreaterThan(0);
+        await expect(targetLogArray.length).toBeGreaterThan(0);
     }
 });
 
 Then(/^(?::browser: )?I expect the( last)* browser console (SEVERE) level log does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|at least|no less than) (\d+) time(?:s)?)?$/,
-function (last, logLevel, falseCase, compareAction, expectedNumber) {
+async function (last, logLevel, falseCase, compareAction, expectedNumber) {
     const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 0;
-    const targetLogArray = (last) ? JSON.parse(process.env.LastBrowserLog) : browser.getLogs('browser').filter(log => log.level == logLevel);
+    const targetLogArray = (last) ? JSON.parse(process.env.LastBrowserLog) : (await browser.getLogs('browser')).filter(log => log.level == logLevel);
     process.env.LastBrowserLog = JSON.stringify(targetLogArray);
     console.log(process.env.LastBrowserLog);
 
     if (!!false) {
-        expect(compareAction).not.toContain('no', 'do not support double negative statement');
-        expect(compareAction).not.toContain('at least', 'do not support no at least statement');
+        await expect(compareAction).not.toContain('no', 'do not support double negative statement');
+        await expect(compareAction).not.toContain('at least', 'do not support no at least statement');
         switch (compareAction) {
             case 'exactly':
-                expect(targetLogArray.length).not.toEqual(parseInt(myExpectedNumber));
+                await expect(targetLogArray.length).not.toEqual(parseInt(myExpectedNumber));
                 break;
             case 'more than':
-                expect(targetLogArray.length).not.toBeGreaterThan(parseInt(myExpectedNumber));
+                await expect(targetLogArray.length).not.toBeGreaterThan(parseInt(myExpectedNumber));
                 break;
             case 'less than':
-                expect(targetLogArray.length).not.toBeLessThan(parseInt(myExpectedNumber));
+                await expect(targetLogArray.length).not.toBeLessThan(parseInt(myExpectedNumber));
                 break;
         }
     } else {
         switch (compareAction) {
             case 'exactly':
-                expect(targetLogArray.length).toEqual(parseInt(myExpectedNumber));
+                await expect(targetLogArray.length).toEqual(parseInt(myExpectedNumber));
                 break;
             case 'not exactly':
-                expect(targetLogArray.length).not.toEqual(parseInt(myExpectedNumber));
+                await expect(targetLogArray.length).not.toEqual(parseInt(myExpectedNumber));
                 break;
             case 'more than':
-                expect(targetLogArray.length).toBeGreaterThan(parseInt(myExpectedNumber));
+                await expect(targetLogArray.length).toBeGreaterThan(parseInt(myExpectedNumber));
                 break;
             case 'no more than':
-                expect(targetLogArray.length).not.toBeGreaterThan(parseInt(myExpectedNumber));
+                await expect(targetLogArray.length).not.toBeGreaterThan(parseInt(myExpectedNumber));
                 break;
             case 'less than':
-                expect(targetLogArray.length).toBeLessThan(parseInt(myExpectedNumber));
+                await expect(targetLogArray.length).toBeLessThan(parseInt(myExpectedNumber));
                 break;
             case 'at least':
             case 'no less than':
-                expect(targetLogArray.length).not.toBeLessThan(parseInt(myExpectedNumber));
+                await expect(targetLogArray.length).not.toBeLessThan(parseInt(myExpectedNumber));
                 break;
         }
     }
@@ -91,24 +91,24 @@ function (last, logLevel, falseCase, compareAction, expectedNumber) {
 
 Then(/^(?::browser: )?I should see the "([^"]*)" (button|label|option|modalDialog) on the page$/,
     { timeout: 60 * 1000 },
-    function (elementText, elementName) {
+    async function (elementText, elementName) {
         const textedElements = require(FrameworkPath + '/framework/testfiles/textedElements');
         const targetElement = eval('textedElements.texted_' + elementName).replace('__TEXT__', elementText);
-        browser.$(targetElement).waitForDisplayed(500);
-        expect(browser.$(targetElement).isDisplayed()).toBe(true);
+        await (await browser.$(targetElement)).waitForDisplayed(500);
+        await expect((await browser.$(targetElement)).isDisplayed()).toBe(true);
     });
 
-Then(/^(?::browser: )?the "([^"]*)" modal\-dialoag should contain these select\-option$/, { timeout: 60 * 1000 }, function (modalText, table) {
+Then(/^(?::browser: )?the "([^"]*)" modal\-dialoag should contain these select\-option$/, { timeout: 60 * 1000 }, async function (modalText, table) {
     const web_selectors = this.web_selectors;
     const seleniumPage_selectors = this.seleniumPage_selectors;
     const myModalDialog = seleniumPage_selectors.texted_modalDialog.replace('__TEXT__', modalText);
     const myModalDialog_select = myModalDialog + web_selectors.select;
     var expected_browserList = table.hashes();
-    var displayed_browserList = browser.$(myModalDialog_select).getText();
-    browser.$(myModalDialog_select).click();
-    expected_browserList.forEach(function (row) {
-        expect(displayed_browserList).toContain(row['browser_name']);
-    });
+    var displayed_browserList = await (await browser.$(myModalDialog_select)).getText();
+    await (await browser.$(myModalDialog_select)).click();
+    for (const row of expected_browserList) {
+        await expect(displayed_browserList).toContain(row['browser_name']);
+    }
 });
 
 Then(

@@ -6,7 +6,7 @@ const checkIfElementExists = require('../check/checkIfElementExists');
  *                               (an or no)
  * @param  {String}   elem       Element selector
  */
-module.exports = (isExisting, elem) => {
+module.exports = async (isExisting, elem) => {
     /**
      * Falsecase assertion
      * @type {Boolean}
@@ -17,5 +17,5 @@ module.exports = (isExisting, elem) => {
         falseCase = false;
     }
 
-    checkIfElementExists(elem, falseCase);
+    await checkIfElementExists(elem, falseCase);
 };

@@ -115,25 +115,18 @@ module.exports = {
     execSync(rm_downloadFile_cmd);
   },
 
-  checkDownloadFile: function(fileName, fileExt) {
+  checkDownloadFile: async function(fileName, fileExt) {
     const filePath = DownloadPathLocal + '/' + fileName + '.' + fileExt;
     while (!fs.existsSync(filePath)) {
-      browser.pause(1000);
+      await browser.pause(1000);
     }
     return filePath;
   },
 
-  readPdfData: function(pdfFullPath) {
+  readPdfData: async function(pdfFullPath) {
     const dataBuffer = fs.readFileSync(pdfFullPath);
-    var pdfData = null;
-    // pdfParse is an async function, need a while-wait statement for pdfData to be filled.
-    pdfParse(dataBuffer).then(function(data) {
-      pdfData = data;
-    });
-    while (pdfData == null) {
-      browser.pause(1000);
-    }
-    return pdfData;
+    // pdfParse is an async function (returns a Promise); await it directly.
+    return await pdfParse(dataBuffer);
   },
 
   readXlsData: function(xlsFullPath) {

@@ -7,7 +7,7 @@
  * @param  {String}   state        checked element state
  */
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (partOf, element, verb, falseCase, state) => {
+module.exports = async (partOf, element, verb, falseCase, state) => {
     const myElem = parseExpectedText(element);
     const myPartOf = partOf || 'some';
     var checkAction = `is${state.charAt(0).toUpperCase()}${state.slice(1)}`;
@@ -18,17 +18,17 @@ module.exports = (partOf, element, verb, falseCase, state) => {
     if (checkAction == 'isChecked') checkAction = 'isSelected';
     var myResult;
     if (verb.includes('become')) {
-        if (browser.$(myElem)[checkAction]() == !!falseCase) {
+        if ((await (await browser.$(myElem))[checkAction]()) == !!falseCase) {
             var waitAction = `waitFor${state.charAt(0).toUpperCase()}${state.slice(1)}`;
             if (waitAction == 'waitForVisible') waitAction = 'waitForDisplayed';
             if (waitAction == 'waitForChecked') waitAction = 'waitForClickable';
             if (waitAction == 'waitForSelected') waitAction = 'waitForSelected';
             if (waitAction == 'waitForExisting') waitAction = 'waitForExist';        
             const waitOption = {timeout: 5000, reverse: !!falseCase};
-            browser.$(myElem)[waitAction](waitOption);
+            await (await browser.$(myElem))[waitAction](waitOption);
         }
     }
-    myResult = browser.$(myElem)[checkAction]();
+    myResult = await (await browser.$(myElem))[checkAction]();
     if (typeof(myResult) == 'object') {
         switch (myPartOf) {
             default:
@@ -41,5 +41,5 @@ module.exports = (partOf, element, verb, falseCase, state) => {
         }
     }
 
-    expect(myResult).toBe(!falseCase, `Expected ${myPartOf} of element "${myElem}" ${verb}${falseCase} ${state} but failed`);
+    await expect(myResult).toBe(!falseCase, `Expected ${myPartOf} of element "${myElem}" ${verb}${falseCase} ${state} but failed`);
 };

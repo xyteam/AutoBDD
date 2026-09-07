@@ -4,8 +4,8 @@ const parseExpectedText = require(`${process.env.FrameworkPath}/framework/step_f
 const { Given } = require('@cucumber/cucumber');
 
 Given(/^(?::nodejs: )?I call (?:(framework|project|module) )?function "([^"]*)?" with parameters "([^"]*)?"(?: and assign ouput as "([^"]*)?")?(?: in order to .*)?$/,
-    (funcType, funcName, funcParms, varName) => {
-            const myParsedParms = parseExpectedText(funcParms)
+    async (funcType, funcName, funcParms, varName) => {
+            const myParsedParms = await parseExpectedText(funcParms)
             let runFunc;
             switch (funcType) {
                 case "framework":

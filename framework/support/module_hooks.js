@@ -17,135 +17,135 @@ if (fs.existsSync(`${ProjectPath}/${TestDir}/${TestModule}/support/hooks.js`)) {
 }
 
 exports.hooks = {
-  onPrepare: function (config, capabilities) {
-    if (frameworkHooks.onPrepare) frameworkHooks.onPrepare(config, capabilities);
-    if (projectHooks.onPrepare) projectHooks.onPrepare(config, capabilities);
-    if (localHooks.onPrepare) localHooks.onPrepare(config, capabilities);
+  onPrepare: async function (config, capabilities) {
+    if (frameworkHooks.onPrepare) await frameworkHooks.onPrepare(config, capabilities);
+    if (projectHooks.onPrepare) await projectHooks.onPrepare(config, capabilities);
+    if (localHooks.onPrepare) await localHooks.onPrepare(config, capabilities);
   },
 
-  onWorkerStart: function (cid, caps, specs, args, execArgv) {
-    if (frameworkHooks.onWorkerStart) frameworkHooks.onWorkerStart(cid, caps, specs, args, execArgv);
-    if (projectHooks.onWorkerStart) projectHooks.onWorkerStart(cid, caps, specs, args, execArgv);
-    if (localHooks.onWorkerStart) localHooks.onWorkerStart(cid, caps, specs, args, execArgv);
+  onWorkerStart: async function (cid, caps, specs, args, execArgv) {
+    if (frameworkHooks.onWorkerStart) await frameworkHooks.onWorkerStart(cid, caps, specs, args, execArgv);
+    if (projectHooks.onWorkerStart) await projectHooks.onWorkerStart(cid, caps, specs, args, execArgv);
+    if (localHooks.onWorkerStart) await localHooks.onWorkerStart(cid, caps, specs, args, execArgv);
   },
 
-  beforeSession: function (config, capabilities, specs) {
-    if (frameworkHooks.beforeSession) frameworkHooks.beforeSession(config, capabilities, specs);
-    if (projectHooks.beforeSession) projectHooks.beforeSession(config, capabilities, specs);
-    if (localHooks.beforeSession) localHooks.beforeSession(config, capabilities, specs);
+  beforeSession: async function (config, capabilities, specs) {
+    if (frameworkHooks.beforeSession) await frameworkHooks.beforeSession(config, capabilities, specs);
+    if (projectHooks.beforeSession) await projectHooks.beforeSession(config, capabilities, specs);
+    if (localHooks.beforeSession) await localHooks.beforeSession(config, capabilities, specs);
   },
 
-  before: function (capabilities, specs) {
-    if (frameworkHooks.before) frameworkHooks.before(capabilities, specs);
-    if (projectHooks.before) projectHooks.before(capabilities, specs);
-    if (localHooks.before) localHooks.before(capabilities, specs);
+  before: async function (capabilities, specs) {
+    if (frameworkHooks.before) await frameworkHooks.before(capabilities, specs);
+    if (projectHooks.before) await projectHooks.before(capabilities, specs);
+    if (localHooks.before) await localHooks.before(capabilities, specs);
   },
 
-  beforeSuite: function (suite) {
-    if (frameworkHooks.beforeSuite) frameworkHooks.beforeSuite(suite);
-    if (projectHooks.beforeSuite) projectHooks.beforeSuite(suite);
-    if (localHooks.beforeSuite) localHooks.beforeSuite(suite);
+  beforeSuite: async function (suite) {
+    if (frameworkHooks.beforeSuite) await frameworkHooks.beforeSuite(suite);
+    if (projectHooks.beforeSuite) await projectHooks.beforeSuite(suite);
+    if (localHooks.beforeSuite) await localHooks.beforeSuite(suite);
   },
 
-  beforeHook: function (test, context/*, stepData, world*/) {
-    if (frameworkHooks.beforeHook) frameworkHooks.beforeHook(test, context/*, stepData, world*/);
-    if (projectHooks.beforeHook) projectHooks.beforeHook(test, context/*, stepData, world*/);
-    if (localHooks.beforeHook) localHooks.beforeHook(test, context/*, stepData, world*/);
+  beforeHook: async function (test, context/*, stepData, world*/) {
+    if (frameworkHooks.beforeHook) await frameworkHooks.beforeHook(test, context/*, stepData, world*/);
+    if (projectHooks.beforeHook) await projectHooks.beforeHook(test, context/*, stepData, world*/);
+    if (localHooks.beforeHook) await localHooks.beforeHook(test, context/*, stepData, world*/);
   },
 
-  afterHook: function (test, context, { error, result, duration, passed, retries }/*, stepData, world*/) {
-    if (frameworkHooks.afterHook) frameworkHooks.afterHook(test, context, { error, result, duration, passed, retries }/*, stepData, world*/);
-    if (projectHooks.afterHook) projectHooks.afterHook(test, context, { error, result, duration, passed, retries }/*, stepData, world*/);
-    if (localHooks.afterHook) localHooks.afterHook(test, context, { error, result, duration, passed, retries }/*, stepData, world*/);
+  afterHook: async function (test, context, { error, result, duration, passed, retries }/*, stepData, world*/) {
+    if (frameworkHooks.afterHook) await frameworkHooks.afterHook(test, context, { error, result, duration, passed, retries }/*, stepData, world*/);
+    if (projectHooks.afterHook) await projectHooks.afterHook(test, context, { error, result, duration, passed, retries }/*, stepData, world*/);
+    if (localHooks.afterHook) await localHooks.afterHook(test, context, { error, result, duration, passed, retries }/*, stepData, world*/);
   },
 
-  beforeTest: function (test, context) {
-    if (frameworkHooks.beforeTest) frameworkHooks.beforeTest(test, context);
-    if (projectHooks.beforeTest) projectHooks.beforeTest(test, context);
-    if (localHooks.beforeTest) localHooks.beforeTest(test, context);
+  beforeTest: async function (test, context) {
+    if (frameworkHooks.beforeTest) await frameworkHooks.beforeTest(test, context);
+    if (projectHooks.beforeTest) await projectHooks.beforeTest(test, context);
+    if (localHooks.beforeTest) await localHooks.beforeTest(test, context);
   },
 
-  beforeCommand: function (commandName, args) {
-    if (frameworkHooks.beforeCommand) frameworkHooks.beforeCommand(commandName, args);
-    if (projectHooks.beforeCommand) projectHooks.beforeCommand(commandName, args);
-    if (localHooks.beforeCommand) localHooks.beforeCommand(commandName, args);
+  beforeCommand: async function (commandName, args) {
+    if (frameworkHooks.beforeCommand) await frameworkHooks.beforeCommand(commandName, args);
+    if (projectHooks.beforeCommand) await projectHooks.beforeCommand(commandName, args);
+    if (localHooks.beforeCommand) await localHooks.beforeCommand(commandName, args);
   },
 
-  beforeFeature: function (uri, feature) {
-    if (frameworkHooks.beforeFeature) frameworkHooks.beforeFeature(uri, feature);
-    if (projectHooks.beforeFeature) projectHooks.beforeFeature(uri, feature);
-    if (localHooks.beforeFeature) localHooks.beforeFeature(uri, feature);
+  beforeFeature: async function (uri, feature) {
+    if (frameworkHooks.beforeFeature) await frameworkHooks.beforeFeature(uri, feature);
+    if (projectHooks.beforeFeature) await projectHooks.beforeFeature(uri, feature);
+    if (localHooks.beforeFeature) await localHooks.beforeFeature(uri, feature);
   },
 
-  beforeScenario: function (context) {
-    if (frameworkHooks.beforeScenario) frameworkHooks.beforeScenario(context);
-    if (projectHooks.beforeScenario) projectHooks.beforeScenario(context);
-    if (localHooks.beforeScenario) localHooks.beforeScenario(context);
+  beforeScenario: async function (context) {
+    if (frameworkHooks.beforeScenario) await frameworkHooks.beforeScenario(context);
+    if (projectHooks.beforeScenario) await projectHooks.beforeScenario(context);
+    if (localHooks.beforeScenario) await localHooks.beforeScenario(context);
   },
 
-  beforeStep: function (step, context) {
-    if (frameworkHooks.beforeStep) frameworkHooks.beforeStep(step, context);
-    if (projectHooks.beforeStep) projectHooks.beforeStep(step, context);
-    if (localHooks.beforeStep) localHooks.beforeStep(step, context);
+  beforeStep: async function (step, context) {
+    if (frameworkHooks.beforeStep) await frameworkHooks.beforeStep(step, context);
+    if (projectHooks.beforeStep) await projectHooks.beforeStep(step, context);
+    if (localHooks.beforeStep) await localHooks.beforeStep(step, context);
   },
 
-  afterStep: function (step, context, {error, result, duration, passed}) {
-    if (frameworkHooks.afterStep) frameworkHooks.afterStep(step, context, {error, result, duration, passed});
-    if (projectHooks.afterStep) projectHooks.afterStep(step, context, {error, result, duration, passed});
-    if (localHooks.afterStep) localHooks.afterStep(step, context, {error, result, duration, passed});
+  afterStep: async function (step, context, {error, result, duration, passed}) {
+    if (frameworkHooks.afterStep) await frameworkHooks.afterStep(step, context, {error, result, duration, passed});
+    if (projectHooks.afterStep) await projectHooks.afterStep(step, context, {error, result, duration, passed});
+    if (localHooks.afterStep) await localHooks.afterStep(step, context, {error, result, duration, passed});
   },
 
-  afterScenario: function (context) {
-    if (frameworkHooks.afterScenario) frameworkHooks.afterScenario(context);
-    if (projectHooks.afterScenario) projectHooks.afterScenario(context);
-    if (localHooks.afterScenario) localHooks.afterScenario(context);
+  afterScenario: async function (context) {
+    if (frameworkHooks.afterScenario) await frameworkHooks.afterScenario(context);
+    if (projectHooks.afterScenario) await projectHooks.afterScenario(context);
+    if (localHooks.afterScenario) await localHooks.afterScenario(context);
   },
 
-  afterFeature: function (uri, feature) {
-    if (frameworkHooks.afterFeature) frameworkHooks.afterFeature(uri, feature);
-    if (projectHooks.afterFeature) projectHooks.afterFeature(uri, feature);
-    if (localHooks.afterFeature) localHooks.afterFeature(uri, feature);
+  afterFeature: async function (uri, feature) {
+    if (frameworkHooks.afterFeature) await frameworkHooks.afterFeature(uri, feature);
+    if (projectHooks.afterFeature) await projectHooks.afterFeature(uri, feature);
+    if (localHooks.afterFeature) await localHooks.afterFeature(uri, feature);
   },
 
-  afterCommand: function (commandName, args, result, error) {
-    if (frameworkHooks.afterCommand) frameworkHooks.afterCommand(commandName, args, result, error);
-    if (projectHooks.afterCommand) projectHooks.afterCommand(commandName, args, result, error);
-    if (localHooks.afterCommand) localHooks.afterCommand(commandName, args, result, error);
+  afterCommand: async function (commandName, args, result, error) {
+    if (frameworkHooks.afterCommand) await frameworkHooks.afterCommand(commandName, args, result, error);
+    if (projectHooks.afterCommand) await projectHooks.afterCommand(commandName, args, result, error);
+    if (localHooks.afterCommand) await localHooks.afterCommand(commandName, args, result, error);
   },
 
-  afterTest: function (test, context, { error, result, duration, passed, retries }) {
-    if (frameworkHooks.afterTest) frameworkHooks.afterTest(test, context, { error, result, duration, passed, retries });
-    if (projectHooks.afterTest) projectHooks.afterTest(test, context, { error, result, duration, passed, retries });
-    if (localHooks.afterTest) localHooks.afterTest(test, context, { error, result, duration, passed, retries });
+  afterTest: async function (test, context, { error, result, duration, passed, retries }) {
+    if (frameworkHooks.afterTest) await frameworkHooks.afterTest(test, context, { error, result, duration, passed, retries });
+    if (projectHooks.afterTest) await projectHooks.afterTest(test, context, { error, result, duration, passed, retries });
+    if (localHooks.afterTest) await localHooks.afterTest(test, context, { error, result, duration, passed, retries });
   },
 
-  afterSuite: function (suite) {
-    if (frameworkHooks.afterSuite) frameworkHooks.afterSuite(suite);
-    if (projectHooks.afterSuite) projectHooks.afterSuite(suite);
-    if (localHooks.afterSuite) localHooks.afterSuite(suite);
+  afterSuite: async function (suite) {
+    if (frameworkHooks.afterSuite) await frameworkHooks.afterSuite(suite);
+    if (projectHooks.afterSuite) await projectHooks.afterSuite(suite);
+    if (localHooks.afterSuite) await localHooks.afterSuite(suite);
   },
 
-  after: function (result, capabilities, specs) {
-    if (frameworkHooks.after) frameworkHooks.after(result, capabilities, specs);
-    if (projectHooks.after) projectHooks.after(result, capabilities, specs);
-    if (localHooks.after) localHooks.after(result, capabilities, specs);
+  after: async function (result, capabilities, specs) {
+    if (frameworkHooks.after) await frameworkHooks.after(result, capabilities, specs);
+    if (projectHooks.after) await projectHooks.after(result, capabilities, specs);
+    if (localHooks.after) await localHooks.after(result, capabilities, specs);
   },
 
-  afterSession: function (config, capabilities, specs) {
-    if (frameworkHooks.afterSession) frameworkHooks.afterSession(config, capabilities, specs);
-    if (projectHooks.afterSession) projectHooks.afterSession(config, capabilities, specs);
-    if (localHooks.afterSession) localHooks.afterSession(config, capabilities, specs);
+  afterSession: async function (config, capabilities, specs) {
+    if (frameworkHooks.afterSession) await frameworkHooks.afterSession(config, capabilities, specs);
+    if (projectHooks.afterSession) await projectHooks.afterSession(config, capabilities, specs);
+    if (localHooks.afterSession) await localHooks.afterSession(config, capabilities, specs);
   },
 
-  onComplete: function (exitCode, config, capabilities, results) {
-    if (frameworkHooks.onComplete) frameworkHooks.onComplete(exitCode, config, capabilities, results);
-    if (projectHooks.onComplete) projectHooks.onComplete(exitCode, config, capabilities, results);
-    if (localHooks.onComplete) localHooks.onComplete(exitCode, config, capabilities, results);
+  onComplete: async function (exitCode, config, capabilities, results) {
+    if (frameworkHooks.onComplete) await frameworkHooks.onComplete(exitCode, config, capabilities, results);
+    if (projectHooks.onComplete) await projectHooks.onComplete(exitCode, config, capabilities, results);
+    if (localHooks.onComplete) await localHooks.onComplete(exitCode, config, capabilities, results);
   },
 
-  onReload: function(oldSessionId, newSessionId) {
-    if (frameworkHooks.onReload) frameworkHooks.onReload(oldSessionId, newSessionId);
-    if (projectHooks.onReload) projectHooks.onReload(oldSessionId, newSessionId);
-    if (localHooks.onReload) localHooks.onReload(oldSessionId, newSessionId);
+  onReload: async function(oldSessionId, newSessionId) {
+    if (frameworkHooks.onReload) await frameworkHooks.onReload(oldSessionId, newSessionId);
+    if (projectHooks.onReload) await projectHooks.onReload(oldSessionId, newSessionId);
+    if (localHooks.onReload) await localHooks.onReload(oldSessionId, newSessionId);
   },
 }

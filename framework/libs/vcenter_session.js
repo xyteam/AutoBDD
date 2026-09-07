@@ -11,19 +11,19 @@ module.exports = {
     },
 
     // define login function
-    loginVcenter: function(session, vCenterURL) {
+    loginVcenter: async function(session, vCenterURL) {
         const [vCenterHost, vCenterUser, vCenterPass] = this.getVcenterInfo(vCenterURL);
-        session.url(`https://${vCenterHost}/ui/`);
-        session.pause(500); 
-        browser_session.bypassChromeWarningIfEncounter(session);
+        await session.url(`https://${vCenterHost}/ui/`);
+        await session.pause(500);
+        await browser_session.bypassChromeWarningIfEncounter(session);
         try {
-            session.$('#username').waitForExist(3000);
-            session.$('#username').setValue(vCenterUser);
-            session.$('#password').setValue(vCenterPass);
-            session.$('#submit').click();
+            await (await session.$('#username')).waitForExist(3000);
+            await (await session.$('#username')).setValue(vCenterUser);
+            await (await session.$('#password')).setValue(vCenterPass);
+            await (await session.$('#submit')).click();
         } catch(e) {}
         try {
-            session.$('.settings').waitForDisplayed(5*1000);
+            await (await session.$('.settings')).waitForDisplayed(5*1000);
             return true;
         } catch(e) {
             return false;
@@ -31,26 +31,26 @@ module.exports = {
     },
 
     // define logout function
-    logoutVcenter: function(session, vCenterURL) {
+    logoutVcenter: async function(session, vCenterURL) {
         const [vCenterHost, vCenterUser, vCenterPass] = this.getVcenterInfo(vCenterURL);
-        session.url(`https://${vCenterHost}/ui/`);
-        session.pause(500);
-        browser_session.bypassChromeWarningIfEncounter(session);
+        await session.url(`https://${vCenterHost}/ui/`);
+        await session.pause(500);
+        await browser_session.bypassChromeWarningIfEncounter(session);
         try {
-            session.$('.nav-icon.user-menu-large').waitForExist(3000);
-            session.$('.nav-icon.user-menu-large').click();
-            session.$('a=Logout').click();
+            await (await session.$('.nav-icon.user-menu-large')).waitForExist(3000);
+            await (await session.$('.nav-icon.user-menu-large')).click();
+            await (await session.$('a=Logout')).click();
         } catch(e) {}
         try {
-            session.$('#password').waitForDisplayed(5*1000);  
+            await (await session.$('#password')).waitForDisplayed(5*1000);
             return true;
         } catch(e) {
             return false;
         }
     },
 
-    reLoginVcenter: function(session, vCenterURL) {
-        this.logoutVcenter(session, vCenterURL);
-        return this.loginVcenter(session, vCenterURL);
+    reLoginVcenter: async function(session, vCenterURL) {
+        await this.logoutVcenter(session, vCenterURL);
+        return await this.loginVcenter(session, vCenterURL);
     },
 }

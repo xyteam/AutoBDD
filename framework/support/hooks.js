@@ -89,7 +89,7 @@ const frameworkHooks = {
    * cucumber framework hooks
    **/ 
 
-   beforeFeature: function(uri, feature) {
+   beforeFeature: async function(uri, feature) {
     console.log(`Feature: ${feature.document.feature.name}\n`);
     currentScenarioName = '';
     currentStepNumber = 0;
@@ -121,14 +121,14 @@ const frameworkHooks = {
     }
   },
 
-  beforeScenario: function(context) {
+  beforeScenario: async function(context) {
     console.log(`Scenario: ${context.pickle.name}\n`);
     const scenarioName = context.pickle.name;
     currentScenarioName = scenarioName;
     currentStepNumber = 0;
-    browser.windowHandleMaximize();
+    await browser.windowHandleMaximize();
     // browser.setTimeouts(implicit, pageLoad, script)
-    browser.setTimeouts(null, null, 3600*1000);
+    await browser.setTimeouts(null, null, 3600*1000);
   },
 
   beforeStep: function(step, context) {
@@ -140,7 +140,7 @@ const frameworkHooks = {
     }
   },
 
-  afterStep: function(step, context, {error, result, duration, passed}) {
+  afterStep: async function(step, context, {error, result, duration, passed}) {
     // to be done for real steps
     if (step.text.length > 0) {
       // start recording
@@ -175,12 +175,12 @@ const frameworkHooks = {
 
       // show browser log
       if (process.env.BROWSERLOG == 1) {
-        browser_session.showErrorLog(browser);
+        await browser_session.showErrorLog(browser);
       }
     }
   },
 
-  afterScenario: function(context) {
+  afterScenario: async function(context) {
     // console.log(context);
     const resultStatus = context.result.status;
     const feature_uri = context.gherkinDocument.uri;
@@ -190,7 +190,7 @@ const frameworkHooks = {
     } else {
       currentScenarioStatus = 'Failed'
       console.log('browser error log:');
-      browser_session.showErrorLog(browser);
+      await browser_session.showErrorLog(browser);
     }
     const remarkText = (process.env.SCREENREMARK == 0) ? '' : `Scenario ${currentScenarioStatus}: ${currentScenarioName}`;
     const remarkColor = (currentScenarioStatus == 'Passed') ? 'green' : 'red';
@@ -204,7 +204,7 @@ const frameworkHooks = {
       framework_libs.stopRecording(currentScenarioName);
     }
     if (process.env.MOVIE == 1) {
-      framework_libs.renameRecording(currentScenarioName, currentScenarioStatus, currentStepNumber);
+      await framework_libs.renameRecording(currentScenarioName, currentScenarioStatus, currentStepNumber);
     }
 
     // process tags for report attachement
@@ -235,14 +235,14 @@ const frameworkHooks = {
 
     // need to perform these steps before tear down RDP
     if (process.env.SSHHOST && process.env.SSHPORT) {
-      changeBrowserZoom(100);
+      await changeBrowserZoom(100);
     }
 
     // need this pause for screenshots rename procss to finish
-    browser.pause(1000);
+    await browser.pause(1000);
   },
   
-  afterFeature: function(uri, feature) {
+  afterFeature: async function(uri, feature) {
     if (process.env.SSHHOST && process.env.SSHPORT) {
       try {
         framework_libs.stopRdesktop();

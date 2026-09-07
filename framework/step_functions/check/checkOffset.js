@@ -6,7 +6,7 @@
  * @param  {String}   expectedPosition  The position to check against
  * @param  {String}   axis              The axis to check on (x or y)
  */
-module.exports = (elem, falseCase, expectedPosition, axis) => {
+module.exports = async (elem, falseCase, expectedPosition, axis) => {
     /**
      * Get the location of the element on the given axis
      * @type {[type]}
@@ -14,7 +14,7 @@ module.exports = (elem, falseCase, expectedPosition, axis) => {
     // getLocation may return a sub-pixel value (e.g. 1084.59375 vs an expected
     // CSS position of 1084). Compare within a small tolerance so sub-pixel
     // rendering does not fail an otherwise-correct position check.
-    const location = browser.$(elem).getLocation(axis);
+    const location = await (await browser.$(elem)).getLocation(axis);
     const tolerance = 1; // allow up to 1px sub-pixel drift
 
     /**
@@ -29,13 +29,13 @@ module.exports = (elem, falseCase, expectedPosition, axis) => {
     }
     const matches = Math.abs(location - intExpectedPosition) <= tolerance;
     if (falseCase) {
-        expect(matches).toBe(false,
+        await expect(matches).toBe(false,
                 `Element "${elem}" should not be positioned at ` +
                 `${intExpectedPosition}px on the ${axis} axis, but was found ` +
                 `at ${location}px`
             );
     } else {
-        expect(matches).toBe(true,
+        await expect(matches).toBe(true,
                 `Element "${elem}" should be positioned at ` +
                 `${intExpectedPosition}px on the ${axis} axis, but was found ` +
                 `at ${location}px`

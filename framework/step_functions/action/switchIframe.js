@@ -4,7 +4,7 @@
  * @param  {String}   name       The name of the iframe 
  */
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (index, name) => {
+module.exports = async (index, name) => {
     /**
      * The index of the option to select
      * @type {Int}
@@ -19,12 +19,12 @@ module.exports = (index, name) => {
     }
 
     if (index && index == 'parent') {
-        browser.switchToParentFrame();
+        await browser.switchToParentFrame();
     } else if (index && index == 'last') {
-        iFrameIndex = $$(iFrameElement).length -1;
+        iFrameIndex = (await $$(iFrameElement)).length -1;
     } else {
         iFrameIndex = (index) ? parseInt(index, 10) - 1 : 0;
-        $(iFrameElement).waitForExist();
-        browser.switchToFrame($$(iFrameElement)[iFrameIndex]);
+        await (await $(iFrameElement)).waitForExist();
+        await browser.switchToFrame((await $$(iFrameElement))[iFrameIndex]);
     }
 };

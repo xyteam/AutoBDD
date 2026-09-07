@@ -7,7 +7,7 @@ const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (targetType, targetName) => {
+module.exports = async (targetType, targetName) => {
     /**
      * The expected text to validate against
      * @type {String}
@@ -21,28 +21,27 @@ module.exports = (targetType, targetName) => {
             fileTarget = getDownloadDir() + parsedTargetName.replace(/ /g, '\\ ');
             urlTarget = encodeURI('file://' + globSync(fileTarget)[0]); // we take the first match
             console.log(urlTarget);
-            browser.url(urlTarget);
+            await browser.url(urlTarget);
             break;
         case "file":
             fileTarget = parsedTargetName.replace(/^~\//, process.env.HOME + '/').replace(/ /g, '\ ');
             urlTarget = encodeURI('file://' + globSync(fileTarget)[0]); // we take the first match
             console.log(urlTarget);
-            browser.url(urlTarget);
+            await browser.url(urlTarget);
             break;
         case "path":
             urlTarget = encodeURI(browser.options.baseUrl + parsedTargetName);
             console.log(urlTarget);
-            browser.url(urlTarget);
+            await browser.url(urlTarget);
             break;
         case "url":
         default:
             urlTarget = encodeURI(parsedTargetName);
             try {
                 console.log(urlTarget);
-                browser.url(urlTarget);
+                await browser.url(urlTarget);
             } catch (e) {
                 console.log(e.message);
             }
         }
 };
-

@@ -87,8 +87,8 @@ Given(
 
 Given(
     /^(?::browser: )?the page url is( not)* "([^"]*)?"$/,
-    (falseCase, value) => {
-        checkUrl('full URL', falseCase, 'is', value);
+    async (falseCase, value) => {
+        await checkUrl('full URL', falseCase, 'is', value);
     }
 );
 

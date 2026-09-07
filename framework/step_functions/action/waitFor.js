@@ -7,11 +7,12 @@
  * @param  {String}   state                    State to check for (default
  *                                             existence)
  */
-const waitForContent = (element, ms, getWhat, falseCase) => {
+const waitForContent = async (element, ms, getWhat, falseCase) => {
     try {
         // getText, getValue 
-        return browser.waitUntil(
-            () => ($(element)[getWhat]().length > 0) == !falseCase,
+        const myElement = await $(element);
+        return await browser.waitUntil(
+            async () => ((await myElement[getWhat]()).length > 0) == !falseCase,
             {
                 timeout: ms,
                 timeoutMsg: `wait for ${getWhat} timeout`
@@ -21,12 +22,13 @@ const waitForContent = (element, ms, getWhat, falseCase) => {
         return false;
     }
 }
-const waitForCondition = (element, ms, isWhat, falseCase, element2) => {
+const waitForCondition = async (element, ms, isWhat, falseCase, element2) => {
     // isClickable, isDisplayed, isDisplayedInViewPort, isEnabled, isExisting, isFocused, isSelected,
     // isEqual(with element2)
     try {
-        return browser.waitUntil(
-            () => ($(element)[isWhat](element2)) == !falseCase,
+        const myElement = await $(element);
+        return await browser.waitUntil(
+            async () => (await myElement[isWhat](element2)) == !falseCase,
             {
                 timeout: ms,
                 timeoutMsg: `wait for ${isWhat} timeout`
@@ -40,7 +42,7 @@ const waitForCondition = (element, ms, isWhat, falseCase, element2) => {
 const parseExpectedText = require('../common/parseExpectedText');
 
 module.exports =
-(elem, ms, falseCase, state) => {
+async (elem, ms, falseCase, state) => {
     /**
      * Parsed element selector
      * @type {String}
@@ -70,10 +72,10 @@ module.exports =
         var parsedState = myState.replace('be ', '');
         parsedState = parsedState.charAt(0).toUpperCase() + parsedState.slice(1);
         const command = `waitFor${parsedState}`;
-        browser.$(myElem)[command](intMs, !!falseCase);
+        await (await browser.$(myElem))[command](intMs, !!falseCase);
     } else if (['getText', 'getValue'].includes(myState)) {
-        waitForContent(myElem, intMs, myState, !!falseCase);
+        await waitForContent(myElem, intMs, myState, !!falseCase);
     } else {
-        waitForCondition(myElem, intMs, myState, !!falseCase);
+        await waitForCondition(myElem, intMs, myState, !!falseCase);
     }
 };

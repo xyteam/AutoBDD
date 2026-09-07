@@ -5,11 +5,11 @@
 
 const parseExpectedText = require('../common/parseExpectedText');
 
-module.exports = (selector) => {
+module.exports = async (selector) => {
     /**
      * The expected text to validate against
      * @type {String}
      */
     var parsedSelector = parseExpectedText(selector);
-    browser.$(parsedSelector).scrollIntoView();
+    await (await browser.$(parsedSelector)).scrollIntoView();
 };

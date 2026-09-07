@@ -9,7 +9,7 @@ const { When } = require('@cucumber/cucumber');
 
 When(/^(?::vcenter: )?I change the VM with config below:$/,
   { timeout: 15 * 60 * 1000 },
-  (table) => {
+  async (table) => {
     // process config table
     const config = table.rowsHash();
     const myVmName = parseExpectedText(config.vmName);
@@ -35,19 +35,19 @@ When(/^(?::vcenter: )?I change the VM with config below:$/,
     const cmdString = `govc vm.change -cpu-hot-add-enabled -memory-hot-add-enabled -latency=high ${parmCpuCount} ${parmMemSize} ${parmMemLimit} ${parmMemReservation} ${parmMemShares} ${parmVCenterURL} -k=true ${parmDcName} ${parmVmName}`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
-    browser_session.displayMessage(browser, resultString);
+    await browser_session.displayMessage(browser, resultString);
     const exitCode = JSON.parse(resultString).exitcode;
     if (exitCode == 0) {
       console.log('change memory size action succeed.');
     } else {
       console.log('change memory size action failed. maybe power-off fist?');
     }
-    expect(exitCode).toBe(0);
+    await expect(exitCode).toBe(0);
   }
 );
 
 When(/^(?::vcenter: )?I connect the "(.*)" to "(.*)" for the VM "(.*)" inside esxi dc "(.*)"$/,
-  (nicName, netName, vmName, dcName) => {
+  async (nicName, netName, vmName, dcName) => {
     const myNicName = parseExpectedText(nicName);
     const myNetName = parseExpectedText(netName);
     const myVmName = parseExpectedText(vmName);
@@ -57,7 +57,7 @@ When(/^(?::vcenter: )?I connect the "(.*)" to "(.*)" for the VM "(.*)" inside es
     const cmdString = `govc ${govcCmd} -u="${myVCenterURL}" -k=true -dc="${myDcName}" -vm="${myVmName}" -net "${myNetName}" "${myNicName}"`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
-    browser_session.displayMessage(browser, resultString);
+    await browser_session.displayMessage(browser, resultString);
     const exitCode = JSON.parse(resultString).exitcode;
     if (exitCode == 0) {
       console.log('network changed');
@@ -69,7 +69,7 @@ When(/^(?::vcenter: )?I connect the "(.*)" to "(.*)" for the VM "(.*)" inside es
 
 When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi dc "(.*)" path "(.*)" esxi host "(.*)"$/,
   { timeout: 15 * 60 * 1000 },
-  (esxiCmd, vmName, dcName, dcPath, esxiHost) => {
+  async (esxiCmd, vmName, dcName, dcPath, esxiHost) => {
     const myVmName = parseExpectedText(vmName);
     const myDcName = parseExpectedText(dcName);
     const myDcPath = parseExpectedText(dcPath) || 'host';
@@ -90,11 +90,11 @@ When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi d
     const cmdString = `govc ${govcCmd} -u="${myVCenterURL}" -k=true -dc="${myDcName}" "/${myDcName}/${myDcPath}/${myEsxiHost}/${myEsxiHost}/${myVmName}"`;
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
-    browser_session.displayMessage(browser, resultString);
+    await browser_session.displayMessage(browser, resultString);
     const exitCode = JSON.parse(resultString).exitcode;
     if (exitCode == 0) {
       console.log('action accepted, waiting 90 seconds...');
-      browser.pause(9000);
+      await browser.pause(9000);
     } else {
       console.log('action not needed');
     }
@@ -103,7 +103,7 @@ When(/^(?::vcenter: )?I (power on|power off|destroy) the VM "(.*)" inside esxi d
 
 When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside esxi dc "(.*)"$/,
   { timeout: 15 * 60 * 1000 },
-  (reopen, vmName, dcName) => {
+  async (reopen, vmName, dcName) => {
     const myVmName = parseExpectedText(vmName);
     const myDcName = parseExpectedText(dcName);
     const myReopen = reopen || false;
@@ -119,27 +119,27 @@ When(/^(?::vcenter: )?I (?:(re-))?open the HTML5 console to the VM "(.*)" inside
     console.log(`updated console url: ${myConsoleUrl}`);
     // re-login if re-open
     if (myReopen) {
-      vcenter_session.reLoginVcenter(browser, myVCenterURL);
+      await vcenter_session.reLoginVcenter(browser, myVCenterURL);
     } else {
-      vcenter_session.loginVcenter(browser, myVCenterURL);
+      await vcenter_session.loginVcenter(browser, myVCenterURL);
     }
     // open VM console
     try {
-      browser.url(myConsoleUrl);
+      await browser.url(myConsoleUrl);
     } catch(e) {
-      vcenter_session.reLoginVcenter(browser, myVCenterURL);
-      browser.url(myConsoleUrl);
+      await vcenter_session.reLoginVcenter(browser, myVCenterURL);
+      await browser.url(myConsoleUrl);
     }
-    browser.pause(3000);
+    await browser.pause(3000);
     var consoleScreenText = JSON.parse(screen_session.screenFindImage('Screen-60'))[0].text;
     let loopCount = 3;
     // take a peek and re-login if the console is disconnected
-    while (loopCount > 0 && (browser.$('a=Back to login screen').isExisting() || consoleScreenText.length == 0 || consoleScreenText.join(' ').includes('The console has been disconnected'))) {
+    while (loopCount > 0 && (await (await browser.$('a=Back to login screen')).isExisting() || consoleScreenText.length == 0 || consoleScreenText.join(' ').includes('The console has been disconnected'))) {
       loopCount--;
       // open vSphere HTML5 ui, logout and re-login, in order to get a new session
-      vcenter_session.reLoginVcenter(browser, myVCenterURL);
-      browser.url(myConsoleUrl);
-      browser.pause(3000);
+      await vcenter_session.reLoginVcenter(browser, myVCenterURL);
+      await browser.url(myConsoleUrl);
+      await browser.pause(3000);
       consoleScreenText = JSON.parse(screen_session.screenFindImage('Screen-60'))[0].text;
     }
   }
@@ -174,7 +174,7 @@ When(/^(?::vcenter: )?I (?:(re-))?open the SSH console to the VM "(.*)" inside e
 
 When(/^(?::vcenter: )?I use the OVA URL to deploy an VM with config below:$/,
   { timeout: 60 * 60 * 1000 },
-  (table) => {
+  async (table) => {
     const config = table.rowsHash();
     const myDcName = parseExpectedText(config.dcName);
     const myDcPath = parseExpectedText(config.dcPath) || 'host';
@@ -191,10 +191,10 @@ When(/^(?::vcenter: )?I use the OVA URL to deploy an VM with config below:$/,
     console.log(cmdString);
     const resultString = cmdline_session.runCmd(cmdString);
     try {
-      browser_session.displayMessage(browser, resultString);
+      await browser_session.displayMessage(browser, resultString);
     } catch(e) {
       /* no-op */
     }
-    expect(JSON.parse(resultString).exitcode).toBe(0);
+    await expect(JSON.parse(resultString).exitcode).toBe(0);
   }
 );

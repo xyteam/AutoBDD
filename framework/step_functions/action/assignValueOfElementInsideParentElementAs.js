@@ -9,8 +9,8 @@
  * @param  {String}  ifExists           if exists
  */
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (type, targetElementIndex, targetElement, parentElementIndex, parentElement, varName, ifExists) => {
-    const assignAction = () => {
+module.exports = async (type, targetElementIndex, targetElement, parentElementIndex, parentElement, varName, ifExists) => {
+    const assignAction = async () => {
         const myTargetElement = parseExpectedText(targetElement);
         const myParentElement = parseExpectedText(parentElement);
         const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
@@ -19,22 +19,24 @@ module.exports = (type, targetElementIndex, targetElement, parentElementIndex, p
         const getWhat = (type == 'value') ? 'getValue' : 'getText';
         var retrivedValue;
         if (parentElement) {
-            $(myParentElement).waitForExist();
-            retrivedValue = $$(myParentElement)[parentElementIndexInt].$$(myTargetElement)[targetElementIndexInt][getWhat]();
+            await (await $(myParentElement)).waitForExist();
+            const parentElementList = await $$(myParentElement);
+            const targetElementList = await parentElementList[parentElementIndexInt].$$(myTargetElement);
+            retrivedValue = await targetElementList[targetElementIndexInt][getWhat]();
         } else {
-            retrivedValue = $$(myTargetElement)[targetElementIndexInt][getWhat]();
+            retrivedValue = await (await $$(myTargetElement))[targetElementIndexInt][getWhat]();
         }
         process.env[varName] = (type == 'number') ? retrivedValue.match(/\d+/)[0] : retrivedValue;
         console.log(`assigned "${process.env[varName]}" to ENV:${varName}`);    
     }
     if (ifExists) {
         try {
-            assignAction();
+            await assignAction();
         } catch (e) {
             console.log(`try: element ${targetElement} does not exist`);
         }
     } else {
-        assignAction();
+        await assignAction();
     }
 
 };

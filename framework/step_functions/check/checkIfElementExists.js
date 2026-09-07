@@ -5,21 +5,21 @@
  * @param  {String}  atLest    Check if the element exists atLest this number (as string)
  *                             of times
  */
-module.exports = (element, falseCase, atLest) => {
+module.exports = async (element, falseCase, atLest) => {
     const myAtLeast = atLest || 1;
     /**
      * The number of elements found in the DOM
      * @type {Int}
      */
-    const nrOfElements = browser.$$(element).length;
+    const nrOfElements = (await browser.$$(element)).length;
 
     if (falseCase === true) {
-        expect(nrOfElements).toBe(
+        await expect(nrOfElements).toBe(
             0,
             `Element with selector "${element}" should not exist on the page`
         );
     } else {
-        expect(nrOfElements).not.toBeLessThan(
+        await expect(nrOfElements).not.toBeLessThan(
             myAtLeast,
             `Element with selector "${element}" should exist on at least ${myAtLeast} times the page`
         );

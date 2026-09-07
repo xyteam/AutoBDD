@@ -4,20 +4,20 @@
  * @param  {String}   falseCase Whether to check if the element is visible
  *                              within the current viewport or not
  */
-module.exports = (element, falseCase) => {
+module.exports = async (element, falseCase) => {
     /**
      * The state of visibility of the given element inside the viewport
      * @type {Boolean}
      */
-    const isVisible = browser.$(element).isDisplayedInViewport();
+    const isVisible = await (await browser.$(element)).isDisplayedInViewport();
 
     if (falseCase) {
-        expect(isVisible).not.toBe(
+        await expect(isVisible).not.toBe(
                 true,
                 `Expected element "${element}" to be outside the viewport`
             );
     } else {
-        expect(isVisible).toBe(
+        await expect(isVisible).toBe(
                 true,
                 `Expected element "${element}" to be inside the viewport`
             );

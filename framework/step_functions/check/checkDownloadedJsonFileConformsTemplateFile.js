@@ -9,7 +9,7 @@ const fs_session = require('../../libs/fs_session');
 const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
 const parseExpectedText = require('../common/parseExpectedText');
-module.exports = (jsonFileName, templateFileName) => {
+module.exports = async (jsonFileName, templateFileName) => {
     const jsonFile_extSplit = jsonFileName.split('.');
     const jsonFileExt = jsonFile_extSplit.length > 1 ? jsonFile_extSplit.pop() : 'json';
     const myJsonFileName = jsonFile_extSplit.join('.');
@@ -27,8 +27,8 @@ module.exports = (jsonFileName, templateFileName) => {
     const ajv = new Ajv();
     const validate = ajv.compile(jsonSchema);
     const checkData = (jsonData.items) ? jsonData.items : jsonData; 
-    checkData.forEach(data => {
+    for (const data of checkData) {
         let valid = validate(data);
-        expect(valid).toBe(true, `Invalid data entry:\ndata:\n${JSON.stringify(data)}\nerror:\n${ajv.errorsText(validate.errors)}`);
-    })    
+        await expect(valid).toBe(true, `Invalid data entry:\ndata:\n${JSON.stringify(data)}\nerror:\n${ajv.errorsText(validate.errors)}`);
+    }    
 }
