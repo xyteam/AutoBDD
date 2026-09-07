@@ -14,7 +14,7 @@ RUN \
     # google-chrome stable (modern)
     rm -f /etc/apt/sources.list.d/google-chrome.list && \
     mkdir -p /usr/share/keyrings && \
-    curl -fsSL --no-check-certificate https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
+    curl -fsSL -k https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
     # k6
     curl -fsSL https://dl.k6.io/key.gpg | gpg --dearmor -o /usr/share/keyrings/k6.gpg && \
@@ -24,13 +24,15 @@ RUN \
         nodejs \
         google-chrome-stable \
         k6 && \
-    # Install chromedriver matching the installed google-chrome-stable onto PATH
+    # Install chromedriver matching the installed google-chrome-stable onto PATH.
+    # Modern chromedriver is published via Chrome for Testing (the old
+    # chromedriver.storage.googleapis.com API no longer carries recent majors).
     CHROME_VER=$(google-chrome --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+') && \
-    CHROME_MAJOR=$(echo "$CHROME_VER" | cut -d. -f1) && \
-    DRIVER_URL="https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR}" && \
-    CD_VER=$(curl -fsSL "$DRIVER_URL" | tr -d '\n') && \
-    curl -fsSL -o /tmp/chromedriver_linux64.zip "https://chromedriver.storage.googleapis.com/${CD_VER}/chromedriver_linux64.zip" && \
-    unzip -o /tmp/chromedriver_linux64.zip -d /usr/local/bin && \
-    chmod +x /usr/local/bin/chromedriver && \
-    rm -f /tmp/chromedriver_linux64.zip && \
-    echo "installed chrome ${CHROME_VER}, chromedriver ${CD_VER}"
+    CFT_JSON=$(curl -fsSL https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json) && \
+    DRIVER_URL=$(echo "$CFT_JSON" | jq -r --arg v "$CHROME_VER" '.versions[] | select(.version == $v) | .downloads.chromedriver[] | select(.platform == "linux64") | .url' | head -1) && \
+    test -n "$DRIVER_URL" && \
+    curl -fsSL -o /tmp/chromedriver_linux64.zip "$DRIVER_URL" && \
+    unzip -o /tmp/chromedriver_linux64.zip -d /tmp/cd && \
+    install -m 0755 /tmp/cd/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
+    rm -rf /tmp/chromedriver_linux64.zip /tmp/cd && \
+    echo "installed chrome ${CHROME_VER}, chromedriver ${DRIVER_URL}"
