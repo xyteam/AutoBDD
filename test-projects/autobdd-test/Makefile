@@ -3,7 +3,7 @@ testSectionEnd="----------\nDone Test\n=========="
 
 .PHONY: docker-run test-all test clean e2e-test cypress-test jest-test pytest-test k6-test
 
-# export dynamic env for docker-compose (not shell-substitutable in .env)
+# export dynamic env for docker compose (not shell-substitutable in .env)
 export USER ?= $(shell whoami)
 export HOSTOS ?= $(shell uname -s)
 export USERID ?= $(shell id -u)
@@ -12,22 +12,22 @@ export PASSWORD ?= ubuntu
 
 docker-run:
 	@echo make $@
-	docker-compose run --rm autobdd-test-run "xvfb-runner.sh make ${jobs}"
+	docker compose run --rm autobdd-test-run "xvfb-runner.sh make ${jobs}"
 docker-run-bash:
 	@echo make $@
-	docker-compose run --rm autobdd-test-run "/bin/bash"
+	docker compose run --rm autobdd-test-run "/bin/bash"
 docker-up:
 	@echo make $@
-	docker-compose up -d autobdd-test-dev
+	docker compose up -d autobdd-test-dev
 docker-logs:
 	@echo make $@
-	docker-compose logs autobdd-test-dev
+	docker compose logs autobdd-test-dev
 docker-logs-f:
 	@echo make $@
-	docker-compose logs -f autobdd-test-dev
+	docker compose logs -f autobdd-test-dev
 docker-down:
 	@echo make $@
-	docker-compose down
+	docker compose down
 docker-ssh:
 	ssh $$USER@localhost -p 2224 || exit $?
 

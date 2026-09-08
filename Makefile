@@ -2,7 +2,7 @@
 # docker
 docker-run:
 	@echo make $@
-	cd .docker && docker-compose run --rm autobdd-run "make $(jobs)" || exit $?
+	cd .docker && docker compose run --rm autobdd-run "make $(jobs)" || exit $?
 	cd -
 
 autobdd-clean-all: autobdd-clean-image autobdd-clean-nodejs autobdd-clean-ubuntu
