@@ -55,6 +55,16 @@ const flashSecs = (argv.flash != null && argv.flash != 'undefined') ? parseFloat
 const flashOnMatch = (region) => {
   try {
     region.highlight(flashSecs);
+    // Capture the flashing screen so the step screenshot (taken after the step)
+    // can show the highlighted match. Scoped by display number so parallel xvfb
+    // workers (one display each) cannot clobber each other's capture.
+    const dispNum = parseInt(String(process.env.DISPLAY || '').split(':')[1] || '0', 10);
+    if (process.env.SCREENSHOT && parseInt(process.env.SCREENSHOT, 10) >= 1) {
+      try {
+        const shot = `/tmp/abdd_flash_${dispNum}.png`;
+        require('child_process').execSync(`import -silent -display :${dispNum} -window root ${shot}`, { stdio: 'ignore' });
+      } catch (e) { /* flash capture is best-effort */ }
+    }
     // synchronous hold so the async highlight paints for the full duration
     const end = Date.now() + (flashSecs * 1000);
     while (Date.now() < end) {}
