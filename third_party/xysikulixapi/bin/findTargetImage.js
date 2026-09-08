@@ -45,6 +45,22 @@ const Screen = xysikulixapi.Screen;
 // Oculix bundles its own tessdata and auto-configures OCR (eng by default); the
 // SikuliX-style OCR.globalOptions().dataPath(...) init is not applicable here.
 
+// Flash the found region. Under Oculix/java-bridge Region.highlight() is
+// fire-and-forget (paints on a background thread and returns immediately), so if
+// this process calls process.exit() right after, the red box is torn down before
+// it ever paints (the old synchronous silulix highlight did not have this
+// problem). Flash for a visible duration and then hold the process so the box
+// actually renders and is observable (by eye / VNC / screen recording).
+const flashSecs = (argv.flash != null && argv.flash != 'undefined') ? parseFloat(argv.flash) : 0.3;
+const flashOnMatch = (region) => {
+  try {
+    region.highlight(flashSecs);
+    // synchronous hold so the async highlight paints for the full duration
+    const end = Date.now() + (flashSecs * 1000);
+    while (Date.now() < end) {}
+  } catch (e) { /* flashing is best-effort; never fail a find because of it */ }
+};
+
 // defind findImage function
 const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount) => {
   // all input vars should be parsed or quoted
@@ -75,7 +91,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
       oneTarget = new Region(findRegion.getBoundsSync()).growSync(-screenMargin);
       returnItem.text = oneTarget.textSync().split('\n');
       [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(oneTarget);
-      oneTarget.highlight(0.1);
+      flashOnMatch(oneTarget);
       returnArray.push(returnItem);
     } else {
       const oneSample = (new Pattern(myImagePath)).similarSync(myImageSimilarity);
@@ -90,7 +106,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
         returnItem.text = oneTarget.textSync().split('\n');
         if (returnItem.score >= myImageSimilarity && returnItem.score <= myMaxSim && returnItem.text.join('\n').match(myRegex)) {
           matchCount += 1;
-          oneTarget.highlight(0.1);
+          flashOnMatch(oneTarget);
           returnArray.push(returnItem);
         }
       }
