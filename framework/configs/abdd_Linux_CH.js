@@ -21,7 +21,15 @@ const myParallelRunPort = 4444 + parseInt(process.env.DISPLAY.slice(-3).replace(
 
 // for Linux chrome
 const myChromeProfilePath = safeQuote(process.env.myChromeProfilePath) || '/tmp/chrome_profile_' + process.env.DISPLAY.substr(1);
-fs.existsSync(myChromeProfilePath) || fs.mkdirSync(myChromeProfilePath);
+if (!fs.existsSync(myChromeProfilePath)) {
+  fs.mkdirSync(myChromeProfilePath);
+  // Chrome 115+ shows a first-run "Terms of Service" dialog on a fresh profile that
+  // overlays the page and hides screen-match targets (@IMAGE). Pre-mark the profile as
+  // first-run-finished so the dialog never appears.
+  try {
+    fs.writeFileSync(`${myChromeProfilePath}/Local State`, JSON.stringify({ browser: { first_run_finished: true } }));
+  } catch (e) {}
+}
 process.env.debugX = safeQuote(process.env.debugX) || 1;
 
 // const myBrowserProxySetting = (process.env.http_proxy) ? "--proxy-server=" + process.env.http_proxy : "--no-proxy-server";
@@ -92,14 +100,10 @@ exports.config = {
             args: [
                 // '--headless',
                 // '--display=' + process.env.DISPLAY,
-                '--disable-infobars',
                 "--window-size=" + myDISPLAYSIZE.replace('x', ','),
                 // "--start-maximized",
                 // '--window-size=1920,1200',
                 "--user-data-dir=" + myChromeProfilePath,      
-                '--no-sandbox',
-                '--disable-gpu',
-                '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
                 '--ignore-certificate-errors'
             ],
