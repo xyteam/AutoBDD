@@ -263,7 +263,7 @@ module.exports = {
         if (myText && myText.length > 0) {
           const rawText = String(text || '').replace(/["\\`$]/g, ' ').replace(/\s+/g, ' ').trim();
           const bannerColor = (myTextColor === 'red') ? 'red' : 'lime';
-          execSync(`convert ${screenshotFile} -gravity north -background 'rgba(0,0,0,0.55)' -splice 0x42 -fill '${bannerColor}' -pointsize ${myFontSize} -annotate +0+8 "${rawText}" ${screenshotFile}`);
+          execSync(`convert ${screenshotFile} -gravity north -background 'rgba(0,0,0,0.55)' -splice 0x42 -font DejaVu-Sans-Bold -fill '${bannerColor}' -pointsize ${myFontSize} -annotate +0+8 "${rawText}" ${screenshotFile}`);
         }
         return true;
       } catch (e) {
