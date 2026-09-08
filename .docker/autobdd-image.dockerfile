@@ -33,10 +33,12 @@ RUN mkdir -p /root/Downloads && \
 # copy them out.
 RUN cd /root/Projects/AutoBDD && \
     mkdir -p /opt/oculix-natives && \
-    node -e "const j=require('/root/Projects/AutoBDD/node_modules/java-bridge'); j.ensureJvm({opts:['-Xms128m','-Xmx512m']}); try{ const X=require('/root/Projects/AutoBDD/third_party/xysikulixapi/lib/xysikulixapi.js'); new X.Screen(); }catch(e){}" 2>/dev/null ; \
-    cp -f /root/.cache/legerix/*/linux-x86-64-legacy/*.so* /opt/oculix-natives/ && \
-    chmod 755 /opt/oculix-natives && \
-    echo "baked oculix natives: $(ls /opt/oculix-natives | tr '\n' ' ')"
+    ( Xvfb :99 -screen 0 400x300x24 >/dev/null 2>&1 & XPID=$!; sleep 2; \
+      DISPLAY=:99 node -e "const j=require('./node_modules/java-bridge'); j.ensureJvm({opts:['-Xms128m','-Xmx512m']}); try{ const X=require('./third_party/xysikulixapi/lib/xysikulixapi.js'); new X.Screen(); }catch(e){}" >/dev/null 2>&1; \
+      kill $XPID >/dev/null 2>&1 ) ; \
+    cp -f /root/.cache/legerix/*/linux-x86-64-legacy/*.so* /opt/oculix-natives/ 2>/dev/null ; \
+    chmod 755 /opt/oculix-natives ; \
+    echo "baked oculix natives: $(ls /opt/oculix-natives 2>/dev/null | tr '\n' ' ')"
 ENV LD_LIBRARY_PATH=/opt/oculix-natives
 
 
