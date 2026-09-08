@@ -119,11 +119,10 @@ module.exports = {
   },
 
   screenGetText: function() {
-    var runCommand = 'getImageText.js'
-    console.log(runCommand);
-    const outputString = execSync(runCommand).toString('utf8');
-    const returnString = outputString.substring(outputString.lastIndexOf('[{'), outputString.lastIndexOf('}]') + 2);
-    return returnString;
+    // OCR the whole screen via the Oculix bridge (findTargetImage Screen mode), which
+    // returns text as an array of lines. The old getImageText.js called the system
+    // `tesseract` CLI, which is no longer installed (Oculix bundles its own OCR).
+    return this.runFindImage('Screen', null, null, null, null, 1);
   },
 
   keyTap: function(key, modifier) {
