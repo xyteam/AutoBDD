@@ -59,9 +59,13 @@ const flashOnMatch = (region) => {
     // can show the highlighted match. Scoped by display number so parallel xvfb
     // workers (one display each) cannot clobber each other's capture.
     const dispNum = parseInt(String(process.env.DISPLAY || '').split(':')[1] || '0', 10);
+    const shot = `/tmp/abdd_flash_${dispNum}.png`;
     if (process.env.SCREENSHOT && parseInt(process.env.SCREENSHOT, 10) >= 1) {
       try {
-        const shot = `/tmp/abdd_flash_${dispNum}.png`;
+        // highlight() paints the box on a background thread shortly after it
+        // returns; grab ~250ms in so the box is actually on screen for the shot.
+        const paintDelay = Date.now() + 250;
+        while (Date.now() < paintDelay) {}
         require('child_process').execSync(`import -silent -display :${dispNum} -window root ${shot}`, { stdio: 'ignore' });
       } catch (e) { /* flash capture is best-effort */ }
     }
