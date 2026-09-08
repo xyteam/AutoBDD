@@ -1,5 +1,14 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const fs = require('fs');
 const { attach } = require('wdio-cucumberjs-json-reporter');
+
+// findTargetImage captures the flashing screen (during a successful match) to a
+// per-display file; parallel xvfb workers each own a distinct display, so the path
+// is collision-free. Consumed as the step screenshot when present.
+const flashShotPath = () => {
+  const n = parseInt(String(process.env.DISPLAY || '').split(':')[1] || '0', 10);
+  return `/tmp/abdd_flash_${n}.png`;
+};
 const safeQuote = require(FrameworkPath + '/framework/libs/safequote');
 const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
@@ -126,6 +135,8 @@ const frameworkHooks = {
 
   beforeScenario: async function(context) {
     console.log(`Scenario: ${context.pickle.name}\n`);
+    // a worker can run several scenarios back-to-back; clear any stale flash frame
+    try { fs.unlinkSync(flashShotPath()); } catch(e) {}
     const scenarioName = context.pickle.name;
     currentScenarioName = scenarioName;
     currentStepNumber = 0;
@@ -168,12 +179,15 @@ const frameworkHooks = {
       // in the case of SCREENREMARK=0 do not print remark text
       if (process.env.SCREENREMARK == 0) remarkText = '';
       
-      // start screenshot
-      if (process.env.SCREENSHOT == 2 && currentStepNumber == 1) {
-        framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
-      }
-      if (process.env.SCREENSHOT == 3) {
-        framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
+      // start screenshot. If an image-find step flashed during this step, use the
+      // flash-frame capture (which shows the highlighted match) as the screenshot;
+      // otherwise take a fresh grab of the screen. The frame is then consumed so a
+      // later step without a find cannot reuse a stale flash.
+      const stepShotWanted = (process.env.SCREENSHOT == 2 && currentStepNumber == 1) || (process.env.SCREENSHOT == 3);
+      if (stepShotWanted) {
+        const flashSrc = fs.existsSync(flashShotPath()) ? flashShotPath() : null;
+        framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20, flashSrc);
+        try { fs.unlinkSync(flashShotPath()); } catch(e) {}
       }
 
       // show browser log
@@ -201,7 +215,8 @@ const frameworkHooks = {
 
     // final screenshot and end movie with it
     if (process.env.SCREENSHOT >= 1) {
-      framework_libs.takeScreenshot(currentScenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
+      const flashSrc = fs.existsSync(flashShotPath()) ? flashShotPath() : null;
+      framework_libs.takeScreenshot(currentScenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30, flashSrc);
     }
     if (process.env.MOVIE == 1) {
       framework_libs.stopRecording(currentScenarioName);

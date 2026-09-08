@@ -242,7 +242,7 @@ module.exports = {
       return false;
     }
   },
-  takeScreenshot: function(scenarioName, resultPrefix, stepIndex, text, textColor, fontSize) {
+  takeScreenshot: function(scenarioName, resultPrefix, stepIndex, text, textColor, fontSize, flashSourcePng) {
     const myScenarioName = safeQuote(scenarioName.replace(spaceChar_regex, '_').replace(invalidFileNameChar_regex, ''));
     const myResultPrefix = safeQuote(resultPrefix) || '';
     const myStepIndex = parseInt(stepIndex) || 0;
@@ -251,7 +251,25 @@ module.exports = {
     const myFontSize = parseInt(fontSize) || 20;
     const scenario_png = `${this.convertScenarioNameToFileBase(myScenarioName)}.${myStepIndex}.png`;
     fs.existsSync(`${myReportDir}/${myTestModule}`) || fs.mkdirSync(`${myReportDir}/${myTestModule}`);
-    const cmd_take_screenshot = `import -silent -display ${myDISPLAY} -window root ${myReportDir}/${myTestModule}/${myResultPrefix}_${scenario_png}`;
+    const screenshotFile = `${myReportDir}/${myTestModule}/${myResultPrefix}_${scenario_png}`;
+    const cmd_take_screenshot = `import -silent -display ${myDISPLAY} -window root ${screenshotFile}`;
+    // If an image-find step flashed this step, use the flash-frame capture (which
+    // already shows the highlighted match) as the step screenshot instead of a
+    // post-step grab. aosd_cat only draws live, so annotate the remark onto the
+    // stored frame with ImageMagick instead.
+    if (myScenarioName && flashSourcePng && fs.existsSync(flashSourcePng)) {
+      try {
+        execSync(`cp ${safeQuote(flashSourcePng)} ${screenshotFile}`);
+        if (myText && myText.length > 0) {
+          const rawText = String(text || '').replace(/["\\`$]/g, ' ').replace(/\s+/g, ' ').trim();
+          const bannerColor = (myTextColor === 'red') ? 'red' : 'lime';
+          execSync(`convert ${screenshotFile} -gravity north -background 'rgba(0,0,0,0.55)' -splice 0x42 -fill '${bannerColor}' -pointsize ${myFontSize} -annotate +0+8 "${rawText}" ${screenshotFile}`);
+        }
+        return true;
+      } catch (e) {
+        console.log('takeScreenshot(flash): fall back to live import - ' + e.message);
+      }
+    }
     if (myScenarioName) {
       var childProcess;
       if (myText && myText.length > 0 ) {
