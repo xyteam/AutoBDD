@@ -54,22 +54,27 @@ const Screen = xysikulixapi.Screen;
 const flashSecs = (argv.flash != null && argv.flash != 'undefined') ? parseFloat(argv.flash) : 1.0;
 const flashOnMatch = (region) => {
   try {
-    region.highlight(flashSecs);
-    // Capture the flashing screen so the step screenshot (taken after the step)
-    // can show the highlighted match. Scoped by display number so parallel xvfb
-    // workers (one display each) cannot clobber each other's capture.
     const dispNum = parseInt(String(process.env.DISPLAY || '').split(':')[1] || '0', 10);
-    const shot = `/tmp/abdd_flash_${dispNum}.png`;
+    // Option-1 style marker: never obscure the found content. We capture the
+    // clear screen and draw only a red rectangle border around the match, so the
+    // captured area stays fully visible. (Oculix's own highlight() fills the
+    // region opaque-black under Xvfb, which has no compositor to blend the alpha.)
     if (process.env.SCREENSHOT && parseInt(process.env.SCREENSHOT, 10) >= 1) {
       try {
-        // highlight() paints the box on a background thread shortly after it
-        // returns; grab ~250ms in so the box is actually on screen for the shot.
-        const paintDelay = Date.now() + 250;
-        while (Date.now() < paintDelay) {}
+        const shot = `/tmp/abdd_flash_${dispNum}.png`;
+        // capture the clean screen (no fill) right now, then add a red border
         require('child_process').execSync(`import -silent -display :${dispNum} -window root ${shot}`, { stdio: 'ignore' });
+        const rx = Math.round(region.x), ry = Math.round(region.y);
+        const rw = Math.round(region.w), rh = Math.round(region.h);
+        require('child_process').execSync(
+          `convert ${shot} -stroke red -strokewidth 3 -fill none -draw "rectangle ${rx},${ry} ${rx + rw},${ry + rh}" ${shot}`,
+          { stdio: 'ignore' }
+        );
       } catch (e) { /* flash capture is best-effort */ }
     }
-    // synchronous hold so the async highlight paints for the full duration
+    // brief live flash (visible to VNC / screen recording) - keep it short so any
+    // opaque fill does not linger
+    region.highlight(Math.min(flashSecs, 0.3));
     const end = Date.now() + (flashSecs * 1000);
     while (Date.now() < end) {}
   } catch (e) { /* flashing is best-effort; never fail a find because of it */ }
