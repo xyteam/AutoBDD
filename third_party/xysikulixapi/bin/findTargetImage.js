@@ -51,7 +51,7 @@ const Screen = xysikulixapi.Screen;
 // it ever paints (the old synchronous silulix highlight did not have this
 // problem). Flash for a visible duration and then hold the process so the box
 // actually renders and is observable (by eye / VNC / screen recording).
-const flashSecs = (argv.flash != null && argv.flash != 'undefined') ? parseFloat(argv.flash) : 0.3;
+const flashSecs = (argv.flash != null && argv.flash != 'undefined') ? parseFloat(argv.flash) : 1.0;
 const flashOnMatch = (region) => {
   try {
     region.highlight(flashSecs);
