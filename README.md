@@ -1,125 +1,56 @@
-> **Version (v3.0):** This is **AutoBDD v3.0** (`package.json` `3.0.0`, docker image
-> `xyteam/autobdd:3.0.0`). v3.0 is the aligned baseline for the four-repo project
-> set and is verified to keep **AutoBDD working together with the
-> [AutoBDD-example](https://github.com/xyteam/AutoBDD-example) and
-> [autobdd-test](https://github.com/xyteam/autobdd-test) repos** (and xySikulixApi) —
-> all on v3.0. This v3.0 set is the base going forward; a future effort consolidates
-> these repos and upgrades dependencies together.
+# AutoBDD v2.4.0
 
-#### AutoBDD v3: converted to webdriverio (wdio 7 on Node 12)
+**AutoBDD v2.4.0** (`package.json` `2.4.0`, docker image `xyteam/autobdd:2.4.0`).
 
-#### TLDR:
+> **Purpose.** The goal of this release is to **re-activate the AutoBDD v2.3.0 line
+> into a working, reproducible state** that serves as the corrected base going
+> forward. The earlier label "v3.0.0" was applied prematurely to this codebase;
+> it has been re-versioned here as **v2.4.0** to keep the version history honest.
+> A future **v3.0.0** (runtime re-baseline on Node 20 / WebdriverIO 9) continues
+> from this base.
 
-```
-mkdir -p ~/Projects; cd ~/Projects; \
-git clone https://github.com/xyteam/AutoBDD-example.git; \
-cd AutoBDD-example/docker; \
-docker-compose run --rm autobdd-example-run "--parallel=4 --screenshot=3 --movie=1 --rerunfailed=1 --reportpath=test1"
+AutoBDD is a BDD Automation Framework — Powerful, Flexible and Easy-to-Use:
 
-google-chrome ~/Projects/AutoBDD-example/test-results/test1/index.html
-```
-## AutoBDD (v3)
-
-  BDD Automation Framework
-
-  Powerful, Flexible and Easy-to-Use BDD Automation Framework
-
-  * Powerful - Automate anything you can see and operate on any desktop, local or remote, Web or non-Web.
-
-  * Flexible - Runs on any local desktop, cloud system or CI/CD system, single thread or in parallel.
-
-  * Easy-To-Use - Write test cases in plain English sentences, single command execution anywhere.
+* Powerful — automate anything you can see and operate on any desktop, local or remote, Web or non-Web.
+* Flexible — runs on any local desktop, cloud system or CI/CD system, single thread or in parallel.
+* Easy-To-Use — write test cases in plain English, single-command execution anywhere.
 
 #### Simple to use
 
-  * AutoBDD lets you focus on your test.
-  
-  * Everything else will automagically work out for you.
+* AutoBDD lets you focus on your test; everything else works out for you.
+* Download [AutoBDD-example](https://github.com/xyteam/AutoBDD-example) and try it.
+* Rename AutoBDD-example as your own project.
 
-  * Just download AutoBDD-example and give it a try:
+#### Under the hood
 
-  **[xyteam/AutoBDD-example](https://github.com/xyteam/AutoBDD-example)**
+##### Platform
 
-  * And rename AutoBDD-example project as your own.
+* Linux base (Ubuntu 20.04)
+  * xvfb desktop environment — real web browser, real file system, keyboard-mouse-screen control
+  * development tools (nodejs, python, java, etc.)
+* Screen, Keyboard and Mouse libraries
+  * sikulixapi (screen and images)
+  * robot-js (keyboard and mouse)
+  * tesseract-ocr (screen or browser image to text)
 
-#### Under the hood:
+##### Framework
 
-##### Platform:
+* Automation tools
+  * CI/CD runner — parallel test runner, automatic cucumber + junit report generator
+  * local development runner — full GUI (WYSIWYT), auto project mount, docker-compose up/down control
+* Popular 3rd-party libraries
+  * webdriverio (v7, on Node 12)
+  * cucumber-js
+  * HTML report with step screenshots and test-case movie
+  * rich pre-canned cucumber steps (150+)
+* Framework-provided libraries
+  * keyboard-mouse control (cucumber BDD statements and JS library)
+  * remote access (remote desktop, remote command console, remote filesystem)
 
-  * Linux Base (Ubuntu 20.04)
-    
-    * xvfb desktop environment
-    
-      *  real web browser
-    
-      *  real file system
-    
-      *  keyboard-mouse-screen control
-    
-    * development tools (nodejs, python, java, etc.)
-
-  * Screen, Keyboard and Mouse Libraries
-    
-    * sikulixapi (screen and images)
-    
-    * robot-js (keyboard and mouse)
-    
-    * tesseract-ocr (screen or browser image to text)
-
-##### Framework:
-
-  * Automation Tools
-    
-    * CI/CD Runner
-    
-      * parellel test runner
-    
-      * automatic cucumber and junit report generator
-    
-      * pre-canned runner control -- runner will handle docker image download and running automagically
-    
-    * Local Development Runner
-    
-      * full GUI - WYSIWYT -- what you see is what you test
-    
-      * auto project mount - WYWIWYT -- what you write is what you test
-    
-      * pre-canned runner control -- runner can be controlled with 2 simple docker-compose commands (up and down)
-  
-    * Popular 3rd Party Libraries
-  
-    * webdriverio (v7, on Node 12)
-  
-    * cucumber-js (v6)
-  
-    * HTML report with step screenshots and test case movie
-  
-    * very rich pre-canned cucumber steps (over 150 steps)
-  
-  * Framework Provided Libries
-  
-    * keyboard-mouse control
-  
-      * in cucumber BDD statements
-  
-      * in js library
-  
-    * remote access
-  
-      * remote desktop
-  
-      * remote command console
-  
-      * remote filesystem access
-    
 #### Special mentions
 
-  * Demo-App application and Precanned Cucumber-JS Steps are taken from **[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)**
-  
-  * Image Regognizing library is taken from **[RaiMan/SikuliX1](https://github.com/RaiMan/SikuliX1)**
-  
-  * Keyboard and Mouse control library is taken from **[octalmage/robotjs](https://github.com/octalmage/robotjs)**
-  
-  * Framework Control libraries are taken from **[webdriverio/webdriverio](https://github.com/webdriverio/webdriverio)** 
-  
-  * And many other open-source npm libraries listed in **[package.json](https://github.com/xyteam/AutoBDD/blob/master/package.json)**
+* Demo-App application and pre-canned Cucumber-JS steps are taken from **[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)**
+* Image-recognizing library is taken from **[RaiMan/SikuliX1](https://github.com/RaiMan/SikuliX1)**
+* Keyboard-and-mouse library is taken from **[octalmage/robotjs](https://github.com/octalmage/robotjs)**
+* Framework-control libraries are taken from **[webdriverio/webdriverio](https://github.com/webdriverio/webdriverio)**
+* Many other open-source npm libraries are listed in **package.json**.

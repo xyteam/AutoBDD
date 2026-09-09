@@ -1,6 +1,6 @@
 {
   "name": "autobdd",
-  "version": "3.0.0",
+  "version": "2.4.0",
   "description": "BDD Automaiton",
   "scripts": {
     "test-init": ". ./.autoPathrc.sh && cd ./test-projects/autobdd-test && xvfb-runner.sh make e2e-single-runner",
