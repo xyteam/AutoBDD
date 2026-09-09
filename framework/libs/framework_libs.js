@@ -263,7 +263,10 @@ module.exports = {
         if (myText && myText.length > 0) {
           const rawText = String(text || '').replace(/["\\`$]/g, ' ').replace(/\s+/g, ' ').trim();
           const bannerColor = (myTextColor === 'red') ? 'red' : 'lime';
-          execSync(`convert ${screenshotFile} -gravity north -background 'rgba(0,0,0,0.55)' -splice 0x42 -font DejaVu-Sans-Bold -fill '${bannerColor}' -pointsize ${myFontSize} -annotate +0+8 "${rawText}" ${screenshotFile}`);
+          // Match the standard aosd_cat watermark: a dark band with the step-name
+          // text at the BOTTOM, so image-capture step images carry the same
+          // step-name watermark (same place/style) as non-image steps.
+          execSync(`convert ${screenshotFile} -gravity south -background 'rgba(0,0,0,0.55)' -splice 0x48 -font DejaVu-Sans-Bold -fill '${bannerColor}' -pointsize ${myFontSize} -annotate +0+10 "${rawText}" ${screenshotFile}`);
         }
         return true;
       } catch (e) {
