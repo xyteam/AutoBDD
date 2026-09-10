@@ -25,6 +25,28 @@ RUN mkdir -p /root/Downloads && \
     npm run --loglevel=error clean && \
     rm -rf /tmp/chrome_profile_* /tmp/download_*
 
+# Bake the Selenium standalone server + a chromedriver matching the installed Chrome.
+# The old wdio7 selenium-standalone cannot provision a driver for modern Chrome: its
+# download source caps at ChromeDriver 114, and its zip extractor drops any entry with
+# a '/', so chrome-for-testing's nested chromedriver-linux64/chromedriver would extract
+# to nothing. The framework therefore runs with skipSeleniumInstall and uses these
+# baked artifacts at the paths selenium-standalone computes.
+RUN set -e; \
+    SELDIR=/root/Projects/AutoBDD/node_modules/selenium-standalone/.selenium; \
+    CV=$(google-chrome --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'); \
+    echo "baking selenium + chromedriver ${CV}"; \
+    mkdir -p "$SELDIR/selenium-server/3.141.59" "$SELDIR/chromedriver/${CV}-x64"; \
+    curl -fsSL "https://github.com/SeleniumHQ/selenium/releases/download/selenium-3.141.59/selenium-server-standalone-3.141.59.jar" \
+        -o "$SELDIR/selenium-server/3.141.59/selenium-server.jar"; \
+    curl -fsSL "https://storage.googleapis.com/chrome-for-testing-public/${CV}/linux64/chromedriver-linux64.zip" \
+        -o /tmp/cd.zip; \
+    ( cd /tmp && unzip -o -q cd.zip ); \
+    cp /tmp/chromedriver-linux64/chromedriver "$SELDIR/chromedriver/${CV}-x64/chromedriver"; \
+    chmod +x "$SELDIR/chromedriver/${CV}-x64/chromedriver"; \
+    ln -sf "$SELDIR/chromedriver/${CV}-x64/chromedriver" /usr/local/bin/chromedriver; \
+    /usr/local/bin/chromedriver --version; \
+    rm -rf /tmp/cd.zip /tmp/chromedriver-linux64
+
 # copy preset ubuntu system env
 COPY .docker/autobdd.root /
 RUN chmod +x /root/.bash_profile /root/autobdd-run.startup.sh /root/autobdd-dev.startup.sh 
