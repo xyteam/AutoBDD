@@ -48,84 +48,15 @@ if (process.env.PLATFORM == 'Linux') {
     console.log(process.env.chromeVersion);
   }
   if (!process.env.chromeDriverVersion) {
-    switch (true) {
-      case / 7[012]\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '2.46';
-        break;
-      case / 73\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '73.0.3683.68';
-        break;
-      case / 74\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '74.0.3729.6';
-        break;
-      case / 75\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '75.0.3770.140';
-        break;
-      case / 76\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '76.0.3809.126';
-        break;
-      case / 77\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '77.0.3865.40';
-        break;
-      case / 78\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '78.0.3904.105';
-        break;
-      case / 79\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '79.0.3945.36';
-        break;
-      case / 80\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '80.0.3987.106';
-        break;
-      case / 81\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '81.0.4044.138';
-        break;
-      case / 83\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '83.0.4103.39';
-        break;
-      case / 84\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '84.0.4147.30';
-        break;
-      case / 85\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '85.0.4183.87';
-        break;
-      case / 86\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '86.0.4240.22';
-        break;
-      case / 87\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '87.0.4280.88';
-        break;  
-      case / 88\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '88.0.4324.96';
-        break;  
-      case / 89\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '89.0.4389.23';
-        break;
-      case / 90\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '90.0.4430.24';
-        break;
-      case / 91\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '91.0.4472.101';
-        break;
-      case / 92\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '92.0.4515.43';
-        break;
-      case / 93\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '93.0.4577.63';
-        break;
-      case / 94\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '94.0.4606.113';
-        break;      
-      case / 95\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '95.0.4638.69';
-        break;
-      case / 96\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '96.0.4664.45';
-        break;      
-      case / 97\./.test(process.env.chromeVersion):
-        process.env.chromeDriverVersion = '97.0.4692.36';
-        break;                    
-    }
-    console.log('Chrome Driver ' + process.env.chromeDriverVersion)  
+    // Match the chromedriver baked into the image (see .docker/autobdd-image.dockerfile).
+    // The old wdio7 selenium-standalone can no longer download a driver for modern
+    // Chrome (its source caps at ChromeDriver 114 and its zip extractor drops nested
+    // entries), so the image bakes a chromedriver matching the installed Chrome and
+    // this mirrors that version. Expected path:
+    //   .selenium/chromedriver/<chromeVersion>-<arch>/chromedriver
+    const chromeVerMatch = (process.env.chromeVersion || '').match(/(\d+\.\d+\.\d+\.\d+)/);
+    if (chromeVerMatch) process.env.chromeDriverVersion = chromeVerMatch[1];
+    console.log('Chrome Driver ' + (process.env.chromeDriverVersion || 'n/a'));
   }
 }
 
