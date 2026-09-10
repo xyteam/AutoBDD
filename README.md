@@ -1,67 +1,78 @@
 # AutoBDD v3.0.0
 
-**AutoBDD v3.0.0** (`package.json` `3.0.0`, docker image `xyteam/autobdd:3.0.0`).
+**AutoBDD** — a BDD automation framework. `package.json` `3.0.0` · docker image
+`xyteam/autobdd:3.0.0`.
 
-> **Purpose.** This is the **continuation of AutoBDD v2.4.0** — a runtime re-baseline
-> built on top of the v2.4.0 base. It modernizes the toolchain and runtime (Ubuntu
-> 22.04 · Node 20 · Java 17 · WebdriverIO 9 · Oculix 4.0.0) and improves the
-> on-screen image-match experience.
+## What this repository is (and isn't)
 
-#### Runtime (v3.0.0)
+This repo is the **framework source and the build source of the AutoBDD docker
+image**. You do **not** need to clone it to use AutoBDD.
 
-* Ubuntu 22.04, Node 20, Java 17, Chrome + chromedriver 152 on PATH.
-* WebdriverIO **9** (cucumber); runs invoked with `docker compose` (Compose v2).
-* **Oculix 4.0.0** for screen image matching and OCR (`oculixapi-4.0.0-linux.jar`,
-  SikuliX-compatible API over java-bridge on Java 17); native libs baked to
-  `/opt/oculix-natives` with `LD_LIBRARY_PATH` set.
-* Dynamic driver-version reporting (read from the actual `chromedriver`).
+* The images are built here and **published to Docker Hub**:
+  `xyteam/autobdd:3.0.0` (plus its base layers `xyteam/autobdd-nodejs:3.0.0`,
+  `xyteam/autobdd-ubuntu:3.0.0`).
+* **Test repositories pull and run the image directly** — e.g.
+  [AutoBDD-example](https://github.com/xyteam/AutoBDD-example) runs its suite against
+  `xyteam/autobdd:<version>` with no framework clone required.
+* Clone this repo only if you want to **inspect or build the image**.
 
-#### Image-match UX
+```bash
+# a test repo selects the published image via AutoBDD_Ver and runs its own compose;
+# no AutoBDD framework clone is required
+cd ~/Projects/AutoBDD-example
+AutoBDD_Ver=3.0.0 ABDD_PROJECT=AutoBDD-example \
+  USER=$(whoami) PASSWORD=ubuntu HOSTOS=Linux USERID=$(id -u) GROUPID=$(id -g) \
+  docker compose run --rm autobdd-example-run "make e2e-test"
+# (see the test repo's docker-compose.yml / README for its exact run service)
+```
 
-* **Restored flash-on-match**: a successful `findTargetImage` flashes the found area
-  (default ~1 s, tunable via `--flash`) as a **red border over clear content** — no
-  opaque fill — so the area stays visible under Xvfb.
-* **Flash in the step screenshot**: the frame captured during a `FindImageTarget` step
-  becomes that step's screenshot and carries the step-name watermark at the bottom,
-  **green for passed / red for failed** steps, matching other steps.
-* **Baked (image) mode**: `test-projects/autobdd-test/docker-compose.docker.yml` runs
-  autobdd-test purely off the local image (no working-tree mount).
+## The key difference: AutoBDD sees the screen
 
-#### Simple to use
+Most browser-automation tools drive the DOM through selectors. **AutoBDD can see
+anything and test anything** because it operates on the **screen** using:
 
-* AutoBDD lets you focus on your test; everything else works out for you.
-* Download [AutoBDD-example](https://github.com/xyteam/AutoBDD-example) and try it.
-* Rename AutoBDD-example as your own project.
+* **sample images you provide** — find, click, and assert on any on-screen image
+  (screen image matching), and
+* **text** — read and act on on-screen text (OCR).
 
-#### Under the hood
+That means it is not limited to DOM elements: it works for web pages, canvas /
+non-DOM content, native apps, and any pixel you can see — image-in, action-out.
 
-##### Platform
+## Version differences
 
-* Linux base (Ubuntu 22.04)
-  * xvfb desktop environment — real web browser (Chrome via chromedriver), real file system, keyboard-mouse-screen control
-  * development tools (nodejs 20, python, java 17, etc.)
-* Screen, Keyboard and Mouse libraries
-  * oculix 4.0.0 (screen image matching and OCR, sikulix-compatible)
-  * robot-js (keyboard and mouse)
+| Release | Chrome | WebdriverIO | Node | Runtime |
+|---|---|---|---|---|
+| **v2.3.0** | 96 | 7 | 12 | original pinned runtime (Node 12.22.7 + Chrome 96) |
+| **v2.4.0** | modern (latest stable, e.g. 153) | 7 | 14 | re-activated v2.3.0 line; builds against current Chrome; matching browser driver baked into the image |
+| **v3.0.0** | modern (latest stable, e.g. 153) | 9 | 20 | runtime re-baseline: Node 20 + Java 17 + WebdriverIO 9 + Oculix 4.0.0 (image matching/OCR) |
 
-##### Framework
+The Node version is chosen to support both the WebdriverIO version and the
+bundled internal demo-app.
 
-* Automation tools
-  * CI/CD runner — parallel test runner, automatic cucumber + junit report generator
-  * local development runner — full GUI (WYSIWYT), auto project mount, docker compose up/down control
-* Popular 3rd-party libraries
-  * webdriverio (v9, on Node 20)
-  * cucumber
-  * HTML report with step screenshots (green/red pass-fail watermarks + image-match markers) and test-case movie
-  * rich pre-canned cucumber steps (150+)
-* Framework-provided libraries
-  * keyboard-mouse control (cucumber BDD statements and JS library)
-  * remote access (remote desktop, remote command console, remote filesystem)
+## Try it and see the report
 
-#### Special mentions
+This repo ships its own test suite under **`test-projects/autobdd-test`**. Run it
+to see AutoBDD's reports for yourself — step screenshots (with green/red pass-fail
+watermarks and image-match markers), per-scenario movies, and the HTML report:
 
-* Demo-App application and pre-canned Cucumber-JS steps are taken from **[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)**
-* Image-recognizing library is provided by **[Oculix](https://github.com/)**, a SikuliX-compatible engine
-* Keyboard-and-mouse library is taken from **[octalmage/robotjs](https://github.com/octalmage/robotjs)**
-* Framework-control libraries are taken from **[webdriverio/webdriverio](https://github.com/webdriverio/webdriverio)**
-* Many other open-source npm libraries are listed in **package.json**.
+```bash
+cd test-projects/autobdd-test
+AutoBDD_Ver=3.0.0 ABDD_PROJECT=autobdd-test \
+  USER=$(whoami) PASSWORD=ubuntu HOSTOS=Linux USERID=$(id -u) GROUPID=$(id -g) \
+  make docker-run jobs="clean e2e-test"
+# then open test-results/e2e-test/*/index.html
+```
+
+## Under the hood (v3.0.0)
+
+* Ubuntu 22.04 · Node 20 · Java 17 · Chrome + chromedriver on PATH.
+* WebdriverIO 9 (cucumber); runs with `docker compose` (Compose v2).
+* Oculix 4.0.0 for screen image matching and OCR.
+* Reports: HTML with step screenshots (pass/fail watermarks) and test movies.
+
+## Credits
+
+Demo app and pre-canned Cucumber-JS steps adapted from
+**[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)**;
+keyboard/mouse from **[octalmage/robotjs](https://github.com/octalmage/robotjs)**;
+framework control from **[webdriverio/webdriverio](https://github.com/webdriverio/webdriverio)**.
