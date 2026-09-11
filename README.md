@@ -14,7 +14,7 @@ image**. You do **not** need to clone it to use AutoBDD.
 * **Test repositories pull and run the image directly** — e.g.
   [AutoBDD-example](https://github.com/xyteam/AutoBDD-example) runs its suite against
   `xyteam/autobdd:<version>` with no framework clone required.
-* Clone this repo only if you want to **inspect or build the image**.
+* **Clone only to inspect/build the AutoBDD docker image.**
 
 ```bash
 # a test repo selects the published image via AutoBDD_Ver and runs its own compose;
