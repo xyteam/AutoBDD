@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 USER root
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -37,11 +37,9 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         libgtk-3-0 \
         libnspr4 \
         libnss3 \
-        libopencv-dev \
         libpng++-dev \
         libpython3-stdlib \
         libssl-dev \
-        libtesseract-dev \
         libxss1 \
         libxtst-dev \
         net-tools \
@@ -57,7 +55,6 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         ssh-askpass \
         sshpass \
         tcpreplay \
-        tesseract-ocr \
         unzip \
         wmctrl \
         x11-xserver-utils \
@@ -91,7 +88,6 @@ RUN update-alternatives --install /usr/bin/python python $(which $(readlink $(wh
     update-alternatives --install /usr/bin/pip pip $(which pip3) 10; \
     update-alternatives --install /usr/local/bin/pip pip $(which pip3) 10; \
     echo "fs.inotify.max_user_watches = 524288" | sudo tee -a /etc/sysctl.conf; \
-    ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
     mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \
     mkdir -p /root/Projects; \
     mkdir -p /root/Downloads; \

@@ -17,13 +17,13 @@ module.exports = {
         await session.pause(500);
         await browser_session.bypassChromeWarningIfEncounter(session);
         try {
-            await (await session.$('#username')).waitForExist(3000);
+            await (await session.$('#username')).waitForExist({ timeout: 3000 });
             await (await session.$('#username')).setValue(vCenterUser);
             await (await session.$('#password')).setValue(vCenterPass);
             await (await session.$('#submit')).click();
         } catch(e) {}
         try {
-            await (await session.$('.settings')).waitForDisplayed(5*1000);
+            await (await session.$('.settings')).waitForDisplayed({ timeout: 5*1000 });
             return true;
         } catch(e) {
             return false;
@@ -37,12 +37,12 @@ module.exports = {
         await session.pause(500);
         await browser_session.bypassChromeWarningIfEncounter(session);
         try {
-            await (await session.$('.nav-icon.user-menu-large')).waitForExist(3000);
+            await (await session.$('.nav-icon.user-menu-large')).waitForExist({ timeout: 3000 });
             await (await session.$('.nav-icon.user-menu-large')).click();
             await (await session.$('a=Logout')).click();
         } catch(e) {}
         try {
-            await (await session.$('#password')).waitForDisplayed(5*1000);
+            await (await session.$('#password')).waitForDisplayed({ timeout: 5*1000 });
             return true;
         } catch(e) {
             return false;

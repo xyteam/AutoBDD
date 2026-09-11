@@ -1,5 +1,14 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
-var cucumberJsReporter = require('wdio-cucumberjs-json-reporter').default;
+const fs = require('fs');
+const { attach } = require('wdio-cucumberjs-json-reporter');
+
+// findTargetImage captures the flashing screen (during a successful match) to a
+// per-display file; parallel xvfb workers each own a distinct display, so the path
+// is collision-free. Consumed as the step screenshot when present.
+const flashShotPath = () => {
+  const n = parseInt(String(process.env.DISPLAY || '').split(':')[1] || '0', 10);
+  return `/tmp/abdd_flash_${n}.png`;
+};
 const safeQuote = require(FrameworkPath + '/framework/libs/safequote');
 const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
@@ -90,7 +99,10 @@ const frameworkHooks = {
    **/ 
 
    beforeFeature: async function(uri, feature) {
-    console.log(`Feature: ${feature.document.feature.name}\n`);
+    // wdio7 passed { document: { feature } }; wdio9 passes the gherkinDocument (has .feature).
+    const featureName = (feature.document && feature.document.feature) ? feature.document.feature.name
+      : (feature.feature ? feature.feature.name : (feature.name || ''));
+    console.log(`Feature: ${featureName}\n`);
     currentScenarioName = '';
     currentStepNumber = 0;
     // start RDP and sshfs
@@ -123,10 +135,12 @@ const frameworkHooks = {
 
   beforeScenario: async function(context) {
     console.log(`Scenario: ${context.pickle.name}\n`);
+    // a worker can run several scenarios back-to-back; clear any stale flash frame
+    try { fs.unlinkSync(flashShotPath()); } catch(e) {}
     const scenarioName = context.pickle.name;
     currentScenarioName = scenarioName;
     currentStepNumber = 0;
-    await browser.windowHandleMaximize();
+    await browser.maximizeWindow();
     // browser.setTimeouts(implicit, pageLoad, script)
     await browser.setTimeouts(null, null, 3600*1000);
   },
@@ -165,12 +179,15 @@ const frameworkHooks = {
       // in the case of SCREENREMARK=0 do not print remark text
       if (process.env.SCREENREMARK == 0) remarkText = '';
       
-      // start screenshot
-      if (process.env.SCREENSHOT == 2 && currentStepNumber == 1) {
-        framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
-      }
-      if (process.env.SCREENSHOT == 3) {
-        framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20);
+      // start screenshot. If an image-find step flashed during this step, use the
+      // flash-frame capture (which shows the highlighted match) as the screenshot;
+      // otherwise take a fresh grab of the screen. The frame is then consumed so a
+      // later step without a find cannot reuse a stale flash.
+      const stepShotWanted = (process.env.SCREENSHOT == 2 && currentStepNumber == 1) || (process.env.SCREENSHOT == 3);
+      if (stepShotWanted) {
+        const flashSrc = fs.existsSync(flashShotPath()) ? flashShotPath() : null;
+        framework_libs.takeScreenshot(currentScenarioName, 'Step', currentStepNumber, remarkText, remarkColor, 20, flashSrc);
+        try { fs.unlinkSync(flashShotPath()); } catch(e) {}
       }
 
       // show browser log
@@ -180,12 +197,12 @@ const frameworkHooks = {
     }
   },
 
-  afterScenario: async function(context) {
+  afterScenario: async function(context, result) {
     // console.log(context);
-    const resultStatus = context.result.status;
+    // wdio9 passes (world, result /* {passed,error,duration} */). Use result.passed.
     const feature_uri = context.gherkinDocument.uri;
-    // context.result.status = 1 means passed
-    if (resultStatus == '1') {
+    const resultPassed = (result && result.passed === true);
+    if (resultPassed) {
       currentScenarioStatus = 'Passed';
     } else {
       currentScenarioStatus = 'Failed'
@@ -198,7 +215,8 @@ const frameworkHooks = {
 
     // final screenshot and end movie with it
     if (process.env.SCREENSHOT >= 1) {
-      framework_libs.takeScreenshot(currentScenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30);
+      const flashSrc = fs.existsSync(flashShotPath()) ? flashShotPath() : null;
+      framework_libs.takeScreenshot(currentScenarioName, currentScenarioStatus, currentStepNumber, remarkText, remarkColor, 30, flashSrc);
     }
     if (process.env.MOVIE == 1) {
       framework_libs.stopRecording(currentScenarioName);
@@ -212,24 +230,24 @@ const frameworkHooks = {
     const feature_path = feature_uri.split('features/')[1].replace('/', '_');
     const feature_runlog = safeQuote(process.env.RUNREPORT) || `${module_path}${feature_path}.log`;
     const runlog_tag = framework_libs.getRunlogTag(feature_runlog);
-    cucumberJsReporter.attach(runlog_tag, 'text/html');
+    attach(runlog_tag, 'text/html');
 
     var scenarioBeginImage_tag, scenarioEndImage_tag, video_tag;
     [scenarioEndImage_tag, video_tag] = framework_libs.getImageMovieTags(currentScenarioName, currentScenarioStatus, currentStepNumber);
     if (process.env.SCREENSHOT == 1) { // SCREESHOT == 1 attach final screenshot and movie
-      cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
-      if (process.env.MOVIE == 1) cucumberJsReporter.attach(video_tag, 'text/html');
+      attach(scenarioEndImage_tag, 'text/html');
+      if (process.env.MOVIE == 1) attach(video_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 2) { // SCREESHOT == 2 attach first and final screenshots and movie
       scenarioBeginImage_tag = framework_libs.getImageMovieTags(currentScenarioName, 'Step', 1)[0];
-      cucumberJsReporter.attach(scenarioBeginImage_tag, 'text/html');
-      cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
-      if (process.env.MOVIE == 1) cucumberJsReporter.attach(video_tag, 'text/html');
+      attach(scenarioBeginImage_tag, 'text/html');
+      attach(scenarioEndImage_tag, 'text/html');
+      if (process.env.MOVIE == 1) attach(video_tag, 'text/html');
     } else if (process.env.SCREENSHOT == 3) { // SCREESHOT == 3 attach attach final screenshot and movie and all step screenshots, skipped steps will get empty refernce
-      cucumberJsReporter.attach(scenarioEndImage_tag, 'text/html');
-      if (process.env.MOVIE == 1) cucumberJsReporter.attach(video_tag, 'text/html');
+      attach(scenarioEndImage_tag, 'text/html');
+      if (process.env.MOVIE == 1) attach(video_tag, 'text/html');
       for (stepIndex = 1; stepIndex <= currentStepNumber; stepIndex++) {
         const stepImage_tag = framework_libs.getImageMovieTags(currentScenarioName, 'Step', stepIndex)[0];
-        cucumberJsReporter.attach(stepImage_tag, 'text/html');
+        attach(stepImage_tag, 'text/html');
       }
     }
 

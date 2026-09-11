@@ -48,14 +48,15 @@ if (process.env.PLATFORM == 'Linux') {
     console.log(process.env.chromeVersion);
   }
   if (!process.env.chromeDriverVersion) {
-    // Match the chromedriver baked into the image (see .docker/autobdd-image.dockerfile).
-    // The old wdio7 selenium-standalone can no longer download a driver for modern
-    // Chrome (its source caps at ChromeDriver 114 and its zip extractor drops nested
-    // entries), so the image bakes a chromedriver matching the installed Chrome and
-    // this mirrors that version. Expected path:
-    //   .selenium/chromedriver/<chromeVersion>-<arch>/chromedriver
-    const chromeVerMatch = (process.env.chromeVersion || '').match(/(\d+\.\d+\.\d+\.\d+)/);
-    if (chromeVerMatch) process.env.chromeDriverVersion = chromeVerMatch[1];
+    // Dynamic detection: read the version from the actual chromedriver binary in
+    // use (always matches the browser) instead of a stale hard-coded map that
+    // only covered Chrome 70-97. Falls back to leaving it unset if no
+    // chromedriver is reachable here.
+    try {
+      const drvBin = process.env.CHROMEDRIVER_PATH || 'chromedriver';
+      const drvVer = execSync(`${drvBin} --version`).toString('utf8').match(/ChromeDriver\s+(\d+\.\d+\.\d+\.\d+)/);
+      if (drvVer && drvVer[1]) process.env.chromeDriverVersion = drvVer[1];
+    } catch (e) { /* chromedriver not reachable; leave chromeDriverVersion unset */ }
     console.log('Chrome Driver ' + (process.env.chromeDriverVersion || 'n/a'));
   }
 }

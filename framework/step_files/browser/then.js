@@ -1,6 +1,7 @@
 const { Then } = require('@cucumber/cucumber');
 
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
+const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
 const checkClass = require(FrameworkPath + '/framework/step_functions/check/checkClass');
 const checkContainsAnyTextOrValue = require(FrameworkPath + '/framework/step_functions/check/checkContainsAnyTextOrValue');
 const checkElementTextValueIsEmpty = require(FrameworkPath + '/framework/step_functions/check/checkElementTextValueIsEmpty');
@@ -33,7 +34,7 @@ async function (last, falseCase, regexWords) {
     const myRegexWords = regexWords.toLowerCase();
     const anyRegexWords = 'failed|rejected|unhandled|unauthorized|error|invalid';
     const msgRegex = (myRegexWords.indexOf('any error') >= 0) ? RegExp(anyRegexWords) : RegExp(myRegexWords);
-    const targetLogArray = (last) ? JSON.parse(process.env.LastBrowserLog) : (await browser.getLogs('browser')).filter(log => msgRegex.test(log.message.toLowerCase()) === true);
+    const targetLogArray = (last) ? JSON.parse(process.env.LastBrowserLog) : (await browser_session.getBrowserLogs(browser)).filter(log => msgRegex.test(String(log.message).toLowerCase()) === true);
     process.env.LastBrowserLog = JSON.stringify(targetLogArray);
     console.log(process.env.LastBrowserLog);
     if (falseCase) {
@@ -46,7 +47,7 @@ async function (last, falseCase, regexWords) {
 Then(/^(?::browser: )?I expect the( last)* browser console (SEVERE) level log does( not)* exist(?: (exactly|not exactly|more than|no more than|less than|at least|no less than) (\d+) time(?:s)?)?$/,
 async function (last, logLevel, falseCase, compareAction, expectedNumber) {
     const myExpectedNumber = (expectedNumber) ? parseInt(expectedNumber) : 0;
-    const targetLogArray = (last) ? JSON.parse(process.env.LastBrowserLog) : (await browser.getLogs('browser')).filter(log => log.level == logLevel);
+    const targetLogArray = (last) ? JSON.parse(process.env.LastBrowserLog) : (await browser_session.getBrowserLogs(browser)).filter(log => log.level == logLevel);
     process.env.LastBrowserLog = JSON.stringify(targetLogArray);
     console.log(process.env.LastBrowserLog);
 
@@ -94,7 +95,7 @@ Then(/^(?::browser: )?I should see the "([^"]*)" (button|label|option|modalDialo
     async function (elementText, elementName) {
         const textedElements = require(FrameworkPath + '/framework/testfiles/textedElements');
         const targetElement = eval('textedElements.texted_' + elementName).replace('__TEXT__', elementText);
-        await (await browser.$(targetElement)).waitForDisplayed(500);
+        await (await browser.$(targetElement)).waitForDisplayed({ timeout: 500 });
         await expect((await browser.$(targetElement)).isDisplayed()).toBe(true);
     });
 

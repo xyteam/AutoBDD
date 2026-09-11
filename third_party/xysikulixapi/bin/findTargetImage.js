@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+// java-bridge replaces node-java (JNI); set JVM options up front so they apply
+// before the JVM is started by the first class import/call below.
+const java = require('java-bridge');
+java.ensureJvm({ opts: ['-Xms128m', '-Xmx512m'] });
+
 // change path to your project
 const safeQuote = require('../lib/safequote');
 const xysikulixapi = require('../lib/xysikulixapi');
@@ -28,11 +33,6 @@ const imageMaxCount = parseInt((argv.imageMaxCount != null && argv.imageMaxCount
 // default output
 const notFoundStatus = {status: 'notFound'};
 
-// require stuff
-const java = require('java');
-java.options.push('-Xms128m');
-java.options.push('-Xmx512m');
-
 // Sikuli Property
 const App = xysikulixapi.App;
 const Button = xysikulixapi.Button;
@@ -42,7 +42,43 @@ const Pattern = xysikulixapi.Pattern;
 const Region = xysikulixapi.Region;
 const Settings = xysikulixapi.Settings;
 const Screen = xysikulixapi.Screen;
-OCR.globalOptionsSync().dataPath(process.env.TESSDATA_PREFIX);
+// Oculix bundles its own tessdata and auto-configures OCR (eng by default); the
+// SikuliX-style OCR.globalOptions().dataPath(...) init is not applicable here.
+
+// Flash the found region. Under Oculix/java-bridge Region.highlight() is
+// fire-and-forget (paints on a background thread and returns immediately), so if
+// this process calls process.exit() right after, the red box is torn down before
+// it ever paints (the old synchronous silulix highlight did not have this
+// problem). Flash for a visible duration and then hold the process so the box
+// actually renders and is observable (by eye / VNC / screen recording).
+const flashSecs = (argv.flash != null && argv.flash != 'undefined') ? parseFloat(argv.flash) : 1.0;
+const flashOnMatch = (region) => {
+  try {
+    const dispNum = parseInt(String(process.env.DISPLAY || '').split(':')[1] || '0', 10);
+    // Option-1 style marker: never obscure the found content. We capture the
+    // clear screen and draw only a red rectangle border around the match, so the
+    // captured area stays fully visible. (Oculix's own highlight() fills the
+    // region opaque-black under Xvfb, which has no compositor to blend the alpha.)
+    if (process.env.SCREENSHOT && parseInt(process.env.SCREENSHOT, 10) >= 1) {
+      try {
+        const shot = `/tmp/abdd_flash_${dispNum}.png`;
+        // capture the clean screen (no fill) right now, then add a red border
+        require('child_process').execSync(`import -silent -display :${dispNum} -window root ${shot}`, { stdio: 'ignore' });
+        const rx = Math.round(region.x), ry = Math.round(region.y);
+        const rw = Math.round(region.w), rh = Math.round(region.h);
+        require('child_process').execSync(
+          `convert ${shot} -stroke red -strokewidth 3 -fill none -draw "rectangle ${rx},${ry} ${rx + rw},${ry + rh}" ${shot}`,
+          { stdio: 'ignore' }
+        );
+      } catch (e) { /* flash capture is best-effort */ }
+    }
+    // brief live flash (visible to VNC / screen recording) - keep it short so any
+    // opaque fill does not linger
+    region.highlight(Math.min(flashSecs, 0.3));
+    const end = Date.now() + (flashSecs * 1000);
+    while (Date.now() < end) {}
+  } catch (e) { /* flashing is best-effort; never fail a find because of it */ }
+};
 
 // defind findImage function
 const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount) => {
@@ -57,7 +93,7 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
   const myImageMaxCount = parseInt(imageMaxCount || 1);
 
   const findRegion = new Screen();
-  findRegion.setAutoWaitTimeout(java.newFloat(myImageWaitTime));
+  findRegion.setAutoWaitTimeout(myImageWaitTime);
 
   try {
     var oneTarget;
@@ -71,13 +107,13 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
     }
     if (myImagePath.includes('Screen')) {
       const screenMargin = myImagePath.includes('-') ? parseInt(myImagePath.split('-')[1]) : 1;
-      oneTarget = Region(findRegion.getBoundsSync()).growSync(-screenMargin);
+      oneTarget = new Region(findRegion.getBoundsSync()).growSync(-screenMargin);
       returnItem.text = oneTarget.textSync().split('\n');
       [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(oneTarget);
-      oneTarget.highlight(0.1);
+      flashOnMatch(oneTarget);
       returnArray.push(returnItem);
     } else {
-      const oneSample = (new Pattern(myImagePath)).similarSync(java.newFloat(myImageSimilarity));
+      const oneSample = (new Pattern(myImagePath)).similarSync(myImageSimilarity);
       const findTargets = findRegion.findAllSync(oneSample);
       const myRegex = new RegExp(myTextHint, 'i');
       var matchCount = 0;
@@ -85,11 +121,11 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
         const oneMatch = findTargets.nextSync();
         returnItem.score = Math.floor(oneMatch.getScoreSync()*1000000)/1000000;
         [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(oneMatch);
-        oneTarget = Region(oneMatch);
+        oneTarget = new Region(oneMatch);
         returnItem.text = oneTarget.textSync().split('\n');
         if (returnItem.score >= myImageSimilarity && returnItem.score <= myMaxSim && returnItem.text.join('\n').match(myRegex)) {
           matchCount += 1;
-          oneTarget.highlight(0.1);
+          flashOnMatch(oneTarget);
           returnArray.push(returnItem);
         }
       }
@@ -136,11 +172,12 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
             break;
           }
           clickRegion.mouseUpSync();
-        }  
+        }
       }
     }
   } catch(e) {
-    console.log(e);
+    const msg = (e && typeof e.getMessageSync === 'function') ? e.getMessageSync() : (e && e.message ? e.message : String(e));
+    console.log('findTargetImage ERROR:', msg);
     returnArray.push(notFoundStatus);
   } finally {
     return JSON.stringify(returnArray);

@@ -7,9 +7,8 @@
   },
   "main": "lib/xysikulixapi.js",
   "dependencies": {
-    "java": "^0.12.2",
+    "java-bridge": "2.7.0",
     "minimist": "^1.2.5",
-    "node-gyp": "^8.4.1",
     "request": "^2.88.0",
     "shell-quote": "^1.7.3"
   },

@@ -270,7 +270,7 @@ def run_test(FrameworkPath,
               result_run):
     ''' Run Test'''
     cmd = ''
-    run_feature = path.join(module_full_path, feature_path, feature_file)
+    run_feature = os.path.abspath(path.join(module_full_path, feature_path, feature_file))
     if platform == 'Linux':
         if isMaven: #isMaven on Linux
             cmd = 'cd ' + module_full_path + ';' + \

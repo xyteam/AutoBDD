@@ -10,7 +10,7 @@ module.exports = async (partOf, element, waitAction, falseCase) => {
     const myElement = parseExpectedText(element);
     const myPartOf = partOf || 'some';
     if (waitAction == 'becomes') {
-        await (await browser.$(myElement)).waitForDisplayed(10000, !!falseCase);  
+        await (await browser.$(myElement)).waitForDisplayed({ timeout: 10000, reverse: !!falseCase });  
     }
     await browser.pause(1000);
     const isVisible = await (await browser.$(myElement)).isDisplayed();

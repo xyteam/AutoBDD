@@ -95,10 +95,10 @@ exports.hooks = {
     if (localHooks.afterStep) await localHooks.afterStep(step, context, {error, result, duration, passed});
   },
 
-  afterScenario: async function (context) {
-    if (frameworkHooks.afterScenario) await frameworkHooks.afterScenario(context);
-    if (projectHooks.afterScenario) await projectHooks.afterScenario(context);
-    if (localHooks.afterScenario) await localHooks.afterScenario(context);
+  afterScenario: async function (context, result, thisWorld) {
+    if (frameworkHooks.afterScenario) await frameworkHooks.afterScenario(context, result, thisWorld);
+    if (projectHooks.afterScenario) await projectHooks.afterScenario(context, result, thisWorld);
+    if (localHooks.afterScenario) await localHooks.afterScenario(context, result, thisWorld);
   },
 
   afterFeature: async function (uri, feature) {

@@ -1,6 +1,15 @@
 const fs = require('fs');
-const {flockSync} = require('fs-ext');
 const exec = require('child_process').exec;
+// fs-ext is a node-gyp native that no longer builds on Node 20 and its flock path is
+// dormant (safexvfb.start/stop are only wired to commented-out hooks). Stub it so this
+// module still loads without the package.
+let flockSync = (fd, mode) => {};
+let fcntlSync = (fd, cmd) => {};
+try {
+  ({ flockSync, fcntlSync } = require('fs-ext'));
+} catch (e) {
+  /* fs-ext not installed on Node 20; flock/fcntl path is dormant */
+}
 
 // allow settings to be updated via environment
 const xvfb_lockdir  = `${process.env.HOME}/.xvfb-locks`;
