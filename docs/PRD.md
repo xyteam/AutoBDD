@@ -475,13 +475,21 @@ env-related flake rate; screen-step confidence/stability trend.
 
 ## 15. Roadmap
 
-- **P0 (done):** modern runtime (v3.0.0), Oculix cutover, run-off-image, screen + tool BDD
-  families.
-- **P1:** formalize the **layer split & the two product tags** (`autobdd-base`, `autobdd-framework`; `autobdd` alias); document
-  the layer contract; publish a **"bring-your-own-L2"** mini-example; make the example
-  **screen-first** (screen-actions listed first, web-page as assist).
-- **P2:** extend pinning to a pinned distro **apt snapshot**; `linux/arm64`; remote-screen
-  (VNC) targets; richer visual-diff reporting; MCP exposure.
+- **P0 (done):** modern runtime (v3.0.0), Oculix cutover, run-off-image, screen + guest-tool
+  BDD families.
+- **v1 — the re-design release:**
+  - formalize the layers (L0/L0d/L1/L2) and the **two tags** (`autobdd-base`,
+    `autobdd-framework`; `autobdd` alias);
+  - split the conformance suites (`autobdd-base-test`, `autobdd-framework-test`), each
+    gating its tag;
+  - apply the NFRs (size budgets, **pin-all**, security, SBOM/scanning);
+  - **freeze `autobdd-base`'s CLI seam + JSON schema as the public contract** (the BYO
+    guarantee, already exercised by screen-only mode);
+  - make the example **screen-first**; docs (layers, version matrix, philosophy).
+- **P1:** publish a **bring-your-own-framework** mini-example (`FROM autobdd-base`, drives
+  the screen engine); baseline OS → 24.04 fully validated; record guidance for guest tools.
+- **P2:** pinned distro **apt snapshot**; `linux/arm64`; remote-screen (VNC) targets;
+  richer visual-diff reporting; MCP exposure.
 
 ---
 
@@ -514,7 +522,9 @@ env-related flake rate; screen-step confidence/stability trend.
    `autobdd` as a deprecated alias. Old `-ubuntu`/`-nodejs` retired at the next major.
 2. ~~Is L3 opt-in or included by default?~~ **Resolved (§6/§7):** L3 (guest tools — postman,
    jmeter, jest/pytest) is **not shipped at all**; users add tools in their projects.
-3. Is **"bring-your-own-L2"** a v1 requirement or P1?
+3. ~~BYO-framework: v1 or P1?~~ **Resolved (hybrid):** the **contract is v1** (freeze
+   `autobdd-base`'s CLI seam + JSON schema as the public interface), the **BYO
+   build/example is P1**.
 4. ~~Chrome pinning policy?~~ **Resolved (NFR-P3):** pin an **exact** Chrome + chromedriver
    version via **Chrome for Testing** (browser *and* driver), like every other
    third-party tool; versions recorded in `/etc/autobdd-versions`.
