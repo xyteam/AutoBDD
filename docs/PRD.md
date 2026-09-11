@@ -117,8 +117,8 @@ Three sales pillars:
 ## 4. Goals / non-goals
 
 **Goals**
-- G1 A single versioned image delivering L0–L3, runnable by any test repo with no
-  framework clone.
+- G1 A single versioned image delivering **L0–L3 (incl. L0d)**, runnable by any test
+  repo with no framework clone.
 - G2 A clean **layer contract** so a repo can replace L2 (BDD framework) and/or L3 (tools).
 - G3 Demonstrate (via AutoBDD-example) both **screen-image** (first) and **web-page**
   (assist) action families.
@@ -156,22 +156,43 @@ Three sales pillars:
  L1     │ OS actions (advanced): image match + OCR       │  the differentiator
         │ (Oculix) · keyboard/mouse · screen capture     │
         ├───────────────────────────────────────────────┤
- L0     │ Lean Linux OS + essentials: sshd · Xvfb ·      │  foundation
-        │ x11vnc · parallel · curl/wget · git · jq ·     │
-        │ unzip · ffmpeg · tini/supervisor               │
+ L0d    │ X display + desktop: Xvfb · window manager ·   │  GUI substrate
+        │ [optional LXDE · x11vnc · themes · fonts]      │
+        ├───────────────────────────────────────────────┤
+ L0     │ Lean Linux OS + essentials: sshd · parallel ·  │  foundation
+        │ curl/wget · git · jq · unzip · ffmpeg · tini   │
         └───────────────────────────────────────────────┘
 ```
 
-**Image build stages (one chain, four tags):**
+**Base OS + desktop decision (agreed).**
+- **Base = Ubuntu** (glibc required by Chrome, OpenJDK/Oculix, and the X desktop).
+  - **Going-forward: `ubuntu:24.04` LTS** (support to 2029 / ESM 2034; mainstream
+    LTS; broad repo/tooling support). Pin `openjdk-17-jdk` (24.04's `default-jdk` is 21).
+  - **`ubuntu:22.04` LTS retained as backup/current** (this is what v3.0.0 ships;
+    keep it as the fallback if 24.04 shows issues). Note 22.04 standard support ends
+    2027‑04 — not the long-term baseline.
+  - **Defer `ubuntu:26.04`** (released 2026‑04; Wayland-first; ecosystem immature) to P2.
+  - **Not viable:** Alpine (musl) and distroless/scratch (no shell/apt/WM).
+- **L0d is a first-class layer, split required vs optional:**
+  - **Required (pinned):** `Xvfb` + **a single light window manager** (e.g. `openbox`)
+    + the **exact font/theme set** we test against. A WM is mandatory even for headless
+    runs so GUI windows place/decorate predictably.
+  - **Optional overlay:** `lxde` + `x11vnc` + `arc-theme` + `zenity` … for the
+    interactive/dev GUI.
+  - **The desktop/WM/theme/fonts are pinned and recorded** — they are inputs to
+    image-match confidence/stability (§1.6).
+
+**Image build stages (one chain, five tags):**
 
 | Stage | Tag (proposed) | Contents | Why separate |
 |---|---|---|---|
-| L0 | `xyteam/autobdd-base:<v>` | lean OS + essentials | rarely changes; heaviest reuse |
+| L0 | `xyteam/autobdd-base:<v>` | lean Ubuntu + essentials | rarely changes; heaviest reuse |
+| L0d | `xyteam/autobdd-desktop:<v>` | Xvfb + WM (+ optional desktop/VNC/themes/fonts) | GUI substrate; pinned for determinism |
 | L1 | `xyteam/autobdd-osactions:<v>` | Oculix image/OCR + kbd/mouse | the differentiator; version with the engine |
 | L2 | `xyteam/autobdd-framework:<v>` | Chrome/driver, Node, wdio, cucumber, AutoBDD | changes on framework/dep bumps |
 | L3 | `xyteam/autobdd:<v>` | L2 + extra tools (newman, k6, jest, pytest) | the "batteries-included" image repos run (default) |
 
-*(Back-compat: today's `autobdd-ubuntu` / `-nodejs` / `autobdd` map to L0 / L2 / L3;
+*(Back-compat: today's `autobdd-ubuntu` / `-nodejs` / `autobdd` map to L0(+L0d) / L2 / L3;
 migrate the naming behind a version bump.)*
 
 ---
@@ -224,8 +245,17 @@ The product rule: **the platform image is a default, not a straitjacket.**
 
 **L0 — base**
 - FR-1 Lean Linux base; image size target ≤ ~1.2 GB (L0).
-- FR-2 Provides `sshd`, `Xvfb`, `x11vnc`, `parallel`, `curl/wget`, `git`, `jq`, `unzip`,
-  `ffmpeg`, `tini`/`supervisor`.
+- FR-2 Provides `sshd`, `parallel`, `curl/wget`, `git`, `jq`, `unzip`, `ffmpeg`,
+  `tini`/`supervisor`.
+
+**L0d — X display + desktop (GUI substrate)**
+- FR-2a **Xvfb** for a headless X display (`DISPLAY` exported before any JVM/GUI start).
+- FR-2b **A single pinned light window manager** (e.g. `openbox`) — required even for
+  headless runs so GUI windows place/decorate predictably.
+- FR-2c **Optional overlay** — `lxde` + `x11vnc` + `arc-theme` + `zenity` + CJK fonts
+  for the interactive/dev GUI (VNC).
+- FR-2d **Pinned GUI stack** — the WM/theme/font set is fixed and recorded (it is an
+  input to image-match confidence/stability, §1.6).
 - FR-3 Entrypoint creates `USER`/`USERID`/`GROUPID`, exports `DISPLAY`, exposes 22/5900.
 - FR-4 Headless by default; VNC optional.
 
@@ -294,8 +324,9 @@ The product rule: **the platform image is a default, not a straitjacket.**
 
 - Semantic versions, `v`-prefix tags; release = tag + GitHub Release + published images
   (+ recorded Chrome/driver).
-- **Version matrix** (established): v2.3.0 (Node12/Chrome96/wdio7) → v2.4.0 (Node14,
-  runnable base) → v3.0.0 (Node20/Java17/Chrome/wdio9/Oculix4).
+- **Version matrix** (established): v2.3.0 (Ubuntu20.04/Node12/Chrome96/wdio7) →
+  v2.4.0 (Node14, runnable base) → v3.0.0 (Ubuntu22.04/Node20/Java17/Chrome/wdio9/Oculix4).
+  **Going forward: base `ubuntu:24.04`** (22.04 retained as backup; 26.04 deferred).
 - Compatibility: the example declares a supported image range.
 
 ---
