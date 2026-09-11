@@ -1,0 +1,325 @@
+# AutoBDD — Product Requirements Document
+## Re-design: a layered automation platform (framework + image) and consuming test repos
+
+**Version:** 0.1 (draft for discussion) · **Status:** in review · **Owner:** Product/Platform
+
+> Living document. Review, discuss and improve point-by-point. Numbers in `FR-*`/`NFR-*`
+> are anchors for the discussion, not final.
+
+---
+
+## 0. TL;DR
+
+AutoBDD becomes a **layered, image-first automation platform**. The image ships four
+tiers — **(L0) lean OS, (L1) OS actions, (L2) BDD framework, (L3) extra test tools** —
+and test repos consume the image *as-is* or *bring their own L2/L3*.
+
+> **Positioning:** *"If a human can see it and do it on the screen, AutoBDD can test it."*
+
+---
+
+## 1. Test philosophy — **image-action first, web/DOM-action assist**
+
+This is the product's spine. It decides how tests are written and what "good" looks like.
+
+**1.1 Image-action first (primary).**
+Drive the application the way a user does — through the **screen**: locate, click,
+hover, drag and assert on **rendered images and on-screen text** (image matching + OCR).
+
+**1.2 Web/DOM-action assist (secondary).**
+Use browser/DOM steps as **fast, precise shortcuts when they are available and stable**
+— e.g. navigate to a URL, set an input value, read an attribute, wait for network idle.
+They **assist**; they are not the contractual surface of a test.
+
+**1.3 Why image-first**
+- **Represents the user** — asserts what is actually shown, not an implementation detail.
+- **Universal** — the same action model works for DOM, canvas/WebGL, PDF, iframes,
+  native/desktop apps and remote VDI. DOM-actions cover only part of that.
+- **Robust to refactors** — the DOM/ids/classes can churn without breaking the test.
+- **One language** — a screen action and a DOM action are both plain Cucumber steps.
+
+**1.4 Guardrails (so "image-first" doesn't become "image-only, flaky")**
+- Use DOM-actions for **setup/navigation** and for **exact-value** operations where the
+  screen is a poor oracle; use image-actions for **presence, appearance, position,
+  interaction and visual assertions**.
+- Image actions must be **stable**: deterministic capture, tuned similarity, explicit
+  waits, and clear failure artifacts (the flash + step screenshot + movie).
+- A test SHOULD be understandable by a non-coder from the steps alone.
+
+**1.5 Consequence for the product**
+The default demo/template actions are **screen-actions**; web-page actions are labelled
+as *assist*. The image must make screen-actions first-class and cheap (see L1).
+
+---
+
+## 2. Vision & positioning (sales)
+
+Today's browser tools (Playwright, Cypress, Selenium) are excellent — **inside the DOM**.
+The moment a target isn't a DOM element (canvas/WebGL, PDF viewers, native/desktop apps,
+remote VDI, third-party sites), they either can't or they get brittle.
+
+AutoBDD's promise: **see anything, test anything** — image- and text-based actions *plus*
+browser automation, in **one BDD (Cucumber) language**, running reproducibly **from a
+single container**.
+
+Three sales pillars:
+1. **Universal reach** — one framework spans screen-image and web-page actions.
+2. **Reproducible by construction** — the whole stack is a versioned image; a test repo
+   needs *only a clone of itself*.
+3. **Composable** — use the full image, or bring your own framework/tooling and keep our
+   OS + screen engine.
+
+---
+
+## 3. Problem & opportunity
+
+- **Problem:** automation stacks are glued-together and environment-fragile
+  (Chrome/driver drift, OCR/native-lib hell), and they are DOM-bound.
+- **Opportunity:** a **layered platform image** removes setup/drift; image+text actions
+  open a category of "un-automatable" targets; a clean layer contract lets teams adopt
+  incrementally.
+
+---
+
+## 4. Goals / non-goals
+
+**Goals**
+- G1 A single versioned image delivering L0–L3, runnable by any test repo with no
+  framework clone.
+- G2 A clean **layer contract** so a repo can replace L2 (BDD framework) and/or L3 (tools).
+- G3 Demonstrate (via AutoBDD-example) both **screen-image** (first) and **web-page**
+  (assist) action families.
+- G4 Reproducible builds; green conformance suite; lean, fast-starting images.
+
+**Non-goals (v1)**
+- NG1 Windows/macOS images (Linux first; future).
+- NG2 Own cloud grid/scheduler.
+- NG3 Re-implementing the underlying engines (we integrate Oculix + WebdriverIO).
+
+---
+
+## 5. Personas
+
+| Persona | Need | Success |
+|---|---|---|
+| **QA engineer** | write tests in plain language; trustworthy reports | runs suite from a clone; sees step screenshots + movies |
+| **SDET / platform eng** | reproducible env; extend/replace layers | pins image version; swaps L2/L3 |
+| **Engineering manager** | cover "hard" targets; low maintenance | fewer flaky envs; covers canvas/native |
+| **Visual/UX reviewer** | pixel accuracy over time | image/text assertions with clear artifacts |
+
+---
+
+## 6. Product architecture — the four layers
+
+```
+        ┌───────────────────────────────────────────────┐
+ L3     │ Extra test tools: API (newman/postman) ·       │  optional
+        │ Load (k6) · Unit (jest/pytest) · cypress       │
+        ├───────────────────────────────────────────────┤
+ L2     │ BDD framework: Chrome + chromedriver · Node ·  │  "the framework"
+        │ WebdriverIO · Cucumber · Python · AutoBDD      │
+        │ (step libraries, runners, reports)             │
+        ├───────────────────────────────────────────────┤
+ L1     │ OS actions (advanced): image match + OCR       │  the differentiator
+        │ (Oculix) · keyboard/mouse · screen capture     │
+        ├───────────────────────────────────────────────┤
+ L0     │ Lean Linux OS + essentials: sshd · Xvfb ·      │  foundation
+        │ x11vnc · parallel · curl/wget · git · jq ·     │
+        │ unzip · ffmpeg · tini/supervisor               │
+        └───────────────────────────────────────────────┘
+```
+
+**Image build stages (one chain, four tags):**
+
+| Stage | Tag (proposed) | Contents | Why separate |
+|---|---|---|---|
+| L0 | `xyteam/autobdd-base:<v>` | lean OS + essentials | rarely changes; heaviest reuse |
+| L1 | `xyteam/autobdd-osactions:<v>` | Oculix image/OCR + kbd/mouse | the differentiator; version with the engine |
+| L2 | `xyteam/autobdd-framework:<v>` | Chrome/driver, Node, wdio, cucumber, AutoBDD | changes on framework/dep bumps |
+| L3 | `xyteam/autobdd:<v>` | L2 + extra tools (newman, k6, jest, pytest) | the "batteries-included" image repos run (default) |
+
+*(Back-compat: today's `autobdd-ubuntu` / `-nodejs` / `autobdd` map to L0 / L2 / L3;
+migrate the naming behind a version bump.)*
+
+---
+
+## 7. Composition model — "use ours, or bring your own"
+
+The product rule: **the platform image is a default, not a straitjacket.**
+
+- **Use everything** — `docker run xyteam/autobdd:<v>` → L0–L3.
+- **Bring your own framework (L2)** — build `FROM autobdd-osactions` (L0+L1) and add your
+  Node / wdio / JUnit / Playwright. You keep the screen engine, display, ssh/VNC.
+- **Bring your own tools (L3)** — build `FROM autobdd-framework` and add your API/load tools.
+- **Use ours as environment only** — mount your project; the image never owns your tests.
+
+**Layer contract (interfaces each layer exposes):**
+- **L0:** `DISPLAY` (Xvfb), `:22` ssh, `:5900` VNC, `parallel`, entrypoint reads
+  `USER`/`USERID`/`GROUPID`, `tini`.
+- **L1:** a CLI seam (`findTargetImage`-style) with stable JSON I/O; env
+  `TESSDATA_PREFIX`, `LD_LIBRARY_PATH`; a screen-action step library.
+- **L2:** `auto-runner.py`, `xvfb-runner.sh`, report generator; `PATH` has `npx wdio` and
+  `chromedriver`; `CHROMEDRIVER_PATH`.
+- **L3:** named binaries (`newman`, `k6`, `jest`, `pytest`) on `PATH`; the generic
+  `When I run this command "..."` step.
+
+---
+
+## 8. Repo re-design
+
+**8.1 `AutoBDD` (the platform/framework repo) — "build the image + ship the framework."**
+- Owns L0–L2 (and the reference L3): dockerfiles, `framework/` (step libraries, runners,
+  report generator), the Oculix bridge.
+- Owns image build + publish; README: **"clone only to inspect/build the image."**
+- Ships the **conformance suite** (`test-projects/autobdd-test`) and its CI.
+
+**8.2 `AutoBDD-example` (a consuming test project) — "use the image; show everything."**
+- Contains **only tests**, mock/demo apps, and its run compose; **no framework code**.
+- Organized by action family, image-first:
+  - `screen-actions/` **(primary)** — image match + OCR
+  - `web-page-actions/` (assist) — browser/DOM
+  - `tool-actions/` — API/postman, jest/pytest/k6 as BDD
+- Runs off the published image (`AutoBDD_Ver`), zero framework clone.
+
+**8.3 Cross-repo contract**
+- Image ↔ framework ↔ example versions tracked in a matrix (`v2.3.0` / `v2.4.0` / `v3.0.0`).
+- The example declares a **minimum image version**; CI runs it against the published tag.
+
+---
+
+## 9. Functional requirements
+
+**L0 — base**
+- FR-1 Lean Linux base; image size target ≤ ~1.2 GB (L0).
+- FR-2 Provides `sshd`, `Xvfb`, `x11vnc`, `parallel`, `curl/wget`, `git`, `jq`, `unzip`,
+  `ffmpeg`, `tini`/`supervisor`.
+- FR-3 Entrypoint creates `USER`/`USERID`/`GROUPID`, exports `DISPLAY`, exposes 22/5900.
+- FR-4 Headless by default; VNC optional.
+
+**L1 — OS actions (differentiator, first-class)**
+- FR-5 Image matching: `find/click/hover/assert` on a supplied image; returns
+  `{location,dimension,score,text}` JSON.
+- FR-6 OCR: read on-screen text/areas; assert containment.
+- FR-7 Keyboard/mouse: move/click/drag/type (prefer a single native surface).
+- FR-8 Visual feedback: found-target **flash**, visible in movies and **carried into the
+  step screenshot** with a pass/fail watermark.
+- FR-9 Natives bundled & warmed at build (no runtime download).
+
+**L2 — BDD framework**
+- FR-10 Chrome + **matching** chromedriver on `PATH`; no runtime driver download.
+- FR-11 Node LTS + WebdriverIO + Cucumber; `npx wdio` runs a module.
+- FR-12 Runners: `auto-runner.py` (parallel discovery), single/parallel runners; Xvfb isolation.
+- FR-13 Reports: HTML with step screenshots (watermarks), per-scenario movies, junit/xml.
+- FR-14 Python available for tooling/tests.
+
+**L3 — extra tools (reference set)**
+- FR-15 API: `newman` (+ postman runner step).
+- FR-16 Load: `k6`.
+- FR-17 Unit: `jest`, `pytest`.
+- FR-18 Generic `When I run this command "..."` step so any CLI tool is a BDD step.
+
+**Repos**
+- FR-19 Test repos run with **no framework clone**; only their own clone + the image.
+- FR-20 A repo may replace L2 and/or L3 by building on the lower tags.
+- FR-21 Example demonstrates each action family (screen first) and runs green from the
+  published image.
+
+---
+
+## 10. Non-functional requirements
+
+- NFR-1 **Reproducible/near-hermetic**: pin Chrome/driver per release (or record them —
+  we added `/etc/autobdd-chrome-version`); no surprise drift.
+- NFR-2 **Startup**: container ready (VNC/ssh) < ~10 s; first image-match after warm < ~1 s.
+- NFR-3 **Size discipline**: L0 lean; each layer's delta documented.
+- NFR-4 **Security**: non-root test user, secrets via env not baked, sshd hardened;
+  `docker.sock` only when required.
+- NFR-5 **Observability**: structured logs per scenario; artifacts (screens/movies) retained.
+- NFR-6 **Portability**: Linux x86_64 (aarch64 future).
+
+---
+
+## 11. UX / workflows
+
+1. **Consumer (most users)** — clone test repo; `docker compose run … "make e2e-test"`;
+   open `index.html`. No framework knowledge.
+2. **Author** — add a feature; prefer `:screen:` steps, use `:browser:` to assist; run one
+   module fast.
+3. **Platform eng** — pin `AutoBDD_Ver`; or `FROM autobdd-osactions` and plug in your own L2.
+4. **CI** — pull image; run suite; upload report artifact.
+
+---
+
+## 12. Packaging & versioning
+
+- Semantic versions, `v`-prefix tags; release = tag + GitHub Release + published images
+  (+ recorded Chrome/driver).
+- **Version matrix** (established): v2.3.0 (Node12/Chrome96/wdio7) → v2.4.0 (Node14,
+  runnable base) → v3.0.0 (Node20/Java17/Chrome/wdio9/Oculix4).
+- Compatibility: the example declares a supported image range.
+
+---
+
+## 13. CI/CD
+
+- Platform repo CI: build image; run conformance (`autobdd-test`).
+- Consumer/repo CI: pull the published image; run their suite — validates the layer contract
+  with real consumers.
+
+---
+
+## 14. Metrics & acceptance
+
+- **Acceptance (v1):** example green off the published image (screen first + web assist +
+  tool families); conformance green; a documented **"bring-your-own-L2/L3"** example exists;
+  README states layers + version matrix + philosophy.
+- **Product metrics:** time-to-first-green (target < 15 min from clone); image pull size;
+  share of "un-automatable" targets now covered; env-related flake rate.
+
+---
+
+## 15. Roadmap
+
+- **P0 (done):** modern runtime (v3.0.0), Oculix cutover, run-off-image, screen + tool BDD
+  families.
+- **P1:** formalize the **L0–L3 split & tags**; extract L3 into an optional stage; document
+  the layer contract; publish a **"bring-your-own-L2"** mini-example; make the example
+  **screen-first** (screen-actions listed first, web-page as assist).
+- **P2:** pin/track browser versions; lean L0 (size budget); aarch64; remote-screen (VNC)
+  targets; richer visual-diff reporting; MCP exposure.
+
+---
+
+## 16. Risks & mitigations
+
+| Risk | Mitigation |
+|---|---|
+| Layer split churns image names/consumers | version bump + aliases; one migration guide |
+| Browser/driver drift | pin or record versions; CI guard |
+| OCR/native fragility in containers | Oculix bundled natives + absolute-path loading (Octachorix next) |
+| "Image-first" misread as "image-only" → flaky | the guardrails in §1.4; prefer DOM-assist for exact values |
+| "Bring-your-own" contract rot | validate via real consumer CI |
+| Scope creep into native/mobile | keep as future, non-goal for v1 |
+
+---
+
+## 17. Sales battlecard
+
+- **vs Playwright/Selenium/Cypress:** they read the DOM; we *see* the screen
+  (images + text) — canvas, PDF, native, remote.
+- **vs Applitools/Percy:** they compare images; we *act* on them (find→click→type) in one
+  BDD flow.
+- **vs "home-grown":** a versioned, reproducible image and a language the whole team reads.
+
+---
+
+## 18. Open questions (for point-by-point discussion)
+
+1. **Naming** of the four tags — `base/osactions/framework/autobdd` vs keep
+   `-ubuntu/-nodejs/autobdd`?
+2. Is **L3 opt-in** (lean default + `-full` variant) or included by default?
+3. Is **"bring-your-own-L2"** a v1 requirement or P1?
+4. **Chrome pinning** policy — pin a version vs "latest + record"?
+5. How strictly to enforce **image-first** (lint/CI that flags DOM-heavy specs)?
+6. Should the **conformance suite** live in the platform repo (current) or be its own
+   consuming repo?
