@@ -50,6 +50,39 @@ They **assist**; they are not the contractual surface of a test.
 The default demo/template actions are **screen-actions**; web-page actions are labelled
 as *assist*. The image must make screen-actions first-class and cheap (see L1).
 
+**1.6 The boundary — precision & confidence (the measured crossover).**
+Strictness is not a policy constant; it is a function of **(a)** the target's
+DOM-addressability, **(b)** the operation's precision need, and **(c)** the *measured*
+confidence of the screen path. Screen image + keyboard/mouse actions **fade** when the
+match is ambiguous (low similarity, small margin), rendering is non-deterministic
+(fonts/animation/DPI/scroll), the target is tiny, the oracle needs exactness, or
+synchronisation is cleaner on the DOM. DOM control becomes beneficial exactly there.
+
+| DOM-addressable? | Operation needs | Recommended | Why |
+|---|---|---|---|
+| **No** (native / canvas / PDF / remote VDI) | anything | **screen (mandatory)** | DOM capability = 0 |
+| Yes | representation (presence, appearance, position, visual state, interaction) | **screen (primary)** | represents the user; robust to refactor |
+| Yes | exactness (value equality, structure, order, dynamic data) | **DOM assist** | screen can't guarantee exactness |
+| Yes | setup / navigation / wait | **DOM assist** | fast, stable |
+| Yes, tie | either works | **confidence score decides** | data-driven |
+
+Metrics to capture per screen step: `score` (image similarity — already returned by the
+finder), `margin` (best − 2nd-best), `verified` (post-action state check), `latency`;
+plus **stability** derived by comparing confidence across runs.
+
+**1.7 Decisions (agreed)**
+
+- **D1 — Stability study at the end of each run.** After a run, compare each step's
+  confidence against previous runs. When instability is observed, **expose the confidence
+  score** and advise a **more precise means**: a higher-score image/fixture, or web-DOM.
+- **D2 — Tie-break by confidence.** When either action model would work, our **confidence
+  score decides**. Escalate to web-DOM only when the user **demands higher confidence**,
+  and then guide them to observe web-DOM as the replacement.
+- **D3 — Screen-only runtime mode is v1.** Enable a **no-browser** runtime (L1 OS-actions
+  alone — no L2/Chrome/wdio) for pure desktop/native targets where DOM capability = 0.
+- **D4 — Confidence is advisory-only in v1.** Exposed in the report (badge + numbers) and
+  in the post-run stability study; **not** an assertable step (revisit in v2).
+
 ---
 
 ## 2. Vision & positioning (sales)
@@ -204,6 +237,13 @@ The product rule: **the platform image is a default, not a straitjacket.**
 - FR-8 Visual feedback: found-target **flash**, visible in movies and **carried into the
   step screenshot** with a pass/fail watermark.
 - FR-9 Natives bundled & warmed at build (no runtime download).
+- FR-9a **Confidence exposure** — each screen step records `score`, `margin`, `verified`,
+  `latency`; the report shows a confidence badge + raw numbers. Advisory only in v1 (D4).
+- FR-9b **Post-run stability study** — after each run, compare per-step confidence against
+  previous runs; on instability, surface the score and advise a more precise means
+  (higher-score image/fixture, or web-DOM) (D1).
+- FR-9c **Screen-only runtime mode (v1)** — run pure screen actions with **no browser**
+  (L1 alone) for targets where DOM capability = 0 (D3).
 
 **L2 — BDD framework**
 - FR-10 Chrome + **matching** chromedriver on `PATH`; no runtime driver download.
@@ -320,6 +360,8 @@ The product rule: **the platform image is a default, not a straitjacket.**
 2. Is **L3 opt-in** (lean default + `-full` variant) or included by default?
 3. Is **"bring-your-own-L2"** a v1 requirement or P1?
 4. **Chrome pinning** policy — pin a version vs "latest + record"?
-5. How strictly to enforce **image-first** (lint/CI that flags DOM-heavy specs)?
+5. ~~How strictly to enforce image-first?~~ **Resolved (§1.6–1.7):** the boundary is
+   *measured*; confidence is advisory in v1 (D4); any *enforcement* (CI lint) is deferred
+   to v2, informed by the stability study (D1).
 6. Should the **conformance suite** live in the platform repo (current) or be its own
    consuming repo?
