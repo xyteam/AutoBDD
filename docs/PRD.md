@@ -146,8 +146,8 @@ Three sales pillars:
 
 ```
         ┌───────────────────────────────────────────────┐
- L3     │ Guest tools (NOT shipped): API (newman) ·      │  user-provided
-        │ Load (k6) · Unit (jest/pytest)                 │
+ L3     │ Guest tools (NOT shipped): API (postman) ·      │  user-provided
+        │ Load (jmeter) · Unit (jest/pytest)             │
         ├───────────────────────────────────────────────┤
  L2     │ BDD framework: Chrome + chromedriver · Node ·  │  "the framework"
         │ WebdriverIO · Cucumber · Python · AutoBDD      │
@@ -191,8 +191,8 @@ Three sales pillars:
 | **`xyteam/autobdd-framework:<v>`** | + **L2 only** | **the product**: + Chrome/chromedriver, Node, Python, wdio, cucumber, AutoBDD | **default** — test repos pull this |
 
 - **Product scope = the essentials.** `autobdd-framework` ships **Chrome/chromedriver,
-  Node, Python, wdio, cucumber, AutoBDD** — and **not** the guest tools (newman, jest,
-  pytest, k6); users add those in their own projects (the generic
+  Node, Python, wdio, cucumber, AutoBDD** — and **not** the guest tools (postman, jmeter, jest,
+  pytest); users add those in their own projects (the generic
   `When I run this command "..."` step makes any CLI tool a BDD step).
 - **Alias:** `xyteam/autobdd:<v>` is published as a **deprecated alias** of
   `autobdd-framework:<v>` (same image, two tags) so existing consumers
@@ -217,7 +217,7 @@ The product rule: **the platform image is a default, not a straitjacket.**
   engine, display, ssh/VNC.
 - **Bring your own tools** — add them **in your project** (install + invoke via the
   generic `When I run this command "..."` step); the product image does **not** ship
-  newman/jest/pytest/k6.
+  postman/jmeter/jest/pytest.
 - **Screen-only (no browser)** — run `xyteam/autobdd-base`; today's screen actions need no
   Chrome/wdio.
 - **Use ours as environment only** — mount your project; the image never owns your tests.
@@ -246,7 +246,7 @@ The product rule: **the platform image is a default, not a straitjacket.**
 - Organized by action family, image-first:
   - `screen-actions/` **(primary)** — image match + OCR
   - `web-page-actions/` (assist) — browser/DOM
-  - `tool-actions/` — API/postman, jest/pytest/k6 as BDD
+  - `tool-actions/` — API (postman), load (jmeter), unit (jest/pytest) as BDD
 - Runs off the published image (`AutoBDD_Ver`), zero framework clone.
 
 **8.3 Cross-repo contract**
@@ -297,12 +297,12 @@ The product rule: **the platform image is a default, not a straitjacket.**
 - FR-14 Python available for tooling/tests.
 
 **L3 — guest tools (NOT shipped; user-provided)**
-- FR-15 **Guest tools** (API: newman/postman · load: k6 · unit: jest/pytest) are **not**
+- FR-15 **Guest tools** (API: **postman** · load: **jmeter** · unit: jest/pytest) are **not**
   part of the product image; users install them in their own test projects.
 - FR-16 The product provides the generic **`When I run this command "..."`** step so any
   installed CLI tool becomes a first-class BDD step.
-- FR-17 The reference **example** demonstrates guest tools (postman/newman, jest, pytest,
-  k6) as optional modules — the framework image itself does not ship them.
+- FR-17 The reference **example** demonstrates guest tools (API: postman · load: jmeter ·
+  unit: jest/pytest) as optional modules — the image itself does not ship them.
 
 **Repos**
 - FR-19 Test repos run with **no framework clone**; only their own clone + the image.
