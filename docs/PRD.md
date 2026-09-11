@@ -206,21 +206,25 @@ build stages* (for cache/reuse) but published as a **single `autobdd-base` tag**
 
 The product rule: **the platform image is a default, not a straitjacket.**
 
-- **Use everything** — `docker run xyteam/autobdd:<v>` → L0–L3.
-- **Bring your own framework (L2)** — build `FROM autobdd-osactions` (L0+L1) and add your
-  Node / wdio / JUnit / Playwright. You keep the screen engine, display, ssh/VNC.
-- **Bring your own tools (L3)** — build `FROM autobdd-framework` and add your API/load tools.
+- **Use everything** — `docker run xyteam/autobdd:<v>` → L0–L3 (batteries-included).
+- **Bring your own framework (L2)** — build `FROM xyteam/autobdd-base` (OS + display +
+  screen/mouse engine) and add your Node / wdio / JUnit / Playwright. You keep the screen
+  engine, display, ssh/VNC.
+- **Bring your own tools (L3)** — build `FROM xyteam/autobdd-framework` and add your
+  API/load tools.
+- **Screen-only (no browser)** — run `xyteam/autobdd-base`; today's screen actions need no
+  Chrome/wdio.
 - **Use ours as environment only** — mount your project; the image never owns your tests.
 
 **Layer contract (interfaces each layer exposes):**
-- **L0:** `DISPLAY` (Xvfb), `:22` ssh, `:5900` VNC, `parallel`, entrypoint reads
-  `USER`/`USERID`/`GROUPID`, `tini`.
-- **L1:** a CLI seam (`findTargetImage`-style) with stable JSON I/O; env
-  `TESSDATA_PREFIX`, `LD_LIBRARY_PATH`; a screen-action step library.
-- **L2:** `auto-runner.py`, `xvfb-runner.sh`, report generator; `PATH` has `npx wdio` and
-  `chromedriver`; `CHROMEDRIVER_PATH`.
-- **L3:** named binaries (`newman`, `k6`, `jest`, `pytest`) on `PATH`; the generic
-  `When I run this command "..."` step.
+- **`autobdd-base` (L0+L0d+L1):** `DISPLAY` (Xvfb) + pinned WM; `:22` ssh, `:5900` VNC;
+  entrypoint reads `USER`/`USERID`/`GROUPID`; `tini`; **the screen engine's CLI seam**
+  (`findTargetImage`-style) with **stable JSON I/O** + env (`TESSDATA_PREFIX`,
+  `LD_LIBRARY_PATH`).
+- **`autobdd-framework` (L2):** `auto-runner.py`, `xvfb-runner.sh`, the report generator;
+  `PATH` provides `npx wdio` and `chromedriver`; `CHROMEDRIVER_PATH`.
+- **`autobdd` (L3):** named binaries (`newman`, `k6`, `jest`, `pytest`) on `PATH`; the
+  generic `When I run this command "..."` step.
 
 ---
 
