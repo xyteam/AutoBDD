@@ -360,22 +360,31 @@ Targets are anchors for review; each maps to a place we can measure/enforce.
 - **NFR-S5** No build toolchain in the runtime stage (multi-stage; compilers/dev headers
   stay in builder stages) — keeps the surface and CVEs down.
 
-### 10.2 Reproducibility & pinning (NFR-P)
+### 10.2 Reproducibility & pinning (NFR-P) — **pin all third-party tools**
 - **NFR-P1** The **published image digest is the immutable pin**: consumers reference
   `:<v>` (or its digest); a released digest never changes.
 - **NFR-P2** **Digest-pin `FROM`** in every Dockerfile (e.g. `ubuntu:24.04@sha256:…`).
-- **NFR-P3** **Pinned majors, recorded exacts**: Node (major 20), Python (24.04 default),
-  Oculix engine (`oculixapi` 4.0.0), WM/theme/fonts. Record the resolved exact versions
-  in-image (extend `/etc/autobdd-chrome-version` → a general `/etc/autobdd-versions`).
-- **NFR-P4** **Chrome/driver policy**: install **latest stable at build + record** the
-  exact Chrome/chromedriver version (Google's apt only serves latest); for strict
-  reproducibility rely on NFR-P1 (pin the image digest) rather than the Chrome version.
-- **NFR-P5** **Node deps**: `package-lock.json` committed; use `npm ci` (not `npm install`)
-  in image builds.
-- **NFR-P6** **Verified downloads**: checksums/signatures verified for external artifacts
-  (Chrome-for-Testing, jars, k6/newman if added by consumers).
-- **NFR-P7** **Pinned GUI stack**: WM/theme/fonts pinned because they change rendering →
-  change image-match confidence (§1.6).
+- **NFR-P3** **Pin every third-party component the platform ships to an exact version** —
+  not just majors. The pinned set:
+  - **Base OS** — `ubuntu:24.04` digest-pinned; **apt packages version-pinned** (or built
+    from a pinned distro snapshot).
+  - **Chrome + chromedriver** — **exact version via Chrome for Testing**
+    (`chrome-for-testing-public/<ver>/…` for *both* browser and driver), **not** apt
+    "latest". This is what makes Chrome pinning possible.
+  - **Java** — exact `openjdk-17-jdk` version.
+  - **Node** — exact Node 20.x (NodeSource pinned).
+  - **Python** — exact 3.x + `requirements` pinned (`==` / hashes).
+  - **Oculix engine** — `oculixapi` 4.0.0 (exact jar).
+  - **Node deps** — committed `package-lock.json`; **`npm ci`** (not `npm install`).
+  - **GUI stack** — WM/theme/fonts pinned (they change rendering → change image-match
+    confidence, §1.6).
+  - **Other tools** — ImageMagick, ffmpeg, … exact apt versions.
+- **NFR-P4** **Record the resolved pinned versions** in-image (`/etc/autobdd-versions`,
+  generalizing today's `/etc/autobdd-chrome-version`).
+- **NFR-P5** **Verified downloads** — checksums/signatures for externally fetched artifacts
+  (Chrome-for-Testing, jars).
+- **NFR-P6** **A pin bump is a reviewed change** (Renovate/dependabot-style PR) that
+  triggers **both** conformance suites (§8.1).
 
 ### 10.3 Startup & performance (NFR-T)
 - **NFR-T1** Container ready (ssh/VNC up, `DISPLAY` live) ≤ **10 s**.
@@ -498,9 +507,9 @@ Targets are anchors for review; each maps to a place we can measure/enforce.
 2. ~~Is L3 opt-in or included by default?~~ **Resolved (§6/§7):** L3 (guest tools — postman,
    jmeter, jest/pytest) is **not shipped at all**; users add tools in their projects.
 3. Is **"bring-your-own-L2"** a v1 requirement or P1?
-4. ~~Chrome pinning policy?~~ **Resolved (NFR-P4):** install **latest stable + record** the
-   exact Chrome/chromedriver; reproducibility is via the **immutable image digest**
-   (NFR-P1), not the Chrome version.
+4. ~~Chrome pinning policy?~~ **Resolved (NFR-P3):** pin an **exact** Chrome + chromedriver
+   version via **Chrome for Testing** (browser *and* driver), like every other
+   third-party tool; versions recorded in `/etc/autobdd-versions`.
 5. ~~How strictly to enforce image-first?~~ **Resolved (§1.6–1.7):** the boundary is
    *measured*; confidence is advisory in v1 (D4); any *enforcement* (CI lint) is deferred
    to v2, informed by the stability study (D1).
