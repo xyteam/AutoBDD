@@ -142,12 +142,12 @@ Three sales pillars:
 
 ---
 
-## 6. Product architecture — the four layers
+## 6. Product architecture — the layered model
 
 ```
         ┌───────────────────────────────────────────────┐
- L3     │ Extra test tools: API (newman/postman) ·       │  optional
-        │ Load (k6) · Unit (jest/pytest) · cypress       │
+ L3     │ Guest tools (NOT shipped): API (newman) ·      │  user-provided
+        │ Load (k6) · Unit (jest/pytest)                 │
         ├───────────────────────────────────────────────┤
  L2     │ BDD framework: Chrome + chromedriver · Node ·  │  "the framework"
         │ WebdriverIO · Cucumber · Python · AutoBDD      │
@@ -182,23 +182,27 @@ Three sales pillars:
   - **The desktop/WM/theme/fonts are pinned and recorded** — they are inputs to
     image-match confidence/stability (§1.6).
 
-**Published tags — three capability tiers (agreed).** L0/L0d/L1 are kept as *internal
-build stages* (for cache/reuse) but published as a **single `autobdd-base` tag**:
+**Published tags — two tiers (agreed).** L0/L0d/L1 are kept as *internal build stages*
+(for cache/reuse) but published as a **single `autobdd-base` tag**:
 
-| Tag | Layers | Capability | Consumer |
+| Tag | Layers | Contents | Consumer |
 |---|---|---|---|
-| `xyteam/autobdd-base:<v>` | L0+L0d+L1 | OS + X desktop + image/OCR + kbd/mouse | **screen-only runs**; bring-your-own L2/L3 |
-| `xyteam/autobdd-framework:<v>` | + L2 | + Chrome/driver, Node, wdio, cucumber, AutoBDD | bring-your-own L3 |
-| `xyteam/autobdd:<v>` | + L3 | + newman, k6, jest, pytest | **default** — test repos pull this |
+| `xyteam/autobdd-base:<v>` | L0+L0d+L1 | OS + X desktop + image/OCR + kbd/mouse | **screen-only runs**; bring-your-own framework |
+| **`xyteam/autobdd-framework:<v>`** | + **L2 only** | **the product**: + Chrome/chromedriver, Node, Python, wdio, cucumber, AutoBDD | **default** — test repos pull this |
 
+- **Product scope = the essentials.** `autobdd-framework` ships **Chrome/chromedriver,
+  Node, Python, wdio, cucumber, AutoBDD** — and **not** the guest tools (newman, jest,
+  pytest, k6); users add those in their own projects (the generic
+  `When I run this command "..."` step makes any CLI tool a BDD step).
+- **Alias:** `xyteam/autobdd:<v>` is published as a **deprecated alias** of
+  `autobdd-framework:<v>` (same image, two tags) so existing consumers
+  (`AutoBDD_Ver`) don't break.
 - **Build vs publish:** keep L0/L0d/L1 as build stages; publish one `autobdd-base` tag.
-  Publish an OS-only tag ad-hoc only if ever needed.
 - **Dev GUI:** bundle `lxde` + `x11vnc` + `arc-theme` + CJK fonts into `autobdd-base`
   for v1 (simpler; slimmable later via a build arg / overlay).
 - **Record per release:** base OS, Chrome/driver, WM/theme/fonts, engine version.
 - **Back-compat:** retire/alias today's `autobdd-ubuntu` / `-nodejs` at the next major
-  (map L0(+L0d) → `autobdd-base`, L2 → `autobdd-framework`); the top-level `autobdd`
-  name is unchanged, so test repos don't break.
+  (L0(+L0d) → `autobdd-base`, L2 → `autobdd-framework`).
 
 ---
 
@@ -206,12 +210,14 @@ build stages* (for cache/reuse) but published as a **single `autobdd-base` tag**
 
 The product rule: **the platform image is a default, not a straitjacket.**
 
-- **Use everything** — `docker run xyteam/autobdd:<v>` → L0–L3 (batteries-included).
-- **Bring your own framework (L2)** — build `FROM xyteam/autobdd-base` (OS + display +
+- **Use the product** — `docker run xyteam/autobdd-framework:<v>` (alias: `xyteam/autobdd:<v>`)
+  → base + the BDD framework essentials.
+- **Bring your own framework** — build `FROM xyteam/autobdd-base` (OS + display +
   screen/mouse engine) and add your Node / wdio / JUnit / Playwright. You keep the screen
   engine, display, ssh/VNC.
-- **Bring your own tools (L3)** — build `FROM xyteam/autobdd-framework` and add your
-  API/load tools.
+- **Bring your own tools** — add them **in your project** (install + invoke via the
+  generic `When I run this command "..."` step); the product image does **not** ship
+  newman/jest/pytest/k6.
 - **Screen-only (no browser)** — run `xyteam/autobdd-base`; today's screen actions need no
   Chrome/wdio.
 - **Use ours as environment only** — mount your project; the image never owns your tests.
@@ -222,16 +228,15 @@ The product rule: **the platform image is a default, not a straitjacket.**
   (`findTargetImage`-style) with **stable JSON I/O** + env (`TESSDATA_PREFIX`,
   `LD_LIBRARY_PATH`).
 - **`autobdd-framework` (L2):** `auto-runner.py`, `xvfb-runner.sh`, the report generator;
-  `PATH` provides `npx wdio` and `chromedriver`; `CHROMEDRIVER_PATH`.
-- **`autobdd` (L3):** named binaries (`newman`, `k6`, `jest`, `pytest`) on `PATH`; the
-  generic `When I run this command "..."` step.
+  `PATH` provides `npx wdio`, `chromedriver`, `node`, `python3`; `CHROMEDRIVER_PATH`; the
+  generic `When I run this command "..."` step (so guest tools are first-class steps).
 
 ---
 
 ## 8. Repo re-design
 
 **8.1 `AutoBDD` (the platform/framework repo) — "build the image + ship the framework."**
-- Owns L0–L2 (and the reference L3): dockerfiles, `framework/` (step libraries, runners,
+- Owns the shipped layers (L0, L0d, L1, L2): dockerfiles, `framework/` (step libraries, runners,
   report generator), the Oculix bridge.
 - Owns image build + publish; README: **"clone only to inspect/build the image."**
 - Ships the **conformance suite** (`test-projects/autobdd-test`) and its CI.
@@ -291,11 +296,13 @@ The product rule: **the platform image is a default, not a straitjacket.**
 - FR-13 Reports: HTML with step screenshots (watermarks), per-scenario movies, junit/xml.
 - FR-14 Python available for tooling/tests.
 
-**L3 — extra tools (reference set)**
-- FR-15 API: `newman` (+ postman runner step).
-- FR-16 Load: `k6`.
-- FR-17 Unit: `jest`, `pytest`.
-- FR-18 Generic `When I run this command "..."` step so any CLI tool is a BDD step.
+**L3 — guest tools (NOT shipped; user-provided)**
+- FR-15 **Guest tools** (API: newman/postman · load: k6 · unit: jest/pytest) are **not**
+  part of the product image; users install them in their own test projects.
+- FR-16 The product provides the generic **`When I run this command "..."`** step so any
+  installed CLI tool becomes a first-class BDD step.
+- FR-17 The reference **example** demonstrates guest tools (postman/newman, jest, pytest,
+  k6) as optional modules — the framework image itself does not ship them.
 
 **Repos**
 - FR-19 Test repos run with **no framework clone**; only their own clone + the image.
@@ -324,7 +331,7 @@ The product rule: **the platform image is a default, not a straitjacket.**
    open `index.html`. No framework knowledge.
 2. **Author** — add a feature; prefer `:screen:` steps, use `:browser:` to assist; run one
    module fast.
-3. **Platform eng** — pin `AutoBDD_Ver`; or `FROM autobdd-osactions` and plug in your own L2.
+3. **Platform eng** — pin `AutoBDD_Ver`; or `FROM autobdd-base` and plug in your own framework.
 4. **CI** — pull image; run suite; upload report artifact.
 
 ---
@@ -362,7 +369,7 @@ The product rule: **the platform image is a default, not a straitjacket.**
 
 - **P0 (done):** modern runtime (v3.0.0), Oculix cutover, run-off-image, screen + tool BDD
   families.
-- **P1:** formalize the **L0–L3 split & tags**; extract L3 into an optional stage; document
+- **P1:** formalize the **layer split & the two product tags** (`autobdd-base`, `autobdd-framework`; `autobdd` alias); document
   the layer contract; publish a **"bring-your-own-L2"** mini-example; make the example
   **screen-first** (screen-actions listed first, web-page as assist).
 - **P2:** pin/track browser versions; lean L0 (size budget); aarch64; remote-screen (VNC)
