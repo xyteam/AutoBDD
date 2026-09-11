@@ -346,14 +346,72 @@ The product rule: **the platform image is a default, not a straitjacket.**
 
 ## 10. Non-functional requirements
 
-- NFR-1 **Reproducible/near-hermetic**: pin Chrome/driver per release (or record them —
-  we added `/etc/autobdd-chrome-version`); no surprise drift.
-- NFR-2 **Startup**: container ready (VNC/ssh) < ~10 s; first image-match after warm < ~1 s.
-- NFR-3 **Size discipline**: L0 lean; each layer's delta documented.
-- NFR-4 **Security**: non-root test user, secrets via env not baked, sshd hardened;
-  `docker.sock` only when required.
-- NFR-5 **Observability**: structured logs per scenario; artifacts (screens/movies) retained.
-- NFR-6 **Portability**: Linux x86_64 (aarch64 future).
+Targets are anchors for review; each maps to a place we can measure/enforce.
+
+### 10.1 Size / footprint (NFR-S)
+- **NFR-S1** Two published tags only: `autobdd-base` and `autobdd-framework` (+ alias).
+- **NFR-S2** Budgets (compressed pull size):
+  - `autobdd-base` ≤ **2.5 GB**
+  - `autobdd-framework` ≤ **3.5 GB**
+- **NFR-S3** Layer deltas (build-stage budgets, for trend tracking): L0 ≤ 0.4 GB ·
+  L0d ≤ 0.6 GB · L1 ≤ 0.8 GB · L2 ≤ 1.0 GB.
+- **NFR-S4** **Size gate in CI**: the build records each tag's size; a PR that exceeds a
+  budget fails (or requires an explicit waiver).
+- **NFR-S5** No build toolchain in the runtime stage (multi-stage; compilers/dev headers
+  stay in builder stages) — keeps the surface and CVEs down.
+
+### 10.2 Reproducibility & pinning (NFR-P)
+- **NFR-P1** The **published image digest is the immutable pin**: consumers reference
+  `:<v>` (or its digest); a released digest never changes.
+- **NFR-P2** **Digest-pin `FROM`** in every Dockerfile (e.g. `ubuntu:24.04@sha256:…`).
+- **NFR-P3** **Pinned majors, recorded exacts**: Node (major 20), Python (24.04 default),
+  Oculix engine (`oculixapi` 4.0.0), WM/theme/fonts. Record the resolved exact versions
+  in-image (extend `/etc/autobdd-chrome-version` → a general `/etc/autobdd-versions`).
+- **NFR-P4** **Chrome/driver policy**: install **latest stable at build + record** the
+  exact Chrome/chromedriver version (Google's apt only serves latest); for strict
+  reproducibility rely on NFR-P1 (pin the image digest) rather than the Chrome version.
+- **NFR-P5** **Node deps**: `package-lock.json` committed; use `npm ci` (not `npm install`)
+  in image builds.
+- **NFR-P6** **Verified downloads**: checksums/signatures verified for external artifacts
+  (Chrome-for-Testing, jars, k6/newman if added by consumers).
+- **NFR-P7** **Pinned GUI stack**: WM/theme/fonts pinned because they change rendering →
+  change image-match confidence (§1.6).
+
+### 10.3 Startup & performance (NFR-T)
+- **NFR-T1** Container ready (ssh/VNC up, `DISPLAY` live) ≤ **10 s**.
+- **NFR-T2** First image-match after warm-up ≤ **1 s**; full-screen OCR within a few s.
+- **NFR-T3** No runtime downloads of drivers/natives (bundled + warmed at build); after
+  build, a run needs network only for the **targets under test**.
+
+### 10.4 Security (NFR-SEC)
+- **NFR-SEC1** Tests run as the **non-root** `USER` the entrypoint creates; root only for
+  entrypoint setup.
+- **NFR-SEC2** **No secrets baked** — no credentials/tokens in layers; secrets via runtime
+  env (`PASSWORD`, etc.); document this.
+- **NFR-SEC3** **sshd hardened** (no root login unless required; prefer key auth); VNC
+  password required if VNC is exposed.
+- **NFR-SEC4** **`docker.sock` only when a test truly needs it**; if bind-mounted,
+  document the privilege it grants (host daemon access).
+- **NFR-SEC5** **Privileged/`--no-sandbox`**: document why Chrome/the container needs it,
+  and keep it as small a grant as possible.
+- **NFR-SEC6** **Scanning + SBOM**: CI scans each image (e.g. Trivy/Grype/Scout) and emits
+  an **SBOM** (syft) attached to the build; CVE deltas reviewed per release.
+- **NFR-SEC7** **Rebuild cadence**: periodic rebuild with `--pull` to absorb backported
+  fixes (distro security is cadence-driven, not base-driven).
+
+### 10.5 Observability & artifacts (NFR-O)
+- **NFR-O1** Per-scenario structured logs; artifacts retained (step screenshots, movies,
+  junit/xml, HTML report).
+- **NFR-O2** **Confidence/stability** surfaced (report badge + post-run study) — advisory
+  in v1 (D4).
+
+### 10.6 Portability (NFR-PORT)
+- **NFR-PORT1** Primary `linux/amd64`; `linux/arm64` a multi-arch goal (P2), tracked.
+
+### 10.7 Reliability / maintainability (NFR-R)
+- **NFR-R1** Near-hermetic runs (NFR-T3); flake attributable to the target, not the harness.
+- **NFR-R2** Each tag gated by its conformance suite (§8.1); a tag ships only if green.
+- **NFR-R3** Automated dependency/version-bump PRs; the version matrix updated per release.
 
 ---
 
@@ -435,11 +493,14 @@ The product rule: **the platform image is a default, not a straitjacket.**
 
 ## 18. Open questions (for point-by-point discussion)
 
-1. **Naming** of the four tags — `base/osactions/framework/autobdd` vs keep
-   `-ubuntu/-nodejs/autobdd`?
-2. Is **L3 opt-in** (lean default + `-full` variant) or included by default?
+1. ~~Tag naming?~~ **Resolved (§6):** two tags — `autobdd-base`, `autobdd-framework`, with
+   `autobdd` as a deprecated alias. Old `-ubuntu`/`-nodejs` retired at the next major.
+2. ~~Is L3 opt-in or included by default?~~ **Resolved (§6/§7):** L3 (guest tools — postman,
+   jmeter, jest/pytest) is **not shipped at all**; users add tools in their projects.
 3. Is **"bring-your-own-L2"** a v1 requirement or P1?
-4. **Chrome pinning** policy — pin a version vs "latest + record"?
+4. ~~Chrome pinning policy?~~ **Resolved (NFR-P4):** install **latest stable + record** the
+   exact Chrome/chromedriver; reproducibility is via the **immutable image digest**
+   (NFR-P1), not the Chrome version.
 5. ~~How strictly to enforce image-first?~~ **Resolved (§1.6–1.7):** the boundary is
    *measured*; confidence is advisory in v1 (D4); any *enforcement* (CI lint) is deferred
    to v2, informed by the stability study (D1).
