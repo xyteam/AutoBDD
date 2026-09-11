@@ -477,15 +477,17 @@ env-related flake rate; screen-step confidence/stability trend.
 
 - **P0 (done):** modern runtime (v3.0.0), Oculix cutover, run-off-image, screen + guest-tool
   BDD families.
-- **v1 — the re-design release:**
-  - formalize the layers (L0/L0d/L1/L2) and the **two tags** (`autobdd-base`,
-    `autobdd-framework`; `autobdd` alias);
-  - split the conformance suites (`autobdd-base-test`, `autobdd-framework-test`), each
-    gating its tag;
-  - apply the NFRs (size budgets, **pin-all**, security, SBOM/scanning);
-  - **freeze `autobdd-base`'s CLI seam + JSON schema as the public contract** (the BYO
-    guarantee, already exercised by screen-only mode);
-  - make the example **screen-first**; docs (layers, version matrix, philosophy).
+- **v1 — the re-design release (one release, internally phased).** All approved NFRs stay
+  in v1; work ships as a stream of small PRs and the release cuts when Phase B is green.
+  - **Phase A — structure:** layers (L0/L0d/L1/L2) + the **two tags** (`autobdd-base`,
+    `autobdd-framework`; `autobdd` alias); split suites (`autobdd-base-test`,
+    `autobdd-framework-test`), each gating its tag; **freeze `autobdd-base`'s CLI seam +
+    JSON schema as the public contract** (already exercised by screen-only mode); example
+    goes **screen-first**; docs (layers, version matrix, philosophy).
+  - **Phase B — NFR hardening:** **pin-all** (Chrome + chromedriver exact via Chrome for
+    Testing; record apt versions), security (SBOM + scanning), size gate, startup targets.
+  - *Carve-out:* **apt snapshot pinning → P2** (v1 records apt versions; the pinned distro
+    snapshot lands in P2).
 - **P1:** publish a **bring-your-own-framework** mini-example (`FROM autobdd-base`, drives
   the screen engine); baseline OS → 24.04 fully validated; record guidance for guest tools.
 - **P2:** pinned distro **apt snapshot**; `linux/arm64`; remote-screen (VNC) targets;
