@@ -457,11 +457,19 @@ Targets are anchors for review; each maps to a place we can measure/enforce.
 
 ## 14. Metrics & acceptance
 
-- **Acceptance (v1):** example green off the published image (screen first + web assist +
-  guest-tool families); **both conformance suites green**; a documented **"bring-your-own-framework"** example exists;
-  README states layers + version matrix + philosophy.
-- **Product metrics:** time-to-first-green (target < 15 min from clone); image pull size;
-  share of "un-automatable" targets now covered; env-related flake rate.
+**Acceptance is per platform component, gated by that component's test suite** — a
+component is accepted only when **its** suite passes against **its** image:
+
+| Component | Accepted when |
+|---|---|
+| **`autobdd-base`** (L0/L0d/L1) | **`autobdd-base-test`** passes — ssh/essentials, Xvfb+WM+VNC, screen engine (image match + OCR + kbd/mouse + confidence metrics), no browser |
+| **`autobdd-framework`** (product, +L2) | **`autobdd-framework-test`** passes — Chrome/driver, step libraries, runners, reports, command step, stability study |
+| **`AutoBDD-example`** | runs green off the published image (`AutoBDD_Ver`) |
+| **Docs** | README states the layers, version matrix, and philosophy |
+
+**Product metrics** (tracked, not gates): time-to-first-green (< 15 min from clone);
+image pull size vs budgets (NFR-S2); share of "un-automatable" targets now covered;
+env-related flake rate; screen-step confidence/stability trend.
 
 ---
 
@@ -472,8 +480,8 @@ Targets are anchors for review; each maps to a place we can measure/enforce.
 - **P1:** formalize the **layer split & the two product tags** (`autobdd-base`, `autobdd-framework`; `autobdd` alias); document
   the layer contract; publish a **"bring-your-own-L2"** mini-example; make the example
   **screen-first** (screen-actions listed first, web-page as assist).
-- **P2:** pin/track browser versions; lean L0 (size budget); aarch64; remote-screen (VNC)
-  targets; richer visual-diff reporting; MCP exposure.
+- **P2:** extend pinning to a pinned distro **apt snapshot**; `linux/arm64`; remote-screen
+  (VNC) targets; richer visual-diff reporting; MCP exposure.
 
 ---
 
