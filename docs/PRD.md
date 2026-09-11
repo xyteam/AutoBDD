@@ -239,7 +239,39 @@ The product rule: **the platform image is a default, not a straitjacket.**
 - Owns the shipped layers (L0, L0d, L1, L2): dockerfiles, `framework/` (step libraries, runners,
   report generator), the Oculix bridge.
 - Owns image build + publish; README: **"clone only to inspect/build the image."**
-- Ships the **conformance suite** (`test-projects/autobdd-test`) and its CI.
+- Ships **two conformance suites** under `test-projects/`, one per product tag. Each suite
+  is the shippability gate for its tag, and **CI builds the tag then runs its suite**.
+
+**8.1.1 `test-projects/autobdd-base-test` — gates `autobdd-base` (L0/L0d/L1). NO browser.**
+- Runs **on `autobdd-base`** only — no Chrome, no wdio, no cucumber.
+- **Form:** a **CLI/script suite** (a bash/python runner with assertions + a small report),
+  because the base ships no BDD framework.
+- **Covers:**
+  - **L0** — ssh reachable (`:22`); essentials present (`curl`/`wget`/`git`/`jq`/`parallel`/
+    `ffmpeg`/`unzip`); entrypoint creates `USER`/`UID`/`GID` + exports `DISPLAY`; `tini`.
+  - **L0d** — Xvfb up on `DISPLAY`; the **pinned WM** is running; VNC reachable (`:5900`);
+    a sample GUI window renders (launch a tiny X app → screenshot → assert non-blank).
+  - **L1 (the engine — the moat)** — `findTargetImage` CLI finds a known target on screen
+    and returns **JSON** `{location,dimension,score,…}`; OCR reads on-screen text; keyboard/
+    mouse move/click/type (assert via re-capture / pointer query); **confidence metrics**
+    (`score`,`margin`,`verified`) are emitted.
+- **Method:** use a **non-browser GUI target** (display a fixture image / a simple X app)
+  to exercise image-match, OCR and kbd/mouse — proving the base "sees and acts" with no
+  Chrome in the loop.
+
+**8.1.2 `test-projects/autobdd-framework-test` — gates `autobdd-framework` (product, +L2).**
+- Runs **on `autobdd-framework`** (the product image).
+- **Form:** **cucumber (wdio) e2e** — like today's `autobdd-test` (this suite supersedes it).
+- **Covers:**
+  - Chrome + **matching** chromedriver launch; `npx wdio` runs a module; `CHROMEDRIVER_PATH`.
+  - Step libraries — **screen actions** (image/OCR), **web/DOM actions**, `vars`/`envs`/
+    `project_steps`.
+  - Runners — single / parallel / auto; Xvfb isolation per worker.
+  - Reports — HTML + step screenshots (pass/fail watermarks) + movies + junit/xml.
+  - The generic `When I run this command "..."` step (guest-tool path).
+  - The **confidence/stability study** output (D1).
+- **CI wiring:** platform CI builds `autobdd-base` → runs **`autobdd-base-test`**; builds
+  `autobdd-framework` → runs **`autobdd-framework-test`**. A tag ships only if its suite is green.
 
 **8.2 `AutoBDD-example` (a consuming test project) — "use the image; show everything."**
 - Contains **only tests**, mock/demo apps, and its run compose; **no framework code**.
@@ -349,7 +381,8 @@ The product rule: **the platform image is a default, not a straitjacket.**
 
 ## 13. CI/CD
 
-- Platform repo CI: build image; run conformance (`autobdd-test`).
+- Platform repo CI: build each tag, then run its suite — `autobdd-base-test` (base)
+  and `autobdd-framework-test` (product).
 - Consumer/repo CI: pull the published image; run their suite — validates the layer contract
   with real consumers.
 
@@ -358,7 +391,7 @@ The product rule: **the platform image is a default, not a straitjacket.**
 ## 14. Metrics & acceptance
 
 - **Acceptance (v1):** example green off the published image (screen first + web assist +
-  tool families); conformance green; a documented **"bring-your-own-L2/L3"** example exists;
+  guest-tool families); **both conformance suites green**; a documented **"bring-your-own-framework"** example exists;
   README states layers + version matrix + philosophy.
 - **Product metrics:** time-to-first-green (target < 15 min from clone); image pull size;
   share of "un-automatable" targets now covered; env-related flake rate.
@@ -410,5 +443,5 @@ The product rule: **the platform image is a default, not a straitjacket.**
 5. ~~How strictly to enforce image-first?~~ **Resolved (§1.6–1.7):** the boundary is
    *measured*; confidence is advisory in v1 (D4); any *enforcement* (CI lint) is deferred
    to v2, informed by the stability study (D1).
-6. Should the **conformance suite** live in the platform repo (current) or be its own
-   consuming repo?
+6. ~~Conformance suite location?~~ **Resolved (§8.1):** two suites in the platform repo
+   (`autobdd-base-test`, `autobdd-framework-test`), each gating its tag.
