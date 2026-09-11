@@ -182,18 +182,23 @@ Three sales pillars:
   - **The desktop/WM/theme/fonts are pinned and recorded** — they are inputs to
     image-match confidence/stability (§1.6).
 
-**Image build stages (one chain, five tags):**
+**Published tags — three capability tiers (agreed).** L0/L0d/L1 are kept as *internal
+build stages* (for cache/reuse) but published as a **single `autobdd-base` tag**:
 
-| Stage | Tag (proposed) | Contents | Why separate |
+| Tag | Layers | Capability | Consumer |
 |---|---|---|---|
-| L0 | `xyteam/autobdd-base:<v>` | lean Ubuntu + essentials | rarely changes; heaviest reuse |
-| L0d | `xyteam/autobdd-desktop:<v>` | Xvfb + WM (+ optional desktop/VNC/themes/fonts) | GUI substrate; pinned for determinism |
-| L1 | `xyteam/autobdd-osactions:<v>` | Oculix image/OCR + kbd/mouse | the differentiator; version with the engine |
-| L2 | `xyteam/autobdd-framework:<v>` | Chrome/driver, Node, wdio, cucumber, AutoBDD | changes on framework/dep bumps |
-| L3 | `xyteam/autobdd:<v>` | L2 + extra tools (newman, k6, jest, pytest) | the "batteries-included" image repos run (default) |
+| `xyteam/autobdd-base:<v>` | L0+L0d+L1 | OS + X desktop + image/OCR + kbd/mouse | **screen-only runs**; bring-your-own L2/L3 |
+| `xyteam/autobdd-framework:<v>` | + L2 | + Chrome/driver, Node, wdio, cucumber, AutoBDD | bring-your-own L3 |
+| `xyteam/autobdd:<v>` | + L3 | + newman, k6, jest, pytest | **default** — test repos pull this |
 
-*(Back-compat: today's `autobdd-ubuntu` / `-nodejs` / `autobdd` map to L0(+L0d) / L2 / L3;
-migrate the naming behind a version bump.)*
+- **Build vs publish:** keep L0/L0d/L1 as build stages; publish one `autobdd-base` tag.
+  Publish an OS-only tag ad-hoc only if ever needed.
+- **Dev GUI:** bundle `lxde` + `x11vnc` + `arc-theme` + CJK fonts into `autobdd-base`
+  for v1 (simpler; slimmable later via a build arg / overlay).
+- **Record per release:** base OS, Chrome/driver, WM/theme/fonts, engine version.
+- **Back-compat:** retire/alias today's `autobdd-ubuntu` / `-nodejs` at the next major
+  (map L0(+L0d) → `autobdd-base`, L2 → `autobdd-framework`); the top-level `autobdd`
+  name is unchanged, so test repos don't break.
 
 ---
 
