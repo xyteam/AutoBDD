@@ -72,7 +72,11 @@ AutoBDD_Ver=3.0.0 ABDD_PROJECT=autobdd-test \
 
 ## Credits
 
-Demo app and pre-canned Cucumber-JS steps adapted from
-**[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)**;
-keyboard/mouse from **[octalmage/robotjs](https://github.com/octalmage/robotjs)**;
-framework control from **[webdriverio/webdriverio](https://github.com/webdriverio/webdriverio)**.
+* Screen image matching / OCR: **[oculix-org/Oculix](https://github.com/oculix-org/Oculix)** —
+  the engine AutoBDD uses to see the screen. OculiX carries the SikuliX lineage
+  ([RaiMan/SikuliX1](https://github.com/RaiMan/SikuliX1)) forward in its own project.
+* Keyboard/mouse: **[octalmage/robotjs](https://github.com/octalmage/robotjs)**.
+* Demo app and pre-canned Cucumber-JS steps adapted from
+  **[webdriverio/cucumber-boilerplate](https://github.com/webdriverio/cucumber-boilerplate)**.
+* Framework control from
+  **[webdriverio/webdriverio](https://github.com/webdriverio/webdriverio)**.
