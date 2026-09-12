@@ -30,6 +30,14 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
     cat /etc/autobdd-versions
 ENV CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
 
+# L2 — native build deps for the framework's keyboard/mouse module (robotjs: X11/XTEST).
+# (robotjs → Oculix Mouse/Key migration is tracked separately; until then it must build.)
+RUN apt-get update -y && \
+    apt-get install -q -y --no-install-recommends \
+        libxtst-dev libx11-dev libxi-dev libxinerama-dev libxrandr-dev \
+        libpng-dev libxtst6 libxi6 && \
+    rm -rf /var/lib/apt/lists/*
+
 # L2 — the AutoBDD framework source + its full Node dependency tree (wdio/cucumber).
 ADD . /root/Projects/AutoBDD
 RUN mkdir -p /root/Downloads && \

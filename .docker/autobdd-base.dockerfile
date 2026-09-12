@@ -14,13 +14,17 @@ RUN apt-get update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
         parallel net-tools openssh-server rsync sshpass ssh-askpass \
         binutils build-essential pkg-config \
         python3 python3-pip python3-venv \
-        imagemagick ffmpeg \
+        imagemagick ffmpeg aosd-cat colorized-logs \
         x11-xserver-utils xdg-utils xdotool wmctrl \
         tini supervisor \
         fonts-wqy-microhei ttf-wqy-zenhei && \
     dpkg-reconfigure -f noninteractive tzdata && \
     apt-get --purge autoremove -y && \
     rm -rf /var/lib/apt/lists/*
+
+# Remove the base image's default 'ubuntu' user (UID/GID 1000) so the entrypoint can
+# create the test user at the host's UID/GID.
+RUN userdel -r ubuntu 2>/dev/null || true; groupdel ubuntu 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
 # L0d — X display + desktop (GUI substrate; WM pinned for rendering determinism)
