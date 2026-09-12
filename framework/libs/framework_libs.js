@@ -252,42 +252,38 @@ module.exports = {
     const scenario_png = `${this.convertScenarioNameToFileBase(myScenarioName)}.${myStepIndex}.png`;
     fs.existsSync(`${myReportDir}/${myTestModule}`) || fs.mkdirSync(`${myReportDir}/${myTestModule}`);
     const screenshotFile = `${myReportDir}/${myTestModule}/${myResultPrefix}_${scenario_png}`;
-    const cmd_take_screenshot = `import -silent -display ${myDISPLAY} -window root ${screenshotFile}`;
-    // If an image-find step flashed this step, use the flash-frame capture (which
-    // already shows the highlighted match) as the step screenshot instead of a
-    // post-step grab. aosd_cat only draws live, so annotate the remark onto the
-    // stored frame with ImageMagick instead.
-    if (myScenarioName && flashSourcePng && fs.existsSync(flashSourcePng)) {
-      try {
-        execSync(`cp ${safeQuote(flashSourcePng)} ${screenshotFile}`);
-        if (myText && myText.length > 0) {
-          const rawText = String(text || '').replace(/["\\`$]/g, ' ').replace(/\s+/g, ' ').trim();
-          const bannerColor = (myTextColor === 'red') ? 'red' : 'lime';
-          // Match the standard aosd_cat watermark: a dark band with the step-name
-          // text at the BOTTOM, so image-capture step images carry the same
-          // step-name watermark (same place/style) as non-image steps.
-          execSync(`convert ${screenshotFile} -gravity south -background 'rgba(0,0,0,0.55)' -splice 0x48 -font DejaVu-Sans-Bold -fill '${bannerColor}' -pointsize ${myFontSize} -annotate +0+10 "${rawText}" ${screenshotFile}`);
-        }
-        return true;
-      } catch (e) {
-        console.log('takeScreenshot(flash): fall back to live import - ' + e.message);
-      }
-    }
-    if (myScenarioName) {
-      var childProcess;
-      if (myText && myText.length > 0 ) {
-        childProcess = this.screenDisplayText(myText, myTextColor, myFontSize);
-        const cmd_wait_display_start  = `while ! test -d /proc/${childProcess.pid}; do sleep 0.2; done; sleep 0.2`;
-        execSync(cmd_wait_display_start);
-      }
-      exec(cmd_take_screenshot);
-      if (myText && myText.length > 0 ) {
-        const cmd_wait_display_stop  = `while test -d /proc/${childProcess.pid}; do sleep 0.2; if ps -p ${childProcess.pid} -o stat= | grep -q Z; then break; fi; done`;
-        execSync(cmd_wait_display_stop);
-      }
-    } else {
+    if (!myScenarioName) {
       console.log('takeScreenshot: scenarioName can not be empty');
       return false;
+    }
+
+    // 1) grab a clean frame: the image-find flash capture if this step flashed (it already
+    //    shows the highlighted match), else a fresh grab of the screen. Any live remark
+    //    still on screen from a previous step is cleared first so it cannot leak into it.
+    try { execSync('pkill -x aosd_cat || true'); } catch (e) {}
+    const flashSrc = (flashSourcePng && fs.existsSync(flashSourcePng)) ? flashSourcePng : null;
+    try {
+      if (flashSrc) execSync(`cp ${safeQuote(flashSrc)} ${screenshotFile}`);
+      else execSync(`import -silent -display ${myDISPLAY} -window root ${screenshotFile}`);
+    } catch (e) {
+      console.log('takeScreenshot: capture failed - ' + e.message);
+      return false;
+    }
+
+    // 2) stamp the remark as a dark bottom banner. This is the ONE watermark style for every
+    //    screenshot (step and final), independent of what sits behind it; the older live
+    //    aosd_cat grab produced a different-looking bar from step to step.
+    if (myText && myText.length > 0) {
+      const rawText = String(text || '').replace(/["\\`$]/g, ' ').replace(/\s+/g, ' ').trim();
+      const bannerColor = (myTextColor === 'red') ? 'red' : 'lime';
+      try {
+        execSync(`convert ${screenshotFile} -gravity south -background 'rgba(0,0,0,0.55)' -splice 0x48 -font DejaVu-Sans-Bold -fill '${bannerColor}' -pointsize ${myFontSize} -annotate +0+10 "${rawText}" ${screenshotFile}`);
+      } catch (e) {
+        console.log('takeScreenshot: annotate failed - ' + e.message);
+      }
+      // 3) draw the same remark live so the MOVIE carries it too. Fire-and-forget: the still
+      //    above is already written, so the overlay never contaminates a screenshot.
+      try { this.screenDisplayText(myText, myTextColor, myFontSize); } catch (e) {}
     }
   },
   screenDisplayText: function(text, textColor, fontSize, textPosition) {
