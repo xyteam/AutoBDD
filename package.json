@@ -3,9 +3,9 @@
   "version": "3.0.0",
   "description": "BDD Automaiton",
   "scripts": {
-    "test-init": ". ./.autoPathrc.sh && cd ./test-projects/autobdd-test && xvfb-runner.sh make e2e-single-runner",
+    "test-init": ". ./.autoPathrc.sh && cd ./test-projects/autobdd-framework-test && xvfb-runner.sh make e2e-single-runner",
     "test": "npm run test-init",
-    "clean": "rm -rf ./test-projects/autobdd-test"
+    "clean": "rm -rf ./test-projects/autobdd-framework-test"
   },
   "dependencies": {
     "ajv": "^8.6.2",

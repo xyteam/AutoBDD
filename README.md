@@ -51,13 +51,13 @@ bundled internal demo-app.
 
 ## Try it and see the report
 
-This repo ships its own test suite under **`test-projects/autobdd-test`**. Run it
+This repo ships its own test suite under **`test-projects/autobdd-framework-test`**. Run it
 to see AutoBDD's reports for yourself — step screenshots (with green/red pass-fail
 watermarks and image-match markers), per-scenario movies, and the HTML report:
 
 ```bash
-cd test-projects/autobdd-test
-AutoBDD_Ver=3.0.0 ABDD_PROJECT=autobdd-test \
+cd test-projects/autobdd-framework-test
+AutoBDD_Ver=3.0.0 ABDD_PROJECT=autobdd-framework-test \
   USER=$(whoami) PASSWORD=ubuntu HOSTOS=Linux USERID=$(id -u) GROUPID=$(id -g) \
   make docker-run jobs="clean e2e-test"
 # then open test-results/e2e-test/*/index.html

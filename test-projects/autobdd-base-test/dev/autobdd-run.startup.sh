@@ -1,7 +1,7 @@
 #!/bin/bash
 # autobdd-base-test — run-container startup.
 # Creates the host user inside the (base) container, then execs the command from the
-# project directory. Mirrors test-projects/autobdd-test/dev/autobdd-run.startup.sh but
+# project directory. Mirrors test-projects/autobdd-framework-test/dev/autobdd-run.startup.sh but
 # without the framework/node_modules refresh (the base has no framework tree).
 USER=${USER:-root}
 HOME=/root

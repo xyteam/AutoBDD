@@ -1,7 +1,7 @@
 .git/
 node_modules/
 test-projects/
-!test-projects/autobdd-test/
+!test-projects/autobdd-framework-test/
 logs/
 tmp/
 .tmp/

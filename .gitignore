@@ -27,4 +27,4 @@ tmp/
 .settings/
 .pytest_cache/
 __pycache__/
-test-projects/autobdd-test/e2e-test/*/*.feature.log.html
+test-projects/autobdd-framework-test/e2e-test/*/*.feature.log.html

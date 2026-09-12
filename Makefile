@@ -32,8 +32,8 @@ autobdd-nodejs:
 autobdd-image:
 	cd .docker && make autobdd-image || exit $?
 	cd -
-autobdd-test:
-	cd test-projects/autobdd-test && \
+autobdd-framework-test:
+	cd test-projects/autobdd-framework-test && \
 	make docker-run jobs="clean e2e-test cypress-test jest-test pytest-test k6-test" || exit $?
 	cd -
 autobdd-bash:

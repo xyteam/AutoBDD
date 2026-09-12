@@ -1,4 +1,4 @@
-# autobdd-test
+# autobdd-framework-test
 
 #### purposes:
 1. smoke test and demo the automagic power of xyteam/autobdd test framework;
@@ -6,7 +6,7 @@
 
 > **Version sync (v3.0.0):** This repo is part of the four-repo project set aligned
 > on **3.0.0** (AutoBDD framework + docker image `xyteam/autobdd:3.0.0`,
-> AutoBDD-example, autobdd-test, xySikulixApi) — all verified to work together.
+> AutoBDD-example, autobdd-framework-test, xySikulixApi) — all verified to work together.
 > `.env`'s `AutoBDD_Ver=3.0.0` selects the matching image. This is the base going
 > forward; a future effort consolidates the repos and upgrades dependencies together.
 
@@ -18,7 +18,7 @@
 
 #### demo setup:
 1. mkdir -p $HOME/Projects
-2. git clone https://github.com/xyteam/autobdd-test.git $HOME/Projects/autobdd-test
+2. git clone https://github.com/xyteam/autobdd-framework-test.git $HOME/Projects/autobdd-framework-test
 
 #### test and report:
 results are grouped by test suite under `test-results/`:
@@ -54,37 +54,37 @@ available as a gist: https://gist.github.com/xywang68/79d2410ac7c7b7607a87216b0e
 
 ##### e2e test
 ```
-docker-compose run --rm autobdd-test-run "make e2e-test"
+docker-compose run --rm autobdd-framework-test-run "make e2e-test"
 ```
 
 #### performance test
 ###### k6 performance test
 ```
-docker-compose run --rm autobdd-test-run "make k6-test"
+docker-compose run --rm autobdd-framework-test-run "make k6-test"
 ```
 #### unit test
 ###### jest
 ```
-docker-compose run --rm autobdd-test-run "make jest-test"
+docker-compose run --rm autobdd-framework-test-run "make jest-test"
 ```
 ###### cypress
 ```
-docker-compose run --rm autobdd-test-run "make cypress-test"
+docker-compose run --rm autobdd-framework-test-run "make cypress-test"
 ```
 ###### python3
 ```
-docker-compose run --rm autobdd-test-run "make pytest-test"
+docker-compose run --rm autobdd-framework-test-run "make pytest-test"
 ```
 #### test all in one-shot
 ```
-docker-compose run --rm autobdd-test-run "xvfb-runner.sh make test-all"
+docker-compose run --rm autobdd-framework-test-run "xvfb-runner.sh make test-all"
 ```
 
 #### test development env
 
 ###### start dev container:
 ```
-docker-compose up -d autobdd-test-dev
+docker-compose up -d autobdd-framework-test-dev
 ```
 ###### ssh access to dev container:
 ```

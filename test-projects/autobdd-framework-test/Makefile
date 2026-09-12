@@ -12,19 +12,19 @@ export PASSWORD ?= ubuntu
 
 docker-run:
 	@echo make $@
-	docker compose run --rm autobdd-test-run "xvfb-runner.sh make ${jobs}"
+	docker compose run --rm autobdd-framework-test-run "xvfb-runner.sh make ${jobs}"
 docker-run-bash:
 	@echo make $@
-	docker compose run --rm autobdd-test-run "/bin/bash"
+	docker compose run --rm autobdd-framework-test-run "/bin/bash"
 docker-up:
 	@echo make $@
-	docker compose up -d autobdd-test-dev
+	docker compose up -d autobdd-framework-test-dev
 docker-logs:
 	@echo make $@
-	docker compose logs autobdd-test-dev
+	docker compose logs autobdd-framework-test-dev
 docker-logs-f:
 	@echo make $@
-	docker compose logs -f autobdd-test-dev
+	docker compose logs -f autobdd-framework-test-dev
 docker-down:
 	@echo make $@
 	docker compose down
@@ -60,7 +60,7 @@ e2e-auto-runner:
 	@echo make $@
 	@echo ${testSectionBegin};
 	@echo "running cucumber test with auto-runner (parallel runner with cucumber report)...";
-	auto-runner.py --project autobdd-test --reportpath e2e-test/auto-runner-report --movie 1 -- --cucumberOpts.tags='not @Init' || exit $$?;
+	auto-runner.py --project autobdd-framework-test --reportpath e2e-test/auto-runner-report --movie 1 -- --cucumberOpts.tags='not @Init' || exit $$?;
 	find test-results/e2e-test/auto-runner-report -type f -name "*.run" | xargs cat || exit $$?;
 	@echo ${testSectionEnd}
 

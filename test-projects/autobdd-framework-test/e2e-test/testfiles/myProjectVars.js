@@ -1,6 +1,6 @@
 // myProjectVars.js is an example file and test file for defining test varibles within a test project.
 // variables defined here can be referenced as VAR:myProjectVars.varName or Var{myProjectVars.varName} in the feature fles within the same test project.
-// i.e., logo_xpath content can be referenced as VAR:myProjectVars.logo_xpath or Var{myProjectVars.logo_xpath} within the test project autobdd-test/e2e-test.
+// i.e., logo_xpath content can be referenced as VAR:myProjectVars.logo_xpath or Var{myProjectVars.logo_xpath} within the test project autobdd-framework-test/e2e-test.
 const All = {
   logo_fullxpath: '/html/body/div/div'
 };

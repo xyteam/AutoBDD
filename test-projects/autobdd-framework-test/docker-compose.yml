@@ -1,9 +1,9 @@
 # run test only
-# docker-compose run --rm autobdd-test-run "xvfb-runner.sh make test-all"
+# docker-compose run --rm autobdd-framework-test-run "xvfb-runner.sh make test-all"
 #
 # test development
-# docker-compose up -d autobdd-test-dev
-# docker-compose logs -f autobdd-test-dev
+# docker-compose up -d autobdd-framework-test-dev
+# docker-compose logs -f autobdd-framework-test-dev
 # ssh -o StrictHostKeyChecking=no $USER@localhost -p 2224
 # default password is "ubuntu"
 # in container ssh: make test-all
@@ -11,8 +11,8 @@
 # docker-compose down
 #
 # DEV-MODE: mount the working-tree AutoBDD (this monorepo root) over the image's baked
-# copy so autobdd-test runs against live AutoBDD source instead of the stale image.
-#   * This file lives at <AutoBDD>/test-projects/autobdd-test/, so AUTOBDD_SRC defaults
+# copy so autobdd-framework-test runs against live AutoBDD source instead of the stale image.
+#   * This file lives at <AutoBDD>/test-projects/autobdd-framework-test/, so AUTOBDD_SRC defaults
 #     to ../.. (the AutoBDD monorepo root). Override it to point at another checkout:
 #     AUTOBDD_SRC=/abs/path/to/AutoBDD docker-compose ...
 #   * Patched startup scripts (dev/*.startup.sh) are bind-mounted over the image's
@@ -21,9 +21,9 @@
 services:
 
   # dev container for developing autobdd test
-  autobdd-test-dev:
+  autobdd-framework-test-dev:
     image: "xyteam/autobdd:${AutoBDD_Ver}"
-    container_name: autobdd-test-dev
+    container_name: autobdd-framework-test-dev
     shm_size: 512M
     user: root
     privileged: true
@@ -51,9 +51,9 @@ services:
     entrypoint: "/root/autobdd-dev.startup.sh"
 
   # run container for running autobdd test
-  autobdd-test-run:
+  autobdd-framework-test-run:
     image: "xyteam/autobdd:${AutoBDD_Ver}"
-    container_name: autobdd-test-run
+    container_name: autobdd-framework-test-run
     shm_size: 512M
     user: root
     privileged: true
