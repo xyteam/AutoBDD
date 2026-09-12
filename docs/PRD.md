@@ -488,8 +488,10 @@ env-related flake rate; screen-step confidence/stability trend.
     Testing; record apt versions), security (SBOM + scanning), size gate, startup targets.
   - *Carve-out:* **apt snapshot pinning → P2** (v1 records apt versions; the pinned distro
     snapshot lands in P2).
-- **P1:** publish a **bring-your-own-framework** mini-example (`FROM autobdd-base`, drives
-  the screen engine); baseline OS → 24.04 fully validated; record guidance for guest tools.
+- **P1:** publish a **bring-your-own-framework example** — a **full second BDD framework**
+  (e.g. a JUnit or Playwright project) that `FROM autobdd-base` and drives the screen
+  engine through the CLI seam, proving the contract beyond our own cucumber stack;
+  baseline OS → 24.04 fully validated; guidance for guest tools.
 - **P2:** pinned distro **apt snapshot**; `linux/arm64`; remote-screen (VNC) targets;
   richer visual-diff reporting; MCP exposure.
 
