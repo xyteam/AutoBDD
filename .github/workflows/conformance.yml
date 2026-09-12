@@ -45,7 +45,7 @@ jobs:
           PASSWORD: ubuntu
         run: docker compose run --rm autobdd-base-test "make base-test"
 
-      - name: autobdd-framework-test (e2e)
+      - name: autobdd-framework-test (e2e, baked image)
         working-directory: test-projects/autobdd-framework-test
         env:
           USER: runner
@@ -53,7 +53,9 @@ jobs:
           USERID: "1001"
           GROUPID: "1001"
           PASSWORD: ubuntu
-        run: docker compose run --rm autobdd-framework-test-run "xvfb-runner.sh make clean e2e-test"
+        # CI has no node_modules in the checkout, so run BAKED (the image's framework, built
+        # from this commit) — the default compose is dev-mount mode and would find none.
+        run: docker compose -f docker-compose.docker.yml run --rm autobdd-framework-test-run "xvfb-runner.sh make clean e2e-test"
 
       - name: Upload report
         if: always()
