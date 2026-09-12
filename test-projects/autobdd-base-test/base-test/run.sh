@@ -1,5 +1,5 @@
 #!/bin/bash
-# autobdd-base-test — no-browser conformance suite for xyteam/autobdd-base (L0 + L0d + L1).
+# autobdd-base-test — no-browser conformance suite for xyteam/autobdd-base (L0 + L1).
 #
 # Validates the desktop substrate and the FROZEN screen-engine CLI seam
 # (docs/CONTRACT.md) with NO browser, NO wdio, NO cucumber. This is the CI gate for
@@ -44,7 +44,7 @@ check_has "natives wired into ld.so" "$(ldconfig -p 2>/dev/null | grep -o '/opt/
 check "no wdio in the base" bash -c '! ls /root/Projects/AutoBDD/node_modules/@wdio >/dev/null 2>&1'
 
 # ---------------------------------------------------------------------------
-section "L0d — X display + desktop"
+section "L0 — X display + desktop"
 # ---------------------------------------------------------------------------
 Xvfb "$DISPLAY" -screen 0 "$RES" >/dev/null 2>&1 & XVFB_PID=$!
 for _ in $(seq 1 20); do xdpyinfo -display "$DISPLAY" >/dev/null 2>&1 && break; sleep 0.3; done

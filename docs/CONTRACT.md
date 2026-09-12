@@ -1,7 +1,7 @@
 # AutoBDD base — screen-engine CLI-seam contract
 
 **Status:** frozen in **v1** (Phase A) · **Applies to:** `xyteam/autobdd-base`
-(L0+L0d+L1) · **Consumers:** AutoBDD's own step libraries, and any **bring-your-own
+(L0+L1) · **Consumers:** AutoBDD's own step libraries, and any **bring-your-own
 framework** built `FROM autobdd-base`.
 
 This is the **public interface of the base image**: how any framework, in any language,

@@ -1,4 +1,4 @@
-# autobdd-base — L0 (lean OS + essentials) + L0d (X display + desktop) + L1 (screen engine)
+# autobdd-base — L0 (lean OS + essentials) + L0 (X display + desktop) + L1 (screen engine)
 # Public tag: xyteam/autobdd-base:<v>. Screen-only capable; no browser, no wdio/cucumber.
 # The L1 CLI seam (findTargetImage) is the frozen public contract (docs/CONTRACT.md).
 FROM ubuntu:24.04
@@ -27,7 +27,7 @@ RUN apt-get update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 RUN userdel -r ubuntu 2>/dev/null || true; groupdel ubuntu 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
-# L0d — X display + desktop (GUI substrate; WM pinned for rendering determinism)
+# L0 — X display + desktop (GUI substrate; WM pinned for rendering determinism)
 #   required: Xvfb + a light WM (openbox)
 #   optional: full desktop + VNC for the interactive/dev GUI (bundled in v1)
 # ---------------------------------------------------------------------------
@@ -45,7 +45,7 @@ RUN apt-get update -y && \
     ldconfig && update-ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# L0d — desktop supervision: Xvfb + openbox + LXDE panel + x11vnc + sshd under
+# L0 — desktop supervision: Xvfb + openbox + LXDE panel + x11vnc + sshd under
 # supervisord, so the base supports an interactive ssh/VNC GUI by itself.
 COPY .docker/autobdd.root/etc/supervisor/conf.d/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY .docker/autobdd.root/usr/local/bin/xvfb.sh /usr/local/bin/xvfb.sh

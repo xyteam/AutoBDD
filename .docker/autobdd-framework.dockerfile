@@ -1,4 +1,4 @@
-# autobdd-framework — the product: autobdd-base (L0+L0d+L1) + L2
+# autobdd-framework — the product: autobdd-base (L0+L1) + L2
 #   L2 = Chrome + matching chromedriver, WebdriverIO, Cucumber, the AutoBDD framework.
 # Published as xyteam/autobdd-framework:<v>; xyteam/autobdd:<v> is a deprecated alias.
 # Guest tools (postman/jmeter/jest/pytest) are NOT shipped — add them per project.

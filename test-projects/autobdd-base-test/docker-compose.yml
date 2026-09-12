@@ -8,7 +8,7 @@
 #   interactive shell inside the base image:
 #     docker compose run --rm autobdd-base-test /bin/bash
 #
-#   ssh + VNC desktop (the base's L0d layer):
+#   ssh + VNC desktop (the base's L0 layer):
 #     docker compose run --rm \
 #       --entrypoint /root/autobdd-dev.startup.sh \
 #       -p 2225:22 -p 5925:5900 \

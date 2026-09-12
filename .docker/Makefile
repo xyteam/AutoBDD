@@ -5,7 +5,7 @@ install-docker:
 	sudo usermod -aG docker $$USER
 	newgrp docker
 
-# autobdd-base: L0 (OS + essentials) + L0d (X display + desktop) + L1 (screen engine)
+# autobdd-base: L0 (OS + essentials) + L0 (X display + desktop) + L1 (screen engine)
 autobdd-base:
 	@echo make $@
 	docker compose build autobdd-base

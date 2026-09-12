@@ -34,8 +34,8 @@ The product is published as two tags that are also two **layers** of one stack:
 
 | Tag | Layers | Contains | Use when |
 |---|---|---|---|
-| **`xyteam/autobdd-base`** | **L0** OS + essentials · **L0d** X display + desktop (Xvfb/openbox/x11vnc) · **L1** screen engine (Java 17 + Node + the Oculix bridge) | **no browser, no WebdriverIO** | you want **screen-only** automation, or you are building **your own framework** on top |
-| **`xyteam/autobdd-framework`** | L0 + L0d + L1 **+ L2** | Chrome + matching chromedriver · WebdriverIO · Cucumber · the AutoBDD step library | you want the ready-made BDD framework and HTML reports |
+| **`xyteam/autobdd-base`** | **L0** OS + essentials, X display + desktop (Xvfb/openbox/x11vnc) · **L1** screen engine (Java 17 + Node + the Oculix bridge) | **no browser, no WebdriverIO** | you want **screen-only** automation, or you are building **your own framework** on top |
+| **`xyteam/autobdd-framework`** | L0 + L1 **+ L2** | Chrome + matching chromedriver · WebdriverIO · Cucumber · the AutoBDD step library | you want the ready-made BDD framework and HTML reports |
 
 `xyteam/autobdd:<v>` is a **deprecated alias** of `xyteam/autobdd-framework:<v>`.
 
@@ -80,7 +80,7 @@ bundled internal demo-app.
 This repo ships two suites:
 
 * **`test-projects/autobdd-base-test`** — a **no-browser** conformance suite for the
-  **base** image (L0/L0d/L1 + the frozen CLI seam). Fast; no Chrome required:
+  **base** image (L0/L1 + the frozen CLI seam). Fast; no Chrome required:
   ```bash
   cd test-projects/autobdd-base-test
   AutoBDD_Ver=<v> make docker-run jobs="base-test"

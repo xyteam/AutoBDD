@@ -1,7 +1,7 @@
 version: '3.5'
 services:
 
-  # autobdd-base — L0 (OS + essentials) + L0d (X display + desktop) + L1 (screen engine).
+  # autobdd-base — L0 (OS + essentials) + L0 (X display + desktop) + L1 (screen engine).
   # Screen-only capable; no browser/wdio. Contract: docs/CONTRACT.md.
   autobdd-base:
     build:
