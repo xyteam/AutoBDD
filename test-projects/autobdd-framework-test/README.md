@@ -16,6 +16,10 @@
 3. git
 4. vnc client/viewer
 
+> **Image:** the suites test the **locally built** image — the compose sets
+> `pull_policy: never`, so nothing is fetched from Docker Hub implicitly. Build it (see the
+> AutoBDD repo) or pre-pull `xyteam/autobdd:<AutoBDD_Ver>` first.
+
 #### demo setup:
 1. mkdir -p $HOME/Projects
 2. git clone https://github.com/xyteam/autobdd-framework-test.git $HOME/Projects/autobdd-framework-test

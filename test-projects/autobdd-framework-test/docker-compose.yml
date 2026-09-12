@@ -18,11 +18,15 @@
 #   * Patched startup scripts (dev/*.startup.sh) are bind-mounted over the image's
 #     baked copies; they skip the node_modules refresh when AUTOBDD_DEV_MOUNT=1 so the
 #     working tree's own node_modules (wdio 7) is never clobbered by the image's (wdio 6).
+#
+# IMAGE: pull_policy is 'never' — this suite tests the LOCAL image only. Build it (see the
+# repo README) or pre-pull it explicitly (`docker pull xyteam/autobdd:<ver>`).
 services:
 
   # dev container for developing autobdd test
   autobdd-framework-test-dev:
     image: "xyteam/autobdd:${AutoBDD_Ver}"
+    pull_policy: never   # test the LOCAL image only (built here or pre-pulled); never fetch implicitly
     container_name: autobdd-framework-test-dev
     shm_size: 512M
     user: root
@@ -53,6 +57,7 @@ services:
   # run container for running autobdd test
   autobdd-framework-test-run:
     image: "xyteam/autobdd:${AutoBDD_Ver}"
+    pull_policy: never   # test the LOCAL image only (built here or pre-pulled); never fetch implicitly
     container_name: autobdd-framework-test-run
     shm_size: 512M
     user: root

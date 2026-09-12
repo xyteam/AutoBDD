@@ -8,6 +8,18 @@ browser, no WebdriverIO and no Cucumber here; the whole suite is scripts shellin
 the base's public interface, the frozen **CLI seam** documented in
 [`docs/CONTRACT.md`](../../docs/CONTRACT.md).
 
+## Image
+
+The suite runs the **locally built** image — the compose sets `pull_policy: never`, so it
+never fetches from Docker Hub implicitly. Build it first, or pre-pull it:
+
+```bash
+# build (from the AutoBDD repo root)
+docker build --build-arg AUTOBDD_VERSION=<v> -t xyteam/autobdd-base:<v> -f .docker/autobdd-base.dockerfile .
+# …or use a published one you have already pulled
+docker pull xyteam/autobdd-base:<v>
+```
+
 ## Run
 
 ```bash

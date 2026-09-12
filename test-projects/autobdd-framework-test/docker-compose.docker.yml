@@ -6,9 +6,13 @@
 #   AutoBDD_Ver=3.0.0 ABDD_PROJECT=autobdd-framework-test \
 #     docker compose -f docker-compose.docker.yml run --rm autobdd-framework-test-run \
 #       "xvfb-runner.sh make clean e2e-test"
+#
+# IMAGE: pull_policy is 'never' — runs the LOCAL image only; pre-pull it (`docker pull
+# xyteam/autobdd:<AutoBDD_Ver>`) or build it first.
 services:
   autobdd-framework-test-run:
     image: "xyteam/autobdd:${AutoBDD_Ver}"
+    pull_policy: never   # test the LOCAL image only (pre-pull it explicitly if needed)
     container_name: autobdd-framework-test-run
     shm_size: 512M
     user: root

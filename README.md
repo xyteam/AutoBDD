@@ -77,7 +77,8 @@ bundled internal demo-app.
 
 ## Try it and see the report
 
-This repo ships two suites:
+This repo ships two suites. Both run the **locally built** image only
+(`pull_policy: never` — build it, or pre-pull the published tag):
 
 * **`test-projects/autobdd-base-test`** — a **no-browser** conformance suite for the
   **base** image (L0/L1 + the frozen CLI seam). Fast; no Chrome required:
