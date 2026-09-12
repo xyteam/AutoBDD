@@ -7,7 +7,8 @@
 > **Version sync (v3.0.0):** This repo is part of the four-repo project set aligned
 > on **3.0.0** (AutoBDD framework + docker image `xyteam/autobdd:3.0.0`,
 > AutoBDD-example, autobdd-framework-test, xySikulixApi) — all verified to work together.
-> `.env`'s `AutoBDD_Ver=3.0.0` selects the matching image. This is the base going
+> `.env`'s `AutoBDD_Ver` defaults to `dev` (the locally built image); pass
+> `AutoBDD_Ver=<v>` to run a release instead. This is the base going
 > forward; a future effort consolidates the repos and upgrades dependencies together.
 
 #### requirement:

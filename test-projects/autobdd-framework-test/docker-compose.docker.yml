@@ -3,7 +3,7 @@
 # AUTOBDD_DEV_MOUNT: the startup copies the image's baked framework to
 # ~/Projects/AutoBDD, which sets FrameworkPath + framework/scripts on PATH.
 #
-#   AutoBDD_Ver=3.0.0 ABDD_PROJECT=autobdd-framework-test \
+#   AutoBDD_Ver=dev ABDD_PROJECT=autobdd-framework-test \
 #     docker compose -f docker-compose.docker.yml run --rm autobdd-framework-test-run \
 #       "xvfb-runner.sh make clean e2e-test"
 #
