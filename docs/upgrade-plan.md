@@ -1,7 +1,30 @@
 # AutoBDD — Upgrade Plan (post-consolidation)
 
+## Status (current)
+
+The modern-stack re-baseline described by this plan (scripted below as "v4.0.0") has
+**shipped as v3.0.0**. Current state:
+
+* **`master` = v3.0.0** — Ubuntu 22.04 · Node 20 · Java 17 · WebdriverIO 9 · Oculix 4.0.0
+  (screen image matching + OCR). Tag `v3.0.0`, GitHub Release, and image
+  `xyteam/autobdd:3.0.0` published.
+* **`v2.4.0`** — the corrected **base**: the re-activated v2.3.0 line (Node 14 ·
+  WebdriverIO 7) made runnable against current Chrome. Tag `v2.4.0`, Release, and image
+  `xyteam/autobdd:2.4.0` published. v3.0.0 is the continuation of this base.
+* **OculiX cutover (Phase 6): done** — see issue #152. Two checklist items are deferred
+  as tracked follow-ups: **#160** (`OCR.globalOptions()` set once at bridge start) and
+  **#161** (migrate keyboard/mouse from `robotjs` to Oculix `Mouse`/`Key`).
+* **Future:** adopt **Octachorix** (Oculix's next OCR binding — ×2 throughput, absolute-path
+  library loading) in the Oculix release after 4.0.0.
+* **Tag convention:** releases use a `v`-prefix (`v2.4.0`, `v3.0.0`). Legacy tags
+  (`1.0.x`, `2.1.0`) predate the convention; no `v2.3.0` tag exists (its commit is not
+  reliably identifiable), so the released v2.3.0 runtime is documented, not tagged.
+* **Image reproducibility:** the image installs the **latest stable Chrome** at build
+  time (it floats). The build records the resolved version under
+  `/etc/autobdd-chrome-version` in the image (see `.docker/autobdd-nodejs.dockerfile`).
+
 > **Baseline:** AutoBDD is now a **single self-contained monorepo** on `master`
-> (`98e3bee`, v3.0.0). Phase-1 of the earlier effort folded `xySikulixApi` into
+> (the modern-stack baseline; originally `98e3bee`). Phase-1 of the earlier effort folded `xySikulixApi` into
 > `third_party/xysikulixapi` and the `autobdd-test` suite into
 > `test-projects/autobdd-test`. Verified green (per `98e3bee`) against the baked
 > `xyteam/autobdd:3.0.0` image: **all 15 e2e scenarios** (1 @Init + 14 across
@@ -14,8 +37,9 @@
 > with `autobdd-test` green**, is cut as a PR, merged by the user, and the next phase
 > only starts on the user's go-ahead.
 >
-> **Target release:** v4.0.0 on a modern stack (Ubuntu 22.04, Node 20 LTS, Java 17,
-> modern Chrome, WebdriverIO v9 async, Oculix-based screen bridge).
+> **Target release:** the modern stack (Ubuntu 22.04, Node 20 LTS, Java 17, modern
+> Chrome, WebdriverIO v9 async, Oculix-based screen bridge) — **shipped as v3.0.0**
+> (see Status above); this plan referred to it as "v4.0.0" while it was in flight.
 
 ---
 

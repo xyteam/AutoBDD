@@ -39,4 +39,10 @@ RUN \
     unzip -o /tmp/chromedriver_linux64.zip -d /tmp/cd && \
     install -m 0755 /tmp/cd/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
     rm -rf /tmp/chromedriver_linux64.zip /tmp/cd && \
-    echo "installed chrome ${CHROME_VER}, chromedriver ${DRIVER_URL}"
+    echo "installed chrome ${CHROME_VER}, chromedriver ${DRIVER_URL}" && \
+    # Record the resolved Chrome/chromedriver versions for traceability (Chrome is
+    # installed as "latest stable" and therefore floats at build time).
+    { echo "chrome=${CHROME_VER}"; \
+      echo "chromedriver=$(chromedriver --version 2>/dev/null | awk '{print $2}')"; \
+      echo "built=$(date -u +%Y-%m-%dT%H:%M:%SZ)"; } > /etc/autobdd-chrome-version && \
+    cat /etc/autobdd-chrome-version
