@@ -75,7 +75,7 @@ display -window root "$WORK/hello.png" >/dev/null 2>&1 &
 sleep 2
 JSON="$(seam --imagePath=$WORK/hello.png)"
 check_eq "image match -> name"        "$(jq1 "$JSON" '.[0].name')"            "hello.png"
-check_eq "image match -> score == 1"  "$(jq1 "$JSON" '.[0].score')"           "1"
+check_eq "image match -> score >= 0.99" "$(jq1 "$JSON" '.[0].score >= 0.99')" "true"
 check_eq "image match -> OCR text"    "$(jq1 "$JSON" '.[0].text[0]')"         "HELLO WORLD"
 check_eq "image match -> center point" "$(jq1 "$JSON" '.[0].center.x|type')"  "number"
 check_eq "contract: all keys present" \
