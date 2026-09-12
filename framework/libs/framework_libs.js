@@ -282,7 +282,7 @@ module.exports = {
       }
       exec(cmd_take_screenshot);
       if (myText && myText.length > 0 ) {
-        const cmd_wait_display_stop  = `while test -d /proc/${childProcess.pid}; do sleep 0.2; if ps -p ${childProcess.pid} | grep defunct; then break; fi; done`;
+        const cmd_wait_display_stop  = `while test -d /proc/${childProcess.pid}; do sleep 0.2; if ps -p ${childProcess.pid} -o stat= | grep -q Z; then break; fi; done`;
         execSync(cmd_wait_display_stop);
       }
     } else {
