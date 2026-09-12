@@ -69,9 +69,15 @@ RUN apt-get update -y && \
 # L1b — Node (seam runtime: the findTargetImage CLI uses java-bridge) + the
 #       screen engine: vendored Oculix bridge + warmed natives. No wdio/cucumber.
 # ---------------------------------------------------------------------------
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -q -y --no-install-recommends nodejs && \
-    rm -rf /var/lib/apt/lists/*
+# Exact + checksum-verified (NFR-P3/P5): the official tarball, not a floating apt repo.
+# Node 20 reached EOL 2026-04-30; 24 is the active LTS (EOL 2028-04-30).
+ARG NODE_VERSION=24.21.0
+ARG NODE_SHA256=fd8e59d5a511510f6a298afb548f18c7d2b1be404d8b4a27d94fbe49f56cb2d6
+RUN curl -fsSL -o /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" && \
+    echo "${NODE_SHA256}  /tmp/node.tar.xz" | sha256sum -c - && \
+    tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 --exclude=CHANGELOG.md --exclude=LICENSE --exclude=README.md && \
+    rm /tmp/node.tar.xz && \
+    node -v && npm -v
 
 # the vendored bridge, installed world-readable under /opt/autobdd so the CLI seam works
 # for ANY user — /root (where the framework tree lives) is not traversable by others.
