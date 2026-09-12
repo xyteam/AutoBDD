@@ -72,8 +72,9 @@ RUN mkdir -p /opt/oculix-natives && \
     ( Xvfb :99 -screen 0 400x300x24 >/dev/null 2>&1 & XPID=$!; sleep 2; \
       DISPLAY=:99 node -e "const j=require('/root/Projects/AutoBDD/third_party/xysikulixapi/node_modules/java-bridge'); j.ensureJvm({opts:['-Xms128m','-Xmx512m']}); try{ const X=require('/root/Projects/AutoBDD/third_party/xysikulixapi/lib/xysikulixapi.js'); new X.Screen(); }catch(e){}" >/dev/null 2>&1; \
       kill $XPID 2>/dev/null ) || true; \
-    cp -f /root/.cache/legerix/*/linux-x86-64-legacy/*.so* /opt/oculix-natives/ 2>/dev/null || true; \
+    cp -f /root/.cache/legerix/*/linux-x86-64*/*.so* /opt/oculix-natives/ 2>/dev/null || true; \
     chmod 755 /opt/oculix-natives; \
+    ln -sf /root/Projects/AutoBDD/third_party/xysikulixapi/bin/findTargetImage.js /usr/local/bin/findTargetImage; \
     echo "baked oculix natives: $(ls /opt/oculix-natives 2>/dev/null | tr '\n' ' ')"
 ENV LD_LIBRARY_PATH=/opt/oculix-natives
 
