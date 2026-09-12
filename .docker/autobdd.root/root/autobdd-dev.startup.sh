@@ -26,6 +26,7 @@ if [ "$USER" != "root" ]; then
     # USER
     echo "* enable custom user: $USER"
     if [ "$HOSTOS" == "Linux" ]; then
+        groupadd --force --gid $GROUPID $USER
         useradd --uid $USERID --gid $GROUPID --create-home --shell /bin/bash --groups adm,sudo $USER
     else
         useradd --create-home --shell /bin/bash --user-group --groups adm,sudo $USER
@@ -43,9 +44,12 @@ if [ "$USER" != "root" ]; then
     # HOME
     # user dirs and files
     cd /root; tar cf - $(ls -A1 -I Projects -I .xvfb-locks .) | (cd $HOME; tar xf -)
-    [ ! -d "$HOME/Projects/AutoBDD/framework" ] \
-        && (echo "updating Projects/AutoBDD" && cd /root; tar -cf - Projects/AutoBDD | (cd $HOME; tar xf -)) \
-        || (echo "only updating Projects/AutoBDD/node_modules" && cd /root; tar cf - Projects/AutoBDD/node_modules | (cd $HOME; tar xf -))
+    # DEV MODE: the working tree is bind-mounted; otherwise copy the baked AutoBDD tree.
+    if [ "$AUTOBDD_DEV_MOUNT" != "1" ] && [ -d /root/Projects/AutoBDD ]; then
+        [ ! -d "$HOME/Projects/AutoBDD/framework" ] \
+            && (echo "updating Projects/AutoBDD" && cd /root; tar -cf - Projects/AutoBDD | (cd $HOME; tar xf -)) \
+            || (echo "only updating Projects/AutoBDD/node_modules" && cd /root; tar cf - Projects/AutoBDD/node_modules | (cd $HOME; tar xf -))
+    fi
     mkdir -p $HOME/.config/pcmanfm/LXDE/
     ln -sf /usr/local/share/doro-lxde-wallpapers/desktop-items-0.conf $HOME/.config/pcmanfm/LXDE/
     # update file ownership inside docker
@@ -64,13 +68,13 @@ fi
 
 # set ABDD_PROJECT from .env in .bash_profile
 if [[ ! -z "$ABDD_PROJECT" ]]; then
-    if [[ -x $HOME/Projects/AutoBDD/test-projects/$ABDD_PROJECT/abdd_startup.sh ]]; then
-        /bin/bash $HOME/Projects/AutoBDD/test-projects/$ABDD_PROJECT/abdd_startup.sh
+    if [[ -x $HOME/Projects/AutoBDD/test-projects/$ABDD_PROJECT/.abdd_startup.sh ]]; then
+        /bin/bash $HOME/Projects/AutoBDD/test-projects/$ABDD_PROJECT/.abdd_startup.sh
     fi
 cat >> $HOME/.bash_profile <<EOL
     export ABDD_PROJECT=$ABDD_PROJECT
     cd test-projects/\$ABDD_PROJECT
-    ./abdd_startup.sh
+    [ -x .abdd_startup.sh ] && . .abdd_startup.sh
 EOL
 fi
 

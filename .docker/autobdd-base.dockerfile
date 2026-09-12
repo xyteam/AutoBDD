@@ -50,7 +50,8 @@ RUN apt-get update -y && \
 COPY .docker/autobdd.root/etc/supervisor/conf.d/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY .docker/autobdd.root/usr/local/bin/xvfb.sh /usr/local/bin/xvfb.sh
 COPY .docker/autobdd.root/usr/local/share/doro-lxde-wallpapers /usr/local/share/doro-lxde-wallpapers
-RUN chmod +x /usr/local/bin/xvfb.sh && \
+COPY .docker/autobdd.root/root/autobdd-dev.startup.sh /root/autobdd-dev.startup.sh
+RUN chmod +x /usr/local/bin/xvfb.sh /root/autobdd-dev.startup.sh && \
     mkdir -p /var/log/supervisor && \
     ln -sf "$(command -v supervisord)" /usr/local/bin/supervisord && \
     printf 'export DISPLAY=:1\nnpm config set script-shell /bin/bash 2>/dev/null\n' >> /root/.bash_profile

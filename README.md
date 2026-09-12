@@ -85,6 +85,9 @@ This repo ships two suites:
   cd test-projects/autobdd-base-test
   AutoBDD_Ver=<v> make docker-run jobs="base-test"
   ```
+  Dev (interactive shell, or ssh + VNC desktop) is extra `docker compose run`
+  parameters — e.g. `docker compose run --rm --entrypoint /root/autobdd-dev.startup.sh
+  -p 2225:22 -p 5925:5900 autobdd-base-test`; see the suite's README.
 * **`test-projects/autobdd-framework-test`** — the full framework suite. Run it to see
   AutoBDD's reports for yourself — step screenshots (with green/red pass-fail watermarks
   and image-match markers), per-scenario movies, and the HTML report:

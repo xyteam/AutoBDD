@@ -17,12 +17,18 @@ make docker-run jobs="base-test" AutoBDD_Ver=dev
 # shell inside the base image
 make docker-run-bash AutoBDD_Ver=dev
 
-# interactive desktop (base L0d layer only): ssh + VNC
-make docker-up AutoBDD_Ver=dev
-ssh $USER@localhost -p 2225          # password "ubuntu"
-vncviewer localhost:5925
-make docker-down
+# ssh + VNC desktop (the base's L0d layer) — extra `docker compose run` parameters
+AutoBDD_Ver=dev docker compose run --rm \
+  --entrypoint /root/autobdd-dev.startup.sh \
+  -p 2225:22 -p 5925:5900 \
+  -e VNC_PASSWORD= -e RESOLUTION=1920x1200x24 \
+  autobdd-base-test
+# then:  ssh $USER@localhost -p 2225   (password "ubuntu")   ·   vncviewer localhost:5925
 ```
+
+There is a **single run service** (`autobdd-base-test`); nothing is started or left
+running in the background — every mode is just `docker compose run` with different
+parameters.
 
 ## What it checks
 
@@ -39,7 +45,7 @@ Exit code is non-zero if any check fails; the runner prints a pass/fail tally.
 
 ```
 Makefile                       host + in-container targets
-docker-compose.yml             autobdd-base-test-run (gate) + autobdd-base-test-dev (ssh/VNC)
+docker-compose.yml             one run service (autobdd-base-test)
 dev/autobdd-run.startup.sh     run-container user bootstrap
 base-test/run.sh               the suite
 ```
