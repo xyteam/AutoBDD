@@ -1,15 +1,19 @@
-# Docker (baked) mode — standalone. Run autobdd-test purely off the local
+# Docker (baked) mode — standalone. Run autobdd-framework-test purely off the local
 # xyteam/autobdd:<AutoBDD_Ver> image. No working-tree AutoBDD mount, no
 # AUTOBDD_DEV_MOUNT: the startup copies the image's baked framework to
 # ~/Projects/AutoBDD, which sets FrameworkPath + framework/scripts on PATH.
 #
-#   AutoBDD_Ver=3.0.0 ABDD_PROJECT=autobdd-test \
-#     docker compose -f docker-compose.docker.yml run --rm autobdd-test-run \
+#   AutoBDD_Ver=dev ABDD_PROJECT=autobdd-framework-test \
+#     docker compose -f docker-compose.docker.yml run --rm autobdd-framework-test-run \
 #       "xvfb-runner.sh make clean e2e-test"
+#
+# IMAGE: pull_policy is 'never' — runs the LOCAL image only; pre-pull it (`docker pull
+# xyteam/autobdd:<AutoBDD_Ver>`) or build it first.
 services:
-  autobdd-test-run:
+  autobdd-framework-test-run:
     image: "xyteam/autobdd:${AutoBDD_Ver}"
-    container_name: autobdd-test-run
+    pull_policy: never   # test the LOCAL image only (pre-pull it explicitly if needed)
+    container_name: autobdd-framework-test-run
     shm_size: 512M
     user: root
     privileged: true

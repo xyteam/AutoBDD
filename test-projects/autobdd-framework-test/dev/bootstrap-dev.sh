@@ -1,5 +1,5 @@
 #!/bin/bash
-# Dev-loop bootstrap for autobdd-test against the mounted working-tree AutoBDD.
+# Dev-loop bootstrap for autobdd-framework-test against the mounted working-tree AutoBDD.
 # Run AFTER any `npm install` in AutoBDD, which wipes native build artifacts
 # (selenium-standalone drivers). Safe to re-run idempotently.
 #
@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -n "${AutoBDD_DEV_ROOT:-}" ]; then
   ABDD="$AutoBDD_DEV_ROOT"
 else
-  # Monorepo layout: dev/ is at <AutoBDD>/test-projects/autobdd-test/dev/, so the
+  # Monorepo layout: dev/ is at <AutoBDD>/test-projects/autobdd-framework-test/dev/, so the
   # AutoBDD root is three levels up.
   ABDD="$(cd "$SCRIPT_DIR/../../.." 2>/dev/null && pwd)"
 fi

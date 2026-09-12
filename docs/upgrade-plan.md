@@ -25,8 +25,8 @@ The modern-stack re-baseline described by this plan (scripted below as "v4.0.0")
 
 > **Baseline:** AutoBDD is now a **single self-contained monorepo** on `master`
 > (the modern-stack baseline; originally `98e3bee`). Phase-1 of the earlier effort folded `xySikulixApi` into
-> `third_party/xysikulixapi` and the `autobdd-test` suite into
-> `test-projects/autobdd-test`. Verified green (per `98e3bee`) against the baked
+> `third_party/xysikulixapi` and the `autobdd-framework-test` suite into
+> `test-projects/autobdd-framework-test`. Verified green (per `98e3bee`) against the baked
 > `xyteam/autobdd:3.0.0` image: **all 15 e2e scenarios** (1 @Init + 14 across
 > test_images/ocr/vars/envs/project_steps) plus the jest/cypress/pytest/k6 suites.
 >
@@ -34,7 +34,7 @@ The modern-stack re-baseline described by this plan (scripted below as "v4.0.0")
 > four-repo topology and its Phase 0/1 are shipped. This is the forward plan written
 > for the consolidated monorepo, with the earlier spike findings folded in (Appendix).
 > It inventories every upgradable component and orders work so that **each phase ends
-> with `autobdd-test` green**, is cut as a PR, merged by the user, and the next phase
+> with `autobdd-framework-test` green**, is cut as a PR, merged by the user, and the next phase
 > only starts on the user's go-ahead.
 >
 > **Target release:** the modern stack (Ubuntu 22.04, Node 20 LTS, Java 17, modern
@@ -55,11 +55,11 @@ No phase is considered done until its gate is green. Phases that change the runt
 (image) re-baseline the gate on the **new** image and record that new image as the
 baseline for all later phases.
 
-## 2. The gate — "autobdd-test passes"
+## 2. The gate — "autobdd-framework-test passes"
 
-**Definition:** the internal suite in `test-projects/autobdd-test` runs green from the
+**Definition:** the internal suite in `test-projects/autobdd-framework-test` runs green from the
 **live working-tree AutoBDD** via the docker live-mount (`AUTOBDD_DEV_MOUNT=1`), i.e.
-`make autobdd-test` (from the repo root) or equivalently, inside the test project,
+`make autobdd-framework-test` (from the repo root) or equivalently, inside the test project,
 `make test-all` — and the cucumber HTML reports show **all 15 e2e scenarios green**,
 with jest/cypress/pytest/k6 also passing.
 
@@ -67,7 +67,7 @@ with jest/cypress/pytest/k6 also passing.
 
 - Nothing runs on the host: the suite always runs inside a container from
   `xyteam/autobdd:${AutoBDD_Ver}` (`AutoBDD_Ver=3.0.0` now). The committed
-  `test-projects/autobdd-test/docker-compose.yml` bind-mounts
+  `test-projects/autobdd-framework-test/docker-compose.yml` bind-mounts
   `${AUTOBDD_SRC:-../AutoBDD}` (this repo) at `/home/$USER/Projects/AutoBDD:rw` and
   sets `AUTOBDD_DEV_MOUNT=1`, so the **working tree's own code and `node_modules` are
   exercised**, not the image's baked copy. Startup scripts under `dev/`
@@ -98,7 +98,7 @@ with jest/cypress/pytest/k6 also passing.
 
 Evidence for every row: dependency audit (usage of each `package.json` entry across the
 repo), native-bridge audit of `third_party/xysikulixapi` + consumers, container audit of
-`.docker/`, and the internal-suite audit of `test-projects/autobdd-test`. Path/line
+`.docker/`, and the internal-suite audit of `test-projects/autobdd-framework-test`. Path/line
 references are in the audit notes reproduced in §Appendix.
 
 ### 3.1 Runtime platform (Docker / image) — `.docker/`, root `Makefile`, compose
@@ -173,7 +173,7 @@ references are in the audit notes reproduced in §Appendix.
 | C6 | python2 remnants | `.docker/autobdd.root` | see R9 |
 | C7 | unused bridge imports | `xysikulixapi/lib/xysikulixapi.js` | App/Button/Mouse/Settings/ImagePath unused by the CLI |
 
-### 3.7 Internal test suite itself (`test-projects/autobdd-test`)
+### 3.7 Internal test suite itself (`test-projects/autobdd-framework-test`)
 
 e2e (wdio/cucumber, chrome://version) must ride the runtime migration; cypress/jest/
 pytest/k6 are independent and stay as gates. Suite is exercised live via §2.
@@ -204,7 +204,7 @@ still run green on `xyteam/autobdd:3.0.0`.
 ### Phase 1 — Green baseline (**DONE** — consolidation `98e3bee`, project phase-1)
 
 - **Status:** the reproducible green gate is already in place and checked in: the
-  internal suite in `test-projects/autobdd-test` was folded in and verified green
+  internal suite in `test-projects/autobdd-framework-test` was folded in and verified green
   (15/15 e2e + jest/cypress/pytest/k6) on `xyteam/autobdd:3.0.0`. §2 documents exactly
   how to run the gate from the working tree. No new work here — it is the reference
   every later phase must keep green (on the 3.0.0 image until Phase 5 re-baselines
@@ -220,7 +220,7 @@ still run green on `xyteam/autobdd:3.0.0`.
   where the module stays. No reporter/runner bumps yet.
 - **Risk:** low. Any removal that turns out load-bearing surfaces immediately in the
   gate.
-- **Gate:** `npm install` clean; autobdd-test green on the 3.0.0 image.
+- **Gate:** `npm install` clean; autobdd-framework-test green on the 3.0.0 image.
 
 ### Phase 3 — sync→async conversion (still wdio7 / Node 12) (**DONE** — PR #154)
 
@@ -235,7 +235,7 @@ still run green on `xyteam/autobdd:3.0.0`.
   `framework/support/{hooks,module_hooks}.js`.
 - **Risk:** high-churn but mechanical; gated green on the same 3.0.0 image **without
   fibers**.
-- **Gate:** autobdd-test green on the 3.0.0 image with fibers removed from the tree.
+- **Gate:** autobdd-framework-test green on the 3.0.0 image with fibers removed from the tree.
 
 ### Phase 4 — Screen-bridge plumbing swap `java` → `java-bridge` (**FOLDED INTO PHASE 5**)
 
@@ -254,7 +254,7 @@ still run green on `xyteam/autobdd:3.0.0`.
   contract. Still loads `sikulixapi-2.0.4.jar` (Java 11-compatible) for Phase 5
   verification; the OculiX jar + Java-17-only surface stays in Phase 6.
 - **Gate (in Phase 5):** root `npm install` on Node 20 runs no node-gyp JNI;
-  `findTargetImage` works end-to-end in the Node-20 container; autobdd-test green on
+  `findTargetImage` works end-to-end in the Node-20 container; autobdd-framework-test green on
   the new image.
 
 ### Phase 5 — Runtime re-baseline: Docker foundation + Node 20 + WebdriverIO v9
@@ -278,7 +278,7 @@ still run green on `xyteam/autobdd:3.0.0`.
 - **Risk:** largest phase; that is exactly why Phases 1–4 de-risked it. Splitting the
   wdio bump out of the Docker rebuild is not feasible (runtime lockstep), so the
   sub-steps land in one PR and the gate re-baselines on the new image.
-- **Gate:** build new image; `npm install` clean on Node 20; **autobdd-test green on
+- **Gate:** build new image; `npm install` clean on Node 20; **autobdd-framework-test green on
   the NEW image** (15/15 + aux suites). New image becomes the baseline.
 
 ### Phase 6 — Native screen bridge: Oculix cutover (on the new runtime)
@@ -292,7 +292,7 @@ still run green on `xyteam/autobdd:3.0.0`.
 - **Risk:** native; mitigated by spike (Appendix) and validated end-to-end on the new
   image (real display + xvfb).
 - **Gate:** `findTargetImage`/OCR/image-find work end-to-end on the new image;
-  autobdd-test green on the NEW image (screen/image/OCR @IMAGE/@OCR scenarios).
+  autobdd-framework-test green on the NEW image (screen/image/OCR @IMAGE/@OCR scenarios).
 
 ### Phase 7 — Reporting pipeline to wdio9/cucumber-v10 JSON
 
@@ -305,7 +305,7 @@ still run green on `xyteam/autobdd:3.0.0`.
   translation, X4).
 - **Risk:** medium; reporter JSON schema churn is the known unknown.
 - **Gate:** a real run produces a valid HTML report with step screenshots + movie;
-  autobdd-test green on the new image.
+  autobdd-framework-test green on the new image.
 
 ### Phase 8 — Final dependency refresh, dead-platform cleanup, release
 
@@ -316,7 +316,7 @@ still run green on `xyteam/autobdd:3.0.0`.
   (drop IE, legacy Edge), C5 (fs-ext/proper-lockfile or remove dormant path), C6/C7;
   docs/README/tags; coordinated `AutoBDD_Ver`/`AUTOBDD_VERSION` → v4.0.0.
 - **Risk:** low–medium per bump; gate after every group.
-- **Gate:** autobdd-test green on the new image; `make autobdd-build-all` + release
+- **Gate:** autobdd-framework-test green on the new image; `make autobdd-build-all` + release
   checklist green.
 
 > **Sizing note:** Phase 1 (baseline) is already done/checked in. Phases 2–4 keep the
@@ -326,7 +326,7 @@ still run green on `xyteam/autobdd:3.0.0`.
 
 ## 5. Definition of done (v4.0.0)
 
-- AutoBDD remains a single self-contained monorepo; `make autobdd-test` green on the
+- AutoBDD remains a single self-contained monorepo; `make autobdd-framework-test` green on the
   **new** image from the working tree.
 - Modern image: Ubuntu 22.04, Node 20, Java 17, Python 3.10+, modern Chrome, Selenium 4.
 - WebdriverIO v9 **async** (no `@wdio/sync`, no fibers); cucumber v10+ `tags`.

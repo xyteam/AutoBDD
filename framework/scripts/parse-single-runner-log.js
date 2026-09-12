@@ -48,10 +48,17 @@ const parseLog = (logFilePath) => {
     var featurePath, testModulePath, testFeaturePath;
     for (index = 1; index <= runLogIndex; index++) {
         featurePath = runLogArray[index][0].split(' - ')[1];
+        // The spec is commonly a bare `file:///features/x.feature` URI with no module dir.
+        // Strip the scheme and any leading slash: otherwise the ':' from `file:` becomes a
+        // directory name, which the CI artifact uploader (and Windows) reject outright.
+        featurePath = featurePath.replace(/^file:\/{2,}/, '').replace(/^\/+/, '');
         [testModulePath, testFeaturePath] = featurePath.includes('/features/') ? featurePath.split('/features/') : [modulePath, featurePath.replace('features/', '')];
+        testModulePath = String(testModulePath || '').replace(/[:*?"<>|]/g, '_');
+        testFeaturePath = String(testFeaturePath || '').replace(/\//g, '_').replace(/[:*?"<>|]/g, '_');
+        // keep only the module's own directory name (drop any absolute prefix)
+        if (testModulePath.includes('/')) testModulePath = testModulePath.split('/').filter(Boolean).pop() || modulePath;
         if (testModulePath == '' || testModulePath == '.' ) testModulePath = modulePath;
-        testFeaturePath = testFeaturePath.replace('/', '_');
-        if (!fs.existsSync(testModulePath)) fs.mkdirSync(testModulePath);
+        if (!fs.existsSync(testModulePath)) fs.mkdirSync(testModulePath, { recursive: true });
         fs.writeFileSync(`${testModulePath}/${testFeaturePath}.log`, stripAnsi.string(runLogArray[index].concat(specReportArray[index]).join('\n')));
         cmdline_session.runCmd(`cat ${testModulePath}/${testFeaturePath}.log | ansi2html > ${testModulePath}/${testFeaturePath}.log.html`);
     }    

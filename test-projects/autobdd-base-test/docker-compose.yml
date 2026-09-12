@@ -1,0 +1,49 @@
+# autobdd-base-test — the no-browser conformance suite for xyteam/autobdd-base.
+#
+# One service, run-only. Everything else is extra `docker compose run` parameters.
+#
+#   run the suite (CI gate):
+#     make docker-run jobs="base-test"      # == docker compose run --rm autobdd-base-test "make base-test"
+#
+#   interactive shell inside the base image:
+#     docker compose run --rm autobdd-base-test /bin/bash
+#
+#   ssh + VNC desktop (the base's L0 layer):
+#     docker compose run --rm \
+#       --entrypoint /root/autobdd-dev.startup.sh \
+#       -p 2225:22 -p 5925:5900 \
+#       -e VNC_PASSWORD= -e RESOLUTION=1920x1200x24 \
+#       autobdd-base-test
+#     # then:  ssh $USER@localhost -p 2225   (password "ubuntu")   ·   vncviewer localhost:5925
+#
+# DEV-MODE mounts the working-tree AutoBDD over the image's baked copy so the suite runs
+# against live source. This file lives at <AutoBDD>/test-projects/autobdd-base-test/, so
+# AUTOBDD_SRC defaults to ../.. (the AutoBDD monorepo root).
+#
+# IMAGE: pull_policy is 'never' — this suite tests the LOCAL image only. Build it (see the
+# repo README) or pre-pull it explicitly (`docker pull xyteam/autobdd-base:<ver>`).
+services:
+
+  autobdd-base-test:
+    image: "xyteam/autobdd-base:${AutoBDD_Ver}"
+    pull_policy: never   # test the LOCAL image only (built here or pre-pulled); never fetch implicitly
+    shm_size: 512M
+    user: root
+    privileged: true
+    security_opt:
+      - "apparmor=docker-default"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ${AUTOBDD_SRC:-../..}:/home/${USER}/Projects/AutoBDD:rw
+      - ${PWD}:/home/${USER}/Projects/AutoBDD/test-projects/${ABDD_PROJECT}:rw
+      - ${PWD}/dev/autobdd-run.startup.sh:/root/autobdd-run.startup.sh:ro
+    environment:
+      - USER=${USER}
+      - ABDD_PROJECT=${ABDD_PROJECT}
+      - AUTOBDD_DEV_MOUNT=1
+      - HOSTOS=${HOSTOS}
+      - USERID=${USERID}
+      - GROUPID=${GROUPID}
+      - PASSWORD=${PASSWORD}
+      - RESOLUTION=1920x1200x24
+    entrypoint: "/root/autobdd-run.startup.sh"

@@ -1,12 +1,37 @@
 # Changelog
 
-Release notes for AutoBDD. Images are published to Docker Hub as
-`xyteam/autobdd:<version>` (plus base layers `xyteam/autobdd-nodejs:<version>`,
-`xyteam/autobdd-ubuntu:<version>`). Test repos pull and run the image by version —
-see [README.md](README.md).
+Release notes for AutoBDD. From the layered re-design the images are published as
+**`xyteam/autobdd-base:<version>`** and **`xyteam/autobdd-framework:<version>`**
+(**`xyteam/autobdd:<version>`** is a deprecated alias of the latter); earlier releases
+shipped a single `xyteam/autobdd` tag with `-nodejs`/`-ubuntu` base layers. Test repos
+pull and run the image by version — see [README.md](README.md).
 
 Version tags use a `v`-prefix (`v2.4.0`, `v3.0.0`). The `1.0.x`/`2.1.0` tags predate
 the convention.
+
+## Unreleased — the layered re-design (in progress)
+
+**Phase A — structure (done).** The single image is split into two published tags:
+
+- **`xyteam/autobdd-base`** — L0 (Ubuntu 24.04 + essentials, X display + desktop:
+  Xvfb/openbox/x11vnc) + L1 (Java 17, Node 20, the Oculix screen engine exposed as the
+  `findTargetImage` CLI seam). **No browser.** Usable screen-only, or as a platform to
+  build your own framework on.
+- **`xyteam/autobdd-framework`** — base + L2 (Chrome + matching chromedriver,
+  WebdriverIO 9, Cucumber, the AutoBDD step library). `xyteam/autobdd` is a deprecated
+  alias (same image, two tags).
+- The base's public seam is frozen in [`docs/CONTRACT.md`](docs/CONTRACT.md).
+- Conformance suites split — `test-projects/autobdd-base-test` (no browser) and
+  `test-projects/autobdd-framework-test`; each gates its tag. CI:
+  `.github/workflows/conformance.yml` builds both tags from the commit and runs both suites.
+- Test-project composes are run-only and set `pull_policy: never` (local image only);
+  `AutoBDD_Ver` defaults to `dev`.
+- One uniform screenshot watermark on every step/final capture — a dark bottom band with
+  the remark (green passed / red failed).
+
+**Phase B — NFR hardening (next).** Pin-all (exact Chrome + chromedriver via Chrome for
+Testing; record apt versions), security (SBOM + scanning), the size gate, and startup
+targets. The v1 release cuts when Phase B is green and publishes the two tags.
 
 ## v3.0.0
 
