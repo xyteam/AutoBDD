@@ -15,7 +15,7 @@ RUN apt-get update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
         binutils build-essential pkg-config \
         python3 python3-pip python3-venv \
         imagemagick ffmpeg aosd-cat colorized-logs \
-        x11-xserver-utils xdg-utils xdotool wmctrl \
+        x11-xserver-utils x11-utils xdg-utils xdotool wmctrl \
         tini supervisor \
         fonts-wqy-microhei ttf-wqy-zenhei && \
     dpkg-reconfigure -f noninteractive tzdata && \
@@ -45,6 +45,16 @@ RUN apt-get update -y && \
     ldconfig && update-ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
+# L0d — desktop supervision: Xvfb + openbox + LXDE panel + x11vnc + sshd under
+# supervisord, so the base supports an interactive ssh/VNC GUI by itself.
+COPY .docker/autobdd.root/etc/supervisor/conf.d/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY .docker/autobdd.root/usr/local/bin/xvfb.sh /usr/local/bin/xvfb.sh
+COPY .docker/autobdd.root/usr/local/share/doro-lxde-wallpapers /usr/local/share/doro-lxde-wallpapers
+RUN chmod +x /usr/local/bin/xvfb.sh && \
+    mkdir -p /var/log/supervisor && \
+    ln -sf "$(command -v supervisord)" /usr/local/bin/supervisord && \
+    printf 'export DISPLAY=:1\nnpm config set script-shell /bin/bash 2>/dev/null\n' >> /root/.bash_profile
+
 # ---------------------------------------------------------------------------
 # L1a — Java 17 (Oculix floor) — pinned to the 17 series (24.04 default-jdk is 21)
 # ---------------------------------------------------------------------------
@@ -62,23 +72,24 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -q -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-# the vendored bridge + its runtime deps (bridge only; the framework deps are L2)
-COPY third_party/xysikulixapi /root/Projects/AutoBDD/third_party/xysikulixapi
-RUN cd /root/Projects/AutoBDD/third_party/xysikulixapi && \
+# the vendored bridge, installed world-readable under /opt/autobdd so the CLI seam works
+# for ANY user — /root (where the framework tree lives) is not traversable by others.
+COPY third_party/xysikulixapi /opt/autobdd/third_party/xysikulixapi
+RUN cd /opt/autobdd/third_party/xysikulixapi && \
     npm config set script-shell /bin/bash && \
     npm install --omit=dev --loglevel=error && \
     rm -rf /tmp/*
 
-# Expose the seam on PATH and warm the Oculix natives at build (with a display), then
-# bake them to a world-readable dir + LD_LIBRARY_PATH (no per-container extraction).
-ENV PATH="/root/Projects/AutoBDD/third_party/xysikulixapi/bin:${PATH}"
+# Expose the seam on PATH and warm the Oculix natives at build (with a display), then bake
+# them to a world-readable dir wired into ld.so (no per-container extraction, no env needed).
 RUN mkdir -p /opt/oculix-natives && \
     ( Xvfb :99 -screen 0 400x300x24 >/dev/null 2>&1 & XPID=$!; sleep 2; \
-      DISPLAY=:99 node -e "const j=require('/root/Projects/AutoBDD/third_party/xysikulixapi/node_modules/java-bridge'); j.ensureJvm({opts:['-Xms128m','-Xmx512m']}); try{ const X=require('/root/Projects/AutoBDD/third_party/xysikulixapi/lib/xysikulixapi.js'); new X.Screen(); }catch(e){}" >/dev/null 2>&1; \
+      DISPLAY=:99 node -e "const j=require('/opt/autobdd/third_party/xysikulixapi/node_modules/java-bridge'); j.ensureJvm({opts:['-Xms128m','-Xmx512m']}); try{ const X=require('/opt/autobdd/third_party/xysikulixapi/lib/xysikulixapi.js'); new X.Screen(); }catch(e){}" >/dev/null 2>&1; \
       kill $XPID 2>/dev/null ) || true; \
     cp -f /root/.cache/legerix/*/linux-x86-64*/*.so* /opt/oculix-natives/ 2>/dev/null || true; \
-    chmod 755 /opt/oculix-natives; \
-    ln -sf /root/Projects/AutoBDD/third_party/xysikulixapi/bin/findTargetImage.js /usr/local/bin/findTargetImage; \
+    chmod 755 /opt/oculix-natives && \
+    echo /opt/oculix-natives > /etc/ld.so.conf.d/oculix-natives.conf && ldconfig && \
+    ln -sf /opt/autobdd/third_party/xysikulixapi/bin/findTargetImage.js /usr/local/bin/findTargetImage && \
     echo "baked oculix natives: $(ls /opt/oculix-natives 2>/dev/null | tr '\n' ' ')"
 ENV LD_LIBRARY_PATH=/opt/oculix-natives
 

@@ -1,0 +1,65 @@
+# autobdd-base-test — the no-browser conformance suite for xyteam/autobdd-base.
+#
+# Run the suite:
+#   make docker-run jobs="base-test"     (or simply: make base-test)
+#
+# Interactive dev container (ssh + VNC desktop from the base's L0d layer):
+#   make docker-up ; ssh $USER@localhost -p 2225 ; vnc localhost:5925 ; make docker-down
+#
+# DEV-MODE: mount the working-tree AutoBDD over the image's baked copy so the suite runs
+# against live source. This file lives at <AutoBDD>/test-projects/autobdd-base-test/, so
+# AUTOBDD_SRC defaults to ../.. (the AutoBDD monorepo root).
+services:
+
+  # run container for the conformance suite (CI gate)
+  autobdd-base-test-run:
+    image: "xyteam/autobdd-base:${AutoBDD_Ver}"
+    container_name: autobdd-base-test-run
+    shm_size: 512M
+    user: root
+    privileged: true
+    security_opt:
+      - "apparmor=docker-default"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ${AUTOBDD_SRC:-../..}:/home/${USER}/Projects/AutoBDD:rw
+      - ${PWD}:/home/${USER}/Projects/AutoBDD/test-projects/${ABDD_PROJECT}:rw
+      - ${PWD}/dev/autobdd-run.startup.sh:/root/autobdd-run.startup.sh:ro
+    environment:
+      - USER=${USER}
+      - ABDD_PROJECT=${ABDD_PROJECT}
+      - AUTOBDD_DEV_MOUNT=1
+      - HOSTOS=${HOSTOS}
+      - USERID=${USERID}
+      - GROUPID=${GROUPID}
+      - PASSWORD=${PASSWORD}
+      - RESOLUTION=1920x1200x24
+    entrypoint: "/root/autobdd-run.startup.sh"
+
+  # dev container: ssh + x11vnc desktop (base L0d layer only; no browser)
+  autobdd-base-test-dev:
+    image: "xyteam/autobdd-base:${AutoBDD_Ver}"
+    container_name: autobdd-base-test-dev
+    shm_size: 512M
+    user: root
+    privileged: true
+    security_opt:
+      - "apparmor=docker-default"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ${AUTOBDD_SRC:-../..}:/home/${USER}/Projects/AutoBDD:rw
+      - ${PWD}:/home/${USER}/Projects/AutoBDD/test-projects/${ABDD_PROJECT}:rw
+    ports:
+      - "5925:5900"
+      - "2225:22"
+    environment:
+      - USER=${USER}
+      - ABDD_PROJECT=${ABDD_PROJECT}
+      - AUTOBDD_DEV_MOUNT=1
+      - HOSTOS=${HOSTOS}
+      - USERID=${USERID}
+      - GROUPID=${GROUPID}
+      - PASSWORD=${PASSWORD}
+      - VNC_PASSWORD=${VNC_PASSWORD}
+      - RESOLUTION=1920x1200x24
+    entrypoint: "/root/autobdd-dev.startup.sh"
