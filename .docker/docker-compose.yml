@@ -1,39 +1,31 @@
 version: '3.5'
 services:
 
-  # base ubuntu packafges for pre-build
-  autobdd-ubuntu:
+  # autobdd-base — L0 (OS + essentials) + L0d (X display + desktop) + L1 (screen engine).
+  # Screen-only capable; no browser/wdio. Contract: docs/CONTRACT.md.
+  autobdd-base:
     build:
       context: ${PWD}/..
-      dockerfile: .docker/autobdd-ubuntu.dockerfile
+      dockerfile: .docker/autobdd-base.dockerfile
       args:
         AUTOBDD_VERSION: ${AUTOBDD_VERSION}
-    image: "xyteam/autobdd-ubuntu:${AUTOBDD_VERSION}"
-    container_name: autobdd-ubuntu
+    image: "xyteam/autobdd-base:${AUTOBDD_VERSION}"
+    container_name: autobdd-base
 
-  # add non-ubuntu packages
-  autobdd-nodejs:
+  # autobdd-framework — the product: base + L2 (Chrome/chromedriver, Node, wdio, cucumber,
+  # AutoBDD). Published also as the deprecated alias xyteam/autobdd:${AUTOBDD_VERSION}.
+  autobdd-framework:
     build:
       context: ${PWD}/..
-      dockerfile: .docker/autobdd-nodejs.dockerfile
+      dockerfile: .docker/autobdd-framework.dockerfile
       args:
         AUTOBDD_VERSION: ${AUTOBDD_VERSION}
-    image: "xyteam/autobdd-nodejs:${AUTOBDD_VERSION}"
-    container_name: autobdd-nodejs
+    image: "xyteam/autobdd-framework:${AUTOBDD_VERSION}"
+    container_name: autobdd-framework
 
-  # main container for build and pull/push
-  autobdd:
-    build:
-      context: ${PWD}/..
-      dockerfile: .docker/autobdd-image.dockerfile
-      args:
-        AUTOBDD_VERSION: ${AUTOBDD_VERSION}
-    image: "xyteam/autobdd:${AUTOBDD_VERSION}"
-    container_name: autobdd
-
-  # dev container for developing autobdd test
+  # dev container for developing autobdd test (runs on the product image)
   autobdd-dev:
-    image: "xyteam/autobdd:${AUTOBDD_VERSION}"
+    image: "xyteam/autobdd-framework:${AUTOBDD_VERSION}"
     container_name: autobdd-dev
     shm_size: 1536M
     user: root
@@ -56,9 +48,9 @@ services:
       - ABDD_PROJECT=${ABDD_PROJECT}
     entrypoint: "/root/autobdd-dev.startup.sh"
 
-  # run container for running autobdd test
+  # run container for running autobdd test (on the product image)
   autobdd-run:
-    image: "xyteam/autobdd:${AUTOBDD_VERSION}"
+    image: "xyteam/autobdd-framework:${AUTOBDD_VERSION}"
     container_name: autobdd-run
     shm_size: 1536M
     user: root
@@ -72,4 +64,3 @@ services:
       - HOSTOS=${HOSTOS}
       - ABDD_PROJECT=${ABDD_PROJECT}
     entrypoint: "/root/autobdd-run.startup.sh"
-
