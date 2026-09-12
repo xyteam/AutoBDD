@@ -5,33 +5,27 @@ docker-run:
 	cd .docker && docker compose run --rm autobdd-run "make $(jobs)" || exit $?
 	cd -
 
-autobdd-clean-all: autobdd-clean-image autobdd-clean-nodejs autobdd-clean-ubuntu
-autobdd-clean-ubuntu:
+autobdd-clean-all: autobdd-clean-base autobdd-clean-framework
+autobdd-clean-base:
 	@echo make $@
-	if docker images --filter=reference="xyteam/autobdd-ubuntu:*" | grep autobdd; then \
-		docker images --filter=reference="xyteam/autobdd-ubuntu:*" -q | xargs docker rmi -f; \
+	if docker images --filter=reference="xyteam/autobdd-base:*" | grep autobdd; then \
+		docker images --filter=reference="xyteam/autobdd-base:*" -q | xargs docker rmi -f; \
 	fi
-autobdd-clean-nodejs:
+autobdd-clean-framework:
 	@echo make $@
-	if docker images --filter=reference="xyteam/autobdd-nodejs:*" | grep autobdd; then \
-		docker images --filter=reference="xyteam/autobdd-nodejs:*" -q | xargs docker rmi -f; \
-	fi
-autobdd-clean-image:
-	@echo make $@
-	if docker images --filter=reference="xyteam/autobdd:*" | grep autobdd; then \
-		docker images --filter=reference="xyteam/autobdd:*" -q | xargs docker rmi -f; \
+	if docker images --filter=reference="xyteam/autobdd-framework:*" | grep autobdd; then \
+		docker images --filter=reference="xyteam/autobdd-framework:*" -q | xargs docker rmi -f; \
 	fi
 
-autobdd-build-all: autobdd-ubuntu autobdd-nodejs autobdd-image
-autobdd-ubuntu:
-	cd .docker && make autobdd-ubuntu || exit $?
+autobdd-build-all: autobdd-base autobdd-framework
+autobdd-base:
+	cd .docker && make autobdd-base || exit $?
 	cd -
-autobdd-nodejs:
-	cd .docker && make autobdd-nodejs || exit $?
+autobdd-framework:
+	cd .docker && make autobdd-framework || exit $?
 	cd -
-autobdd-image:
-	cd .docker && make autobdd-image || exit $?
-	cd -
+# back-compat alias: the product image is now autobdd-framework
+autobdd-image: autobdd-framework
 autobdd-framework-test:
 	cd test-projects/autobdd-framework-test && \
 	make docker-run jobs="clean e2e-test cypress-test jest-test pytest-test k6-test" || exit $?
