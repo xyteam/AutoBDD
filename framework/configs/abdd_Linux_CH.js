@@ -97,6 +97,9 @@ exports.config = {
         maxInstances: 1,
         browserName: 'chrome',
         'goog:chromeOptions': {
+            // Let the image/CI point at a specific Chrome build (e.g. Chrome for Testing)
+            // without changing this file: CHROME_BINARY=/path/to/chrome.
+            ...(process.env.CHROME_BINARY ? { binary: process.env.CHROME_BINARY } : {}),
             args: [
                 // '--headless',
                 // '--display=' + process.env.DISPLAY,
@@ -161,7 +164,7 @@ exports.config = {
     // with `/`, the base url gets prepended, not including the path portion of your baseUrl.
     // If your `url` parameter starts without a scheme or `/` (like `some/path`), the base url
     // gets prepended directly.
-    baseUrl: 'chrome:version',
+    baseUrl: 'chrome://version',
     //
     // Default timeout for all waitFor* commands.
     waitforTimeout: 10000,
