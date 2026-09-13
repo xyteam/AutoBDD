@@ -85,7 +85,7 @@ RUN curl -fsSL -o /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/nod
 COPY third_party/xysikulixapi /opt/autobdd/third_party/xysikulixapi
 RUN cd /opt/autobdd/third_party/xysikulixapi && \
     npm config set script-shell /bin/bash && \
-    npm install --omit=dev --loglevel=error && \
+    npm ci --omit=dev --loglevel=error && \
     rm -rf /tmp/*
 
 # Expose the seam on PATH and warm the Oculix natives at build (with a display), then bake

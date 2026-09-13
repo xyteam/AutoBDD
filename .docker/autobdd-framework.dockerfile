@@ -45,7 +45,7 @@ RUN mkdir -p /root/Downloads && \
     pip install --break-system-packages -r requirement.txt 2>/dev/null || true && \
     npm config set script-shell "/bin/bash" && \
     npm cache clean --force && \
-    npm --loglevel=error install && \
+    npm ci --loglevel=error && \
     npm run --loglevel=error clean && \
     rm -rf /tmp/chrome_profile_* /tmp/download_*
 
