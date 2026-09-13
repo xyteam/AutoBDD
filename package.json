@@ -24,7 +24,7 @@
     "npm-check-updates": "^11.8.3",
     "pdf-parse": "^1.1.1",
     "request": "^2.88.2",
-    "robotjs": "^0.6.0",
+    "robotjs": "^0.9.1",
     "shell-quote": "^1.7.2",
     "strip-ansi-control-characters": "^2.0.0",
     "testrail-api": "^1.3.6",
@@ -59,7 +59,7 @@
     "cucumber-junit": "^1.7.1",
     "expect-webdriverio": "^6.0.0",
     "multiple-cucumber-html-reporter": "^1.18.0",
-    "node-gyp": "^10.0.0",
+    "node-gyp": "^13.0.0",
     "wdio-cucumberjs-json-reporter": "^6.0.1"
   }
 }

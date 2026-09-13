@@ -578,10 +578,12 @@ class AbddAutoRun:
         
         if self.browser == 'CH':
             report_browser = 'chrome'
-            report_browser_ver = subprocess.run('google-chrome --version'.split(), stdout=subprocess.PIPE) \
-                .stdout.decode('utf-8') \
-                .replace('Google Chrome', '') \
-                .strip()
+            # The banner varies by build: "Google Chrome 153…" (apt) vs
+            # "Google Chrome for Testing 153…" (Chrome for Testing). Take the version token
+            # rather than the remainder of the banner.
+            _chrome_banner = subprocess.run('google-chrome --version'.split(), stdout=subprocess.PIPE).stdout.decode('utf-8')
+            _chrome_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', _chrome_banner)
+            report_browser_ver = _chrome_match.group(1) if _chrome_match else _chrome_banner.strip()
         elif self.browser == 'FF':
             report_browser = 'firefox'
             report_browser_ver = subprocess.run('firefox --version'.split(), stdout=subprocess.PIPE) \

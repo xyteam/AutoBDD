@@ -29,9 +29,18 @@ the convention.
 - One uniform screenshot watermark on every step/final capture — a dark bottom band with
   the remark (green passed / red failed).
 
-**Phase B — NFR hardening (next).** Pin-all (exact Chrome + chromedriver via Chrome for
-Testing; record apt versions), security (SBOM + scanning), the size gate, and startup
-targets. The v1 release cuts when Phase B is green and publishes the two tags.
+**Phase B — NFR hardening (in progress).**
+
+- **Node 20 → Node 24 LTS.** Node 20 reached **EOL 2026-04-30**; the image now installs
+  Node **24.21.0** — exact and checksum-verified from the official tarball (no floating
+  apt repo). `robotjs` `^0.6.0 → ^0.9.1` (NAN → `node-addon-api`/`node-gyp-build`, N-API)
+  and `node-gyp` `^10 → ^13` for the new ABI. `autobdd-base-test` 39/39 and
+  `autobdd-framework-test` green on it (baked and dev-mount).
+- **Next:** exact Chrome + chromedriver via Chrome for Testing, apt version recording
+  (complete `/etc/autobdd-versions`), security (SBOM + scanning), the size gate, and
+  startup targets.
+
+The v1 release cuts when Phase B is green and publishes the two tags.
 
 ## v3.0.0
 

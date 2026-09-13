@@ -1,7 +1,8 @@
 # autobdd-base — L0 (lean OS + essentials) + L0 (X display + desktop) + L1 (screen engine)
 # Public tag: xyteam/autobdd-base:<v>. Screen-only capable; no browser, no wdio/cucumber.
 # The L1 CLI seam (findTargetImage) is the frozen public contract (docs/CONTRACT.md).
-FROM ubuntu:24.04
+# Digest-pinned (NFR-P2): the tag can move, the digest cannot. `ubuntu:24.04`.
+FROM ubuntu:24.04@sha256:224a1869083a311ef3f13648a154ba79832fbef6364d31493642ca03082da254
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -69,9 +70,15 @@ RUN apt-get update -y && \
 # L1b — Node (seam runtime: the findTargetImage CLI uses java-bridge) + the
 #       screen engine: vendored Oculix bridge + warmed natives. No wdio/cucumber.
 # ---------------------------------------------------------------------------
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -q -y --no-install-recommends nodejs && \
-    rm -rf /var/lib/apt/lists/*
+# Exact + checksum-verified (NFR-P3/P5): the official tarball, not a floating apt repo.
+# Node 20 reached EOL 2026-04-30; 24 is the active LTS (EOL 2028-04-30).
+ARG NODE_VERSION=24.21.0
+ARG NODE_SHA256=fd8e59d5a511510f6a298afb548f18c7d2b1be404d8b4a27d94fbe49f56cb2d6
+RUN curl -fsSL -o /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" && \
+    echo "${NODE_SHA256}  /tmp/node.tar.xz" | sha256sum -c - && \
+    tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 --exclude=CHANGELOG.md --exclude=LICENSE --exclude=README.md && \
+    rm /tmp/node.tar.xz && \
+    node -v && npm -v
 
 # the vendored bridge, installed world-readable under /opt/autobdd so the CLI seam works
 # for ANY user — /root (where the framework tree lives) is not traversable by others.
@@ -100,3 +107,14 @@ HEALTHCHECK NONE
 EXPOSE 5900
 EXPOSE 8000
 EXPOSE 22
+
+# Record the resolved versions this base was built with (NFR-P4). The framework appends
+# its own (Chrome/chromedriver) lines to the same file.
+RUN { echo "# autobdd-base"; \
+      echo "os=$(. /etc/os-release; echo $PRETTY_NAME)"; \
+      echo "ubuntu_digest=sha256:224a1869083a311ef3f13648a154ba79832fbef6364d31493642ca03082da254"; \
+      echo "java=$(java -version 2>&1 | head -1)"; \
+      echo "node=$(node -v)"; \
+      echo "python=$(python3 --version 2>&1)"; \
+      echo "built=$(date -u +%Y-%m-%dT%H:%M:%SZ)"; \
+    } > /etc/autobdd-versions && cat /etc/autobdd-versions
