@@ -1,7 +1,8 @@
 # autobdd-base — L0 (lean OS + essentials) + L0 (X display + desktop) + L1 (screen engine)
 # Public tag: xyteam/autobdd-base:<v>. Screen-only capable; no browser, no wdio/cucumber.
 # The L1 CLI seam (findTargetImage) is the frozen public contract (docs/CONTRACT.md).
-FROM ubuntu:24.04
+# Digest-pinned (NFR-P2): the tag can move, the digest cannot. `ubuntu:24.04`.
+FROM ubuntu:24.04@sha256:224a1869083a311ef3f13648a154ba79832fbef6364d31493642ca03082da254
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -106,3 +107,14 @@ HEALTHCHECK NONE
 EXPOSE 5900
 EXPOSE 8000
 EXPOSE 22
+
+# Record the resolved versions this base was built with (NFR-P4). The framework appends
+# its own (Chrome/chromedriver) lines to the same file.
+RUN { echo "# autobdd-base"; \
+      echo "os=$(. /etc/os-release; echo $PRETTY_NAME)"; \
+      echo "ubuntu_digest=sha256:224a1869083a311ef3f13648a154ba79832fbef6364d31493642ca03082da254"; \
+      echo "java=$(java -version 2>&1 | head -1)"; \
+      echo "node=$(node -v)"; \
+      echo "python=$(python3 --version 2>&1)"; \
+      echo "built=$(date -u +%Y-%m-%dT%H:%M:%SZ)"; \
+    } > /etc/autobdd-versions && cat /etc/autobdd-versions

@@ -26,7 +26,7 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
     unzip -o /tmp/chromedriver_linux64.zip -d /tmp/cd && \
     install -m 0755 /tmp/cd/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
     rm -rf /tmp/chromedriver_linux64.zip /tmp/cd && \
-    { echo "chrome=${CHROME_VER}"; echo "chromedriver=$(chromedriver --version | awk '{print $2}')"; echo "built=$(date -u +%Y-%m-%dT%H:%M:%SZ)"; } > /etc/autobdd-versions && \
+    { echo "chrome=${CHROME_VER}"; echo "chromedriver=$(chromedriver --version | awk '{print $2}')"; echo "built=$(date -u +%Y-%m-%dT%H:%M:%SZ)"; } >> /etc/autobdd-versions && \
     cat /etc/autobdd-versions
 ENV CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
 
