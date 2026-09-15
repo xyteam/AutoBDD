@@ -58,10 +58,11 @@ the convention.
   chromedriver lines.
 - **Size gate, SBOM and CVE report in CI (NFR-S2/S4, NFR-SEC6).** The conformance workflow
   records each tag's compressed pull size and fails a PR over the NFR-S2 budgets
-  (`autobdd-base` ≤ 2.5 GB, `autobdd-framework` ≤ 3.5 GB — measured **0.81 GB** and
-  **1.29 GB**), and emits a per-tag **SPDX SBOM** (syft) and a **HIGH/CRITICAL CVE report**
-  (trivy) attached to the build. The scan is advisory: a CVE delta is reviewed per release,
-  so there is no severity gate until that baseline exists. Scanner images are pinned.
+  (`autobdd-base` ≤ 2.5 GB, `autobdd-framework` ≤ 3.5 GB — **0.81 GB** and **1.24 GB** as
+  measured by the gate in CI), and emits a per-tag **SPDX SBOM** (syft) and a
+  **HIGH/CRITICAL CVE report** (trivy) attached to the build. The scan is advisory: a CVE
+  delta is reviewed per release, so there is no severity gate until that baseline exists.
+  Scanner images are pinned.
 - **Targets measured.** `make autobdd-measure-startup` reports cold-start readiness (DISPLAY
   live + sshd) against NFR-T1's 10 s: **4.1 s** for `autobdd-base:dev`, **4.8 s** for
   `autobdd-framework:dev` (an earlier 9.9 s / 26 s reading was host contention, not the
