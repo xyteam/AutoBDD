@@ -7,6 +7,9 @@ name: conformance
 # The images are built from THIS commit (the test projects set pull_policy: never), so the
 # suites exercise exactly the code under review — nothing is pulled from Docker Hub except
 # the base OS layers.
+#
+# Phase B (NFR hardening) also runs here: the size budgets (NFR-S4), the SBOM (NFR-SEC6) and
+# the CVE report (NFR-SEC6). The report and the SBOM are attached to the build.
 on:
   push:
     branches: [master]
@@ -16,6 +19,12 @@ on:
 
 env:
   AUTOBDD_VER: "dev"
+  # NFR-S2 budgets, in GB of compressed pull size (see the sizes step for the metric).
+  BASE_BUDGET_GB: "2.5"
+  FRAMEWORK_BUDGET_GB: "3.5"
+  # Scanner tools are pinned (NFR-P6: a bump is a reviewed change).
+  SYFT_IMAGE: "anchore/syft:v1.51.1"
+  TRIVY_IMAGE: "ghcr.io/aquasecurity/trivy:0.74.0"
 
 jobs:
   conformance:
@@ -34,6 +43,55 @@ jobs:
             -t "xyteam/autobdd-framework:${AUTOBDD_VER}" \
             -f .docker/autobdd-framework.dockerfile .
           docker tag "xyteam/autobdd-framework:${AUTOBDD_VER}" "xyteam/autobdd:${AUTOBDD_VER}"
+
+      # NFR-S4: record each tag's size and fail the PR when a budget is exceeded.
+      # Metric: the image's compressed pull size — docker-save (the layer tars) gzipped at the
+      # registry's default level. The budgets in env are NFR-S2's.
+      - name: Size budgets (NFR-S2/S4)
+        run: |
+          set -uo pipefail
+          over=0
+          check() {
+            local img="$1" budget_gb="$2" bytes gb
+            bytes=$(docker save "${img}" | gzip -6 -c | wc -c)
+            gb=$(awk -v b="${bytes}" 'BEGIN { printf "%.2f", b / 1073741824 }')
+            printf '%-42s %s GB (budget %s GB)\n' "${img}" "${gb}" "${budget_gb}"
+            echo "- \`${img}\`: **${gb} GB** (budget ${budget_gb} GB)" >> "${GITHUB_STEP_SUMMARY}"
+            if awk -v g="${gb}" -v b="${budget_gb}" 'BEGIN { exit !(g > b) }'; then
+              echo "::error title=image size budget exceeded::${img} is ${gb} GB, over the ${budget_gb} GB budget (NFR-S2)"
+              over=1
+            fi
+          }
+          check "xyteam/autobdd-base:${AUTOBDD_VER}" "${BASE_BUDGET_GB}"
+          check "xyteam/autobdd-framework:${AUTOBDD_VER}" "${FRAMEWORK_BUDGET_GB}"
+          exit "${over}"
+
+      # NFR-SEC6: emit an SBOM per tag and a CVE report. Both are uploaded below; the scan is
+      # advisory here (a CVE delta is reviewed per release — gating on a severity threshold
+      # needs a reviewed baseline first).
+      - name: SBOM + CVE report (syft, trivy)
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          for tag in autobdd-base autobdd-framework; do
+            img="xyteam/${tag}:${AUTOBDD_VER}"
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "${PWD}/reports:/out" \
+              "${SYFT_IMAGE}" "docker:${img}" -o "spdx-json=/out/sbom-${tag}.spdx.json"
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+              "${TRIVY_IMAGE}" image --image-src docker --quiet --severity HIGH,CRITICAL --no-progress \
+              "${img}" > "reports/cve-${tag}.txt"
+            echo "### ${img}: $(grep -c . "reports/cve-${tag}.txt") lines of HIGH/CRITICAL findings" >> "${GITHUB_STEP_SUMMARY}"
+          done
+          ls -l reports
+
+      - name: Upload SBOM + CVE reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-and-cve-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: autobdd-base-test (no browser)
         working-directory: test-projects/autobdd-base-test

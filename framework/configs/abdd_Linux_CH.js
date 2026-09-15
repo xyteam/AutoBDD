@@ -96,6 +96,13 @@ exports.config = {
         // 5 instances get started at a time.
         maxInstances: 1,
         browserName: 'chrome',
+        // wdio 9 negotiates WebDriver BiDi with a modern chromedriver by default. Under the
+        // conformance run's parallel workers the BiDi channel stalls ("session.subscribe with
+        // id N timed out after 180000ms"), and a stalled connection then blocks the element
+        // commands that follow (`browser.$(...)` calls hit the 60 s step timeout). The BiDi
+        // features this suite does not need; force classic WebDriver so commands stay on the
+        // W3C endpoint.
+        'wdio:enforceWebDriverClassic': true,
         'goog:chromeOptions': {
             // Let the image/CI point at a specific Chrome build (e.g. Chrome for Testing)
             // without changing this file: CHROME_BINARY=/path/to/chrome.
@@ -108,6 +115,11 @@ exports.config = {
                 // '--window-size=1920,1200',
                 "--user-data-dir=" + myChromeProfilePath,      
                 '--disable-dev-shm-usage',
+                // Chrome for Testing (the pinned browser) shows a "Chrome for Testing is only
+                // for automated testing …" infobar that shifts the page and covers screen
+                // areas — which breaks screen-image/OCR steps. The switch was added upstream
+                // for CfT; on a regular Chrome it is ignored.
+                '--disable-infobars',
                 '--ignore-certificate-errors'
             ],
             prefs: {
@@ -139,7 +151,13 @@ exports.config = {
     // it is possible to configure which logTypes to include/exclude.
     // excludeDriverLogs: ['*'], // pass '*' to exclude all driver session logs
     // excludeDriverLogs: ['bugreport', 'server'],
-    outputDir: `${myReportDir}/logs`,
+    //
+    // Per process: wdio names its log file after the capability id, which is "0-0" for
+    // every single-instance local run — parallel features of the same module share this
+    // report dir and collide on that one file, so one process unlinks it while another is
+    // still writing ("Error in reporter CucumberJsJsonReporter: ENOENT … unlink
+    // …/logs/wdio-0-0-cucumberjs-json-reporter.log"). Unique dir per process = no shared file.
+    outputDir: `${myReportDir}/logs/pid-${process.pid}`,
     //
     // Set specific log levels per logger
     // loggers:
