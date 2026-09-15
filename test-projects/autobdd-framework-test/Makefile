@@ -82,7 +82,7 @@ pytest-test:
 	@echo ${testSectionBegin};
 	@echo "running python3 unit test...";
 	mkdir -p test-results/pytest-test; \
-	pip3 install -r py-test/requirement3.txt && \
+	pip3 install --break-system-packages --user -r py-test/requirement3.txt && \
 	python3 -m pytest -r A py-test > test-results/pytest-test/run.log 2>&1; \
 	exit $$?;
 	@echo ${testSectionEnd}
@@ -110,12 +110,27 @@ cypress-test: cal-app-start
 	exit $$st;
 	@echo ${testSectionEnd}
 
+# k6 is a guest tool (PRD L3: not shipped in the image), so the suite provisions it
+# itself into $HOME/.local/bin on first run — pinned version + verified checksum
+# (NFR-P3/P5), like the jest/pytest targets install their own tools.
+K6_VERSION ?= v2.2.0
+K6_SHA256  ?= b5a8003c86f35f5cd5ceef1490312c48e587696c94d998cefc6d7b3b4cb1597d
+
 k6-test:
 	@echo make $@
 	@echo ${testSectionBegin};
 	@echo "running k6 performance test...";
 	mkdir -p test-results/k6-test; \
-	cd k6-test && for f in $$(find . -type f -name "*-test.js"); do k6 run "$$f"; done > ../test-results/k6-test/run.log 2>&1; \
+	K6_BIN="$$HOME/.local/bin/k6"; \
+	if [ ! -x "$$K6_BIN" ]; then \
+		echo "  installing k6 $(K6_VERSION) (guest tool: not shipped in the image)"; \
+		mkdir -p "$$HOME/.local/bin" /tmp/k6-dl; \
+		curl -fsSL -o /tmp/k6-dl/k6.tar.gz "https://github.com/grafana/k6/releases/download/$(K6_VERSION)/k6-$(K6_VERSION)-linux-amd64.tar.gz" && \
+		echo "$(K6_SHA256)  /tmp/k6-dl/k6.tar.gz" | sha256sum -c - && \
+		tar xzf /tmp/k6-dl/k6.tar.gz -C /tmp/k6-dl && \
+		install -m 0755 "/tmp/k6-dl/k6-$(K6_VERSION)-linux-amd64/k6" "$$K6_BIN"; \
+	fi; \
+	cd k6-test && for f in $$(find . -type f -name "*-test.js"); do "$$K6_BIN" run "$$f"; done > ../test-results/k6-test/run.log 2>&1; \
 	exit $$?;
 	@echo ${testSectionEnd}
 
