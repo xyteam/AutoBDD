@@ -29,9 +29,25 @@ the convention.
 - One uniform screenshot watermark on every step/final capture — a dark bottom band with
   the remark (green passed / red failed).
 
-**Phase B — NFR hardening (next).** Pin-all (exact Chrome + chromedriver via Chrome for
-Testing; record apt versions), security (SBOM + scanning), the size gate, and startup
-targets. The v1 release cuts when Phase B is green and publishes the two tags.
+**Phase B — NFR hardening (in progress).**
+
+- **Node 20 → Node 24 LTS.** Node 20 reached **EOL 2026-04-30**; the image now installs
+  Node **24.21.0** — exact and checksum-verified from the official tarball (no floating
+  apt repo). `robotjs` `^0.6.0 → ^0.9.1` (NAN → `node-addon-api`/`node-gyp-build`, N-API)
+  and `node-gyp` `^10 → ^13` for the new ABI. `autobdd-base-test` 39/39 and
+  `autobdd-framework-test` green on it (baked and dev-mount).
+- **Suite gate green on the 24.04 base.** Two base-move breakages in
+  `autobdd-framework-test` fixed: `pytest-test` hit PEP 668 (`EXTERNALLY-MANAGED`) and now
+  installs with `pip3 install --break-system-packages --user`; `k6-test` called a tool the
+  layered image no longer ships (L3 guest tools, §FR-15) and now provisions k6 itself
+  (`v2.2.0`, SHA-256-verified) into `$HOME/.local/bin`, the way jest/pytest install their own
+  tools. Full gate green in both modes (dev-mount and baked): **15/15 e2e scenarios**,
+  cypress 3/3, jest 3/3, pytest 6 + 1 xfail, k6 thresholds met.
+- **Next:** exact Chrome + chromedriver via Chrome for Testing, apt version recording
+  (complete `/etc/autobdd-versions`), security (SBOM + scanning), the size gate, and
+  startup targets.
+
+The v1 release cuts when Phase B is green and publishes the two tags.
 
 ## v3.0.0
 
