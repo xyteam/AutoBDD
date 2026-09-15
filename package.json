@@ -21,7 +21,7 @@
     "minimist": "^1.2.5",
     "newman": "^5.2.4",
     "node-cmd": "^4.0.0",
-    "npm-check-updates": "^11.8.3",
+    "npm-check-updates": "^23.1.0",
     "pdf-parse": "^1.1.1",
     "request": "^2.88.2",
     "robotjs": "^0.9.1",
