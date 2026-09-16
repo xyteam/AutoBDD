@@ -18,7 +18,7 @@ RUN apt-get update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
         imagemagick ffmpeg aosd-cat colorized-logs \
         x11-xserver-utils x11-utils xdg-utils xdotool wmctrl \
         tini supervisor \
-        fonts-wqy-microhei ttf-wqy-zenhei && \
+        fonts-wqy-microhei fonts-wqy-zenhei && \
     dpkg-reconfigure -f noninteractive tzdata && \
     apt-get --purge autoremove -y && \
     rm -rf /var/lib/apt/lists/*
@@ -38,7 +38,7 @@ RUN apt-get update -y && \
         x11vnc zenity \
         alsa-utils mesa-utils \
         arc-theme lxde \
-        fonts-wqy-microhei ttf-wqy-zenhei && \
+        fonts-wqy-microhei fonts-wqy-zenhei && \
     update-alternatives --install /usr/bin/python python "$(which python3)" 10 && \
     update-alternatives --install /usr/bin/pip pip "$(which pip3)" 10 && \
     mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix && \
@@ -116,5 +116,11 @@ RUN { echo "# autobdd-base"; \
       echo "java=$(java -version 2>&1 | head -1)"; \
       echo "node=$(node -v)"; \
       echo "python=$(python3 --version 2>&1)"; \
+      echo "oculix=$(ls /opt/autobdd/third_party/xysikulixapi/lib 2>/dev/null | grep -E '\.jar$' | head -1)"; \
+      for p in openjdk-17-jdk xvfb openbox x11vnc arc-theme lxde imagemagick ffmpeg \
+               xdotool wmctrl xdg-utils python3 python3-pip supervisor tini \
+               fonts-wqy-microhei fonts-wqy-zenhei; do \
+        echo "apt.$p=$(dpkg-query -W -f='${Version}' "$p" 2>/dev/null || echo absent)"; \
+      done; \
       echo "built=$(date -u +%Y-%m-%dT%H:%M:%SZ)"; \
     } > /etc/autobdd-versions && cat /etc/autobdd-versions

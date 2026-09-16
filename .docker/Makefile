@@ -49,3 +49,8 @@ autobdd-push:
 autobdd-pull:
 	@echo make $@
 	docker compose pull
+
+# NFR-T1: cold-start readiness (DISPLAY live + sshd) of the built tags.
+autobdd-measure-startup:
+	@echo make $@
+	./measure-startup.sh

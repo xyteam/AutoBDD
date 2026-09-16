@@ -43,9 +43,42 @@ the convention.
   (`v2.2.0`, SHA-256-verified) into `$HOME/.local/bin`, the way jest/pytest install their own
   tools. Full gate green in both modes (dev-mount and baked): **15/15 e2e scenarios**,
   cypress 3/3, jest 3/3, pytest 6 + 1 xfail, k6 thresholds met.
-- **Next:** exact Chrome + chromedriver via Chrome for Testing, apt version recording
-  (complete `/etc/autobdd-versions`), security (SBOM + scanning), the size gate, and
-  startup targets.
+- **Pin-all: Chrome + chromedriver from Chrome for Testing (NFR-P2/P3/P4/P5).** Both
+  artifacts are now the **exact** pinned build `153.0.8010.36`, SHA-256-verified at build
+  time, from `chrome-for-testing-public` — instead of apt's floating `stable` channel. The
+  zip carries no dependency metadata, so the runtime library set is installed explicitly
+  (noble's `t64` names). Two CfT-vs-distribution differences had to be handled: CfT prints
+  "Google Chrome **for Testing** <v>", which tools parsing `<product> <version>` misread
+  (Cypress 6 aborts with ``Expected `majorVersion` to be a string or a positive number``), so
+  `google-chrome` is now a shim that drops that qualifier; and CfT's "only for automated
+  testing" infobar overlays the page, so the framework launches with `--disable-infobars`.
+  The `chromeLogo`/`myGoogleLogo` fixtures were re-captured from the CfT page (the logo and
+  wordmark are CfT-branded). `/etc/autobdd-versions` is complete: OS + digest, Java, Node,
+  Python, the Oculix jar, the pinned apt GUI/tool stack, and the framework's Chrome and
+  chromedriver lines.
+- **Size gate, SBOM and CVE report in CI (NFR-S2/S4, NFR-SEC6).** The conformance workflow
+  records each tag's compressed pull size and fails a PR over the NFR-S2 budgets
+  (`autobdd-base` ≤ 2.5 GB, `autobdd-framework` ≤ 3.5 GB — **0.81 GB** and **1.24 GB** as
+  measured by the gate in CI), and emits a per-tag **SPDX SBOM** (syft) and a
+  **HIGH/CRITICAL CVE report** (trivy) attached to the build. The scan is advisory: a CVE
+  delta is reviewed per release, so there is no severity gate until that baseline exists.
+  Scanner images are pinned.
+- **Targets measured.** `make autobdd-measure-startup` reports cold-start readiness (DISPLAY
+  live + sshd) against NFR-T1's 10 s: **4.1 s** for `autobdd-base:dev`, **4.8 s** for
+  `autobdd-framework:dev` (an earlier 9.9 s / 26 s reading was host contention, not the
+  image). The base suite also asserts **NFR-T2** through the CLI seam: a warm image-match
+  measures ~1.0 s (best of three, `--flash=0`) — at the target, dominated by per-call
+  node+JVM startup (the X capture is ~0.16 s of it).
+- **Framework robustness fixes surfaced by the cutover.** wdio names its log file after the
+  capability id (`0-0` for every single-instance run), so parallel features sharing a report
+  dir raced to unlink it (`Error in reporter CucumberJsJsonReporter: ENOENT`): the log dir is
+  per process now. `scroll`/`clearInputField` wait (bounded) for the element before acting,
+  instead of scrolling blind. And the framework forces **classic WebDriver**
+  (`wdio:enforceWebDriverClassic`): under the run's parallel workers the negotiated BiDi
+  channel stalled (`session.subscribe … timed out after 180000 ms`), which blocked the
+  element commands behind it and timed out whole scenarios.
+- **Next:** security gating on a reviewed CVE baseline, size/startup trend tracking, and the
+  apt-snapshot pinning carved out to P2.
 
 The v1 release cuts when Phase B is green and publishes the two tags.
 

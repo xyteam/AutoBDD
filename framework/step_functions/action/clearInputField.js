@@ -5,6 +5,7 @@
 const parseExpectedText = require('../common/parseExpectedText');
 module.exports = async (element) => {
     const parsedElement = parseExpectedText(element);
+    await (await browser.$(parsedElement)).waitForExist({ timeout: 15000 });
     await (await browser.$(parsedElement)).scrollIntoView();
     await (await browser.$(parsedElement)).clearValue();
 };
