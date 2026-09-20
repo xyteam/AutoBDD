@@ -82,23 +82,26 @@ RUN curl -fsSL -o /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/nod
 
 # the vendored bridge, installed world-readable under /opt/autobdd so the CLI seam works
 # for ANY user — /root (where the framework tree lives) is not traversable by others.
-COPY third_party/xysikulixapi /opt/autobdd/third_party/xysikulixapi
-RUN cd /opt/autobdd/third_party/xysikulixapi && \
-    npm config set script-shell /bin/bash && \
-    npm ci --omit=dev --loglevel=error && \
-    rm -rf /tmp/*
+# Copy seam source (no node_modules needed at runtime)
+COPY seam/ /opt/autobdd/seam/
+WORKDIR /opt/autobdd/seam
+RUN npm install --omit=dev --loglevel=error
 
-# Expose the seam on PATH and warm the Oculix natives at build (with a display), then bake
-# them to a world-readable dir wired into ld.so (no per-container extraction, no env needed).
+# Fetch the latest stable Oculix JAR (allow override via build-arg)
+ARG OCULIX_VER
+RUN chmod +x scripts/fetch-oculix.sh && \
+    OCULIX_VER="${OCULIX_VER}" ./scripts/fetch-oculix.sh
+
+# Ensure the seam script is executable and on PATH
+RUN chmod +x src/findTargetImage.js && \
+    ln -s /opt/autobdd/seam/src/findTargetImage.js /usr/local/bin/findTargetImage
+
+# Warm Oculix natives (unchanged)
 RUN mkdir -p /opt/oculix-natives && \
-    ( Xvfb :99 -screen 0 400x300x24 >/dev/null 2>&1 & XPID=$!; sleep 2; \
-      DISPLAY=:99 node -e "const j=require('/opt/autobdd/third_party/xysikulixapi/node_modules/java-bridge'); j.ensureJvm({opts:['-Xms128m','-Xmx512m']}); try{ const X=require('/opt/autobdd/third_party/xysikulixapi/lib/xysikulixapi.js'); new X.Screen(); }catch(e){}" >/dev/null 2>&1; \
-      kill $XPID 2>/dev/null ) || true; \
-    cp -f /root/.cache/legerix/*/linux-x86-64*/*.so* /opt/oculix-natives/ 2>/dev/null || true; \
-    chmod 755 /opt/oculix-natives && \
-    echo /opt/oculix-natives > /etc/ld.so.conf.d/oculix-natives.conf && ldconfig && \
-    ln -sf /opt/autobdd/third_party/xysikulixapi/bin/findTargetImage.js /usr/local/bin/findTargetImage && \
+    DISPLAY=:1.0 java -jar lib/oculixapi-${OCULIX_VER:-4.0.0}-linux.jar -c 2>/dev/null || true && \
+    cp -f /root/.cache/legerix/*/linux-x86-64*/*.so* /opt/oculix-natives/ 2>/dev/null || true && \
     echo "baked oculix natives: $(ls /opt/oculix-natives 2>/dev/null | tr '\n' ' ')"
+
 ENV LD_LIBRARY_PATH=/opt/oculix-natives
 
 WORKDIR /root

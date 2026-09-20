@@ -1,0 +1,11 @@
+{
+  "name": "autobdd-base-seam",
+  "version": "1.0.0",
+  "description": "Dependencies for the AutoBDD base seam (findTargetImage)",
+  "main": "src/findTargetImage.js",
+  "dependencies": {
+    "java-bridge": "^2.7.0",
+    "minimist": "^1.2.5",
+    "shell-quote": "^1.8.1"
+  }
+}

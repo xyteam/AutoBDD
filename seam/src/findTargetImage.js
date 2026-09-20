@@ -1,0 +1,307 @@
+#!/usr/bin/env node
+
+// java-bridge replaces node-java (JNI); set JVM options up front so they apply
+// before the JVM is started by the first class import/call below.
+const java = require('java-bridge');
+java.ensureJvm({ opts: ['-Xms128m', '-Xmx512m'] });
+
+const path = require('path');
+const safeQuote = require('./safequote');
+const minimist = require('minimist');
+
+// all external env vars should be parsed or quoted to const
+process.env.imageSimilarity = parseFloat(process.env.imageSimilarity) || 0.8;
+process.env.imageWaitTime = parseInt(process.env.imageWaitTime) || 1;
+process.env.TESSDATA_PREFIX = safeQuote(process.env.TESSDATA_PREFIX) || '/usr/share/tesseract-ocr/4.00/tessdata';
+process.env.OMP_THREAD_LIMIT = parseInt(process.env.OMP_THREAD_LIMIT) || 1;
+const myDISPLAY = ':' + (process.env.DISPLAY ? parseInt(process.env.DISPLAY.split(':')[1]) : 1);
+
+// needed for Tesseract-OCR property
+process.env.LC_ALL = 'C';
+process.env.LC_CTYPE = 'C';
+
+// Determine Oculix JAR location: seam/lib/oculixapi-<VER>-linux.jar
+// Allow overriding version via OCULIX_VER env (set at build time)
+const OCULIX_VER = process.env.OCULIX_VER || '4.0.0';
+const jarPath = path.join(__dirname, '..', 'lib', `oculixapi-${OCULIX_VER}-linux.jar`);
+
+// Try to add JAR to classpath and import classes
+let App, Button, ImagePath, Mouse, OCR, Pattern, Region, Settings, Screen, Thread;
+try {
+  java.classpath.append(jarPath);
+  App = java.importClass('org.sikuli.script.App');
+  Button = java.importClass('org.sikuli.script.Button');
+  ImagePath = java.importClass('org.sikuli.script.ImagePath');
+  Mouse = java.importClass('org.sikuli.script.Mouse');
+  OCR = java.importClass('org.sikuli.script.OCR');
+  Pattern = java.importClass('org.sikuli.script.Pattern');
+  Region = java.importClass('org.sikuli.script.Region');
+  Settings = java.importClass('org.sikuli.basics.Settings');
+  Screen = java.importClass('org.sikuli.script.Screen');
+  Thread = java.importClass('java.lang.Thread');
+} catch (e) {
+  // If we cannot load the Oculix JAR, we cannot function.
+  // Output a JSON error object so the test sees something.
+  const errorResult = [{status: 'error', message: `Failed to load Oculix JAR at ${jarPath}: ${e.message}`}];
+  console.log(`target_result: ${JSON.stringify(errorResult)}`);
+  process.exit(1);
+}
+
+// all args should be parsed or quoted to const
+const argv = minimist(process.argv.slice(2));
+const imagePath = safeQuote((argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen');
+const imageSimilarity = parseFloat((argv.imageSimilarity != null && argv.imageSimilarity != 'undefined') ? argv.imageSimilarity : process.env.imageSimilarity || 0.8);
+const maxSim = parseFloat((argv.maxSim != null && argv.maxSim != 'undefined') ? argv.maxSim : 1);
+const textHint = safeQuote((argv.textHint != null && argv.textHint != 'undefined') ? argv.textHint : '');
+const imageAction = safeQuote((argv.imageAction != null && argv.imageAction != 'undefined') ? argv.imageAction : 'none');
+const imageWaitTime = parseInt((argv.imageWaitTime != null && argv.imageWaitTime != 'undefined') ? argv.imageWaitTime : process.env.imageWaitTime || 1);
+const imageMaxCount = parseInt((argv.imageMaxCount != null && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1);
+const flashSecs = (argv.flash != null && argv.flash != 'undefined') ? parseFloat(argv.flash) : 1.0;
+
+// OCR-specific arguments (all opt-in)
+const ocrPath = (argv.ocrPath != null && argv.ocrPath != 'undefined') ? safeQuote(argv.ocrPath) : null;
+const ocrSimilarity = parseFloat((argv.ocrSimilarity != null && argv.ocrSimilarity != 'undefined') ? argv.ocrSimilarity : 0.8);
+const ocrMaxSim = parseFloat((argv.ocrMaxSim != null && argv.ocrMaxSim != 'undefined') ? argv.ocrMaxSim : 1.0);
+const ocrWaitTime = parseInt((argv.ocrWaitTime != null && argv.ocrWaitTime != 'undefined') ? argv.ocrWaitTime : 1000);
+const ocrMaxCount = parseInt((argv.ocrMaxCount != null && argv.ocrMaxCount != 'undefined') ? argv.ocrMaxCount : 1);
+const ocrAction = safeQuote((argv.ocrAction != null && argv.ocrAction != 'undefined') ? argv.ocrAction : 'none');
+const ocrDetail = safeQuote((argv.ocrDetail != null && argv.ocrDetail != 'undefined') ? argv.ocrDetail : 'none'); // none, line, word
+const ocrPSM = parseInt((argv.ocrPSM != null && argv.ocrPSM != 'undefined') ? argv.ocrPSM : 7);
+const ocrOEM = parseInt((argv.ocrOEM != null && argv.ocrOEM != 'undefined') ? argv.ocrOEM : 3);
+
+// default output
+const notFoundStatus = {status: 'notFound'};
+
+// Sikuli Property: App, Button, Mouse, OCR, Pattern, Region, Settings, Screen
+
+// Flash the found region. Under Oculix/java-bridge Region.highlight() is
+// fire-and-forget (paints on a background thread and returns immediately), so if
+// this process calls process.exit() right after, the red box is torn down before
+// it ever paints (the old synchronous silulix highlight did not have this
+// problem). Flash for a visible duration and then hold the process so the box
+// actually renders and is observable (by eye / VNC / screen recording).
+const flashOnMatch = (region) => {
+  region.highlight();
+  Thread.sleep(Math.round(flashSecs * 1000));
+};
+
+// ---------------------------------------------------------------------------
+// Core findImage function (image matching)
+// ---------------------------------------------------------------------------
+const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount) => {
+  // all input vars should be parsed or quoted
+  const myImagePath = safeQuote(imagePath);
+  const myImageName = myImagePath.substring(myImagePath.lastIndexOf('/') + 1);
+  const myImageSimilarity = parseFloat(imageSimilarity);
+  const myMaxSim = parseFloat(maxSim);
+  const myTextHint = safeQuote(textHint);
+  const myImageWaitTime = parseInt(imageWaitTime);
+  const myImageAction = safeQuote(imageAction);
+  const myImageMaxCount = parseInt(imageMaxCount || 1);
+
+  const findRegion = new Screen();
+  findRegion.setAutoWaitTimeout(myImageWaitTime);
+
+  try {
+    var oneTarget;
+    var returnItem = {name: myImageName, score: null, text: null, location: null, dimension: null, center: null, clicked: null};
+    var returnArray = [];
+    const fillRectangleInfo = (rectItem) => {
+      const location = {x: rectItem.x, y: rectItem.y};
+      const dimension = {width: rectItem.w, height: rectItem.h};
+      const center = {x: rectItem.x + Math.round(rectItem.w / 2), y: rectItem.y + Math.round(rectItem.h / 2)};
+      return [location, dimension, center];
+    }
+    if (myImagePath.includes('Screen')) {
+      const screenMargin = myImagePath.includes('-') ? parseInt(myImagePath.split('-')[1]) : 1;
+      oneTarget = new Region(findRegion.getBoundsSync()).growSync(-screenMargin);
+      returnItem.text = oneTarget.textSync().split('\n');
+      [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(oneTarget);
+      flashOnMatch(oneTarget);
+      returnArray.push(returnItem);
+    } else {
+      const oneSample = (new Pattern(myImagePath)).similarSync(myImageSimilarity);
+      const findTargets = findRegion.findAllSync(oneSample);
+      const myRegex = new RegExp(myTextHint, 'i');
+      var matchCount = 0;
+      while (matchCount < myImageMaxCount && findTargets.hasNextSync()) {
+        const oneMatch = findTargets.nextSync();
+        returnItem.score = Math.floor(oneMatch.getScoreSync()*1000000)/1000000;
+        [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(oneMatch);
+        oneTarget = new Region(oneMatch);
+        returnItem.text = oneTarget.textSync().split('\n');
+        if (returnItem.score >= myImageSimilarity && returnItem.score <= myMaxSim && returnItem.text.join('\n').match(myRegex)) {
+          matchCount += 1;
+          flashOnMatch(oneTarget);
+          returnArray.push(returnItem);
+        }
+      }
+    }
+    if (returnArray.length == 0) {
+      returnArray.push(notFoundStatus);
+    } else {
+      // process myImageAction if any
+      if (myImageAction && myImageAction != 'none' && myImageAction != 'null') {
+        for (let i=0; i<returnArray.length; i++) {
+          var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
+          clickRegion.mouseUpSync();
+          switch (myImageAction) {
+            case 'single':
+            case 'click':
+              if (myDISPLAY.split(':')[1] > 9) {
+                clickRegion.doubleClick();
+              } else {
+                clickRegion.click();
+              }
+              break;
+            case 'hoverClick':
+              clickRegion.hoverSync();
+              if (myDISPLAY.split(':')[1] > 9) {
+                clickRegion.doubleClick();
+              } else {
+                clickRegion.click();
+              }
+              break;
+            case 'double':
+            case 'doubleClick':
+              clickRegion.doubleClick();
+              break;
+            case 'right':
+            case 'rightClick':
+              clickRegion.rightClick();
+              break;
+            case 'hover':
+              clickRegion.hoverSync();
+              break;
+          }
+          clickRegion.mouseUpSync();
+          returnArray[i].clicked = returnArray[i].center;
+        }
+      }
+    }
+  } catch(e) {
+    const msg = (e && typeof e.getMessageSync === 'function') ? e.getMessageSync() : (e && e.message ? e.message : String(e));
+    console.log('findTargetImage ERROR:', msg);
+    returnArray.push(notFoundStatus);
+  } finally {
+    return JSON.stringify(returnArray);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// OCR mode function (new)
+// ---------------------------------------------------------------------------
+const findImageOcr = (ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCount, ocrAction, ocrDetail, ocrPSM, ocrOEM) => {
+  // OCR mode: ignore imagePath/imageAction/etc; use ocrPath as the text to find
+  const waitStart = Date.now();
+  const results = [];
+
+  // Set OCR engine options via Settings (affects Region.textSync etc.)
+  Settings.OcrPSM = ocrPSM;
+  Settings.OcrOEM = ocrOEM;
+
+  while (Date.now() - waitStart < ocrWaitTime) {
+    // Capture the whole screen
+    const findRegion = new Screen();
+    const img = findRegion.capture(); // returns BufferedImage
+    // Use Region.findText to get a Match with bounding box and confidence
+    const region = new Region(0, 0, img.getWidth(), img.getHeight());
+    const similarity = ocrSimilarity; // 0-1
+    const match = region.findText(ocrPath, similarity);
+    if (match !== null) {
+      // We have a match – build result
+      const rect = match; // Match implements getX, getY, getW, getH
+      const conf = match.getScore(); // 0-1 float
+      const text = match.getText(); // the matched string
+
+      // Build ocrDetails per requested granularity
+      const details = [];
+      if (ocrDetail === 'line') {
+        // Treat the whole match as one line
+        details.push({text, x:rect.getX(), y:rect.getY(), width:rect.getW(), height:rect.getH(), confidence:conf});
+      } else if (ocrDetail === 'word') {
+        // Word-level detail would require iterating over OCREngine.getIterator().
+        // For MVP we fall back to line-level; a future enhancement could implement true word boxes.
+        details.push({text, x:rect.getX(), y:rect.getY(), width:rect.getW(), height:rect.getH(), confidence:conf});
+      }
+      // If none, details stays empty.
+
+      // Base result fields
+      const result = {
+        name: text,
+        score: conf,
+        text: [text], // single line for simplicity
+        location: {x: rect.getX(), y: rect.getY(), width: rect.getW(), height: rect.getH()},
+        dimension: {width: rect.getW(), height: rect.getH()},
+        center: {x: rect.getX() + Math.round(rect.getW()/2), y: rect.getY() + Math.round(rect.getH()/2)},
+        clicked: null,
+        ...(ocrDetail !== 'none' ? {ocrDetails: details} : {})
+      };
+
+      // Apply requested action
+      if (ocrAction && ocrAction !== 'none') {
+        // Reuse the same clickRegion logic as image matches
+        const clickRegion = new Region(result.location.x, result.location.y, result.dimension.width, result.dimension.height);
+        clickRegion.mouseUpSync();
+        switch (ocrAction) {
+          case 'single':
+          case 'click':
+            if (myDISPLAY.split(':')[1] > 9) {
+              clickRegion.doubleClick();
+            } else {
+              clickRegion.click();
+            }
+            break;
+          case 'hoverClick':
+            clickRegion.hoverSync();
+            if (myDISPLAY.split(':')[1] > 9) {
+              clickRegion.doubleClick();
+            } else {
+              clickRegion.click();
+            }
+            break;
+          case 'double':
+          case 'doubleClick':
+            clickRegion.doubleClick();
+            break;
+          case 'right':
+          case 'rightClick':
+            clickRegion.rightClick();
+            break;
+          case 'hover':
+            clickRegion.hoverSync();
+            break;
+        }
+        clickRegion.mouseUpSync();
+        result.clicked = result.center;
+      }
+
+      results.push(result);
+      // If we have enough matches, break
+      if (results.length >= ocrMaxCount) break;
+    }
+    // Optional: small sleep before retry to avoid busy loop
+    java.lang.Thread.sleep(50); // Note: using java.lang.Thread directly; if this fails, we can use Thread.sleep as well.
+  }
+
+  if (results.length === 0) {
+    return [notFoundStatus];
+  }
+  return results;
+};
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+let target_result;
+if (ocrPath !== null) {
+  // OCR mode
+  target_result = findImageOcr(ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCount, ocrAction, ocrDetail, ocrPSM, ocrOEM);
+} else {
+  // Image matching mode (original behavior)
+  target_result = findImage(imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount);
+}
+
+// display result to stdout
+console.log(`target_result: ${target_result}`);
+process.exit();
