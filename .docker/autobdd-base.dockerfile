@@ -96,10 +96,18 @@ RUN chmod +x scripts/fetch-oculix.sh && \
 RUN chmod +x src/findTargetImage.js && \
     ln -s /opt/autobdd/seam/src/findTargetImage.js /usr/local/bin/findTargetImage
 
-# Warm Oculix natives (unchanged)
-RUN mkdir -p /opt/oculix-natives && \
-    DISPLAY=:1.0 java -jar lib/oculixapi-${OCULIX_VER:-4.0.0}-linux.jar -c 2>/dev/null || true && \
-    cp -f /root/.cache/legerix/*/linux-x86-64*/*.so* /opt/oculix-natives/ 2>/dev/null || true && \
+# Bake the Oculix native libraries (NFR-P3: exact, self-contained image).
+#   The JAR bundles the Linux x86-64 natives (OpenCV + Leptonica + Tesseract) under
+#   linux-x86-64/. We extract them into a stable, world-readable directory and
+#   register it with the dynamic loader, so the seam never depends on a writable
+#   /tmp or on an on-demand extraction at run time.
+RUN mkdir -p /opt/oculix-natives /tmp/oculix-unpack && \
+    unzip -o -q lib/oculixapi-${OCULIX_VER:-4.0.0}-linux.jar 'linux-x86-64/*' -d /tmp/oculix-unpack && \
+    cp -f /tmp/oculix-unpack/linux-x86-64/*.so* /opt/oculix-natives/ && \
+    rm -rf /tmp/oculix-unpack && \
+    echo "/opt/oculix-natives" > /etc/ld.so.conf.d/oculix.conf && \
+    chmod 0755 /opt/oculix-natives && chmod 0644 /opt/oculix-natives/* && \
+    ldconfig && \
     echo "baked oculix natives: $(ls /opt/oculix-natives 2>/dev/null | tr '\n' ' ')"
 
 ENV LD_LIBRARY_PATH=/opt/oculix-natives

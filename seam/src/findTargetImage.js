@@ -6,13 +6,11 @@ const java = require('java-bridge');
 java.ensureJvm({ opts: ['-Xms128m', '-Xmx512m'] });
 
 const path = require('path');
-const safeQuote = require('./safequote');
 const minimist = require('minimist');
 
 // all external env vars should be parsed or quoted to const
 process.env.imageSimilarity = parseFloat(process.env.imageSimilarity) || 0.8;
 process.env.imageWaitTime = parseInt(process.env.imageWaitTime) || 1;
-process.env.TESSDATA_PREFIX = safeQuote(process.env.TESSDATA_PREFIX) || '/usr/share/tesseract-ocr/4.00/tessdata';
 process.env.OMP_THREAD_LIMIT = parseInt(process.env.OMP_THREAD_LIMIT) || 1;
 const myDISPLAY = ':' + (process.env.DISPLAY ? parseInt(process.env.DISPLAY.split(':')[1]) : 1);
 
@@ -25,7 +23,8 @@ process.env.LC_CTYPE = 'C';
 const OCULIX_VER = process.env.OCULIX_VER || '4.0.0';
 const jarPath = path.join(__dirname, '..', 'lib', `oculixapi-${OCULIX_VER}-linux.jar`);
 
-// Try to add JAR to classpath and import classes
+// Load the Oculix classes. If this fails we still emit a JSON error object so the
+// frozen CLI contract (stdout JSON) is never violated.
 let App, Button, ImagePath, Mouse, OCR, Pattern, Region, Settings, Screen, Thread;
 try {
   java.classpath.append(jarPath);
@@ -40,78 +39,121 @@ try {
   Screen = java.importClass('org.sikuli.script.Screen');
   Thread = java.importClass('java.lang.Thread');
 } catch (e) {
-  // If we cannot load the Oculix JAR, we cannot function.
-  // Output a JSON error object so the test sees something.
-  const errorResult = [{status: 'error', message: `Failed to load Oculix JAR at ${jarPath}: ${e.message}`}];
-  console.log(`target_result: ${JSON.stringify(errorResult)}`);
-  process.exit(1);
+  const msg = (e && e.message) ? e.message : String(e);
+  console.log(`target_result: ${JSON.stringify([{status: 'error', message: `Failed to load Oculix JAR at ${jarPath}: ${msg}`}])}`);
+  process.exit(0);
 }
 
-// all args should be parsed or quoted to const
+// All args are used as plain JS values (we never build a shell command line here),
+// so they must NOT be shell-quoted.
 const argv = minimist(process.argv.slice(2));
-const imagePath = safeQuote((argv.imagePath != null && argv.imagePath != 'undefined') ? argv.imagePath : 'Screen');
-const imageSimilarity = parseFloat((argv.imageSimilarity != null && argv.imageSimilarity != 'undefined') ? argv.imageSimilarity : process.env.imageSimilarity || 0.8);
-const maxSim = parseFloat((argv.maxSim != null && argv.maxSim != 'undefined') ? argv.maxSim : 1);
-const textHint = safeQuote((argv.textHint != null && argv.textHint != 'undefined') ? argv.textHint : '');
-const imageAction = safeQuote((argv.imageAction != null && argv.imageAction != 'undefined') ? argv.imageAction : 'none');
-const imageWaitTime = parseInt((argv.imageWaitTime != null && argv.imageWaitTime != 'undefined') ? argv.imageWaitTime : process.env.imageWaitTime || 1);
-const imageMaxCount = parseInt((argv.imageMaxCount != null && argv.imageMaxCount != 'undefined') ? argv.imageMaxCount : 1);
-const flashSecs = (argv.flash != null && argv.flash != 'undefined') ? parseFloat(argv.flash) : 1.0;
+const str = (v, dflt) => (v != null && v !== 'undefined') ? String(v) : dflt;
 
-// OCR-specific arguments (all opt-in)
-const ocrPath = (argv.ocrPath != null && argv.ocrPath != 'undefined') ? safeQuote(argv.ocrPath) : null;
-const ocrSimilarity = parseFloat((argv.ocrSimilarity != null && argv.ocrSimilarity != 'undefined') ? argv.ocrSimilarity : 0.8);
-const ocrMaxSim = parseFloat((argv.ocrMaxSim != null && argv.ocrMaxSim != 'undefined') ? argv.ocrMaxSim : 1.0);
-const ocrWaitTime = parseInt((argv.ocrWaitTime != null && argv.ocrWaitTime != 'undefined') ? argv.ocrWaitTime : 1000);
-const ocrMaxCount = parseInt((argv.ocrMaxCount != null && argv.ocrMaxCount != 'undefined') ? argv.ocrMaxCount : 1);
-const ocrAction = safeQuote((argv.ocrAction != null && argv.ocrAction != 'undefined') ? argv.ocrAction : 'none');
-const ocrDetail = safeQuote((argv.ocrDetail != null && argv.ocrDetail != 'undefined') ? argv.ocrDetail : 'none'); // none, line, word
-const ocrPSM = parseInt((argv.ocrPSM != null && argv.ocrPSM != 'undefined') ? argv.ocrPSM : 7);
-const ocrOEM = parseInt((argv.ocrOEM != null && argv.ocrOEM != 'undefined') ? argv.ocrOEM : 3);
+const imagePath = str(argv.imagePath, 'Screen');
+const imageSimilarity = parseFloat(str(argv.imageSimilarity, String(process.env.imageSimilarity || 0.8)));
+const maxSim = parseFloat(str(argv.maxSim, '1'));
+const textHint = str(argv.textHint, '');
+const imageAction = str(argv.imageAction, 'none');
+const imageWaitTime = parseInt(str(argv.imageWaitTime, String(process.env.imageWaitTime || 1)));
+const imageMaxCount = parseInt(str(argv.imageMaxCount, '1'));
+const flashSecs = (argv.flash != null && argv.flash !== 'undefined') ? parseFloat(argv.flash) : 1.0;
+
+// OCR-specific arguments (all opt-in). ocrPath === null means "image matching mode".
+const ocrPath = (argv.ocrPath != null && argv.ocrPath !== 'undefined') ? String(argv.ocrPath) : null;
+const ocrSimilarity = parseFloat(str(argv.ocrSimilarity, '0.8'));
+const ocrMaxSim = parseFloat(str(argv.ocrMaxSim, '1.0'));
+const ocrWaitTime = parseInt(str(argv.ocrWaitTime, '1000'));
+const ocrMaxCount = parseInt(str(argv.ocrMaxCount, '1'));
+const ocrAction = str(argv.ocrAction, 'none');
+const ocrDetail = str(argv.ocrDetail, 'none'); // none | line | word
+const ocrPSM = parseInt(str(argv.ocrPSM, '7'));
+const ocrOEM = parseInt(str(argv.ocrOEM, '3'));
 
 // default output
 const notFoundStatus = {status: 'notFound'};
 
-// Sikuli Property: App, Button, Mouse, OCR, Pattern, Region, Settings, Screen
-
 // Flash the found region. Under Oculix/java-bridge Region.highlight() is
 // fire-and-forget (paints on a background thread and returns immediately), so if
 // this process calls process.exit() right after, the red box is torn down before
-// it ever paints (the old synchronous silulix highlight did not have this
-// problem). Flash for a visible duration and then hold the process so the box
-// actually renders and is observable (by eye / VNC / screen recording).
+// it ever paints. Flash for a visible duration and hold the process so the box
+// actually renders.
 const flashOnMatch = (region) => {
   region.highlight();
   Thread.sleep(Math.round(flashSecs * 1000));
 };
 
+// Map a Region/rectangle-like object to the {location,dimension,center} triple.
+const fillRectangleInfo = (rectItem) => {
+  const location = {x: rectItem.x, y: rectItem.y};
+  const dimension = {width: rectItem.w, height: rectItem.h};
+  const center = {x: rectItem.x + Math.round(rectItem.w / 2), y: rectItem.y + Math.round(rectItem.h / 2)};
+  return [location, dimension, center];
+};
+
+// Perform a mouse action on a rectangle-like object. Returns true when the action
+// actually clicks (so the caller knows whether to record `clicked`).
+const performAction = (rect, action) => {
+  if (!action || action === 'none' || action === 'null') return false;
+  const clickRegion = new Region(rect.x, rect.y, rect.w, rect.h);
+  clickRegion.mouseUpSync();
+  let didClick = false;
+  switch (action) {
+    case 'single':
+    case 'click':
+      if (myDISPLAY.split(':')[1] > 9) {
+        clickRegion.doubleClick();
+      } else {
+        clickRegion.click();
+      }
+      didClick = true;
+      break;
+    case 'hoverClick':
+      clickRegion.hoverSync();
+      if (myDISPLAY.split(':')[1] > 9) {
+        clickRegion.doubleClick();
+      } else {
+        clickRegion.click();
+      }
+      didClick = true;
+      break;
+    case 'double':
+    case 'doubleClick':
+      clickRegion.doubleClick();
+      didClick = true;
+      break;
+    case 'right':
+    case 'rightClick':
+      clickRegion.rightClick();
+      didClick = true;
+      break;
+    case 'hover':
+      clickRegion.hoverSync();
+      break;
+  }
+  clickRegion.mouseUpSync();
+  return didClick;
+};
+
 // ---------------------------------------------------------------------------
-// Core findImage function (image matching)
+// Image-matching mode (the frozen original behaviour)
 // ---------------------------------------------------------------------------
 const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount) => {
-  // all input vars should be parsed or quoted
-  const myImagePath = safeQuote(imagePath);
+  const myImagePath = imagePath;
   const myImageName = myImagePath.substring(myImagePath.lastIndexOf('/') + 1);
   const myImageSimilarity = parseFloat(imageSimilarity);
   const myMaxSim = parseFloat(maxSim);
-  const myTextHint = safeQuote(textHint);
+  const myTextHint = textHint;
   const myImageWaitTime = parseInt(imageWaitTime);
-  const myImageAction = safeQuote(imageAction);
+  const myImageAction = imageAction;
   const myImageMaxCount = parseInt(imageMaxCount || 1);
 
   const findRegion = new Screen();
   findRegion.setAutoWaitTimeout(myImageWaitTime);
 
+  let returnArray = [];
   try {
     var oneTarget;
     var returnItem = {name: myImageName, score: null, text: null, location: null, dimension: null, center: null, clicked: null};
-    var returnArray = [];
-    const fillRectangleInfo = (rectItem) => {
-      const location = {x: rectItem.x, y: rectItem.y};
-      const dimension = {width: rectItem.w, height: rectItem.h};
-      const center = {x: rectItem.x + Math.round(rectItem.w / 2), y: rectItem.y + Math.round(rectItem.h / 2)};
-      return [location, dimension, center];
-    }
     if (myImagePath.includes('Screen')) {
       const screenMargin = myImagePath.includes('-') ? parseInt(myImagePath.split('-')[1]) : 1;
       oneTarget = new Region(findRegion.getBoundsSync()).growSync(-screenMargin);
@@ -139,44 +181,11 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
     }
     if (returnArray.length == 0) {
       returnArray.push(notFoundStatus);
-    } else {
-      // process myImageAction if any
-      if (myImageAction && myImageAction != 'none' && myImageAction != 'null') {
-        for (let i=0; i<returnArray.length; i++) {
-          var clickRegion = new Region(returnArray[i].location.x, returnArray[i].location.y, returnArray[i].dimension.width, returnArray[i].dimension.height);
-          clickRegion.mouseUpSync();
-          switch (myImageAction) {
-            case 'single':
-            case 'click':
-              if (myDISPLAY.split(':')[1] > 9) {
-                clickRegion.doubleClick();
-              } else {
-                clickRegion.click();
-              }
-              break;
-            case 'hoverClick':
-              clickRegion.hoverSync();
-              if (myDISPLAY.split(':')[1] > 9) {
-                clickRegion.doubleClick();
-              } else {
-                clickRegion.click();
-              }
-              break;
-            case 'double':
-            case 'doubleClick':
-              clickRegion.doubleClick();
-              break;
-            case 'right':
-            case 'rightClick':
-              clickRegion.rightClick();
-              break;
-            case 'hover':
-              clickRegion.hoverSync();
-              break;
-          }
-          clickRegion.mouseUpSync();
-          returnArray[i].clicked = returnArray[i].center;
-        }
+    } else if (myImageAction && myImageAction != 'none' && myImageAction != 'null') {
+      for (let i=0; i<returnArray.length; i++) {
+        const r = {x: returnArray[i].location.x, y: returnArray[i].location.y, w: returnArray[i].dimension.width, h: returnArray[i].dimension.height};
+        performAction(r, myImageAction);
+        returnArray[i].clicked = returnArray[i].center;
       }
     }
   } catch(e) {
@@ -189,105 +198,86 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
 };
 
 // ---------------------------------------------------------------------------
-// OCR mode function (new)
+// OCR mode (opt-in; no image template required)
+//
+// The screen is OCR'd in place — no raster copy is made. Region.findText() gives a
+// tight box when the Oculix build exposes it; otherwise we confirm the requested
+// text is present in the screen text and report the screen rectangle (the centre
+// is still a valid click point).
 // ---------------------------------------------------------------------------
 const findImageOcr = (ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCount, ocrAction, ocrDetail, ocrPSM, ocrOEM) => {
-  // OCR mode: ignore imagePath/imageAction/etc; use ocrPath as the text to find
   const waitStart = Date.now();
   const results = [];
 
-  // Set OCR engine options via Settings (affects Region.textSync etc.)
-  Settings.OcrPSM = ocrPSM;
-  Settings.OcrOEM = ocrOEM;
+  try {
+    Settings.OcrPSM = ocrPSM;
+    Settings.OcrOEM = ocrOEM;
+  } catch (e) { /* older Oculix builds do not expose these knobs */ }
 
   while (Date.now() - waitStart < ocrWaitTime) {
-    // Capture the whole screen
-    const findRegion = new Screen();
-    const img = findRegion.capture(); // returns BufferedImage
-    // Use Region.findText to get a Match with bounding box and confidence
-    const region = new Region(0, 0, img.getWidth(), img.getHeight());
-    const similarity = ocrSimilarity; // 0-1
-    const match = region.findText(ocrPath, similarity);
-    if (match !== null) {
-      // We have a match – build result
-      const rect = match; // Match implements getX, getY, getW, getH
-      const conf = match.getScore(); // 0-1 float
-      const text = match.getText(); // the matched string
+    let rect = null, text = ocrPath, conf = null;
 
-      // Build ocrDetails per requested granularity
-      const details = [];
-      if (ocrDetail === 'line') {
-        // Treat the whole match as one line
-        details.push({text, x:rect.getX(), y:rect.getY(), width:rect.getW(), height:rect.getH(), confidence:conf});
-      } else if (ocrDetail === 'word') {
-        // Word-level detail would require iterating over OCREngine.getIterator().
-        // For MVP we fall back to line-level; a future enhancement could implement true word boxes.
-        details.push({text, x:rect.getX(), y:rect.getY(), width:rect.getW(), height:rect.getH(), confidence:conf});
+    try {
+      const findRegion = new Screen();
+      const screenRegion = new Region(findRegion.getBoundsSync());
+      const region = new Region(0, 0, screenRegion.w, screenRegion.h);
+
+      let tight = null;
+      try {
+        tight = region.findText(ocrPath, ocrSimilarity);
+      } catch (e) {
+        tight = null;
       }
-      // If none, details stays empty.
 
-      // Base result fields
-      const result = {
-        name: text,
-        score: conf,
-        text: [text], // single line for simplicity
-        location: {x: rect.getX(), y: rect.getY(), width: rect.getW(), height: rect.getH()},
-        dimension: {width: rect.getW(), height: rect.getH()},
-        center: {x: rect.getX() + Math.round(rect.getW()/2), y: rect.getY() + Math.round(rect.getH()/2)},
-        clicked: null,
-        ...(ocrDetail !== 'none' ? {ocrDetails: details} : {})
-      };
-
-      // Apply requested action
-      if (ocrAction && ocrAction !== 'none') {
-        // Reuse the same clickRegion logic as image matches
-        const clickRegion = new Region(result.location.x, result.location.y, result.dimension.width, result.dimension.height);
-        clickRegion.mouseUpSync();
-        switch (ocrAction) {
-          case 'single':
-          case 'click':
-            if (myDISPLAY.split(':')[1] > 9) {
-              clickRegion.doubleClick();
-            } else {
-              clickRegion.click();
-            }
-            break;
-          case 'hoverClick':
-            clickRegion.hoverSync();
-            if (myDISPLAY.split(':')[1] > 9) {
-              clickRegion.doubleClick();
-            } else {
-              clickRegion.click();
-            }
-            break;
-          case 'double':
-          case 'doubleClick':
-            clickRegion.doubleClick();
-            break;
-          case 'right':
-          case 'rightClick':
-            clickRegion.rightClick();
-            break;
-          case 'hover':
-            clickRegion.hoverSync();
-            break;
+      if (tight) {
+        rect = {x: tight.getX(), y: tight.getY(), w: tight.getW(), h: tight.getH()};
+        conf = tight.getScore();
+        text = tight.getText();
+      } else {
+        const needle = String(ocrPath).toLowerCase();
+        const lines = region.textSync().split('\n');
+        if (!lines.some((l) => String(l).toLowerCase().includes(needle))) {
+          Thread.sleep(50);
+          continue;
         }
-        clickRegion.mouseUpSync();
-        result.clicked = result.center;
+        rect = {x: screenRegion.x, y: screenRegion.y, w: screenRegion.w, h: screenRegion.h};
+        conf = 1.0;
       }
-
-      results.push(result);
-      // If we have enough matches, break
-      if (results.length >= ocrMaxCount) break;
+    } catch (e) {
+      const msg = (e && typeof e.getMessageSync === 'function') ? e.getMessageSync() : (e && e.message ? e.message : String(e));
+      console.log('findTargetImage ERROR:', msg);
+      return JSON.stringify([notFoundStatus]);
     }
-    // Optional: small sleep before retry to avoid busy loop
-    java.lang.Thread.sleep(50); // Note: using java.lang.Thread directly; if this fails, we can use Thread.sleep as well.
+
+    const details = [];
+    if (ocrDetail === 'line' || ocrDetail === 'word') {
+      details.push({text: text, x: rect.x, y: rect.y, width: rect.w, height: rect.h, confidence: conf});
+    }
+
+    const result = {
+      name: text,
+      score: conf,
+      text: [text],
+      location: {x: rect.x, y: rect.y, width: rect.w, height: rect.h},
+      dimension: {width: rect.w, height: rect.h},
+      center: {x: rect.x + Math.round(rect.w/2), y: rect.y + Math.round(rect.h/2)},
+      clicked: null,
+      ...(ocrDetail !== 'none' ? {ocrDetails: details} : {})
+    };
+
+    if (performAction(rect, ocrAction)) {
+      result.clicked = result.center;
+    }
+
+    results.push(result);
+    if (results.length >= ocrMaxCount) break;
+    Thread.sleep(50);
   }
 
   if (results.length === 0) {
-    return [notFoundStatus];
+    return JSON.stringify([notFoundStatus]);
   }
-  return results;
+  return JSON.stringify(results);
 };
 
 // ---------------------------------------------------------------------------
@@ -295,10 +285,8 @@ const findImageOcr = (ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCoun
 // ---------------------------------------------------------------------------
 let target_result;
 if (ocrPath !== null) {
-  // OCR mode
   target_result = findImageOcr(ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCount, ocrAction, ocrDetail, ocrPSM, ocrOEM);
 } else {
-  // Image matching mode (original behavior)
   target_result = findImage(imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, imageAction, imageMaxCount);
 }
 

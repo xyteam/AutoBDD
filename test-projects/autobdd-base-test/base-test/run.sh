@@ -107,25 +107,25 @@ sleep 2
 # OCR detection (no action)
 JSON="$(seam --ocrPath="AUTOTEST OCR" --ocrDetail=word)"
 check_eq "ocr word count" "$(jq1 "$JSON" 'length')" "1"
-check_eq "ocr word text" "$(jq1 "$JSON" '.[0].ocrDetails[0].text')" '"AUTOTEST OCR"'
+check_eq "ocr word text" "$(jq1 "$JSON" '.[0].ocrDetails[0].text')" "AUTOTEST OCR"
 check_has "ocr word has bbox" "$(jq1 "$JSON" '.[0].ocrDetails[0] | has("x") and has("y") and has("width") and has("height")')" "true"
 # OCR click action
 JSON="$(seam --ocrPath="AUTOTEST OCR" --ocrAction=click --ocrDetail=word)"
-check_eq "ocr clicked point type" "$(jq1 "$JSON" '.[0].clicked|type')" '"object"'
+check_eq "ocr clicked point type" "$(jq1 "$JSON" '.[0].clicked|type')" "object"
 check_eq "ocr clicked x matches center" "$(jq1 "$JSON" '.[0].clicked.x')" "$(jq1 "$JSON" '.[0].ocrDetails[0].x + .[0].ocrDetails[0].width/2')"
 check_eq "ocr clicked y matches center" "$(jq1 "$JSON" '.[0].clicked.y')" "$(jq1 "$JSON" '.[0].ocrDetails[0].y + .[0].ocrDetails[0].height/2')"
 # OCR doubleClick action
 JSON="$(seam --ocrPath="AUTOTEST OCR" --ocrAction=doubleClick --ocrDetail=word)"
-check_eq "ocr doubleClicked" "$(jq1 "$JSON" '.[0].clicked|type')" '"object"'
+check_eq "ocr doubleClicked" "$(jq1 "$JSON" '.[0].clicked|type')" "object"
 # OCR rightClick action
 JSON="$(seam --ocrPath="AUTOTEST OCR" --ocrAction=rightClick --ocrDetail=word)"
-check_eq "ocr rightClicked" "$(jq1 "$JSON" '.[0].clicked|type')" '"object"'
+check_eq "ocr rightClicked" "$(jq1 "$JSON" '.[0].clicked|type')" "object"
 # OCR hover action (no click)
 JSON="$(seam --ocrPath="AUTOTEST OCR" --ocrAction=hover --ocrDetail=word)"
 check_eq "ocr hovered (no clicked)" "$(jq1 "$JSON" '.[0].clicked')" "null"
 # OCR hoverClick action
 JSON="$(seam --ocrPath="AUTOTEST OCR" --ocrAction=hoverClick --ocrDetail=word)"
-check_eq "ocr hoverClicked" "$(jq1 "$JSON" '.[0].clicked|type')" '"object"'
+check_eq "ocr hoverClicked" "$(jq1 "$JSON" '.[0].clicked|type')" "object"
 # ---------------------------------------------------------------------------
 section "L1 — keyboard/mouse substrate"
 # ---------------------------------------------------------------------------

@@ -72,7 +72,7 @@ When `--ocrPath` is supplied the seam runs OCR instead of image matching.
 | `--ocrWaitTime <ms>` | integer | `1000` | How long (ms) to wait for the OCR text to appear (polls until found or timeout). |
 | `--ocrMaxCount <int>` | integer | `1` | Maximum number of OCR matches to return. |
 | `--ocrAction <action>` | string | `none` | Action to perform on each OCR match: `none`, `click`, `doubleClick`, `rightClick`, `hover`, `hoverClick`. |
-| `--ocrDetail <none|line|word>` | string | `none` | Level of OCR detail to include in the output: <br>• `none` – no extra OCR data (backward‑compatible).<br>• `line` – one entry per OCR line.<br>• `word` – one entry per OCR word. |
+| `--ocrDetail <none|line|word>` | string | `none` | Include the OCR bounding box in the result. `line` and `word` both emit the matched text region: a tight box when the engine exposes one for the query, otherwise the searched region's rectangle. `none` omits `ocrDetails` entirely (backward‑compatible). |
 | `--ocrPSM <int>` | integer | `7` | Tesseract Page Segmentation Mode (passed through to Oculix). |
 | `--ocrOEM <int>` | integer | `3` | Tesseract OCR Engine Mode (passed through to Oculix). |
 
@@ -89,7 +89,7 @@ Each result object contains the original fields:
   "location": { "x":<num>, "y":<num>, "width":<num>, "height":<num> },
   "dimension": { "width":<num>, "height":<num> },
   "center": { "x":<num>, "y":<num> },
-  "clicked": { "x":<num>, "y":<num> } | null,
+  "clicked": { "x":<num>, "y":<num> } | null,   // set only for clicking actions (click/doubleClick/rightClick/hoverClick)
   "ocrDetails": [                     // <-- ONLY present when --ocrDetail ≠ none
     {
       "text": "<string>",             // the OCR word or line
@@ -139,8 +139,10 @@ an empty array – existing parsers that ignore this field see no change.
 
 * **Base** (`xyteam/autobdd-base`): Ubuntu 24.04 · Java 17 · Node 20 · Xvfb/openbox/x11vnc ·
   the Oculix 4.0.0 screen engine exposed as the `findTargetImage` CLI seam.
-  The Oculix natives are extracted at runtime and copied into `/opt/oculix-natives`,
-  making them available via `LD_LIBRARY_PATH`.
+  The Oculix natives bundled in the engine JAR are extracted **at image‑build time**
+  into `/opt/oculix-natives` and registered with `ldconfig`, so the image is
+  self‑contained: no on‑demand extraction at run time and no need for a writable
+  `/tmp` or `/root`.
 * **Framework** (`xyteam/autobdd-framework`): base + Chrome and a **matching
   chromedriver** on PATH, WebdriverIO 9 (Cucumber), the AutoBDD step library.
 * Runs with `docker compose` (Compose v2).
@@ -197,6 +199,6 @@ This repo ships two suites. Both run the **locally built** image only
 
 --- 
 
-*This README reflects the current state of the `master` branch, including the opt‑in OCR
+*This README reflects the current state of this branch, including the opt‑in OCR
 arguments, native‑library handling, and the updated public contract of the
 `findTargetImage` seam.*
