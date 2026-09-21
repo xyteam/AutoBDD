@@ -1,6 +1,0 @@
-# files to ignore
-*.jar
-*.class
-
-# dirs to ignore
-node_modules/
