@@ -147,11 +147,14 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
   const myImageAction = imageAction;
   const myImageMaxCount = parseInt(imageMaxCount || 1);
 
-  const findRegion = new Screen();
-  findRegion.setAutoWaitTimeout(myImageWaitTime);
-
   let returnArray = [];
   try {
+    // Screen construction can fail transiently (display not ready / X hiccup). It
+    // must live inside the try so the CLI still emits its JSON instead of dying
+    // before printing — the frozen contract guarantees stdout carries a result.
+    const findRegion = new Screen();
+    findRegion.setAutoWaitTimeout(myImageWaitTime);
+
     var oneTarget;
     var returnItem = {name: myImageName, score: null, text: null, location: null, dimension: null, center: null, clicked: null};
     if (myImagePath.includes('Screen')) {
@@ -243,11 +246,6 @@ const findImageOcr = (ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCoun
         rect = {x: screenRegion.x, y: screenRegion.y, w: screenRegion.w, h: screenRegion.h};
         conf = 1.0;
       }
-    } catch (e) {
-      const msg = (e && typeof e.getMessageSync === 'function') ? e.getMessageSync() : (e && e.message ? e.message : String(e));
-      console.log('findTargetImage ERROR:', msg);
-      return JSON.stringify([notFoundStatus]);
-    }
 
     const details = [];
     if (ocrDetail === 'line' || ocrDetail === 'word') {
@@ -272,6 +270,11 @@ const findImageOcr = (ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCoun
     results.push(result);
     if (results.length >= ocrMaxCount) break;
     Thread.sleep(50);
+    } catch (e) {
+      const msg = (e && typeof e.getMessageSync === 'function') ? e.getMessageSync() : (e && e.message ? e.message : String(e));
+      console.log('findTargetImage ERROR:', msg);
+      return JSON.stringify([notFoundStatus]);
+    }
   }
 
   if (results.length === 0) {

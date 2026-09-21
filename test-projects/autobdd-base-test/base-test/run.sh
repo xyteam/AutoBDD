@@ -25,8 +25,11 @@ check(){ local n="$1"; shift; if "$@" >/dev/null 2>&1; then _ok "$n"; else _no "
 check_eq(){ local n="$1" a="$2" b="$3"; [ "$a" = "$b" ] && _ok "$n" || _no "$n (got '$a', want '$b')"; }
 check_has(){ local n="$1" hay="$2" needle="$3"; [[ "$hay" == *"$needle"* ]] && _ok "$n" || _no "$n (missing '$needle' in: $hay)"; }
 
-# seam <args...> -> the JSON array (stdout from the first '[')
-seam(){ findTargetImage "$@" 2>/dev/null | sed -n 's/^target_result: //p'; }
+# seam <args...> -> the JSON payload from the target_result line.
+# The Oculix/JVM side writes its own startup logging to the same stdout fd, and can
+# emit a partial line before ours, so the marker is matched anywhere on the line
+# rather than anchored at the start.
+seam(){ findTargetImage "$@" 2>/dev/null | sed -n 's/.*target_result: //p'; }
 jq1(){ printf '%s' "$1" | jq -r "$2" 2>/dev/null; }
 
 cleanup(){ [ -n "$VNC_PID" ] && kill "$VNC_PID" 2>/dev/null; [ -n "$WM_PID" ] && kill "$WM_PID" 2>/dev/null; [ -n "$XVFB_PID" ] && kill "$XVFB_PID" 2>/dev/null; rm -rf "$WORK"; }
