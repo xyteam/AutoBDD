@@ -59,7 +59,7 @@ case "$1" in
     ;;
   read-text)
     shift
-    # A screen read is the engine's whole-screen mode. An explicit --imagePath from the
+    # A screen read is the engine's whole-screen mode. An explicit --match-image from the
     # caller wins, because the engine parses the last occurrence of a repeated flag.
     exec "$ENGINE" --match-image=Screen "$@"
     ;;

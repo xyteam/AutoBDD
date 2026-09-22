@@ -335,12 +335,12 @@ feat_ocr_similarity(){
   check_eq "the floor argument is accepted and detection still works" "$(_jq "$JSON" '.[0].name')" "AUTOTEST OCR"
   JSON="$(target --match-text="NO SUCH TEXT HERE")"
   check_eq "absent text is rejected" "$(_jq "$JSON" '.[0].status')" "notFound"
-  # Deliberately NOT asserted: that raising --ocrSimilarity rejects a text whose
+  # Deliberately NOT asserted: that raising --min-score rejects a text whose
   # confidence is below it. Measured: with the text on screen, --min-score=0.99
   # still returns a match, because this build's OCR path has no per-match confidence to
   # filter on (the image floor IS applied: see image-similarity). Asserting rejection
   # here would pass only when the screen happens to be blank — a false green.
-  printf '   \033[33mknown-gap: --ocrSimilarity is accepted but not applied by this build; only the image floor filters\033[0m\n' >&2
+  printf '   \033[33mknown-gap: --min-score is applied to image matches but not to text targets by this build\033[0m\n' >&2
 }
 feat_ocr_wait(){
   feature ocr-wait
@@ -420,7 +420,8 @@ feat_help(){
   printf '   \033[2mrun:    findTargetImage --help   [rc=%s, %s ms]\033[0m\n' "$rc" "$ms" >&2
   check_eq "exit status is 0" "$rc" "0"
   check_has "prints the flows" "$out" "FLOWS"
-  check_has "prints the flags" "$out" "--imagePath"
+  check_has "prints the canonical flags" "$out" "--match-image"
+  check_has "lists the deprecated v1 names" "$out" "--imagePath"
   # A real result line is always `target_result: [` + JSON; the help text merely names
   # the marker, so match the payload, not the documentation.
   check_eq "emits no result payload" "$(printf '%s' "$out" | grep -c 'target_result: \[')" "0"
