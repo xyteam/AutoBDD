@@ -58,6 +58,22 @@ findTargetImage \
     --imageMaxCount=1
 ```
 
+### Discovery and exit status
+
+```bash
+findTargetImage --help        # flows, output shape, exit codes, every flag + default
+findTargetImage --list        # the supported flows, one runnable example per line
+findTargetImage --version     # seam, image build stamp, Oculix, Node
+```
+
+These are answered **before the JVM and native engine start** — measured at ~40 ms, versus
+~1.1 s for a real match, and they never touch the screen. Exit status is `0` when a result
+was produced — **including `notFound`, which is an answer, not a fault** (branch on
+`.[0].status`) — and `2` for a usage error. Unknown arguments warn on stderr and are
+otherwise ignored, because the argument surface is additive; an *unusable value* (a
+non‑numeric threshold, an unknown `--imageAction`) exits `2` instead of silently behaving
+like the default.
+
 ### Opt‑in OCR mode (new)
 
 All OCR‑related arguments are **optional**; if none of them are supplied the seam
@@ -164,7 +180,7 @@ an empty array – existing parsers that ignore this field see no change.
 ## Feature conformance — what the base image can do, and how to check each bit
 
 The base image's feature set is enumerated as a **catalogue** in
-`test-projects/autobdd-base-test/base-test/features.sh` (currently **34 features**).
+`test-projects/autobdd-base-test/base-test/features.sh` (currently **38 features**).
 The suite is organised per feature, and every feature prints the single command that
 reproduces it — so the output doubles as documentation.
 
@@ -206,7 +222,7 @@ AutoBDD_Ver=<v> make base-test          # ~3 min; ends with "ALL FEATURES OK"
    ✓ the flash pause is bounded = 903 ms (<= 2500)
 
 ════════════════════════════════════════════════════════════════════════════
-feature conformance: 92 passed, 0 failed
+feature conformance: 107 passed, 0 failed
 ALL FEATURES OK
 ════════════════════════════════════════════════════════════════════════════
 ```
@@ -244,6 +260,7 @@ Each feature is one line to reproduce inside the image: `base-test/one.sh <featu
 | **F — opt‑in OCR** | `ocr-detect` `ocr-detail-none` `ocr-detail-line` `ocr-similarity` `ocr-wait` `ocr-action` `ocr-psm-oem` | text search by `--ocrPath`, the optional `ocrDetails` box, its floor, wait, action dispatch and PSM/OEM pass‑through |
 | **G — contract robustness** | `json-on-error` `additive-args` | an unusable display still yields JSON on stdout with exit 0, and unknown arguments are ignored (additive contract) |
 | **H — non‑functional** | `latency` | NFR‑T2: a warm image match stays inside its budget |
+| **I — discovery** | `help` `version` `list` `usage-error` | the tool explains itself *without* starting the engine (~40 ms, no screen scan), reports what is running, lists its flows, and fails loudly on an unusable value |
 
 **Reading a run.** Each feature prints `▸ <feature> — <what it checks>`, the exact `cmd:`
 line, then one `✓`/`✗` per assertion. Failures are collected at the end grouped by
@@ -278,7 +295,7 @@ This repo ships two suites. Both run the **locally built** image only
 (`pull_policy: never` — build it, or pre‑pull the published tag):
 
 * **`test-projects/autobdd-base-test`** – the **no‑browser** feature‑conformance suite for
-  the **base** image (L0/L1 + the frozen CLI seam). 34 features, no Chrome required. See
+  the **base** image (L0/L1 + the frozen CLI seam). 38 features, no Chrome required. See
   **Feature conformance** above for the one‑liners and the catalogue:
 
   ```bash

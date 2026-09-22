@@ -78,12 +78,35 @@ An **array**. On success, one object per match:
 | `TESSDATA_PREFIX` | no | OCR data path (Oculix bundles its own tessdata). |
 | `OMP_THREAD_LIMIT`, `LC_ALL`, `LC_CTYPE` | no | OCR/native tuning (set to `1`, `C`, `C`). |
 
+## 4b. Discovery and failure modes (additive)
+
+The discovery questions are answered **before** the JVM and the native engine start, so
+asking what the tool does costs ~40 ms instead of a whole-screen OCR scan:
+
+| Arg | Behaviour |
+|---|---|
+| `--help`, `-h` | usage: flows, output shape, exit codes, every flag with its default. Exit 0. |
+| `--version` | the seam, the image's build stamp (from `/etc/autobdd-versions`), Oculix and Node versions. Exit 0. |
+| `--list` | the supported flows, one runnable example per line. Exit 0. |
+
+Two failure modes are explicit rather than silent:
+
+* **Unknown arguments** are warned about on **stderr** and otherwise ignored (the argument
+  surface is additive, so an older consumer must keep working).
+* **Unusable values** (a non-numeric threshold, an unknown `--imageAction`/`--ocrDetail`)
+  print `findTargetImage: <flag> expects …` on stderr and exit **2**. Silently behaving
+  like the default would look like a successful call to an automated caller.
+
 ## 5. Guarantees
 
 - **Screen-only capable:** this seam needs **no browser** — it is the interface that makes
   `autobdd-base` runnable on its own (screen-only mode) and drivable by a foreign framework.
 - **Stable JSON:** fields are additive; consumers MUST ignore unknown fields.
-- **Exit behavior:** the process prints the result and exits; callers parse stdout only.
+- **Exit behavior:** `0` when a result was produced — **including `notFound`**, which is an
+  answer, not a fault (branch on `.[0].status`). `2` for a usage error. Callers parse stdout
+  only; the JSON payload is always the line carrying `target_result:`.
+- **Discovery never touches the screen:** `--help`/`--version`/`--list` do not start the
+  engine and never scan.
 
 ## 6. Not part of the contract
 

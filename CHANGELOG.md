@@ -29,6 +29,16 @@ the convention.
 - One uniform screenshot watermark on every step/final capture — a dark bottom band with
   the remark (green passed / red failed).
 
+**Base seam — discovery surface.** `--help`/`-h`, `--version` and `--list` are answered
+*before* the JVM and native engine start: measuring the old behaviour, `--help` returned
+exit 0 after a **3079 ms whole-screen OCR scan** and the binary carried **0** usage strings,
+so the canonical "what does this do?" move silently did work and reported success. Usage is
+now ~40 ms and prints the flows, the output shape, the exit codes and every flag with its
+default. Unusable values (a non-numeric threshold, an unknown `--imageAction`/`--ocrDetail`)
+now print the offending flag on stderr and exit **2**, rather than silently behaving like the
+default and looking like a successful call. Unknown arguments still warn and are ignored, so
+the additive-argument guarantee is unchanged.
+
 **Base seam — behaviour fixes found by the feature suite.** The base suite was rebuilt as a
 34‑feature catalogue (`test-projects/autobdd-base-test/base-test/features.sh`), each feature
 independently reproducible via `base-test/one.sh <feature>`. Writing it surfaced five defects

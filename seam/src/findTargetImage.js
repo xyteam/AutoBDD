@@ -1,12 +1,131 @@
 #!/usr/bin/env node
-
-// java-bridge replaces node-java (JNI); set JVM options up front so they apply
-// before the JVM is started by the first class import/call below.
-const java = require('java-bridge');
-java.ensureJvm({ opts: ['-Xms128m', '-Xmx512m'] });
+//
+// findTargetImage — locate a target on screen (a picture, or text), optionally act on it.
+// Writes exactly one line to stdout:  target_result: <json array>
+//
+// Design note: the discovery questions (--help/--version/--list) and all argument
+// validation are answered BEFORE the JVM and the native engine are started, so asking
+// what this tool does costs ~10 ms instead of a 3 s whole-screen OCR scan. That matters
+// for a human meeting the tool for the first time and for an agent probing it.
 
 const path = require('path');
+const fs = require('fs');
 const minimist = require('minimist');
+
+// ---------------------------------------------------------------------------
+// flag catalogue — the single source for --help, --list and unknown-flag detection
+// ---------------------------------------------------------------------------
+const FLAGS = [
+  ['--imagePath=<file>',      'Screen', 'target picture; "Screen" reads the whole screen as text'],
+  ['--imageSimilarity=<0-1>', '0.8',    'minimum match score (floor)'],
+  ['--maxSim=<0-1>',          '1',      'maximum accepted score (ceiling)'],
+  ['--textHint=<regex>',      "''",     "the matched region's OCR text must match this"],
+  ['--imageWaitTime=<sec>',   '1',      'wait up to this long for the target to appear'],
+  ['--imageAction=<action>',  'none',   'none|click (alias single)|hover|hoverClick|doubleClick|rightClick'],
+  ['--imageMaxCount=<n>',     '1',      'return/act on at most n matches'],
+  ['--flash=<sec>',           '1.0',    'on-screen match flash; 0 disables the pause'],
+  ['--ocrPath=<text>',        'unset',  'opt-in: search the screen for this text instead of a picture'],
+  ['--ocrSimilarity=<0-1>',   '0.8',    'opt-in: OCR floor (accepted; see KNOWN GAPS)'],
+  ['--ocrMaxSim=<0-1>',       '1.0',    'opt-in: OCR ceiling'],
+  ['--ocrWaitTime=<ms>',      '1000',   'opt-in: poll for the text for this many MILLISECONDS'],
+  ['--ocrMaxCount=<n>',       '1',      'opt-in: at most n text matches'],
+  ['--ocrAction=<action>',    'none',   'opt-in: same action set as --imageAction'],
+  ['--ocrDetail=<level>',     'none',   'opt-in: none|line|word — include the matched box'],
+  ['--ocrPSM=<n>',            '7',      'opt-in: Tesseract page segmentation mode'],
+  ['--ocrOEM=<n>',            '3',      'opt-in: Tesseract OCR engine mode'],
+];
+
+const FLOWS = [
+  ['read the whole screen as text', 'findTargetImage --imagePath=Screen --flash=0'],
+  ['find a picture on screen',      'findTargetImage --imagePath=logo.png'],
+  ['find a picture, gated on text', 'findTargetImage --imagePath=card.png --textHint=Total'],
+  ['find text on screen',           'findTargetImage --ocrPath="Submit" --ocrDetail=word'],
+  ['find a picture, then click it', 'findTargetImage --imagePath=logo.png --imageAction=click'],
+  ['find several matches',          'findTargetImage --imagePath=tile.png --imageMaxCount=2'],
+];
+
+const KNOWN = new Set(
+  FLAGS.map((f) => f[0].replace(/^--/, '').split('=')[0]).concat(['help', 'h', 'version', 'list'])
+);
+const ACTIONS = new Set(['none', 'click', 'single', 'hover', 'hoverClick', 'double', 'doubleClick', 'right', 'rightClick']);
+const DETAILS = new Set(['none', 'line', 'word']);
+
+const argv = minimist(process.argv.slice(2));
+const str = (v, dflt) => (v != null && v !== 'undefined') ? String(v) : dflt;
+const pad = (a, b) => a + ' '.repeat(Math.max(1, b - a.length));
+
+function usage() {
+  const rows = FLAGS.map(([f, d, desc]) => `  ${pad(f, 26)} ${pad(d, 8)} ${desc}`).join('\n');
+  return `findTargetImage — locate a target on screen (a picture, or text), optionally act on it
+
+USAGE
+  findTargetImage [--<flag>=<value> ...]
+
+FLOWS
+${FLOWS.map(([what, cmd]) => `  ${pad(what, 32)} ${cmd}`).join('\n')}
+
+OUTPUT (stdout, exactly one line)
+  target_result: <json array>
+  a match   -> {name, score, text[], location, dimension, center, clicked}
+  no match  -> [{"status":"notFound"}]
+  a fault   -> [{"status":"error","message":"..."}]
+
+DISCOVERY
+  --help | -h     this text          --list          the flows above, one per line
+  --version       what is running
+
+EXIT STATUS
+  0   a result was produced (including notFound; parse the JSON to branch)
+  2   usage error — an unparseable number or an unknown action/level
+
+KNOWN GAPS
+  --ocrSimilarity is accepted but not applied: this build's OCR path exposes no
+  per-match confidence to filter on (the image floor IS applied).
+  --ocrDetail=word reports the matched region, not one entry per token.
+
+FLAGS
+${rows}
+`;
+}
+
+function printList() { process.stdout.write(FLOWS.map(([what, cmd]) => `${cmd}\n    # ${what}\n`).join('')); }
+
+function version() {
+  let built = 'unknown';
+  try { built = (fs.readFileSync('/etc/autobdd-versions', 'utf8').match(/^built=(.*)$/m) || [])[1] || 'unknown'; } catch (e) {}
+  return `findTargetImage — AutoBDD base seam
+image  : built ${built}
+oculix : ${process.env.OCULIX_VER || '4.0.0'}
+node   : ${process.version}
+`;
+}
+
+function die(msg) { process.stderr.write(`findTargetImage: ${msg}\n`); process.exit(2); }
+
+// --- discovery, answered before the JVM starts -------------------------------------
+if (argv.help != null || argv.h != null) { process.stdout.write(usage()); process.exit(0); }
+if (argv.version != null) { process.stdout.write(version()); process.exit(0); }
+if (argv.list != null) { printList(); process.exit(0); }
+
+// --- unknown flags warn but do not fail: the argument surface is additive -----------
+const unknown = Object.keys(argv).filter((k) => k !== '_' && !KNOWN.has(k));
+if (unknown.length) {
+  process.stderr.write(`findTargetImage: warning: ignoring unknown argument(s): ${unknown.map((k) => '--' + k).join(' ')} (see --help)\n`);
+}
+
+// --- validate anything that would otherwise fail silently ---------------------------
+const num = (flag, raw, dflt) => {
+  if (raw == null || raw === 'undefined') return dflt;
+  const v = Number(raw);
+  if (!isFinite(v)) die(`${flag} expects a number, got '${raw}'`);
+  return v;
+};
+const oneOf = (flag, raw, set, dflt) => {
+  if (raw == null || raw === 'undefined') return dflt;
+  const v = String(raw);
+  if (!set.has(v)) die(`${flag} expects one of ${[...set].join('|')}, got '${v}'`);
+  return v;
+};
 
 // all external env vars should be parsed or quoted to const
 process.env.imageSimilarity = parseFloat(process.env.imageSimilarity) || 0.8;
@@ -19,9 +138,13 @@ process.env.LC_ALL = 'C';
 process.env.LC_CTYPE = 'C';
 
 // Determine Oculix JAR location: seam/lib/oculixapi-<VER>-linux.jar
-// Allow overriding version via OCULIX_VER env (set at build time)
 const OCULIX_VER = process.env.OCULIX_VER || '4.0.0';
 const jarPath = path.join(__dirname, '..', 'lib', `oculixapi-${OCULIX_VER}-linux.jar`);
+
+// java-bridge replaces node-java (JNI); set JVM options up front so they apply
+// before the JVM is started by the first class import/call below.
+const java = require('java-bridge');
+java.ensureJvm({ opts: ['-Xms128m', '-Xmx512m'] });
 
 // Load the Oculix classes. If this fails we still emit a JSON error object so the
 // frozen CLI contract (stdout JSON) is never violated.
@@ -50,29 +173,27 @@ const _sleepBuf = new Int32Array(new SharedArrayBuffer(4));
 const sleepMs = (ms) => { if (ms > 0) Atomics.wait(_sleepBuf, 0, 0, ms); };
 
 // All args are used as plain JS values (we never build a shell command line here),
-// so they must NOT be shell-quoted.
-const argv = minimist(process.argv.slice(2));
-const str = (v, dflt) => (v != null && v !== 'undefined') ? String(v) : dflt;
-
+// so they must NOT be shell-quoted. Numbers and enums are validated above, so a typo
+// fails loudly instead of silently behaving like its default.
 const imagePath = str(argv.imagePath, 'Screen');
-const imageSimilarity = parseFloat(str(argv.imageSimilarity, String(process.env.imageSimilarity || 0.8)));
-const maxSim = parseFloat(str(argv.maxSim, '1'));
+const imageSimilarity = num('--imageSimilarity', argv.imageSimilarity, parseFloat(process.env.imageSimilarity || 0.8));
+const maxSim = num('--maxSim', argv.maxSim, 1);
 const textHint = str(argv.textHint, '');
-const imageAction = str(argv.imageAction, 'none');
-const imageWaitTime = parseInt(str(argv.imageWaitTime, String(process.env.imageWaitTime || 1)));
-const imageMaxCount = parseInt(str(argv.imageMaxCount, '1'));
-const flashSecs = (argv.flash != null && argv.flash !== 'undefined') ? parseFloat(argv.flash) : 1.0;
+const imageAction = oneOf('--imageAction', argv.imageAction, ACTIONS, 'none');
+const imageWaitTime = num('--imageWaitTime', argv.imageWaitTime, parseInt(process.env.imageWaitTime || 1));
+const imageMaxCount = num('--imageMaxCount', argv.imageMaxCount, 1);
+const flashSecs = num('--flash', argv.flash, 1.0);
 
 // OCR-specific arguments (all opt-in). ocrPath === null means "image matching mode".
 const ocrPath = (argv.ocrPath != null && argv.ocrPath !== 'undefined') ? String(argv.ocrPath) : null;
-const ocrSimilarity = parseFloat(str(argv.ocrSimilarity, '0.8'));
-const ocrMaxSim = parseFloat(str(argv.ocrMaxSim, '1.0'));
-const ocrWaitTime = parseInt(str(argv.ocrWaitTime, '1000'));
-const ocrMaxCount = parseInt(str(argv.ocrMaxCount, '1'));
-const ocrAction = str(argv.ocrAction, 'none');
-const ocrDetail = str(argv.ocrDetail, 'none'); // none | line | word
-const ocrPSM = parseInt(str(argv.ocrPSM, '7'));
-const ocrOEM = parseInt(str(argv.ocrOEM, '3'));
+const ocrSimilarity = num('--ocrSimilarity', argv.ocrSimilarity, 0.8);
+const ocrMaxSim = num('--ocrMaxSim', argv.ocrMaxSim, 1.0);
+const ocrWaitTime = num('--ocrWaitTime', argv.ocrWaitTime, 1000);
+const ocrMaxCount = num('--ocrMaxCount', argv.ocrMaxCount, 1);
+const ocrAction = oneOf('--ocrAction', argv.ocrAction, ACTIONS, 'none');
+const ocrDetail = oneOf('--ocrDetail', argv.ocrDetail, DETAILS, 'none');
+const ocrPSM = num('--ocrPSM', argv.ocrPSM, 7);
+const ocrOEM = num('--ocrOEM', argv.ocrOEM, 3);
 
 // default output
 const notFoundStatus = {status: 'notFound'};
