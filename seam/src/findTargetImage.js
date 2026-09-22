@@ -25,7 +25,7 @@ const jarPath = path.join(__dirname, '..', 'lib', `oculixapi-${OCULIX_VER}-linux
 
 // Load the Oculix classes. If this fails we still emit a JSON error object so the
 // frozen CLI contract (stdout JSON) is never violated.
-let App, Button, ImagePath, Mouse, OCR, Pattern, Region, Settings, Screen, Thread;
+let App, Button, ImagePath, Mouse, OCR, Pattern, Region, Settings, Screen;
 try {
   java.classpath.append(jarPath);
   App = java.importClass('org.sikuli.script.App');
@@ -37,12 +37,17 @@ try {
   Region = java.importClass('org.sikuli.script.Region');
   Settings = java.importClass('org.sikuli.basics.Settings');
   Screen = java.importClass('org.sikuli.script.Screen');
-  Thread = java.importClass('java.lang.Thread');
 } catch (e) {
   const msg = (e && e.message) ? e.message : String(e);
   console.log(`target_result: ${JSON.stringify([{status: 'error', message: `Failed to load Oculix JAR at ${jarPath}: ${msg}`}])}`);
   process.exit(0);
 }
+
+// Synchronous sleep. java-bridge's static Thread.sleep() is a no-op here (measuring
+// 0 ms for sleep(1000)), so blocking waits are done on the Node side with
+// Atomics.wait — a genuine block that does not spin the CPU.
+const _sleepBuf = new Int32Array(new SharedArrayBuffer(4));
+const sleepMs = (ms) => { if (ms > 0) Atomics.wait(_sleepBuf, 0, 0, ms); };
 
 // All args are used as plain JS values (we never build a shell command line here),
 // so they must NOT be shell-quoted.
@@ -79,7 +84,7 @@ const notFoundStatus = {status: 'notFound'};
 // actually renders.
 const flashOnMatch = (region) => {
   region.highlight();
-  Thread.sleep(Math.round(flashSecs * 1000));
+  sleepMs(Math.round(flashSecs * 1000));
 };
 
 // Map a Region/rectangle-like object to the {location,dimension,center} triple.
@@ -95,25 +100,21 @@ const fillRectangleInfo = (rectItem) => {
 const performAction = (rect, action) => {
   if (!action || action === 'none' || action === 'null') return false;
   const clickRegion = new Region(rect.x, rect.y, rect.w, rect.h);
+  // Move to the region centre first. Region.click()/doubleClick()/rightClick() do not
+  // reposition the pointer in this Oculix build, so without this the action would be
+  // dispatched somewhere other than the reported centre — hoverSync() does move it.
+  const centre = {x: Math.round(rect.x + rect.w / 2), y: Math.round(rect.y + rect.h / 2)};
+  clickRegion.hoverSync();
   clickRegion.mouseUpSync();
   let didClick = false;
   switch (action) {
     case 'single':
     case 'click':
-      if (myDISPLAY.split(':')[1] > 9) {
-        clickRegion.doubleClick();
-      } else {
-        clickRegion.click();
-      }
+      clickRegion.click();
       didClick = true;
       break;
     case 'hoverClick':
-      clickRegion.hoverSync();
-      if (myDISPLAY.split(':')[1] > 9) {
-        clickRegion.doubleClick();
-      } else {
-        clickRegion.click();
-      }
+      clickRegion.click();
       didClick = true;
       break;
     case 'double':
@@ -127,8 +128,7 @@ const performAction = (rect, action) => {
       didClick = true;
       break;
     case 'hover':
-      clickRegion.hoverSync();
-      break;
+      break;   // hoverSync() above already moved the pointer
   }
   clickRegion.mouseUpSync();
   return didClick;
@@ -155,40 +155,56 @@ const findImage = (imagePath, imageSimilarity, maxSim, textHint, imageWaitTime, 
     const findRegion = new Screen();
     findRegion.setAutoWaitTimeout(myImageWaitTime);
 
-    var oneTarget;
-    var returnItem = {name: myImageName, score: null, text: null, location: null, dimension: null, center: null, clicked: null};
     if (myImagePath.includes('Screen')) {
       const screenMargin = myImagePath.includes('-') ? parseInt(myImagePath.split('-')[1]) : 1;
-      oneTarget = new Region(findRegion.getBoundsSync()).growSync(-screenMargin);
-      returnItem.text = oneTarget.textSync().split('\n');
-      [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(oneTarget);
+      const oneTarget = new Region(findRegion.getBoundsSync()).growSync(-screenMargin);
+      const item = {name: myImageName, score: null, text: oneTarget.textSync().split('\n'),
+                    location: null, dimension: null, center: null, clicked: null};
+      [item.location, item.dimension, item.center] = fillRectangleInfo(oneTarget);
       flashOnMatch(oneTarget);
-      returnArray.push(returnItem);
+      returnArray.push(item);
     } else {
       const oneSample = (new Pattern(myImagePath)).similarSync(myImageSimilarity);
-      const findTargets = findRegion.findAllSync(oneSample);
       const myRegex = new RegExp(myTextHint, 'i');
-      var matchCount = 0;
-      while (matchCount < myImageMaxCount && findTargets.hasNextSync()) {
-        const oneMatch = findTargets.nextSync();
-        returnItem.score = Math.floor(oneMatch.getScoreSync()*1000000)/1000000;
-        [returnItem.location, returnItem.dimension, returnItem.center] = fillRectangleInfo(oneMatch);
-        oneTarget = new Region(oneMatch);
-        returnItem.text = oneTarget.textSync().split('\n');
-        if (returnItem.score >= myImageSimilarity && returnItem.score <= myMaxSim && returnItem.text.join('\n').match(myRegex)) {
-          matchCount += 1;
+      // SikuliX's autoWaitTimeout applies to exists()/wait(), not to findAll(), so the
+      // documented --imageWaitTime (seconds) is honoured here by retrying the search
+      // until the deadline. Without this, a target that appears late is missed even
+      // though the caller asked to wait for it.
+      const deadline = Date.now() + (Math.max(myImageWaitTime, 0) * 1000);
+      const collect = () => {
+        const found = [];
+        const findTargets = findRegion.findAllSync(oneSample);
+        while (found.length < myImageMaxCount && findTargets.hasNextSync()) {
+          const oneMatch = findTargets.nextSync();
+          const score = Math.floor(oneMatch.getScoreSync()*1000000)/1000000;
+          if (score < myImageSimilarity || score > myMaxSim) continue;
+          const oneTarget = new Region(oneMatch);
+          const text = oneTarget.textSync().split('\n');
+          if (!text.join('\n').match(myRegex)) continue;
+          // A fresh object per match: reusing one accumulator would return N aliases
+          // of the last match (same centre repeated).
+          const item = {name: myImageName, score: score, text: text,
+                        location: null, dimension: null, center: null, clicked: null};
+          [item.location, item.dimension, item.center] = fillRectangleInfo(oneMatch);
           flashOnMatch(oneTarget);
-          returnArray.push(returnItem);
+          found.push(item);
         }
-      }
+        return found;
+      };
+      do {
+        returnArray = collect();
+        if (returnArray.length > 0 || Date.now() >= deadline) break;
+        sleepMs(Math.min(200, Math.max(0, deadline - Date.now())));
+      } while (true);
     }
     if (returnArray.length == 0) {
       returnArray.push(notFoundStatus);
     } else if (myImageAction && myImageAction != 'none' && myImageAction != 'null') {
       for (let i=0; i<returnArray.length; i++) {
         const r = {x: returnArray[i].location.x, y: returnArray[i].location.y, w: returnArray[i].dimension.width, h: returnArray[i].dimension.height};
-        performAction(r, myImageAction);
-        returnArray[i].clicked = returnArray[i].center;
+        // clicked reports where a click was actually dispatched; a non-clicking
+        // action (hover) leaves it null, matching the OCR path.
+        if (performAction(r, myImageAction)) returnArray[i].clicked = returnArray[i].center;
       }
     }
   } catch(e) {
@@ -240,7 +256,7 @@ const findImageOcr = (ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCoun
         const needle = String(ocrPath).toLowerCase();
         const lines = region.textSync().split('\n');
         if (!lines.some((l) => String(l).toLowerCase().includes(needle))) {
-          Thread.sleep(50);
+          sleepMs(50);
           continue;
         }
         rect = {x: screenRegion.x, y: screenRegion.y, w: screenRegion.w, h: screenRegion.h};
@@ -269,7 +285,7 @@ const findImageOcr = (ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCoun
 
     results.push(result);
     if (results.length >= ocrMaxCount) break;
-    Thread.sleep(50);
+    sleepMs(50);
     } catch (e) {
       const msg = (e && typeof e.getMessageSync === 'function') ? e.getMessageSync() : (e && e.message ? e.message : String(e));
       console.log('findTargetImage ERROR:', msg);
