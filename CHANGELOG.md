@@ -187,7 +187,11 @@ What that meant in practice, all in this release:
   value it observed. Writing it found and fixed six real defects in the engine, and five in
   the suite's own narration.
 * **The image reports what it is.** `version=` is recorded in `/etc/autobdd-versions` and
-  printed by `autobdd --version`; the suite gates on it.
+  printed by `autobdd --version`, and CI resolves that value from `package.json` so the
+  build arg, the image tags and the suite's expectation cannot drift: the base suite checks
+  that `--version` agrees with the image's own stamp, and — when `EXPECTED_VERSION` is set —
+  that both equal the declared release. Unset (a local run) it checks consistency only, so
+  the same suite works for a `dev` build and for a release build.
 
 The framework image (`xyteam/autobdd-framework`, and the `xyteam/autobdd` alias) remains on
 the 3.0.0 line; it pins its base via `AUTOBDD_VERSION`, so re-baselining it onto 4.0.0 is a

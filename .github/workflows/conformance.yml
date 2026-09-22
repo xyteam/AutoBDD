@@ -18,7 +18,9 @@ on:
   workflow_dispatch:
 
 env:
-  AUTOBDD_VER: "dev"
+  # AUTOBDD_VER is resolved from package.json by the first step: it is the product version,
+  # the image tag, and (via --build-arg) the tag the framework image pins as its base. Using
+  # one value for all three is what lets the base suite gate the declared release.
   # NFR-S2 budgets, in GB of compressed pull size (see the sizes step for the metric).
   BASE_BUDGET_GB: "2.5"
   FRAMEWORK_BUDGET_GB: "3.5"
@@ -33,6 +35,16 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+
+      # package.json is the single source of truth for the product version. Everything below
+      # derives from it: the build arg, the image tags, and the expectation the base suite
+      # gates on -- so a version drift anywhere fails the build instead of shipping.
+      - name: Resolve version
+        run: |
+          set -euo pipefail
+          ver="$(node -p "require('./package.json').version")"
+          echo "AUTOBDD_VER=${ver}" >> "${GITHUB_ENV}"
+          echo "### building ${ver}" >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Build autobdd-base + autobdd-framework
         run: |
@@ -96,6 +108,8 @@ jobs:
       - name: autobdd-base-test (no browser)
         working-directory: test-projects/autobdd-base-test
         env:
+          AutoBDD_Ver: ${{ env.AUTOBDD_VER }}      # the tag this workflow built
+          EXPECTED_VERSION: ${{ env.AUTOBDD_VER }} # the release the image must report
           USER: runner
           HOSTOS: Linux
           USERID: "1001"
@@ -106,6 +120,7 @@ jobs:
       - name: autobdd-framework-test (e2e, baked image)
         working-directory: test-projects/autobdd-framework-test
         env:
+          AutoBDD_Ver: ${{ env.AUTOBDD_VER }}
           USER: runner
           HOSTOS: Linux
           USERID: "1001"

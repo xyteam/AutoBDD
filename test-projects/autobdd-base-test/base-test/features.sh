@@ -144,7 +144,17 @@ feat_provenance(){
   check_has "records node="          "$f" "node="
   check_has "records ubuntu_digest=" "$f" "ubuntu_digest=sha256:"
   check_has "records built="         "$f" "built="
-  check_has "records the product version" "$f" "version=4.0.0"
+  # The image records the version it was BUILT as, which is whatever AUTOBDD_VERSION the
+  # builder passed -- `dev` for a CI pull-request build, the release number otherwise. So
+  # assert consistency here, and gate on the declared version only when EXPECTED_VERSION
+  # says what that should be (the release job sets it from package.json).
+  local ver; ver="$(printf '%s' "$f" | sed -n 's/^version=//p')"
+  if [ -n "$ver" ] && [ "$ver" != "unknown" ]; then _ok "records the build version = $ver"; else _no "records the build version (got '$ver')"; fi
+  if [ -n "${EXPECTED_VERSION:-}" ]; then
+    check_eq "the build version is the declared release" "$ver" "$EXPECTED_VERSION"
+  else
+    printf '   \033[2m        EXPECTED_VERSION unset: consistency checked, no release gate\033[0m\n' >&2
+  fi
 }
 
 # ---------------------------------------------------------------------------
@@ -438,9 +448,15 @@ feat_version(){
   printf '   \033[2mrun:    %s --version   [rc=%s]\033[0m\n' "$TARGET_BIN" "$rc" >&2
   check_eq "exit status is 0" "$rc" "0"
   check_has "names the product" "$out" "AutoBDD base image"
-  # The release gate: this is the version the image was built as, recorded at build time.
-  check_has "reports the version" "$out" "version: 4.0.0"
   check_has "reports the image build stamp" "$out" "image  : built "
+  # --version and /etc/autobdd-versions must agree: one is the other, reported.
+  local printed stampver
+  printed="$(printf '%s' "$out"  | sed -n 's/^version: //p')"
+  stampver="$(sed -n 's/^version=//p' /etc/autobdd-versions 2>/dev/null)"
+  check_eq "--version agrees with the image's own stamp" "$printed" "$stampver"
+  if [ -n "${EXPECTED_VERSION:-}" ]; then
+    check_eq "--version is the declared release" "$printed" "$EXPECTED_VERSION"
+  fi
 }
 feat_list(){
   feature list
