@@ -16,11 +16,37 @@ consumers never import our code — they shell out.
 ## 1. Command
 
 ```
-findTargetImage [--<arg>=<value> ...]
+autobdd <verb> [--<arg>=<value> ...]      # the front door
+  autobdd find-target …                   # locate a target, optionally act on it
+  autobdd read-text                       # read the screen as text
+
+findTargetImage [--<arg>=<value> ...]     # DEPRECATED alias for `autobdd find-target`
 ```
 
+The front door is the interface; the verbs are verb-object so a call reads as an
+instruction. `read-text` is `find-target`'s whole-screen mode given its own name, so that
+reading the screen is not spelled as "find a target called Screen".
+
+**`findTargetImage` remains supported and behaviourally identical** — it is a deprecated
+alias that prints a one-line notice on **stderr** (never stdout, which is parsed as the
+payload) and then defers to the front door, so any future argument translation applies to
+it without a second implementation. Removal will be a future major.
+
 Writes one line to **stdout**: `target_result: <json>` (a JSON array). The caller parses
-from the first `[` to the last `]`.
+from the first `[` to the last `]`. The target is **required**: omitting it is a usage error
+(exit 2), not an implicit whole-screen scan — see §4b.
+
+## 1b. Entry points and PATH
+
+| Path | Role |
+|---|---|
+| `/usr/local/bin/autobdd` | the front door (the interface) |
+| `/usr/local/bin/findTargetImage` | deprecated alias, stderr notice only |
+| `/usr/local/libexec/autobdd/{find-target,read-text}` | verb-named entry points, **not on PATH** |
+| `/opt/autobdd/seam/src/findTargetImage.js` | the engine (one implementation) |
+
+Only the front door and the deprecated alias are on `PATH`, so a derived image cannot
+shadow the engine or collide with the verb names.
 
 ## 2. Arguments
 

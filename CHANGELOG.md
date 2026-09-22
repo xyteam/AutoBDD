@@ -29,6 +29,24 @@ the convention.
 - One uniform screenshot watermark on every step/final capture — a dark bottom band with
   the remark (green passed / red failed).
 
+**Base seam — front door.** The interface is now verb-object: `autobdd find-target …`
+locates a target (optionally acting on it) and `autobdd read-text` reads the screen, so
+"read the screen" is no longer spelled as "find a target called Screen". The engine moved
+out of `PATH` to `/opt/autobdd/seam/src/`; only the front door and the deprecated alias are
+on it, so a derived image cannot shadow or collide with them. `findTargetImage` is kept as a
+**deprecated alias** that prints its notice on **stderr only** — stdout is parsed as the
+payload — and defers to the front door, so argument translation added later applies to it
+without a second implementation.
+
+The target is now **required**: `autobdd find-target` with no target exits 2 and points at
+`read-text`. Previously the engine defaulted to `--imagePath=Screen`, so omitting the target
+silently ran a whole-screen scan (~3 s) and looked like a successful call, and it made
+`find-target` and `read-text` behaviourally identical. `docs/CONTRACT.md` §1 always said the
+target was required; this enforces it.
+
+Verified by running the whole conformance matrix through **both** surfaces — the alias and
+`/usr/local/libexec/autobdd/find-target`: **124 passed, 0 failed (43 features)** each time.
+
 **Base seam — discovery surface.** `--help`/`-h`, `--version` and `--list` are answered
 *before* the JVM and native engine start: measuring the old behaviour, `--help` returned
 exit 0 after a **3079 ms whole-screen OCR scan** and the binary carried **0** usage strings,

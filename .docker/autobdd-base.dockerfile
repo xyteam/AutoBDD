@@ -92,9 +92,15 @@ ARG OCULIX_VER
 RUN chmod +x scripts/fetch-oculix.sh && \
     OCULIX_VER="${OCULIX_VER}" ./scripts/fetch-oculix.sh
 
-# Ensure the seam script is executable and on PATH
-RUN chmod +x src/findTargetImage.js && \
-    ln -s /opt/autobdd/seam/src/findTargetImage.js /usr/local/bin/findTargetImage
+# Ensure the seam is executable and wire the front door. Only the dispatcher and the
+# deprecated alias are on PATH; the engine and the verb-named entry points live out of
+# PATH so a derived image cannot shadow or collide with them.
+RUN chmod +x src/findTargetImage.js bin/autobdd bin/findTargetImage && \
+    mkdir -p /usr/local/libexec/autobdd && \
+    ln -sf /opt/autobdd/seam/bin/autobdd          /usr/local/bin/autobdd && \
+    ln -sf /opt/autobdd/seam/bin/findTargetImage  /usr/local/bin/findTargetImage && \
+    ln -sf /opt/autobdd/seam/bin/autobdd          /usr/local/libexec/autobdd/find-target && \
+    ln -sf /opt/autobdd/seam/bin/autobdd          /usr/local/libexec/autobdd/read-text
 
 # Bake the Oculix native libraries (NFR-P3: exact, self-contained image).
 #   The JAR bundles the Linux x86-64 natives (OpenCV + Leptonica + Tesseract) under

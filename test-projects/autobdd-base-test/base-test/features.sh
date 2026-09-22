@@ -50,15 +50,24 @@ _pretty(){ local out="" a; for a in "$@"; do out+="$(printf '%q' "$a") "; done; 
 # seam invocation — prints the exact argv it runs, and the exit status
 # ---------------------------------------------------------------------------
 FIXTURE=""; TARGET_RC=0
+# The default entry point is the DEPRECATED ALIAS, so the whole matrix doubles as proof
+# that the alias is transparent. Set TARGET_BIN=/usr/local/libexec/autobdd/find-target to
+# run the same matrix through the front door (the CI dual-surface run).
 TARGET_BIN="${TARGET_BIN:-findTargetImage}"
-target(){
+FRONT_DOOR="${FRONT_DOOR:-/usr/local/bin/autobdd}"
+FRONT_VERB="${FRONT_VERB:-/usr/local/libexec/autobdd/find-target}"
+FRONT_READ="${FRONT_READ:-/usr/local/libexec/autobdd/read-text}"
+
+target_bin(){
+  local bin="$1"; shift
   if [ -z "${NOSHOW:-}" ] && [ -n "$FIXTURE" ]; then display -window root "$FIXTURE" >/dev/null 2>&1; sleep 0.5; fi
-  local OUT; OUT="$("$TARGET_BIN" "$@" 2>/dev/null)"; TARGET_RC=$?
-  # Log lines go to stderr: target() is called inside $( ), so stdout must carry the
-  # payload and nothing else.
-  printf '   \033[2mrun:    %s %s   [rc=%s]\033[0m\n' "$TARGET_BIN" "$(_pretty "$@")" "$TARGET_RC" >&2
+  local OUT; OUT="$("$bin" "$@" 2>/dev/null)"; TARGET_RC=$?
+  # Log lines go to stderr: this is called inside $( ), so stdout must carry the payload
+  # and nothing else.
+  printf '   \033[2mrun:    %s %s   [rc=%s]\033[0m\n' "$bin" "$(_pretty "$@")" "$TARGET_RC" >&2
   printf '%s' "$OUT" | sed -n 's/.*target_result: //p'
 }
+target(){ target_bin "$TARGET_BIN" "$@"; }
 
 # host-side command — printed, then run from the same string
 probe(){ local n="$1"; shift; printf '   \033[2mprobe:  %s\033[0m\n' "$(_pretty "$@")"; if "$@" >/dev/null 2>&1; then _ok "$n"; else _no "$n"; fi; }
@@ -445,6 +454,70 @@ feat_usage_error(){
   check_has "lists the accepted values" "$out" "click"
 }
 
+
+# ---------------------------------------------------------------------------
+# J. front door — the verb layer, and the deprecated alias
+# ---------------------------------------------------------------------------
+feat_front_door_help(){
+  feature front-door-help
+  local out rc
+  out="$("$FRONT_DOOR" --help 2>/dev/null)"; rc=$?
+  printf '   \033[2mrun:    %s --help   [rc=%s]\033[0m\n' "$FRONT_DOOR" "$rc" >&2
+  check_eq "exit status is 0" "$rc" "0"
+  check_has "lists the find-target verb" "$out" "find-target"
+  check_has "lists the read-text verb"   "$out" "read-text"
+  check_has "documents the exit statuses" "$out" "EXIT STATUS"
+}
+feat_front_door_read_text(){
+  feature front-door-read-text
+  fx_image
+  local JSON; JSON="$(target_bin "$FRONT_READ")"
+  check_eq "read-text reads the screen" "$(_jq "$JSON" '.[0].name')" "Screen"
+  check_has "and reports the on-screen words" "$(_jq "$JSON" '.[0].text|join(" ")')" "HELLO WORLD"
+  # find-target is the verb that NEEDS a target, so it must refuse an empty invocation —
+  # otherwise the two verbs would be behaviourally identical and a mistyped flag would
+  # silently cost a whole-screen scan.
+  local rc
+  "$FRONT_DOOR" find-target >/dev/null 2>"$WORK/notarget.err"; rc=$?
+  printf '   \033[2mrun:    %s find-target   (no target)   [rc=%s]\033[0m\n' "$FRONT_DOOR" "$rc" >&2
+  check_eq "find-target without a target is a usage error" "$rc" "2"
+  check_has "and points at read-text" "$(cat "$WORK/notarget.err")" "read-text"
+}
+feat_front_door_find_target(){
+  feature front-door-find-target
+  fx_image
+  local JSON; JSON="$(target_bin "$FRONT_DOOR" find-target --imagePath="$WORK/hello.png" --flash=0)"
+  check_eq "find-target matches a picture" "$(_jq "$JSON" '.[0].name')" "hello.png"
+  # A consumer branches on the exit status, so a successful match must exit 0. Seen once
+  # as 139 (SIGSEGV during native teardown) under a loaded host; not reproducible in 23
+  # clean runs since, so it is asserted here to keep it visible rather than silent.
+  check_eq "and exits 0 on success" "$TARGET_RC" "0"
+}
+feat_front_door_unknown_verb(){
+  feature front-door-unknown-verb
+  local out rc
+  out="$("$FRONT_DOOR" bogus-verb 2>&1 >/dev/null)"; rc=$?
+  printf '   \033[2mrun:    %s bogus-verb   [rc=%s]\033[0m\n' "$FRONT_DOOR" "$rc" >&2
+  check_eq "exit status is 2 (usage error)" "$rc" "2"
+  check_has "names the offending verb" "$out" "bogus-verb"
+}
+feat_alias_transparent(){
+  feature alias-transparent
+  fx_image
+  # Both surfaces must agree, and the deprecation notice must not touch stdout: every
+  # consumer parses stdout as `target_result: <json>`.
+  local legacy_stdout front_stdout payload
+  legacy_stdout="$(findTargetImage --imagePath="$WORK/hello.png" --flash=0 2>"$WORK/legacy.err")"
+  printf '   \033[2mrun:    findTargetImage --imagePath=%s --flash=0\033[0m\n' "$WORK/hello.png" >&2
+  payload="$(printf '%s' "$legacy_stdout" | sed -n 's/.*target_result: //p')"
+  check_eq "the alias still answers" "$(_jq "$payload" '.[0].name')" "hello.png"
+  check_has "the deprecation notice goes to stderr" "$(cat "$WORK/legacy.err")" "deprecated"
+  check_eq "stdout carries exactly one result line" "$(printf '%s' "$legacy_stdout" | grep -c 'target_result:')" "1"
+  check_eq "stdout carries no notice" "$(printf '%s' "$legacy_stdout" | grep -c 'deprecated')" "0"
+  front_stdout="$(target_bin "$FRONT_DOOR" find-target --imagePath="$WORK/hello.png" --flash=0)"
+  check_eq "the front door and the alias agree" "$(_jq "$front_stdout" '.[0].name')" "$(_jq "$payload" '.[0].name')"
+}
+
 # ---------------------------------------------------------------------------
 # catalogue: "<group>|<id>|<one imperative sentence>"
 # ---------------------------------------------------------------------------
@@ -457,6 +530,7 @@ GROUP_F="F — seam: opt-in OCR mode (extension)"
 GROUP_G="G — contract robustness"
 GROUP_H="H — non-functional"
 GROUP_I="I — discovery"
+GROUP_J="J — front door + deprecated alias"
 
 
 FEATURES=(
@@ -498,6 +572,11 @@ FEATURES=(
   "$GROUP_I|version|report what is running"
   "$GROUP_I|list|list the flows it supports"
   "$GROUP_I|usage-error|fail loudly on an unusable value instead of silently defaulting"
+  "$GROUP_J|front-door-help|explain the verbs at the front door"
+  "$GROUP_J|front-door-read-text|read the screen through the read-text verb"
+  "$GROUP_J|front-door-find-target|find a target through the find-target verb"
+  "$GROUP_J|front-door-unknown-verb|refuse an unknown verb with a usage error"
+  "$GROUP_J|alias-transparent|keep findTargetImage working while warning on stderr only"
 )
 
 run_feature(){

@@ -1,0 +1,77 @@
+#!/bin/sh
+# autobdd — the front door to the AutoBDD base image's screen engine.
+#
+# Verbs are verb-object, so a call reads as an instruction:
+#     autobdd find-target --imagePath=logo.png --imageAction=click
+#     autobdd read-text
+#
+# The engine itself lives OUT of PATH (/opt/autobdd/seam/src); only this dispatcher and
+# the deprecated alias are on PATH. This file is also installed as
+# /usr/local/libexec/autobdd/{find-target,read-text} so the front door can be exercised
+# under its own verb name without putting a second name on PATH (argv[0] dispatch,
+# busybox style).
+set -u
+
+ENGINE="${AUTBDD_ENGINE:-/opt/autobdd/seam/src/findTargetImage.js}"
+
+# argv[0] dispatch
+me="${0##*/}"
+case "$me" in
+  find-target|read-text) set -- "$me" "$@" ;;
+esac
+
+usage() {
+  cat <<'EOF'
+autobdd — see the screen: find a target (a picture, or text), optionally act on it.
+
+USAGE
+  autobdd <verb> [--<flag>=<value> ...]
+
+VERBS
+  find-target   locate a target, and optionally act on it
+  read-text     read the screen as text (no template needed)
+
+DISCOVERY
+  autobdd --help            this text
+  autobdd --list            the flags with their defaults, and the flows
+  autobdd --version         what is running
+  autobdd <verb> --help     the flags for one verb
+
+EXAMPLES
+  autobdd read-text
+  autobdd find-target --imagePath=logo.png
+  autobdd find-target --imagePath=logo.png --imageAction=click
+  autobdd find-target --imagePath=card.png --textHint=Total
+  autobdd find-target --ocrPath="Submit" --ocrDetail=word
+
+EXIT STATUS
+  0   a result was produced (including notFound — parse the JSON to branch)
+  2   usage error
+EOF
+}
+
+[ $# -ge 1 ] || { usage; exit 2; }
+
+case "$1" in
+  find-target)
+    shift
+    exec "$ENGINE" "$@"
+    ;;
+  read-text)
+    shift
+    # A screen read is the engine's whole-screen mode. An explicit --imagePath from the
+    # caller wins, because the engine parses the last occurrence of a repeated flag.
+    exec "$ENGINE" --imagePath=Screen "$@"
+    ;;
+  --help|-h|help) usage; exit 0 ;;
+  --version)      exec "$ENGINE" --version ;;
+  --list)         exec "$ENGINE" --list ;;
+  --*)
+    printf 'autobdd: no verb given (got the flag %s) — try: autobdd --help\n' "$1" >&2
+    exit 2
+    ;;
+  *)
+    printf 'autobdd: unknown verb %s — try: autobdd --help\n' "$1" >&2
+    exit 2
+    ;;
+esac

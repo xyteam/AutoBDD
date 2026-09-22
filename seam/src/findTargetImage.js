@@ -175,7 +175,7 @@ const sleepMs = (ms) => { if (ms > 0) Atomics.wait(_sleepBuf, 0, 0, ms); };
 // All args are used as plain JS values (we never build a shell command line here),
 // so they must NOT be shell-quoted. Numbers and enums are validated above, so a typo
 // fails loudly instead of silently behaving like its default.
-const imagePath = str(argv.imagePath, 'Screen');
+const imagePath = str(argv.imagePath, null);
 const imageSimilarity = num('--imageSimilarity', argv.imageSimilarity, parseFloat(process.env.imageSimilarity || 0.8));
 const maxSim = num('--maxSim', argv.maxSim, 1);
 const textHint = str(argv.textHint, '');
@@ -423,6 +423,13 @@ const findImageOcr = (ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCoun
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
+// The target is required (docs/CONTRACT.md §1). Omitting it used to default to a
+// whole-screen OCR scan, so a mistyped flag silently cost ~3 s and looked like a
+// successful call; and it made `find-target` indistinguishable from `read-text`.
+if (imagePath === null && ocrPath === null) {
+  die('no target given — pass --imagePath=<file|Screen> (or --ocrPath=<text>); to read the '
+    + 'screen use: autobdd read-text');
+}
 let target_result;
 if (ocrPath !== null) {
   target_result = findImageOcr(ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCount, ocrAction, ocrDetail, ocrPSM, ocrOEM);

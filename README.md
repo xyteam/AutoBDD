@@ -58,6 +58,32 @@ findTargetImage \
     --imageMaxCount=1
 ```
 
+### The front door
+
+```bash
+autobdd find-target --imagePath=logo.png --imageAction=click   # locate, then click
+autobdd read-text                                              # read the screen as text
+autobdd --help                                                 # verbs, flags, exit codes
+```
+
+`findTargetImage` still works and is behaviourally identical — it is a **deprecated alias**
+that prints one line to **stderr** and defers to the front door, so a v1 consumer keeps
+working unchanged. The engine lives at `/opt/autobdd/seam/src/`, out of `PATH`; only the
+front door and the alias are on it, so a derived image cannot shadow either.
+
+The target is **required**: `autobdd find-target` with no target exits `2` and points at
+`read-text`. (It used to default to a whole-screen scan, so a mistyped flag silently cost
+~3 s and looked like a successful call.)
+
+Run the conformance matrix through either surface — the suite defaults to the **alias**,
+which is why a green matrix is also proof that the alias is transparent:
+
+```bash
+AutoBDD_Ver=<v> make base-test                                    # via findTargetImage (alias)
+AutoBDD_Ver=<v> make docker-run jobs="base-test" \
+  …TARGET_BIN=/usr/local/libexec/autobdd/find-target              # via the front door
+```
+
 ### Discovery and exit status
 
 ```bash
@@ -180,7 +206,7 @@ an empty array – existing parsers that ignore this field see no change.
 ## Feature conformance — what the base image can do, and how to check each bit
 
 The base image's feature set is enumerated as a **catalogue** in
-`test-projects/autobdd-base-test/base-test/features.sh` (currently **38 features**).
+`test-projects/autobdd-base-test/base-test/features.sh` (currently **43 features**).
 The suite is organised per feature, and every feature prints the single command that
 reproduces it — so the output doubles as documentation.
 
@@ -222,7 +248,7 @@ AutoBDD_Ver=<v> make base-test          # ~3 min; ends with "ALL FEATURES OK"
    ✓ the flash pause is bounded = 903 ms (<= 2500)
 
 ════════════════════════════════════════════════════════════════════════════
-feature conformance: 107 passed, 0 failed
+feature conformance: 124 passed, 0 failed
 ALL FEATURES OK
 ════════════════════════════════════════════════════════════════════════════
 ```
@@ -261,6 +287,7 @@ Each feature is one line to reproduce inside the image: `base-test/one.sh <featu
 | **G — contract robustness** | `json-on-error` `additive-args` | an unusable display still yields JSON on stdout with exit 0, and unknown arguments are ignored (additive contract) |
 | **H — non‑functional** | `latency` | NFR‑T2: a warm image match stays inside its budget |
 | **I — discovery** | `help` `version` `list` `usage-error` | the tool explains itself *without* starting the engine (~40 ms, no screen scan), reports what is running, lists its flows, and fails loudly on an unusable value |
+| **J — front door** | `front-door-help` `front-door-read-text` `front-door-find-target` `front-door-unknown-verb` `alias-transparent` | the `autobdd <verb>` layer; `read-text` is its own verb; `find-target` without a target is a usage error; and the deprecated alias stays transparent (notice on stderr, stdout carries exactly one result line) |
 
 **Reading a run.** Each feature prints `▸ <feature> — <what it checks>`, the exact `cmd:`
 line, then one `✓`/`✗` per assertion. Failures are collected at the end grouped by
@@ -295,7 +322,7 @@ This repo ships two suites. Both run the **locally built** image only
 (`pull_policy: never` — build it, or pre‑pull the published tag):
 
 * **`test-projects/autobdd-base-test`** – the **no‑browser** feature‑conformance suite for
-  the **base** image (L0/L1 + the frozen CLI seam). 38 features, no Chrome required. See
+  the **base** image (L0/L1 + the frozen CLI seam). 43 features, no Chrome required. See
   **Feature conformance** above for the one‑liners and the catalogue:
 
   ```bash
