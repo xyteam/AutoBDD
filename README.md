@@ -1,18 +1,31 @@
 # AutoBDD
 
-**AutoBDD** — a BDD automation framework that drives the **screen** (image matching +
-OCR), not just the DOM. `package.json` `3.0.0`.
+**AutoBDD 4.0.0 — the base line.** A **docker-runnable GUI** (X display + window manager +
+VNC) with a screen engine inside, exposed as one CLI so that **higher-level tools drive it**:
+your framework, your own scripts, or an agent. It finds things on screen — a picture, or
+text — and can act on them. `package.json` `4.0.0`.
+
+The job of this release is deliberately narrow: be the **substrate**. It does not ship a
+browser, a test runner or a BDD layer. Everything above that plugs in through the
+`autobdd` interface described in [`docs/CONTRACT.md`](docs/CONTRACT.md).
+
+> **3.0.0 is unchanged and stays published.** That tag, release and image
+> (`xyteam/autobdd-framework:3.0.0`, plus the `xyteam/autobdd` alias) remain exactly as
+> shipped — the last release of the **framework** line, which bundled the base with Chrome,
+> WebdriverIO and Cucumber. 4.0.0 is a new line cut from it, focused on the base.
 
 ## What this repository is (and isn't)
 
-This repo is the **framework source and the build source of the AutoBDD docker
-images**. You do **not** need to clone it to use AutoBDD.
+This repo is the **build source of the AutoBDD docker images**. You do **not** need to
+clone it to use them.
 
 * The images are built here and **published to Docker Hub**:
-  **`xyteam/autobdd-base`** and **`xyteam/autobdd-framework`**. **`xyteam/autobdd`**
-  is kept as a **deprecated alias** of `autobdd-framework` (same image, two tags),
-  so existing consumers keep working.
-* The image is **Ubuntu 24.04** based.
+  **`xyteam/autobdd-base`** — the 4.0.0 line, and what this release is about —
+  and **`xyteam/autobdd-framework`**, the 3.0.0 line (base + browser + BDD). The
+  framework image still builds from this repo and pins its base with
+  `AUTOBDD_VERSION`; re-baselining it onto the 4.0.0 base is future work.
+  **`xyteam/autobdd`** is a **deprecated alias** of `autobdd-framework`.
+* The images are **Ubuntu 24.04** based.
 * **Test repositories pull and run the image directly** — e.g.
   [AutoBDD-example](https://github.com/xyteam/AutoBDD-example) runs its suite
   against `xyteam/autobdd:<version>` with no framework clone required.
@@ -22,7 +35,7 @@ images**. You do **not** need to clone it to use AutoBDD.
 # a test repo selects the published image via AutoBDD_Ver and runs its own compose;
 # no AutoBDD framework clone is required
 cd ~/Projects/AutoBDD-example
-AutoBDD_Ver=3.0.0 ABDD_PROJECT=AutoBDD-example \
+AutoBDD_Ver=3.0.0 ABDD_PROJECT=AutoBDD-example \   # 3.0.0 = the framework line
   USER=$(whoami) PASSWORD=ubuntu HOSTOS=Linux USERID=$(id -u) GROUPID=$(id -g) \
   docker compose run --rm autobdd-example-run "make e2e-test"
 # (see the test repo's docker-compose.yml / README for its exact run service)
@@ -148,7 +161,8 @@ translated and warns on **stderr only**, so a v1 consumer keeps working untouche
 |---------|--------|-------------|------|---------|
 | **v2.3.0** | 96 | 7 | 12 | original pinned runtime (Node 12.22.7 + Chrome 96) |
 | **v2.4.0** | modern (latest stable, e.g. 153) | 7 | 14 | re‑activated v2.3.0 line; builds against current Chrome; matching browser driver baked into the image |
-| **v3.0.0** | modern (latest stable, e.g. 153) | 9 | 20 | runtime re‑baseline: Node 20 + Java 17 + WebdriverIO 9 + Oculix 4.0.0 (image matching/OCR) |
+| **v3.0.0** | modern (latest stable, e.g. 153) | 9 | 20 | runtime re‑baseline: Node 20 + Java 17 + WebdriverIO 9 + Oculix 4.0.0 (image matching/OCR) — **last framework‑line release; frozen** |
+| **v4.0.0** | — | — | 24 | **base line**: Ubuntu 24.04 + Java 17 + Node 24 + Oculix 4.0.0, the `autobdd` front door with a verb vocabulary, self‑contained Oculix natives, and a 44‑feature conformance suite. No browser, no runner — a GUI you drive from higher‑level tools. |
 
 > From the next release the product is published as two tags — **`xyteam/autobdd-base`**
 > (screen‑only) and **`xyteam/autobdd-framework`** (the full product), with

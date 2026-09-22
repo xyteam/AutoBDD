@@ -72,6 +72,10 @@ RUN apt-get update -y && \
 # ---------------------------------------------------------------------------
 # Exact + checksum-verified (NFR-P3/P5): the official tarball, not a floating apt repo.
 # Node 20 reached EOL 2026-04-30; 24 is the active LTS (EOL 2028-04-30).
+# The product version this image is built as. It is recorded in /etc/autobdd-versions and
+# reported by `autobdd --version`; the framework image selects its base with the same arg
+# (FROM xyteam/autobdd-base:${AUTOBDD_VERSION}).
+ARG AUTOBDD_VERSION=4.0.0
 ARG NODE_VERSION=24.21.0
 ARG NODE_SHA256=fd8e59d5a511510f6a298afb548f18c7d2b1be404d8b4a27d94fbe49f56cb2d6
 RUN curl -fsSL -o /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" && \
@@ -128,12 +132,13 @@ EXPOSE 22
 # Record the resolved versions this base was built with (NFR-P4). The framework appends
 # its own (Chrome/chromedriver) lines to the same file.
 RUN { echo "# autobdd-base"; \
+      echo "version=${AUTOBDD_VERSION}"; \
       echo "os=$(. /etc/os-release; echo $PRETTY_NAME)"; \
       echo "ubuntu_digest=sha256:224a1869083a311ef3f13648a154ba79832fbef6364d31493642ca03082da254"; \
       echo "java=$(java -version 2>&1 | head -1)"; \
       echo "node=$(node -v)"; \
       echo "python=$(python3 --version 2>&1)"; \
-      echo "oculix=$(ls /opt/autobdd/third_party/xysikulixapi/lib 2>/dev/null | grep -E '\.jar$' | head -1)"; \
+      echo "oculix=$(ls /opt/autobdd/seam/lib 2>/dev/null | grep -E '\.jar$' | head -1)"; \
       for p in openjdk-17-jdk xvfb openbox x11vnc arc-theme lxde imagemagick ffmpeg \
                xdotool wmctrl xdg-utils python3 python3-pip supervisor tini \
                fonts-wqy-microhei fonts-wqy-zenhei; do \

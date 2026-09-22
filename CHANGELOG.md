@@ -159,6 +159,40 @@ in `findTargetImage`, all fixed here:
 
 The v1 release cuts when Phase B is green and publishes the two tags.
 
+## v4.0.0
+
+**A re-scope, not a re-baseline: the base becomes the product.** `v3.0.0` is untouched —
+tag, release and image stay exactly as shipped, as the last release of the framework line.
+`v4.0.0` is cut from it and narrows the product to the **substrate**: a docker-runnable GUI
+(Xvfb + openbox + x11vnc) with the Oculix screen engine behind one CLI, so that higher-level
+tools — a framework, a script, an agent — drive it. No browser, no test runner, no BDD layer.
+
+What that meant in practice, all in this release:
+
+* **One interface.** `autobdd <verb>` replaced the bare `findTargetImage` binary:
+  `autobdd find-target` locates a target (a picture, or text) and optionally acts on it;
+  `autobdd read-text` reads the screen. The v1 name remains a deprecated alias.
+* **A vocabulary that reads as an instruction.** `--match-image` / `--match-text` name the
+  target; `--min-score`, `--max-score`, `--wait=5s`, `--limit`, `--box`, `--psm`, `--oem`
+  state everything once for both modalities; actions are composable flags (`--hover --click`).
+  Every v1 flag is translated, with a stderr-only warning.
+* **Discoverability.** `--help`/`--list`/`--version` answer in ~40 ms **without starting the
+  engine** (measuring the old behaviour: 3079 ms and a whole-screen scan, with zero usage
+  strings in the binary); unusable values exit 2 instead of silently defaulting.
+* **A self-contained image.** The Oculix natives bundled in the engine JAR are extracted at
+  build time into `/opt/oculix-natives` and registered with `ldconfig`: no runtime
+  extraction, no writable `/tmp` or `/root` needed.
+* **A conformance suite that is also the spec.** 44 features / 131 checks, each independently
+  reproducible (`base-test/one.sh <feature>`), each printing the exact command it ran and the
+  value it observed. Writing it found and fixed six real defects in the engine, and five in
+  the suite's own narration.
+* **The image reports what it is.** `version=` is recorded in `/etc/autobdd-versions` and
+  printed by `autobdd --version`; the suite gates on it.
+
+The framework image (`xyteam/autobdd-framework`, and the `xyteam/autobdd` alias) remains on
+the 3.0.0 line; it pins its base via `AUTOBDD_VERSION`, so re-baselining it onto 4.0.0 is a
+later, separate change that must pass the framework e2e suite.
+
 ## v3.0.0
 
 The runtime re-baseline — the continuation of v2.4.0.

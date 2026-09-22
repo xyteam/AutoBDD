@@ -144,6 +144,7 @@ feat_provenance(){
   check_has "records node="          "$f" "node="
   check_has "records ubuntu_digest=" "$f" "ubuntu_digest=sha256:"
   check_has "records built="         "$f" "built="
+  check_has "records the product version" "$f" "version=4.0.0"
 }
 
 # ---------------------------------------------------------------------------
@@ -416,8 +417,8 @@ now_ms(){ echo $(( $(date +%s%N) / 1000000 )); }
 feat_help(){
   feature help
   local t0 t1 out rc ms
-  t0=$(now_ms); out="$(findTargetImage --help 2>/dev/null)"; rc=$?; t1=$(now_ms); ms=$(( t1 - t0 ))
-  printf '   \033[2mrun:    findTargetImage --help   [rc=%s, %s ms]\033[0m\n' "$rc" "$ms" >&2
+  t0=$(now_ms); out="$("$TARGET_BIN" --help 2>/dev/null)"; rc=$?; t1=$(now_ms); ms=$(( t1 - t0 ))
+  printf '   \033[2mrun:    %s --help   [rc=%s, %s ms]\033[0m\n' "$TARGET_BIN" "$rc" "$ms" >&2
   check_eq "exit status is 0" "$rc" "0"
   check_has "prints the flows" "$out" "FLOWS"
   check_has "prints the canonical flags" "$out" "--match-image"
@@ -433,17 +434,19 @@ feat_help(){
 feat_version(){
   feature version
   local out rc
-  out="$(findTargetImage --version 2>/dev/null)"; rc=$?
-  printf '   \033[2mrun:    findTargetImage --version   [rc=%s]\033[0m\n' "$rc" >&2
+  out="$("$TARGET_BIN" --version 2>/dev/null)"; rc=$?
+  printf '   \033[2mrun:    %s --version   [rc=%s]\033[0m\n' "$TARGET_BIN" "$rc" >&2
   check_eq "exit status is 0" "$rc" "0"
-  check_has "names the seam" "$out" "AutoBDD base seam"
+  check_has "names the product" "$out" "AutoBDD base image"
+  # The release gate: this is the version the image was built as, recorded at build time.
+  check_has "reports the version" "$out" "version: 4.0.0"
   check_has "reports the image build stamp" "$out" "image  : built "
 }
 feat_list(){
   feature list
   local out rc
-  out="$(findTargetImage --list 2>/dev/null)"; rc=$?
-  printf '   \033[2mrun:    findTargetImage --list   [rc=%s]\033[0m\n' "$rc" >&2
+  out="$("$TARGET_BIN" --list 2>/dev/null)"; rc=$?
+  printf '   \033[2mrun:    %s --list   [rc=%s]\033[0m\n' "$TARGET_BIN" "$rc" >&2
   check_eq "exit status is 0" "$rc" "0"
   check_has "lists the screen read as its own verb" "$out" "read-text"
   check_has "lists the picture flow" "$out" "--match-image=logo.png"
@@ -454,8 +457,8 @@ feat_usage_error(){
   local out rc
   # An unusable value must fail loudly: silently behaving like the default would look
   # like a working call to an agent.
-  out="$(findTargetImage --min-score=abc 2>&1 >/dev/null)"; rc=$?
-  printf '   \033[2mrun:    findTargetImage --min-score=abc   [rc=%s]\033[0m\n' "$rc" >&2
+  out="$("$TARGET_BIN" --min-score=abc 2>&1 >/dev/null)"; rc=$?
+  printf '   \033[2mrun:    %s --min-score=abc   [rc=%s]\033[0m\n' "$TARGET_BIN" "$rc" >&2
   check_eq "exit status is 2 (usage error)" "$rc" "2"
   check_has "names the offending flag" "$out" "--min-score"
   check_has "says what it expected" "$out" "expects a number"
