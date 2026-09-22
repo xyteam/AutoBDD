@@ -1,18 +1,27 @@
 #!/bin/bash
 # features.sh — the base-image feature catalogue.
 #
-# Sourced by run.sh (runs every feature) and one.sh (runs one feature). Keeping the
-# catalogue in one place means the full suite and the single-feature repro can never
-# drift apart: `base-test/one.sh <id>` executes exactly the checks the suite runs for
-# that id.
+# Sourced by run.sh (runs every feature) and one.sh (runs one feature), so the full
+# suite and the single-feature repro can never drift apart.
 #
-# Conventions
-#   * every feature prints its own header + the one command that reproduces it
-#   * every asserted behaviour is listed in the FEATURES table at the bottom
-#   * a feature renders whatever fixture it needs, so features are order-independent
-#   * `--flash=0` is used except where the flash itself is the subject: the flash is a
-#     pure visual pause, and paying ~1 s for it on every one of ~30 features would
-#     triple the suite's runtime for no extra coverage.
+# Logging contract (this is the point of the file):
+#   * every seam invocation goes through target(), which PRINTS THE EXACT ARGV IT RUNS,
+#     plus the exit status. A check can therefore never narrate a command it did not run,
+#     and a multi-invocation feature prints every invocation instead of one aspiration.
+#   * host-side commands go through probe(), which likewise prints then runs the same
+#     string, so every printed line is literally runnable.
+#   * passing checks print the OBSERVED value, so a green run is evidence, not a checklist.
+#   * every feature's description is one imperative sentence (the intent); the run lines
+#     are the literal evidence. The catalogue table at the bottom is the single source of
+#     both the description and the ordering.
+#   * a fixture is re-shown before each invocation, so features are order-independent
+#     rather than depending on the root window surviving from a previous feature.
+#
+# Units: durations are printed with their unit in the legacy flags' own units
+# (--imageWaitTime seconds, --ocrWaitTime milliseconds) because that is what runs. When
+# the `autobdd find-target --match-*` vocabulary lands (PR 3), these same lines become
+# `autobdd find-target --match-image … --wait 5s` for free — because the printed string
+# and the executed argv are the same string.
 
 # ---------------------------------------------------------------------------
 # result plumbing
@@ -21,360 +30,373 @@ PASS=0; FAIL=0; FAILED=()
 _ok(){ PASS=$((PASS+1)); printf '   \033[32m✓\033[0m %s\n' "$1"; }
 _no(){ FAIL=$((FAIL+1)); FAILED+=("$FEAT_ID: $1"); printf '   \033[31m✗\033[0m %s\n' "$1"; }
 group(){ printf '\n\033[1m\033[44m  %s  \033[0m\n' "$1"; }
-feature(){ FEAT_ID="$1"; FEAT_DESC="$2"; printf '\n\033[1m▸ %s\033[0m — %s\n' "$1" "$2"; printf '   \033[2m%*srepro: base-test/one.sh %s\033[0m\n' 0 '' "$1"; }
-cmd(){ printf '   \033[2mcmd:   findTargetImage %s\033[0m\n' "$*"; }
+feature(){
+  FEAT_ID="$1"
+  FEAT_DESC="$(printf '%s\n' "${FEATURES[@]}" | awk -F'|' -v id="$1" '$2==id {print $3}')"
+  printf '\n\033[1m▸ %s\033[0m — %s\n' "$1" "$FEAT_DESC"
+  printf '   \033[2m%*srepro: base-test/one.sh %s\033[0m\n' 0 '' "$1"
+}
 
-check(){ local n="$1"; shift; if "$@" >/dev/null 2>&1; then _ok "$n"; else _no "$n"; fi; }
-check_eq(){ local n="$1" a="$2" b="$3"; [ "$a" = "$b" ] && _ok "$n" || _no "$n (got '$a', want '$b')"; }
-check_has(){ local n="$1" hay="$2" needle="$3"; [[ "$hay" == *"$needle"* ]] && _ok "$n" || _no "$n (missing '$needle' in: $hay)"; }
-check_ge(){ local n="$1" a="$2" b="$3"; [ "${a:-0}" -ge "$b" ] 2>/dev/null && _ok "$n" || _no "$n (got '$a', want >= $b)"; }
+check_eq(){ local n="$1" a="$2" b="$3"; if [ "$a" = "$b" ]; then _ok "$n = $a"; else _no "$n (got '$a', want '$b')"; fi; }
+check_has(){ local n="$1" hay="$2" needle="$3"; if [[ "$hay" == *"$needle"* ]]; then _ok "$n (contains '$needle')"; else _no "$n (missing '$needle' in: ${hay:0:90})"; fi; }
+check_ge(){ local n="$1" a="$2" b="$3"; if [ "${a:-0}" -ge "$b" ] 2>/dev/null; then _ok "$n = $a (>= $b)"; else _no "$n (got '$a', want >= $b)"; fi; }
 
-# seam <args...> -> the JSON payload from the target_result line.
-# The Oculix/JVM side writes its own startup logging to the same stdout fd, and can
-# emit a partial line before ours, so the marker is matched anywhere on the line
-# rather than anchored at the start.
-seam(){ findTargetImage "$@" 2>/dev/null | sed -n 's/.*target_result: //p'; }
-jq1(){ printf '%s' "$1" | jq -r "$2" 2>/dev/null; }
+_jq(){ printf '%s' "$1" | jq -r "$2" 2>/dev/null; }
 
-# pointer -> "X,Y" of the OS mouse pointer (proves an action reached the X server).
-pointer(){ xdotool getmouselocation --shell 2>/dev/null | sed -n 's/^X=//p;s/^Y=//p' | paste -sd, -; }
-now_ms(){ echo $(( $(date +%s%N) / 1000000 )); }
+# quote each argv element so the printed line is copy-pasteable
+_pretty(){ local out="" a; for a in "$@"; do out+="$(printf '%q' "$a") "; done; printf '%s' "${out% }"; }
 
 # ---------------------------------------------------------------------------
-# X display lifecycle (features that need pixels call x_start themselves via the driver)
+# seam invocation — prints the exact argv it runs, and the exit status
 # ---------------------------------------------------------------------------
-X_PIDS=()
+FIXTURE=""; TARGET_RC=0
+TARGET_BIN="${TARGET_BIN:-findTargetImage}"
+target(){
+  if [ -z "${NOSHOW:-}" ] && [ -n "$FIXTURE" ]; then display -window root "$FIXTURE" >/dev/null 2>&1; sleep 0.5; fi
+  local OUT; OUT="$("$TARGET_BIN" "$@" 2>/dev/null)"; TARGET_RC=$?
+  # Log lines go to stderr: target() is called inside $( ), so stdout must carry the
+  # payload and nothing else.
+  printf '   \033[2mrun:    %s %s   [rc=%s]\033[0m\n' "$TARGET_BIN" "$(_pretty "$@")" "$TARGET_RC" >&2
+  printf '%s' "$OUT" | sed -n 's/.*target_result: //p'
+}
+
+# host-side command — printed, then run from the same string
+probe(){ local n="$1"; shift; printf '   \033[2mprobe:  %s\033[0m\n' "$(_pretty "$@")"; if "$@" >/dev/null 2>&1; then _ok "$n"; else _no "$n"; fi; }
+
+# ---------------------------------------------------------------------------
+# X display lifecycle
+# ---------------------------------------------------------------------------
+X_PIDS=(); OPENBOX_PID=""
 x_start(){
   RES="${RESOLUTION:-1920x1200x24}"
   W="${RES%%x*}"; H="$(echo "$RES" | cut -dx -f2)"
   Xvfb "$DISPLAY" -screen 0 "$RES" >/dev/null 2>&1 & X_PIDS+=($!)
   for _ in $(seq 1 20); do xdpyinfo -display "$DISPLAY" >/dev/null 2>&1 && break; sleep 0.3; done
-  openbox >/dev/null 2>&1 & X_PIDS+=($!)
+  openbox >/dev/null 2>&1 & OPENBOX_PID=$!; X_PIDS+=($OPENBOX_PID)
   sleep 1
 }
 x_stop(){ for p in "${X_PIDS[@]:-}"; do kill "$p" 2>/dev/null; done; }
 
 # ---------------------------------------------------------------------------
-# fixtures — each renders into $WORK and (except the tile inputs) shows on the root
+# fixtures — build the PNG, then put it on the root window
 # ---------------------------------------------------------------------------
-fx_blank(){ display -window root -size "${W:-1920}x${H:-1200}" xc:white >/dev/null 2>&1 & sleep 1; }
 fx_image(){ convert -size 600x200 xc:white -pointsize 60 -fill black -gravity center -annotate +0+0 "HELLO WORLD" "$WORK/hello.png"
-            display -window root "$WORK/hello.png" >/dev/null 2>&1 & sleep 2; }
+            FIXTURE="$WORK/hello.png"; display -window root "$FIXTURE" >/dev/null 2>&1 & sleep 2; }
 fx_image_blurred(){ convert "$WORK/hello.png" -blur 0x3 "$WORK/hello_blur.png"; }
 fx_ocr(){ convert -size 600x200 xc:white -pointsize 60 -fill black -gravity center -annotate +0+0 "AUTOTEST OCR" "$WORK/ocr.png"
-          display -window root "$WORK/ocr.png" >/dev/null 2>&1 & sleep 2; }
-fx_tile(){ convert -size 220x110 xc:white -pointsize 48 -fill black -gravity center -annotate +0+0 "BLK" -bordercolor black -border 4 "$WORK/tile.png"; }
-fx_two_tiles(){ fx_tile
+          FIXTURE="$WORK/ocr.png"; display -window root "$FIXTURE" >/dev/null 2>&1 & sleep 2; }
+fx_blank(){ FIXTURE=""; display -window root -size "${W:-1920}x${H:-1200}" xc:white >/dev/null 2>&1 & sleep 1; }
+fx_two_tiles(){
+  convert -size 220x110 xc:white -pointsize 48 -fill black -gravity center -annotate +0+0 "BLK" -bordercolor black -border 4 "$WORK/tile.png"
   # Full-resolution canvas: the root window tiles its background, so a smaller canvas
   # would repeat and change the number of matches.
   convert -size "${W:-1920}x${H:-1200}" xc:white \
           \( "$WORK/tile.png" \) -geometry +120+120 -composite \
           \( "$WORK/tile.png" \) -geometry +900+120 -composite "$WORK/two.png"
-  display -window root "$WORK/two.png" >/dev/null 2>&1 & sleep 2; }
+  FIXTURE="$WORK/two.png"; display -window root "$FIXTURE" >/dev/null 2>&1 & sleep 2
+}
 
 # ---------------------------------------------------------------------------
 # A. runtime substrate
 # ---------------------------------------------------------------------------
 feat_tools(){
-  feature tools "L0 essentials are present in the image"
-  for t in Xvfb openbox x11vnc sshd java node python3 convert import ffmpeg aosd_cat xdotool wmctrl jq findTargetImage; do
-    check "present: $t" command -v "$t"
+  feature tools
+  local t; for t in Xvfb openbox x11vnc sshd java node python3 convert import ffmpeg aosd_cat xdotool wmctrl jq findTargetImage; do
+    probe "present: $t" command -v "$t"
   done
 }
 feat_java17(){
-  feature java17 "Java is the pinned 17 series (Oculix floor)"
-  check_has "java is the 17 series" "$(java -version 2>&1 | head -1)" '"17'
+  feature java17
+  probe "java is the 17 series" bash -c 'java -version 2>&1 | head -1 | grep -q "\"17"'
 }
 feat_natives(){
-  feature natives "Oculix native libs are baked and visible to the loader"
-  cmd "(--imagePath=Screen)   # any successful call proves the natives loaded"
-  check_ge "natives baked (>=3 shared objects)" "$(ls /opt/oculix-natives 2>/dev/null | wc -l)" 3
-  check_has "natives registered with ldconfig" "$(ldconfig -p 2>/dev/null | grep -o '/opt/oculix-natives' | head -1)" "/opt/oculix-natives"
-  check_eq "seam loads natives (screen mode answers)" "$(jq1 "$(seam --imagePath=Screen --flash=0)" '.[0].name')" "Screen"
+  feature natives
+  probe "at least 3 shared objects baked in /opt/oculix-natives" bash -c 'test "$(ls /opt/oculix-natives 2>/dev/null | wc -l)" -ge 3'
+  probe "the loader has /opt/oculix-natives on its path" bash -c 'ldconfig -p 2>/dev/null | grep -q /opt/oculix-natives'
+  local JSON; JSON="$(target --imagePath=Screen --flash=0)"
+  check_eq "the engine loads those natives (screen read answers)" "$(_jq "$JSON" '.[0].name')" "Screen"
 }
 feat_screen_only(){
-  feature screen-only "image is screen-only: no browser / no webdriver runner"
-  check "no wdio in the base" bash -c '! ls /root/Projects/AutoBDD/node_modules/@wdio >/dev/null 2>&1'
-  check "no chrome/chromedriver in the base" bash -c '! command -v google-chrome >/dev/null 2>&1 && ! command -v chromedriver >/dev/null 2>&1'
+  feature screen-only
+  probe "no wdio in the base" bash -c '! ls /root/Projects/AutoBDD/node_modules/@wdio >/dev/null 2>&1'
+  probe "no chrome in the base" bash -c '! command -v google-chrome >/dev/null 2>&1'
+  probe "no chromedriver in the base" bash -c '! command -v chromedriver >/dev/null 2>&1'
 }
 feat_provenance(){
-  feature provenance "/etc/autobdd-versions records what the image was built from"
-  check "file present" test -s /etc/autobdd-versions
-  check_has "records os + java + node" "$(cat /etc/autobdd-versions)" "built="
-  check_has "records the pinned base digest" "$(cat /etc/autobdd-versions)" "ubuntu_digest=sha256:"
+  feature provenance
+  probe "/etc/autobdd-versions exists and is non-empty" test -s /etc/autobdd-versions
+  local f; f="$(cat /etc/autobdd-versions 2>/dev/null)"
+  check_has "records os="            "$f" "os="
+  check_has "records java="          "$f" "java="
+  check_has "records node="          "$f" "node="
+  check_has "records ubuntu_digest=" "$f" "ubuntu_digest=sha256:"
+  check_has "records built="         "$f" "built="
 }
 
 # ---------------------------------------------------------------------------
 # B. display + desktop substrate
 # ---------------------------------------------------------------------------
 feat_display(){
-  feature display "Xvfb serves DISPLAY at the requested geometry"
-  check "Xvfb serving $DISPLAY" xdpyinfo -display "$DISPLAY"
-  check_eq "display geometry ${W}x${H}" "$(xdotool getdisplaygeometry 2>/dev/null | tr ' ' 'x')" "${W}x${H}"
+  feature display
+  probe "Xvfb serving $DISPLAY" xdpyinfo -display "$DISPLAY"
+  check_eq "display geometry" "$(xdotool getdisplaygeometry 2>/dev/null | tr ' ' 'x')" "${W}x${H}"
 }
 feat_wm(){
-  feature wm "window manager (openbox) is running"
-  check "openbox process alive" bash -c "pgrep -x openbox >/dev/null || pgrep -f 'openbox' >/dev/null"
+  feature wm
+  probe "the openbox we started is still alive" test -d "/proc/$OPENBOX_PID"
+  probe "openbox is running under its own process name" bash -c "pgrep -x openbox >/dev/null"
 }
 feat_vnc(){
-  feature vnc "x11vnc exposes the desktop on :5900"
-  x11vnc -display "$DISPLAY" -nopw -forever -shared -bg -rfbport 5900 -o "$WORK/x11vnc.log" >/dev/null 2>&1
+  feature vnc
+  probe "start x11vnc on :5900" bash -c "x11vnc -display $DISPLAY -nopw -forever -shared -bg -rfbport 5900 -o $WORK/x11vnc.log"
   VNC_PID="$(pgrep -f 'x11vnc .*rfbport 5900' | head -1)"
-  check "x11vnc process running" test -n "$VNC_PID"
+  probe "x11vnc process running" test -n "$VNC_PID"
   sleep 2
-  check "listening on :5900" bash -c "netstat -ltn 2>/dev/null | grep -q ':5900 '"
+  probe "listening on :5900" bash -c "netstat -ltn 2>/dev/null | grep -q ':5900 '"
 }
 feat_pointer(){
-  feature pointer "mouse/keyboard substrate is live (xdotool drives the X pointer)"
-  cmd "(xdotool mousemove 500 400)"
-  xdotool mousemove 500 400; sleep 0.3
-  check_eq "pointer moved to X=500" "$(xdotool getmouselocation --shell | sed -n 's/^X=//p')" "500"
-  check_eq "pointer moved to Y=400" "$(xdotool getmouselocation --shell | sed -n 's/^Y=//p')" "400"
+  feature pointer
+  probe "move the pointer to 500,400" xdotool mousemove 500 400
+  sleep 0.3
+  check_eq "pointer X" "$(xdotool getmouselocation --shell | sed -n 's/^X=//p')" "500"
+  check_eq "pointer Y" "$(xdotool getmouselocation --shell | sed -n 's/^Y=//p')" "400"
 }
 
 # ---------------------------------------------------------------------------
 # C. seam: whole-screen OCR mode
 # ---------------------------------------------------------------------------
 feat_screen_mode(){
-  feature screen-mode "--imagePath=Screen OCRs the whole screen (no template)"
+  feature screen-mode
   fx_image
-  cmd "--imagePath=Screen --flash=0"
-  local JSON; JSON="$(seam --imagePath=Screen --flash=0)"
-  check_eq "name is Screen"            "$(jq1 "$JSON" '.[0].name')"                "Screen"
-  check_eq "score is null (no template)" "$(jq1 "$JSON" '.[0].score')"             "null"
-  check_eq "center is a point"         "$(jq1 "$JSON" '.[0].center.x|type')"       "number"
-  check_has "text carries the on-screen words" "$(jq1 "$JSON" '.[0].text|join(" ")')" "HELLO WORLD"
+  local JSON; JSON="$(target --imagePath=Screen --flash=0)"
+  check_eq "name is Screen"                "$(_jq "$JSON" '.[0].name')"          "Screen"
+  check_eq "score is null (no template)"   "$(_jq "$JSON" '.[0].score')"         "null"
+  check_eq "center is a point"             "$(_jq "$JSON" '.[0].center.x|type')" "number"
+  check_has "text carries the on-screen words" "$(_jq "$JSON" '.[0].text|join(" ")')" "HELLO WORLD"
 }
 
 # ---------------------------------------------------------------------------
 # D. seam: image matching
 # ---------------------------------------------------------------------------
 feat_image_match(){
-  feature image-match "template match returns every contract field"
+  feature image-match
   fx_image
-  cmd "--imagePath=\$WORK/hello.png --flash=0"
-  local JSON; JSON="$(seam --imagePath="$WORK/hello.png" --flash=0)"
-  check_eq "name is the template file name" "$(jq1 "$JSON" '.[0].name')" "hello.png"
-  check_eq "score >= 0.99 for an exact on-screen copy" "$(jq1 "$JSON" '.[0].score >= 0.99')" "true"
-  check_eq "region OCR text is HELLO WORLD" "$(jq1 "$JSON" '.[0].text[0]')" "HELLO WORLD"
-  check_eq "location is {x,y}"   "$(jq1 "$JSON" '.[0].location  | has("x") and has("y")')" "true"
-  check_eq "dimension is {w,h}"  "$(jq1 "$JSON" '.[0].dimension | has("width") and has("height")')" "true"
-  check_eq "center is a point"   "$(jq1 "$JSON" '.[0].center.x|type')" "number"
-  check_eq "clicked is null with no action" "$(jq1 "$JSON" '.[0].clicked')" "null"
+  local JSON; JSON="$(target --imagePath="$WORK/hello.png" --flash=0)"
+  check_eq "name is the template file name"       "$(_jq "$JSON" '.[0].name')" "hello.png"
+  check_eq "score >= 0.99 for an exact copy"      "$(_jq "$JSON" '.[0].score >= 0.99')" "true"
+  check_eq "region OCR text"                      "$(_jq "$JSON" '.[0].text[0]')" "HELLO WORLD"
+  check_eq "location is {x,y}"                    "$(_jq "$JSON" '.[0].location | has("x") and has("y")')" "true"
+  check_eq "dimension is {width,height}"          "$(_jq "$JSON" '.[0].dimension | has("width") and has("height")')" "true"
+  check_eq "center is a point"                    "$(_jq "$JSON" '.[0].center.x|type')" "number"
+  check_eq "clicked is null with no action"       "$(_jq "$JSON" '.[0].clicked')" "null"
 }
 feat_image_similarity(){
-  feature image-similarity "--imageSimilarity is the score floor (accepts/rejects)"
+  feature image-similarity
   fx_image; fx_image_blurred
-  cmd "--imagePath=\$WORK/hello_blur.png --imageSimilarity=0.5 --flash=0"
-  check_eq "blurred template matches with a low floor" \
-    "$(jq1 "$(seam --imagePath="$WORK/hello_blur.png" --imageSimilarity=0.5 --flash=0)" '.[0].name')" "hello_blur.png"
-  check_eq "same call is rejected by a high floor" \
-    "$(jq1 "$(seam --imagePath="$WORK/hello_blur.png" --imageSimilarity=0.99 --flash=0)" '.[0].status')" "notFound"
+  local JSON
+  JSON="$(target --imagePath="$WORK/hello_blur.png" --imageSimilarity=0.5 --flash=0)"
+  check_eq "a low floor accepts the blurred template" "$(_jq "$JSON" '.[0].name')" "hello_blur.png"
+  JSON="$(target --imagePath="$WORK/hello_blur.png" --imageSimilarity=0.99 --flash=0)"
+  check_eq "a high floor rejects it"                  "$(_jq "$JSON" '.[0].status')" "notFound"
 }
 feat_maxsim_ceiling(){
-  feature maxsim-ceiling "--maxSim is the score ceiling (rejects even a perfect match)"
+  feature maxsim-ceiling
   fx_image
-  cmd "--imagePath=\$WORK/hello.png --maxSim=0.5 --flash=0"
-  check_eq "perfect match rejected by a low ceiling" \
-    "$(jq1 "$(seam --imagePath="$WORK/hello.png" --maxSim=0.5 --flash=0)" '.[0].status')" "notFound"
+  local JSON; JSON="$(target --imagePath="$WORK/hello.png" --maxSim=0.5 --flash=0)"
+  check_eq "a low ceiling rejects even a perfect match" "$(_jq "$JSON" '.[0].status')" "notFound"
 }
 feat_text_hint(){
-  feature text-hint "--textHint gates the match on the region's OCR text"
+  feature text-hint
   fx_image
-  cmd "--imagePath=\$WORK/hello.png --textHint=HELLO --flash=0"
-  check_eq "matching hint accepts"   "$(jq1 "$(seam --imagePath="$WORK/hello.png" --textHint=HELLO --flash=0)" '.[0].name')"   "hello.png"
-  check_eq "non-matching hint rejects" "$(jq1 "$(seam --imagePath="$WORK/hello.png" --textHint=NOPE --flash=0)" '.[0].status')" "notFound"
+  local JSON
+  JSON="$(target --imagePath="$WORK/hello.png" --textHint=HELLO --flash=0)"
+  check_eq "a matching hint accepts"      "$(_jq "$JSON" '.[0].name')" "hello.png"
+  JSON="$(target --imagePath="$WORK/hello.png" --textHint=NOPE --flash=0)"
+  check_eq "a non-matching hint rejects"  "$(_jq "$JSON" '.[0].status')" "notFound"
 }
 feat_image_wait(){
-  feature image-wait "--imageWaitTime waits for a target that appears late"
+  feature image-wait
+  convert -size 600x200 xc:white -pointsize 60 -fill black -gravity center -annotate +0+0 "HELLO WORLD" "$WORK/hello.png"
   fx_blank
   ( sleep 3; display -window root "$WORK/hello.png" >/dev/null 2>&1 ) &
-  cmd "--imagePath=\$WORK/hello.png --imageWaitTime=8 --flash=0   # shown 3 s after the call starts"
-  check_eq "call blocks until the target appears" \
-    "$(jq1 "$(seam --imagePath="$WORK/hello.png" --imageWaitTime=8 --flash=0)" '.[0].name')" "hello.png"
+  local JSON; JSON="$(target --imagePath="$WORK/hello.png" --imageWaitTime=8 --flash=0)"
+  check_eq "the call blocks until the target appears at t+3s" "$(_jq "$JSON" '.[0].name')" "hello.png"
 }
 feat_image_maxcount(){
-  feature image-maxcount "--imageMaxCount returns several matches"
-  fx_blank; fx_two_tiles
-  cmd "--imagePath=\$WORK/tile.png --imageMaxCount=2 --flash=0"
-  local JSON; JSON="$(seam --imagePath="$WORK/tile.png" --imageMaxCount=2 --flash=0)"
-  check_eq "two identical tiles -> two results" "$(jq1 "$JSON" 'length')" "2"
-  check_eq "the two matches are at distinct centres" "$(jq1 "$JSON" '.[0].center.x != .[1].center.x')" "true"
+  feature image-maxcount
+  fx_two_tiles
+  local JSON; JSON="$(target --imagePath="$WORK/tile.png" --imageMaxCount=2 --flash=0)"
+  check_eq "two identical tiles yield two results" "$(_jq "$JSON" 'length')" "2"
+  check_eq "the two matches are distinct"          "$(_jq "$JSON" '.[0].center.x != .[1].center.x')" "true"
 }
 feat_image_missing(){
-  feature image-missing "an absent target is a status object, not an error"
-  cmd "--imagePath=\$WORK/nope.png --flash=0"
-  local JSON; JSON="$(seam --imagePath="$WORK/nope.png" --flash=0)"
-  check_eq "status is notFound" "$(jq1 "$JSON" '.[0].status')" "notFound"
-  check_eq "still a JSON array" "$(jq1 "$JSON" 'type')" "array"
+  feature image-missing
+  fx_image
+  local JSON; JSON="$(target --imagePath="$WORK/nope.png" --flash=0)"
+  check_eq "status is notFound" "$(_jq "$JSON" '.[0].status')" "notFound"
+  check_eq "the payload is still an array" "$(_jq "$JSON" 'type')" "array"
 }
 feat_flash(){
-  feature flash "--flash is the on-screen match pause (default 1 s)"
+  feature flash
   fx_image
-  cmd "--imagePath=\$WORK/hello.png            # default flash (1 s pause)"
-  seam --imagePath="$WORK/hello.png" >/dev/null 2>&1                      # warm the JVM
-  # Minimum of three per mode: the minimum is the least noisy estimator, and both modes
-  # pay the identical JVM/match cost, so the difference is the flash itself.
-  local best_def="" best_none="" ms
-  for _ in 1 2 3; do
-    local t0 t1; t0=$(now_ms); seam --imagePath="$WORK/hello.png" >/dev/null; t1=$(now_ms)
-    ms=$(( t1 - t0 )); [ -z "$best_def" ] || [ "$ms" -lt "$best_def" ] && best_def="$ms"
-  done
-  for _ in 1 2 3; do
-    local t0 t1; t0=$(now_ms); seam --imagePath="$WORK/hello.png" --flash=0 >/dev/null; t1=$(now_ms)
-    ms=$(( t1 - t0 )); [ -z "$best_none" ] || [ "$ms" -lt "$best_none" ] && best_none="$ms"
-  done
-  check_ge "default flash costs >= 0.8 s more than --flash=0" "$(( best_def - best_none ))" 800
-  printf '   \033[2m     measured: default %s ms vs --flash=0 %s ms\033[0m\n' "$best_def" "$best_none"
+  printf '   \033[2m        timed without the fixture re-show (NOSHOW=1)\033[0m\n' >&2
+  NOSHOW=1 target --imagePath="$WORK/hello.png" >/dev/null                # warm
+  local best_def="" best_none="" ms t0 t1
+  # Minimum of five per mode: the minimum is the least noisy estimator of a fixed cost,
+  # and both modes pay the identical JVM/match cost, so the difference is the flash.
+  # The threshold only has to separate "flash applied (~1 s)" from "not applied (0 ms)",
+  # which is the regression this guards: measured while broken, the delta was 15-284 ms;
+  # applied, it is 780-1010 ms. The ceiling catches a runaway flash.
+  for _ in 1 2 3 4 5; do t0=$(now_ms); NOSHOW=1 target --imagePath="$WORK/hello.png" >/dev/null; t1=$(now_ms)
+    ms=$(( t1 - t0 )); [ -z "$best_def" ] || [ "$ms" -lt "$best_def" ] && best_def="$ms"; done
+  for _ in 1 2 3 4 5; do t0=$(now_ms); NOSHOW=1 target --imagePath="$WORK/hello.png" --flash=0 >/dev/null; t1=$(now_ms)
+    ms=$(( t1 - t0 )); [ -z "$best_none" ] || [ "$ms" -lt "$best_none" ] && best_none="$ms"; done
+  local delta=$(( best_def - best_none ))
+  printf '   \033[2m        measured: default %s ms vs --flash=0 %s ms -> delta %s ms\033[0m\n' "$best_def" "$best_none" "$delta" >&2
+  check_ge "the default flash pauses for at least 0.5 s (0 ms would mean the flash is not applied)" "$delta" 500
+  if [ "$delta" -le 2500 ]; then _ok "the flash pause is bounded = $delta ms (<= 2500)"; else _no "the flash pause is unbounded (got $delta ms)"; fi
 }
 
 # ---------------------------------------------------------------------------
-# E. seam: actions are really dispatched (verified against the OS pointer)
+# E. seam: actions, verified against the OS pointer
 # ---------------------------------------------------------------------------
-# Each action returns its click point in the JSON; comparing that with xdotool's view
-# of the pointer proves the action reached the X server instead of only being reported.
+# The reported click point is compared with xdotool's view of the pointer, so this
+# proves the action reached the X server rather than only being reported in JSON.
 action_case(){
-  local action="$1" expect_click="$2"
-  cmd "--imagePath=\$WORK/hello.png --imageAction=$action --flash=0"
+  local action="$1" expect_click="$2" JSON cx cy
   xdotool mousemove 3 3; sleep 0.3
-  local JSON; JSON="$(seam --imagePath="$WORK/hello.png" --imageAction="$action" --flash=0)"
-  local cx cy
-  cx="$(jq1 "$JSON" '.[0].center.x')"; cy="$(jq1 "$JSON" '.[0].center.y')"
+  JSON="$(target --imagePath="$WORK/hello.png" --imageAction="$action" --flash=0)"
+  cx="$(_jq "$JSON" '.[0].center.x')"; cy="$(_jq "$JSON" '.[0].center.y')"
   if [ "$expect_click" = "click" ]; then
-    check_eq "reports clicked == center" "$(jq1 "$JSON" '.[0].clicked.x')" "$cx"
+    check_eq "reports clicked == center" "$(_jq "$JSON" '.[0].clicked.x')" "$cx"
   else
-    check_eq "reports clicked = null" "$(jq1 "$JSON" '.[0].clicked')" "null"
+    check_eq "reports clicked = null" "$(_jq "$JSON" '.[0].clicked')" "null"
   fi
-  check_eq "pointer actually moved to the match centre" "$(pointer)" "$cx,$cy"
+  check_eq "the pointer is really at the reported centre" "$(pointer)" "$cx,$cy"
 }
-feat_action_click(){
-  feature action-click "--imageAction=click dispatches a click at the match centre"
-  fx_image; action_case click click
-}
-feat_action_doubleclick(){
-  feature action-doubleclick "--imageAction=doubleClick"
-  fx_image; action_case doubleClick click
-}
-feat_action_rightclick(){
-  feature action-rightclick "--imageAction=rightClick"
-  fx_image; action_case rightClick click
-}
-feat_action_hoverclick(){
-  feature action-hoverclick "--imageAction=hoverClick"
-  fx_image; action_case hoverClick click
-}
-feat_action_hover(){
-  feature action-hover "--imageAction=hover moves the pointer but does not click"
-  fx_image; action_case hover hover
-}
+feat_action_click(){       feature action-click;       fx_image; action_case click click; }
+feat_action_doubleclick(){ feature action-doubleclick; fx_image; action_case doubleClick click; }
+feat_action_rightclick(){  feature action-rightclick;  fx_image; action_case rightClick click; }
+feat_action_hoverclick(){  feature action-hoverclick;  fx_image; action_case hoverClick click; }
+feat_action_hover(){       feature action-hover;       fx_image; action_case hover hover; }
 feat_action_none(){
-  feature action-none "--imageAction=none leaves the pointer alone"
+  feature action-none
   fx_image
-  cmd "--imagePath=\$WORK/hello.png --imageAction=none --flash=0"
   xdotool mousemove 3 3; sleep 0.3
-  local JSON; JSON="$(seam --imagePath="$WORK/hello.png" --imageAction=none --flash=0)"
-  check_eq "clicked stays null" "$(jq1 "$JSON" '.[0].clicked')" "null"
-  check_eq "pointer untouched" "$(pointer)" "3,3"
+  local JSON; JSON="$(target --imagePath="$WORK/hello.png" --imageAction=none --flash=0)"
+  check_eq "clicked stays null"        "$(_jq "$JSON" '.[0].clicked')" "null"
+  check_eq "the pointer is untouched"  "$(pointer)" "3,3"
 }
 
 # ---------------------------------------------------------------------------
 # F. seam: opt-in OCR mode (extension; not part of the frozen v1 contract)
 # ---------------------------------------------------------------------------
 feat_ocr_detect(){
-  feature ocr-detect "find text on screen and report its bounding box"
+  feature ocr-detect
   fx_ocr
-  cmd "--ocrPath=\"AUTOTEST OCR\" --ocrDetail=word"
-  local JSON; JSON="$(seam --ocrPath="AUTOTEST OCR" --ocrDetail=word)"
-  check_eq "one match"                 "$(jq1 "$JSON" 'length')" "1"
-  check_eq "matched text"              "$(jq1 "$JSON" '.[0].ocrDetails[0].text')" "AUTOTEST OCR"
-  check_eq "bbox has x/y/width/height" "$(jq1 "$JSON" '.[0].ocrDetails[0] | has("x") and has("y") and has("width") and has("height")')" "true"
-  check_eq "centre is the bbox centre" "$(jq1 "$JSON" '.[0].center.x')" "$(jq1 "$JSON" '.[0].ocrDetails[0].x + .[0].ocrDetails[0].width/2')"
+  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR" --ocrDetail=word)"
+  check_eq "one match"                 "$(_jq "$JSON" 'length')" "1"
+  check_eq "matched text"              "$(_jq "$JSON" '.[0].ocrDetails[0].text')" "AUTOTEST OCR"
+  check_eq "bbox has x/y/width/height" "$(_jq "$JSON" '.[0].ocrDetails[0] | has("x") and has("y") and has("width") and has("height")')" "true"
+  check_eq "centre is the bbox centre" "$(_jq "$JSON" '.[0].center.x')" "$(_jq "$JSON" '.[0].ocrDetails[0].x + .[0].ocrDetails[0].width/2')"
 }
 feat_ocr_detail_none(){
-  feature ocr-detail-none "--ocrDetail=none (default) omits the extension field"
+  feature ocr-detail-none
   fx_ocr
-  cmd "--ocrPath=\"AUTOTEST OCR\"        # no --ocrDetail"
-  local JSON; JSON="$(seam --ocrPath="AUTOTEST OCR")"
-  check_eq "ocrDetails absent"   "$(jq1 "$JSON" '.[0] | has("ocrDetails")')" "false"
-  check_eq "core fields present" "$(jq1 "$JSON" '.[0] | has("name") and has("center") and has("text")')" "true"
+  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR")"
+  check_eq "the extension field is absent" "$(_jq "$JSON" '.[0] | has("ocrDetails")')" "false"
+  check_eq "core fields are present" "$(_jq "$JSON" '.[0] | has("name") and has("center") and has("text")')" "true"
 }
 feat_ocr_detail_line(){
-  feature ocr-detail-line "--ocrDetail=line also reports the box"
+  feature ocr-detail-line
   fx_ocr
-  cmd "--ocrPath=\"AUTOTEST OCR\" --ocrDetail=line"
-  check_eq "ocrDetails present" "$(jq1 "$(seam --ocrPath="AUTOTEST OCR" --ocrDetail=line)" '.[0] | has("ocrDetails")')" "true"
+  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR" --ocrDetail=line)"
+  check_eq "the extension field is present" "$(_jq "$JSON" '.[0] | has("ocrDetails")')" "true"
 }
 feat_ocr_similarity(){
-  feature ocr-similarity "--ocrSimilarity is the OCR match floor"
+  feature ocr-similarity
   fx_ocr
-  cmd "--ocrPath=\"AUTOTEST OCR\" --ocrSimilarity=0.8"
-  check_eq "normal floor matches"  "$(jq1 "$(seam --ocrPath="AUTOTEST OCR" --ocrSimilarity=0.8)" '.[0].name')" "AUTOTEST OCR"
-  check_eq "absent text -> notFound" "$(jq1 "$(seam --ocrPath="NO SUCH TEXT HERE")" '.[0].status')" "notFound"
+  local JSON
+  JSON="$(target --ocrPath="AUTOTEST OCR" --ocrSimilarity=0.8)"
+  check_eq "the floor argument is accepted and detection still works" "$(_jq "$JSON" '.[0].name')" "AUTOTEST OCR"
+  JSON="$(target --ocrPath="NO SUCH TEXT HERE")"
+  check_eq "absent text is rejected" "$(_jq "$JSON" '.[0].status')" "notFound"
+  # Deliberately NOT asserted: that raising --ocrSimilarity rejects a text whose
+  # confidence is below it. Measured: with the text on screen, --ocrSimilarity=0.99
+  # still returns a match, because this build's OCR path has no per-match confidence to
+  # filter on (the image floor IS applied: see image-similarity). Asserting rejection
+  # here would pass only when the screen happens to be blank — a false green.
+  printf '   \033[33mknown-gap: --ocrSimilarity is accepted but not applied by this build; only the image floor filters\033[0m\n' >&2
 }
 feat_ocr_wait(){
-  feature ocr-wait "--ocrWaitTime (ms) waits for text that appears late"
+  feature ocr-wait
   convert -size 600x200 xc:white -pointsize 60 -fill black -gravity center -annotate +0+0 "AUTOTEST OCR" "$WORK/ocr.png"
   fx_blank
   ( sleep 2; display -window root "$WORK/ocr.png" >/dev/null 2>&1 ) &
-  cmd "--ocrPath=\"AUTOTEST OCR\" --ocrWaitTime=8000   # shown 2 s after the call starts"
-  check_eq "call waits for the late text" \
-    "$(jq1 "$(seam --ocrPath="AUTOTEST OCR" --ocrWaitTime=8000)" '.[0].name')" "AUTOTEST OCR"
+  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR" --ocrWaitTime=8000)"
+  check_eq "the call waits for text that appears at t+2s" "$(_jq "$JSON" '.[0].name')" "AUTOTEST OCR"
 }
 feat_ocr_action(){
-  feature ocr-action "OCR actions dispatch to the OS pointer like image actions"
+  feature ocr-action
   fx_ocr
-  cmd "--ocrPath=\"AUTOTEST OCR\" --ocrAction=click --ocrDetail=word"
   xdotool mousemove 3 3; sleep 0.3
-  local JSON; JSON="$(seam --ocrPath="AUTOTEST OCR" --ocrAction=click --ocrDetail=word)"
-  check_eq "reports clicked == center" "$(jq1 "$JSON" '.[0].clicked.x')" "$(jq1 "$JSON" '.[0].center.x')"
-  check_eq "pointer dispatched to the reported centre" "$(pointer)" "$(jq1 "$JSON" '.[0].center.x'),$(jq1 "$JSON" '.[0].center.y')"
+  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR" --ocrAction=click --ocrDetail=word)"
+  check_eq "reports clicked == center" "$(_jq "$JSON" '.[0].clicked.x')" "$(_jq "$JSON" '.[0].center.x')"
+  check_eq "the pointer is really at the reported centre" "$(pointer)" "$(_jq "$JSON" '.[0].center.x'),$(_jq "$JSON" '.[0].center.y')"
 }
 feat_ocr_psm_oem(){
-  feature ocr-psm-oem "--ocrPSM/--ocrOEM are accepted without breaking detection"
+  feature ocr-psm-oem
   fx_ocr
-  cmd "--ocrPath=\"AUTOTEST OCR\" --ocrPSM=7 --ocrOEM=3"
-  check_eq "explicit PSM/OEM still matches" \
-    "$(jq1 "$(seam --ocrPath="AUTOTEST OCR" --ocrPSM=7 --ocrOEM=3)" '.[0].name')" "AUTOTEST OCR"
+  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR" --ocrPSM=7 --ocrOEM=3)"
+  check_eq "explicit psm/oem still matches" "$(_jq "$JSON" '.[0].name')" "AUTOTEST OCR"
 }
 
 # ---------------------------------------------------------------------------
 # G. contract robustness
 # ---------------------------------------------------------------------------
 feat_json_on_error(){
-  feature json-on-error "stdout still carries JSON when the display is unusable"
-  cmd "DISPLAY=:77 --imagePath=Screen"
-  local OUT RC
-  OUT="$(DISPLAY=:77 findTargetImage --imagePath=Screen 2>/dev/null)"; RC=$?
-  check_eq "exit status is 0" "$RC" "0"
-  check_has "still emits the target_result line" "$OUT" "target_result:"
-  check_has "payload is a JSON array"           "$OUT" "["
+  feature json-on-error
+  # The env assignment must precede the binary; printing it as an argument (as the
+  # previous version did) reproduced a *different* test: a successful screen read.
+  local OUT rc payload
+  OUT="$(DISPLAY=:77 "$TARGET_BIN" --imagePath=Screen 2>/dev/null)"; rc=$?
+  printf '   \033[2mrun:    DISPLAY=:77 %s --imagePath=Screen   [rc=%s]\033[0m\n' "$TARGET_BIN" "$rc"
+  payload="$(printf '%s' "$OUT" | sed -n 's/.*target_result: //p')"
+  check_eq "exit status is 0" "$rc" "0"
+  check_eq "exactly one result line" "$(printf '%s' "$OUT" | grep -c 'target_result:')" "1"
+  check_eq "the payload parses as a JSON array" "$(_jq "$payload" 'type')" "array"
+  check_eq "the payload reports a status" \
+    "$(_jq "$payload" 'if (.[0].status == "error" or .[0].status == "notFound") then "ok" else "bad" end')" "ok"
 }
 feat_additive_args(){
-  feature additive-args "unknown arguments are ignored (additive contract)"
+  feature additive-args
   fx_image
-  cmd "--imagePath=\$WORK/hello.png --someFutureArg=1 --flash=0"
-  check_eq "unknown arg does not break matching" \
-    "$(jq1 "$(seam --imagePath="$WORK/hello.png" --someFutureArg=1 --flash=0)" '.[0].name')" "hello.png"
+  local JSON; JSON="$(target --imagePath="$WORK/hello.png" --someFutureArg=1 --flash=0)"
+  check_eq "an unknown argument does not break matching" "$(_jq "$JSON" '.[0].name')" "hello.png"
 }
 
 # ---------------------------------------------------------------------------
 # H. non-functional
 # ---------------------------------------------------------------------------
 feat_latency(){
-  feature latency "NFR-T2: warm image-match stays within budget"
+  feature latency
   fx_image
-  cmd "--imagePath=\$WORK/hello.png --flash=0   # best of 3"
-  seam --imagePath="$WORK/hello.png" --flash=0 >/dev/null 2>&1        # warm
-  local BEST="" ms
+  printf '   \033[2m        timed without the fixture re-show (NOSHOW=1)\033[0m\n' >&2
+  NOSHOW=1 target --imagePath="$WORK/hello.png" --flash=0 >/dev/null      # warm
+  local best="" ms t0 t1
   for _ in 1 2 3; do
-    local t0 t1; t0=$(now_ms); seam --imagePath="$WORK/hello.png" --flash=0 >/dev/null 2>&1; t1=$(now_ms)
-    ms=$(( t1 - t0 )); [ -z "$BEST" ] || [ "$ms" -lt "$BEST" ] && BEST="$ms"
+    t0=$(now_ms); NOSHOW=1 target --imagePath="$WORK/hello.png" --flash=0 >/dev/null 2>&1; t1=$(now_ms)
+    ms=$(( t1 - t0 )); [ -z "$best" ] || [ "$ms" -lt "$best" ] && best="$ms"
   done
-  if [ "${BEST:-99999}" -le 1500 ]; then _ok "warm match ${BEST} ms (budget 1500 ms)"; else _no "warm match ${BEST} ms (> 1500 ms budget)"; fi
+  if [ "${best:-99999}" -le 1500 ]; then _ok "warm match ${best} ms (budget 1500 ms)"; else _no "warm match ${best} ms (> 1500 ms budget)"; fi
 }
 
+# pointer -> "X,Y" of the OS mouse pointer
+pointer(){ xdotool getmouselocation --shell 2>/dev/null | sed -n 's/^X=//p;s/^Y=//p' | paste -sd, -; }
+now_ms(){ echo $(( $(date +%s%N) / 1000000 )); }
+
 # ---------------------------------------------------------------------------
-# catalogue: "<group>|<id>|<one-line description>"
+# catalogue: "<group>|<id>|<one imperative sentence>"
 # ---------------------------------------------------------------------------
 GROUP_A="A — runtime substrate (L0)"
 GROUP_B="B — display + desktop (L0)"
@@ -386,43 +408,42 @@ GROUP_G="G — contract robustness"
 GROUP_H="H — non-functional"
 
 FEATURES=(
-  "$GROUP_A|tools|essentials present (Xvfb, ImageMagick, ffmpeg, xdotool, jq, seam)"
-  "$GROUP_A|java17|Java is the pinned 17 series (Oculix floor)"
-  "$GROUP_A|natives|Oculix natives baked and registered with the loader"
-  "$GROUP_A|screen-only|screen-only image: no browser, no webdriver runner"
-  "$GROUP_A|provenance|/etc/autobdd-versions records the build inputs"
-  "$GROUP_B|display|Xvfb serves DISPLAY at the requested geometry"
-  "$GROUP_B|wm|window manager (openbox) is running"
-  "$GROUP_B|vnc|x11vnc exposes the desktop on :5900"
-  "$GROUP_B|pointer|xdotool drives the X pointer (mouse substrate)"
-  "$GROUP_C|screen-mode|--imagePath=Screen OCRs the whole screen"
-  "$GROUP_D|image-match|template match returns every contract field"
-  "$GROUP_D|image-similarity|--imageSimilarity floor accepts/rejects"
-  "$GROUP_D|maxsim-ceiling|--maxSim ceiling rejects"
-  "$GROUP_D|text-hint|--textHint gates on region OCR text"
-  "$GROUP_D|image-wait|--imageWaitTime waits for a late target"
-  "$GROUP_D|image-maxcount|--imageMaxCount returns several matches"
-  "$GROUP_D|image-missing|absent target -> status object, not an error"
-  "$GROUP_D|flash|--flash is the on-screen match pause"
-  "$GROUP_E|action-click|--imageAction=click"
-  "$GROUP_E|action-doubleclick|--imageAction=doubleClick"
-  "$GROUP_E|action-rightclick|--imageAction=rightClick"
-  "$GROUP_E|action-hoverclick|--imageAction=hoverClick"
-  "$GROUP_E|action-hover|--imageAction=hover (no click)"
-  "$GROUP_E|action-none|--imageAction=none leaves the pointer alone"
-  "$GROUP_F|ocr-detect|find text on screen, report its box"
-  "$GROUP_F|ocr-detail-none|--ocrDetail=none omits the extension field"
-  "$GROUP_F|ocr-detail-line|--ocrDetail=line reports the box"
-  "$GROUP_F|ocr-similarity|--ocrSimilarity floor and absent-text notFound"
-  "$GROUP_F|ocr-wait|--ocrWaitTime waits for late text"
-  "$GROUP_F|ocr-action|OCR action dispatches to the OS pointer"
-  "$GROUP_F|ocr-psm-oem|--ocrPSM/--ocrOEM accepted"
-  "$GROUP_G|json-on-error|unusable display still yields JSON on stdout"
-  "$GROUP_G|additive-args|unknown arguments are ignored"
-  "$GROUP_H|latency|NFR-T2 warm match within budget"
+  "$GROUP_A|tools|list the L0 essentials the image must contain"
+  "$GROUP_A|java17|pin the JVM to the 17 series the engine requires"
+  "$GROUP_A|natives|bake the engine's native libraries and register them with the loader"
+  "$GROUP_A|screen-only|keep the base image free of any browser or webdriver runner"
+  "$GROUP_A|provenance|record what the image was built from"
+  "$GROUP_B|display|serve DISPLAY at the requested geometry"
+  "$GROUP_B|wm|keep a window manager running for deterministic rendering"
+  "$GROUP_B|vnc|expose the desktop over VNC on :5900"
+  "$GROUP_B|pointer|drive the X mouse pointer from the OS"
+  "$GROUP_C|screen-mode|read the whole screen as text without a template"
+  "$GROUP_D|image-match|return every contract field for a template match"
+  "$GROUP_D|image-similarity|accept a weak match at a low floor and reject it at a high one"
+  "$GROUP_D|maxsim-ceiling|reject a match that scores above the ceiling"
+  "$GROUP_D|text-hint|gate a picture match on the region's OCR text"
+  "$GROUP_D|image-wait|wait for a target that appears after the call starts"
+  "$GROUP_D|image-maxcount|return several matches when the target repeats"
+  "$GROUP_D|image-missing|report an absent target as a status object, not an error"
+  "$GROUP_D|flash|hold the on-screen match flash for the requested time"
+  "$GROUP_E|action-click|click at the centre of the target"
+  "$GROUP_E|action-doubleclick|double-click at the centre of the target"
+  "$GROUP_E|action-rightclick|right-click at the centre of the target"
+  "$GROUP_E|action-hoverclick|hover over the target and then click it"
+  "$GROUP_E|action-hover|hover over the target without clicking"
+  "$GROUP_E|action-none|leave the pointer untouched when no action is asked for"
+  "$GROUP_F|ocr-detect|find a phrase on screen and report its bounding box"
+  "$GROUP_F|ocr-detail-none|omit the bounding box when no detail is requested"
+  "$GROUP_F|ocr-detail-line|report the bounding box when line detail is requested"
+  "$GROUP_F|ocr-similarity|accept the OCR floor argument and reject absent text (the floor itself is a known gap)"
+  "$GROUP_F|ocr-wait|wait for text that appears after the call starts"
+  "$GROUP_F|ocr-action|dispatch an OCR action to the OS pointer"
+  "$GROUP_F|ocr-psm-oem|accept explicit psm/oem tuning without breaking detection"
+  "$GROUP_G|json-on-error|answer with JSON on stdout even when the display is unusable"
+  "$GROUP_G|additive-args|ignore arguments it does not know"
+  "$GROUP_H|latency|keep a warm image match inside its latency budget"
 )
 
-# run_feature <id> — call the feat_ function for an id
 run_feature(){
   local id="$1" fn; fn="feat_$(printf '%s' "$id" | tr '-' '_')"
   if ! declare -F "$fn" >/dev/null; then echo "unknown feature: $id" >&2; return 2; fi

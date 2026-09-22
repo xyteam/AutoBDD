@@ -178,28 +178,50 @@ AutoBDD_Ver=<v> make base-test          # ~3 min; ends with "ALL FEATURES OK"
 ```text
 ════════════════════════════════════════════════════════════════════════════
  AutoBDD base image — feature conformance
-   image   : xyteam/autobdd-base:<v>
+   image   : xyteam/autobdd-base  (built 2026-09-22T07:33:15Z)
    display : :1  1920x1200x24
-   catalogue: 34 features — see base-test/features.sh
+
+ reproduce ALL features:   AutoBDD_Ver=test make base-test
+ reproduce ONE feature:    AutoBDD_Ver=test make one FEATURE=image-match
 ════════════════════════════════════════════════════════════════════════════
 
-  A — runtime substrate (L0)
+  D — seam: image matching
 
-▸ tools — L0 essentials are present in the image
-   repro: base-test/one.sh tools
-   ✓ present: Xvfb
-   ...
-▸ flash — --flash is the on-screen match pause (default 1 s)
+▸ image-similarity — accept a weak match at a low floor and reject it at a high one
+   repro: base-test/one.sh image-similarity
+   run:    findTargetImage --imagePath=/tmp/base-test.VGxClH/hello_blur.png \
+             --imageSimilarity=0.5 --flash=0   [rc=0]
+   ✓ a low floor accepts the blurred template = hello_blur.png
+   run:    findTargetImage --imagePath=/tmp/base-test.VGxClH/hello_blur.png \
+             --imageSimilarity=0.99 --flash=0   [rc=0]
+   ✓ a high floor rejects it = notFound
+
+▸ flash — hold the on-screen match flash for the requested time
    repro: base-test/one.sh flash
-   cmd:   findTargetImage --imagePath=$WORK/hello.png            # default flash (1 s pause)
-   ✓ default flash costs >= 0.8 s more than --flash=0
-        measured: default 2124 ms vs --flash=0 1113 ms
-...
+           timed without the fixture re-show (NOSHOW=1)
+   run:    findTargetImage --imagePath=/tmp/.../hello.png   [rc=0]
+   run:    findTargetImage --imagePath=/tmp/.../hello.png --flash=0   [rc=0]
+           measured: default 2241 ms vs --flash=0 1338 ms -> delta 903 ms
+   ✓ the default flash pauses for at least 0.5 s (0 ms would mean the flash is not applied) = 903 (>= 500)
+   ✓ the flash pause is bounded = 903 ms (<= 2500)
+
 ════════════════════════════════════════════════════════════════════════════
-feature conformance: 83 passed, 0 failed
+feature conformance: 92 passed, 0 failed
 ALL FEATURES OK
 ════════════════════════════════════════════════════════════════════════════
 ```
+
+**Reading a run.** Each feature prints `▸ <id> — <one imperative sentence>` (the intent),
+then one line per **invocation actually executed**:
+
+| Line | Meaning |
+|---|---|
+| `run:` | the **exact argv** that ran, with its exit status. A check can never narrate a command it did not run, and a multi-invocation feature prints *every* invocation instead of one aspiration. |
+| `probe:` | a host-side command, printed then run from the same string — so every printed line is literally runnable. |
+| `✓ <what> = <observed>` | the assertion **and the value observed**, so a green run is evidence, not a checklist. |
+| `known-gap:` | a documented limitation that is deliberately *not* asserted (see below). |
+| `✗ <what> (got X, want Y)` | a failure, with both values; failures are collected per feature at the end. |
+
 
 **One-liner: reproduce a single feature, or a whole group**
 
@@ -238,6 +260,15 @@ feature, and groups can be run alone by letter, which makes a red run easy to bi
 * `--flash=0` is used except where the flash is the subject: the flash is a pure visual
   pause, and paying ~1 s for it on every feature would triple the run time for no extra
   coverage. The `flash` feature measures the default path explicitly.
+* **`--ocrSimilarity` is accepted but not applied.** Measured: with the text on screen,
+  `--ocrSimilarity=0.99` still matches, because this build's OCR path exposes no per‑match
+  confidence to filter on. The *image* floor **is** applied (`image-similarity` asserts both
+  directions). The report prints a `known-gap:` line rather than asserting a rejection that
+  would pass only when the screen happens to be blank — a false green.
+* **`--ocrDetail=word` reports the matched region**, not one entry per token (a tight box
+  when the engine exposes one, otherwise the searched region's rectangle).
+* Feature descriptions live in the catalogue table alone, so `--list`, the suite headers and
+  the run lines cannot drift apart.
 
 
 

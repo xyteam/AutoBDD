@@ -26,13 +26,16 @@ VNC_PID=""
 cleanup(){ [ -n "$VNC_PID" ] && kill "$VNC_PID" 2>/dev/null; x_stop; rm -rf "$WORK"; }
 trap cleanup EXIT
 
-IMG="${AutoBDD_Image:-xyteam/autobdd-base}"; VER="${AutoBDD_Ver:-<ver>}"
+# The image's own build stamp is the honest identity here: AutoBDD_Ver is not exported
+# into the container, and a placeholder version would misreport which image ran.
+IMG="${AutoBDD_Image:-xyteam/autobdd-base}"
+STAMP="$(sed -n 's/^built=//p' /etc/autobdd-versions 2>/dev/null)"; STAMP="${STAMP:-unknown}"
 
 printf '\033[1m'
 cat <<BANNER
 ════════════════════════════════════════════════════════════════════════════
  AutoBDD base image — feature conformance
-   image   : ${IMG}:${VER}
+   image   : ${IMG}  (built ${STAMP})
    display : ${DISPLAY}  ${RESOLUTION:-1920x1200x24}
    catalogue: $(feature_ids | wc -l) features — see base-test/features.sh
 
