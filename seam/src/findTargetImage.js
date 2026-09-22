@@ -96,7 +96,7 @@ KNOWN GAPS
   --min-score is applied to image matches; the OCR path exposes no per-match
   confidence to filter on, so it is accepted but not applied for text targets.
   --box reports the matched region, not one entry per token.
-  --ocrDetail=word reports the matched region, not one entry per token.
+  --box reports the matched region, not one entry per token.
 
 DEPRECATED (translated, with a warning on stderr)
 ${LEGACY.map(([o, n]) => `  ${pad(o, 26)} -> ${n}`).join('\n')}
