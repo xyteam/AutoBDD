@@ -1,0 +1,21 @@
+#!/bin/sh
+# findTargetImage — DEPRECATED alias for `autobdd find-target`.
+#
+# It exists so that consumers written against the v1 contract keep working, and it goes
+# through the front door so that any argument translation added there (e.g. the
+# --match-image vocabulary) applies to this alias too, without a second implementation.
+#
+# The notice goes to STDERR only. Every consumer parses stdout as
+# `target_result: <json>`, so a notice printed there would corrupt the payload.
+set -u
+
+FRONT_DOOR="${AUTBDD_FRONT_DOOR:-/usr/local/bin/autobdd}"
+printf 'findTargetImage: deprecated — use "autobdd find-target" instead (same behaviour)\n' >&2
+
+if [ -x "$FRONT_DOOR" ]; then
+  exec "$FRONT_DOOR" find-target "$@"
+fi
+
+# Fallback: the front door is missing (e.g. running from a checkout), so go straight to
+# the engine rather than failing the call.
+exec "${AUTBDD_ENGINE:-/opt/autobdd/seam/src/findTargetImage.js}" "$@"

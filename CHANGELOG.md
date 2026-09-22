@@ -29,6 +29,83 @@ the convention.
 - One uniform screenshot watermark on every step/final capture — a dark bottom band with
   the remark (green passed / red failed).
 
+**Conformance suite — the front door is the default surface.** The suite drives
+`/usr/local/libexec/autobdd/find-target` by default and prints the surface it used in its
+banner; `TARGET_BIN=findTargetImage` runs the same matrix through the deprecated alias and
+so keeps proving the alias transparent. The run lines therefore name the interface this
+repo is moving to. Two guidance fixes came out of the same review: the banner now prints
+invocations that actually work (the previous `make base-test` runs the script on the *host*,
+which has none of the image's tooling), and the suite now detects that case and exits 2 with
+a one-line pointer instead of failing once per assertion with missing-binary noise.
+
+**Base seam — argument vocabulary.** The v1 names described *how we look* (`image` vs `ocr`)
+and disagreed with themselves: `--imageSimilarity`/`--ocrSimilarity` were one concept, and
+`--imageWaitTime` was **seconds** while `--ocrWaitTime` was **milliseconds**. The v2 names
+describe *what you want*: `--match-image` / `--match-text` are the two ways to name the
+target, and everything else is stated once — `--min-score`, `--max-score`, `--wait`,
+`--limit`, `--box`, `--psm`, `--oem`. Actions became composable flags, so `--hover --click`
+replaces the `hoverClick` enum string; `--match-text` is **literal by default** with
+`--match-regex` opting in, so a search phrase containing `:` or `(` cannot silently change
+meaning (v1 `--textHint` was regex and keeps that behaviour through the legacy path).
+Durations now carry their unit (`--wait 5s`, `--wait 800ms`), which removes the s/ms split.
+
+Every v1 name is still accepted: it is translated in the engine and warns **on stderr only**
+(stdout carries the payload), so existing consumers keep working unchanged. See
+`docs/CONTRACT.md` §2b. Verified: the whole conformance matrix runs green on the new
+vocabulary, and a `legacy-flags` feature asserts the v1 names still match and still click.
+
+**Base seam — front door.** The interface is now verb-object: `autobdd find-target …`
+locates a target (optionally acting on it) and `autobdd read-text` reads the screen, so
+"read the screen" is no longer spelled as "find a target called Screen". The engine moved
+out of `PATH` to `/opt/autobdd/seam/src/`; only the front door and the deprecated alias are
+on it, so a derived image cannot shadow or collide with them. `findTargetImage` is kept as a
+**deprecated alias** that prints its notice on **stderr only** — stdout is parsed as the
+payload — and defers to the front door, so argument translation added later applies to it
+without a second implementation.
+
+The target is now **required**: `autobdd find-target` with no target exits 2 and points at
+`read-text`. Previously the engine defaulted to `--imagePath=Screen`, so omitting the target
+silently ran a whole-screen scan (~3 s) and looked like a successful call, and it made
+`find-target` and `read-text` behaviourally identical. `docs/CONTRACT.md` §1 always said the
+target was required; this enforces it.
+
+Verified by running the whole conformance matrix through **both** surfaces — the alias and
+`/usr/local/libexec/autobdd/find-target`: **124 passed, 0 failed (43 features)** each time.
+
+**Base seam — discovery surface.** `--help`/`-h`, `--version` and `--list` are answered
+*before* the JVM and native engine start: measuring the old behaviour, `--help` returned
+exit 0 after a **3079 ms whole-screen OCR scan** and the binary carried **0** usage strings,
+so the canonical "what does this do?" move silently did work and reported success. Usage is
+now ~40 ms and prints the flows, the output shape, the exit codes and every flag with its
+default. Unusable values (a non-numeric threshold, an unknown `--imageAction`/`--ocrDetail`)
+now print the offending flag on stderr and exit **2**, rather than silently behaving like the
+default and looking like a successful call. Unknown arguments still warn and are ignored, so
+the additive-argument guarantee is unchanged.
+
+**Base seam — behaviour fixes found by the feature suite.** The base suite was rebuilt as a
+34‑feature catalogue (`test-projects/autobdd-base-test/base-test/features.sh`), each feature
+independently reproducible via `base-test/one.sh <feature>`. Writing it surfaced five defects
+in `findTargetImage`, all fixed here:
+
+- **`--imageWaitTime` was ignored.** SikuliX's `autoWaitTimeout` applies to `wait()`/
+  `exists()`, not to the `findAll()` the seam used, so a target that appeared late was
+  missed despite the caller asking to wait. The search now retries until the deadline, as
+  `docs/CONTRACT.md` §2 documents.
+- **Clicking actions did not move the pointer.** `Region.click()`/`doubleClick()`/
+  `rightClick()` do not reposition the pointer in this Oculix build, so an action was
+  dispatched somewhere other than the reported `center` (measured: reported `900,1100`,
+  pointer landed at `131,160`). Actions now move to the region centre first; the suite
+  verifies **every** action against `xdotool`'s view of the pointer.
+- **`--flash` never paused.** `java.lang.Thread.sleep()` through java-bridge is a no‑op
+  (`sleep(1000)` measured 0 ms), so the on‑screen flash had no hold time. Waits now use a
+  real Node‑side block (`Atomics.wait`), which also stops the OCR poll from spinning.
+- **`--imageMaxCount` returned aliases.** One accumulator object was pushed per match, so N
+  results were N references to the last match (identical centres). Results are now built
+  fresh per match.
+- **`clicked` was set for non‑clicking actions.** The image path recorded `clicked` even for
+  `--imageAction=hover`; it is now set only when a click was actually dispatched, matching
+  the OCR path and the field's documented meaning.
+
 **Phase B — NFR hardening (in progress).**
 
 - **Node 20 → Node 24 LTS.** Node 20 reached **EOL 2026-04-30**; the image now installs
