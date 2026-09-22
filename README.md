@@ -65,20 +65,21 @@ autobdd --help                                        # verbs, flags, exit codes
 
 `findTargetImage` still works and is behaviourally identical — it is a **deprecated alias**
 that prints one line to **stderr** and defers to the front door, so a v1 consumer keeps
-working unchanged. The engine lives at `/opt/autobdd/seam/src/`, out of `PATH`; only the
+working unchanged. **The conformance suite defaults to the front door**; set
+`TARGET_BIN=findTargetImage` to run the same matrix through the alias. The engine lives at `/opt/autobdd/seam/src/`, out of `PATH`; only the
 front door and the alias are on it, so a derived image cannot shadow either.
 
 The target is **required**: `autobdd find-target` with no target exits `2` and points at
 `read-text`. (It used to default to a whole-screen scan, so a mistyped flag silently cost
 ~3 s and looked like a successful call.)
 
-Run the conformance matrix through either surface — the suite defaults to the **alias**,
-which is why a green matrix is also proof that the alias is transparent:
+The suite defaults to the **front door**. Run it through the deprecated alias instead to
+prove the alias is still transparent:
 
 ```bash
-AutoBDD_Ver=<v> make base-test                                    # via findTargetImage (alias)
-AutoBDD_Ver=<v> make docker-run jobs="base-test" \
-  …TARGET_BIN=/usr/local/libexec/autobdd/find-target              # via the front door
+AutoBDD_Ver=<v> make docker-run jobs="base-test"                  # default: the front door
+AutoBDD_Ver=<v> docker compose run --rm \
+  -e TARGET_BIN=findTargetImage autobdd-base-test make base-test   # the deprecated alias
 ```
 
 ### Discovery and exit status
@@ -211,17 +212,23 @@ reproduces it — so the output doubles as documentation.
 
 ```bash
 cd test-projects/autobdd-base-test
-AutoBDD_Ver=<v> make base-test          # ~3 min; ends with "ALL FEATURES OK"
+AutoBDD_Ver=<v> make docker-run jobs="base-test"    # ~3.5 min; ends "ALL FEATURES OK"
 ```
 
 ```text
 ════════════════════════════════════════════════════════════════════════════
  AutoBDD base image — feature conformance
-   image   : xyteam/autobdd-base  (built 2026-09-22T07:33:15Z)
+   image   : xyteam/autobdd-base  (built 2026-09-22T19:02:59Z)
    display : :1  1920x1200x24
+   surface : /usr/local/libexec/autobdd/find-target
+   catalogue: 44 features — see base-test/features.sh
 
- reproduce ALL features:   AutoBDD_Ver=test make base-test
- reproduce ONE feature:    AutoBDD_Ver=test make one FEATURE=image-match
+ reproduce ALL features (inside the image):
+   AutoBDD_Ver=<v> make docker-run jobs="base-test"
+ reproduce ONE feature:
+   AutoBDD_Ver=<v> make one FEATURE=image-match
+ list the catalogue:
+   AutoBDD_Ver=<v> make docker-run jobs="base-test/one.sh --list"
 ════════════════════════════════════════════════════════════════════════════
 
   D — seam: image matching
@@ -324,8 +331,8 @@ This repo ships two suites. Both run the **locally built** image only
 
   ```bash
   cd test-projects/autobdd-base-test
-  AutoBDD_Ver=<v> make base-test                  # whole feature matrix
-  AutoBDD_Ver=<v> make one FEATURE=action-hover   # one feature
+  AutoBDD_Ver=<v> make docker-run jobs="base-test"   # whole feature matrix
+  AutoBDD_Ver=<v> make one FEATURE=action-hover      # one feature
   ```
 
 * **`test-projects/autobdd-framework-test`** – the full framework suite. Run it to see

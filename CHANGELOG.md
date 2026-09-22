@@ -29,6 +29,15 @@ the convention.
 - One uniform screenshot watermark on every step/final capture — a dark bottom band with
   the remark (green passed / red failed).
 
+**Conformance suite — the front door is the default surface.** The suite drives
+`/usr/local/libexec/autobdd/find-target` by default and prints the surface it used in its
+banner; `TARGET_BIN=findTargetImage` runs the same matrix through the deprecated alias and
+so keeps proving the alias transparent. The run lines therefore name the interface this
+repo is moving to. Two guidance fixes came out of the same review: the banner now prints
+invocations that actually work (the previous `make base-test` runs the script on the *host*,
+which has none of the image's tooling), and the suite now detects that case and exits 2 with
+a one-line pointer instead of failing once per assertion with missing-binary noise.
+
 **Base seam — argument vocabulary.** The v1 names described *how we look* (`image` vs `ocr`)
 and disagreed with themselves: `--imageSimilarity`/`--ocrSimilarity` were one concept, and
 `--imageWaitTime` was **seconds** while `--ocrWaitTime` was **milliseconds**. The v2 names

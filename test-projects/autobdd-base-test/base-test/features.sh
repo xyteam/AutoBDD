@@ -53,11 +53,12 @@ _pretty(){ local out="" a; for a in "$@"; do out+="$(printf '%q' "$a") "; done; 
 # seam invocation — prints the exact argv it runs, and the exit status
 # ---------------------------------------------------------------------------
 FIXTURE=""; TARGET_RC=0
-# The default entry point is the DEPRECATED ALIAS, so the whole matrix doubles as proof
-# that the alias is transparent. Set TARGET_BIN=/usr/local/libexec/autobdd/find-target to
-# run the same matrix through the front door (the CI dual-surface run).
-TARGET_BIN="${TARGET_BIN:-findTargetImage}"
+# The default entry point is the FRONT DOOR — the interface this repository is moving to.
+# Set TARGET_BIN=findTargetImage to run the same matrix through the deprecated alias and
+# prove it is still transparent (the CI dual-surface run).
+TARGET_BIN="${TARGET_BIN:-/usr/local/libexec/autobdd/find-target}"
 FRONT_DOOR="${FRONT_DOOR:-/usr/local/bin/autobdd}"
+ALIAS="${ALIAS:-findTargetImage}"
 FRONT_VERB="${FRONT_VERB:-/usr/local/libexec/autobdd/find-target}"
 FRONT_READ="${FRONT_READ:-/usr/local/libexec/autobdd/read-text}"
 
