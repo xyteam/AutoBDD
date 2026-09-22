@@ -161,17 +161,99 @@ an empty array – existing parsers that ignore this field see no change.
 > **`xyteam/autobdd`** as a **deprecated alias**. See **Two images, two layers** above and
 > [`docs/CONTRACT.md`](docs/CONTRACT.md) for the base's public seam.
 
+## Feature conformance — what the base image can do, and how to check each bit
+
+The base image's feature set is enumerated as a **catalogue** in
+`test-projects/autobdd-base-test/base-test/features.sh` (currently **34 features**).
+The suite is organised per feature, and every feature prints the single command that
+reproduces it — so the output doubles as documentation.
+
+**One-liner: run the whole feature matrix and see the full result**
+
+```bash
+cd test-projects/autobdd-base-test
+AutoBDD_Ver=<v> make base-test          # ~3 min; ends with "ALL FEATURES OK"
+```
+
+```text
+════════════════════════════════════════════════════════════════════════════
+ AutoBDD base image — feature conformance
+   image   : xyteam/autobdd-base:<v>
+   display : :1  1920x1200x24
+   catalogue: 34 features — see base-test/features.sh
+════════════════════════════════════════════════════════════════════════════
+
+  A — runtime substrate (L0)
+
+▸ tools — L0 essentials are present in the image
+   repro: base-test/one.sh tools
+   ✓ present: Xvfb
+   ...
+▸ flash — --flash is the on-screen match pause (default 1 s)
+   repro: base-test/one.sh flash
+   cmd:   findTargetImage --imagePath=$WORK/hello.png            # default flash (1 s pause)
+   ✓ default flash costs >= 0.8 s more than --flash=0
+        measured: default 2124 ms vs --flash=0 1113 ms
+...
+════════════════════════════════════════════════════════════════════════════
+feature conformance: 83 passed, 0 failed
+ALL FEATURES OK
+════════════════════════════════════════════════════════════════════════════
+```
+
+**One-liner: reproduce a single feature, or a whole group**
+
+```bash
+cd test-projects/autobdd-base-test
+AutoBDD_Ver=<v> make one FEATURE=image-match     # one feature
+AutoBDD_Ver=<v> make one FEATURE=D               # every D-group feature
+AutoBDD_Ver=<v> make docker-run jobs="base-test/one.sh --list"   # list the catalogue
+```
+
+Each feature is one line to reproduce inside the image: `base-test/one.sh <feature>`.
+
+| Group | Features | What it establishes |
+|---|---|---|
+| **A — runtime substrate** | `tools` `java17` `natives` `screen-only` `provenance` | the L0 essentials are present, Java is the pinned 17 series, the Oculix natives are baked and loader‑visible, the image really is browser‑free, and `/etc/autobdd-versions` records the build inputs |
+| **B — display + desktop** | `display` `wm` `vnc` `pointer` | Xvfb serves `DISPLAY` at the requested geometry, openbox runs, x11vnc exposes `:5900`, and the OS pointer can be driven |
+| **C — whole‑screen OCR** | `screen-mode` | `--imagePath=Screen` returns the whole screen's text with `score: null` |
+| **D — image matching** | `image-match` `image-similarity` `maxsim-ceiling` `text-hint` `image-wait` `image-maxcount` `image-missing` `flash` | every contract field; the similarity **floor** and `maxSim` **ceiling**; `--textHint` gating; `--imageWaitTime` waiting for a late target; several matches via `--imageMaxCount`; `notFound` as a status object; the `--flash` pause |
+| **E — actions** | `action-click` `action-doubleclick` `action-rightclick` `action-hoverclick` `action-hover` `action-none` | each `--imageAction` is **verified against the OS pointer** (`xdotool`), so a reported click point must equal where the pointer actually went |
+| **F — opt‑in OCR** | `ocr-detect` `ocr-detail-none` `ocr-detail-line` `ocr-similarity` `ocr-wait` `ocr-action` `ocr-psm-oem` | text search by `--ocrPath`, the optional `ocrDetails` box, its floor, wait, action dispatch and PSM/OEM pass‑through |
+| **G — contract robustness** | `json-on-error` `additive-args` | an unusable display still yields JSON on stdout with exit 0, and unknown arguments are ignored (additive contract) |
+| **H — non‑functional** | `latency` | NFR‑T2: a warm image match stays inside its budget |
+
+**Reading a run.** Each feature prints `▸ <feature> — <what it checks>`, the exact `cmd:`
+line, then one `✓`/`✗` per assertion. Failures are collected at the end grouped by
+feature, and groups can be run alone by letter, which makes a red run easy to bisect.
+
+**Notes on coverage honesty**
+
+* `SCREENSHOT` appears in `docs/CONTRACT.md` §4 but is **not implemented by the base
+  seam** (it is an L2/framework concern — the framework's hooks capture the flash frame).
+  It is deliberately absent from the catalogue rather than asserted falsely.
+* Timing‑based checks (`flash`, `latency`) use the **minimum of three** runs, because the
+  minimum is the least noisy estimator of a fixed cost; their thresholds are stated in the
+  output so a regression is visible, not merely caught.
+* `--flash=0` is used except where the flash is the subject: the flash is a pure visual
+  pause, and paying ~1 s for it on every feature would triple the run time for no extra
+  coverage. The `flash` feature measures the default path explicitly.
+
+
+
 ## Try it and see the report
 
 This repo ships two suites. Both run the **locally built** image only
 (`pull_policy: never` — build it, or pre‑pull the published tag):
 
-* **`test-projects/autobdd-base-test`** – a **no‑browser** conformance suite for the
-  **base** image (L0/L1 + the frozen CLI seam). Fast; no Chrome required:
+* **`test-projects/autobdd-base-test`** – the **no‑browser** feature‑conformance suite for
+  the **base** image (L0/L1 + the frozen CLI seam). 34 features, no Chrome required. See
+  **Feature conformance** above for the one‑liners and the catalogue:
 
   ```bash
   cd test-projects/autobdd-base-test
-  AutoBDD_Ver=<v> make docker-run jobs="base-test"
+  AutoBDD_Ver=<v> make base-test                  # whole feature matrix
+  AutoBDD_Ver=<v> make one FEATURE=action-hover   # one feature
   ```
 
 * **`test-projects/autobdd-framework-test`** – the full framework suite. Run it to see

@@ -14,7 +14,7 @@ export USERID ?= $(shell id -u)
 export GROUPID ?= $(shell id -g)
 export PASSWORD ?= ubuntu
 
-.PHONY: docker-run docker-run-bash clean base-test test-all
+.PHONY: docker-run docker-run-bash one clean base-test test-all
 
 docker-run:
 	@echo make $@
@@ -23,6 +23,13 @@ docker-run:
 docker-run-bash:
 	@echo make $@
 	docker compose run --rm autobdd-base-test "/bin/bash"
+
+# Run ONE feature (or one group) from the catalogue — see features.sh / one.sh.
+#   make one FEATURE=image-match
+#   make one FEATURE=D            # every D-group feature
+one:
+	@echo make $@ FEATURE=$(FEATURE)
+	docker compose run --rm autobdd-base-test "base-test/one.sh $(FEATURE)"
 
 clean:
 	@echo make $@

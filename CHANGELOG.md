@@ -29,6 +29,30 @@ the convention.
 - One uniform screenshot watermark on every step/final capture — a dark bottom band with
   the remark (green passed / red failed).
 
+**Base seam — behaviour fixes found by the feature suite.** The base suite was rebuilt as a
+34‑feature catalogue (`test-projects/autobdd-base-test/base-test/features.sh`), each feature
+independently reproducible via `base-test/one.sh <feature>`. Writing it surfaced five defects
+in `findTargetImage`, all fixed here:
+
+- **`--imageWaitTime` was ignored.** SikuliX's `autoWaitTimeout` applies to `wait()`/
+  `exists()`, not to the `findAll()` the seam used, so a target that appeared late was
+  missed despite the caller asking to wait. The search now retries until the deadline, as
+  `docs/CONTRACT.md` §2 documents.
+- **Clicking actions did not move the pointer.** `Region.click()`/`doubleClick()`/
+  `rightClick()` do not reposition the pointer in this Oculix build, so an action was
+  dispatched somewhere other than the reported `center` (measured: reported `900,1100`,
+  pointer landed at `131,160`). Actions now move to the region centre first; the suite
+  verifies **every** action against `xdotool`'s view of the pointer.
+- **`--flash` never paused.** `java.lang.Thread.sleep()` through java-bridge is a no‑op
+  (`sleep(1000)` measured 0 ms), so the on‑screen flash had no hold time. Waits now use a
+  real Node‑side block (`Atomics.wait`), which also stops the OCR poll from spinning.
+- **`--imageMaxCount` returned aliases.** One accumulator object was pushed per match, so N
+  results were N references to the last match (identical centres). Results are now built
+  fresh per match.
+- **`clicked` was set for non‑clicking actions.** The image path recorded `clicked` even for
+  `--imageAction=hover`; it is now set only when a click was actually dispatched, matching
+  the OCR path and the field's documented meaning.
+
 **Phase B — NFR hardening (in progress).**
 
 - **Node 20 → Node 24 LTS.** Node 20 reached **EOL 2026-04-30**; the image now installs
