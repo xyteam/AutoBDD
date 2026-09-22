@@ -27,14 +27,17 @@
 # result plumbing
 # ---------------------------------------------------------------------------
 PASS=0; FAIL=0; FAILED=()
-_ok(){ PASS=$((PASS+1)); printf '   \033[32m✓\033[0m %s\n' "$1"; }
-_no(){ FAIL=$((FAIL+1)); FAILED+=("$FEAT_ID: $1"); printf '   \033[31m✗\033[0m %s\n' "$1"; }
-group(){ printf '\n\033[1m\033[44m  %s  \033[0m\n' "$1"; }
+# Everything the run prints goes to stderr: the log is a single ordered stream, so a
+# 'run:' line can never appear after the ✓ it produced. stdout stays free for a feature's
+# own payload (and for one.sh --list).
+_ok(){ PASS=$((PASS+1)); printf '   \033[32m✓\033[0m %s\n' "$1" >&2; }
+_no(){ FAIL=$((FAIL+1)); FAILED+=("$FEAT_ID: $1"); printf '   \033[31m✗\033[0m %s\n' "$1" >&2; }
+group(){ printf '\n\033[1m\033[44m  %s  \033[0m\n' "$1" >&2; }
 feature(){
   FEAT_ID="$1"
   FEAT_DESC="$(printf '%s\n' "${FEATURES[@]}" | awk -F'|' -v id="$1" '$2==id {print $3}')"
-  printf '\n\033[1m▸ %s\033[0m — %s\n' "$1" "$FEAT_DESC"
-  printf '   \033[2m%*srepro: base-test/one.sh %s\033[0m\n' 0 '' "$1"
+  printf '\n\033[1m▸ %s\033[0m — %s\n' "$1" "$FEAT_DESC" >&2
+  printf '   \033[2m%*srepro: base-test/one.sh %s\033[0m\n' 0 '' "$1" >&2
 }
 
 check_eq(){ local n="$1" a="$2" b="$3"; if [ "$a" = "$b" ]; then _ok "$n = $a"; else _no "$n (got '$a', want '$b')"; fi; }
@@ -122,7 +125,7 @@ feat_natives(){
   feature natives
   probe "at least 3 shared objects baked in /opt/oculix-natives" bash -c 'test "$(ls /opt/oculix-natives 2>/dev/null | wc -l)" -ge 3'
   probe "the loader has /opt/oculix-natives on its path" bash -c 'ldconfig -p 2>/dev/null | grep -q /opt/oculix-natives'
-  local JSON; JSON="$(target --imagePath=Screen --flash=0)"
+  local JSON; JSON="$(target --match-image=Screen --flash=0s)"
   check_eq "the engine loads those natives (screen read answers)" "$(_jq "$JSON" '.[0].name')" "Screen"
 }
 feat_screen_only(){
@@ -177,7 +180,7 @@ feat_pointer(){
 feat_screen_mode(){
   feature screen-mode
   fx_image
-  local JSON; JSON="$(target --imagePath=Screen --flash=0)"
+  local JSON; JSON="$(target_bin "$FRONT_READ")"
   check_eq "name is Screen"                "$(_jq "$JSON" '.[0].name')"          "Screen"
   check_eq "score is null (no template)"   "$(_jq "$JSON" '.[0].score')"         "null"
   check_eq "center is a point"             "$(_jq "$JSON" '.[0].center.x|type')" "number"
@@ -190,7 +193,7 @@ feat_screen_mode(){
 feat_image_match(){
   feature image-match
   fx_image
-  local JSON; JSON="$(target --imagePath="$WORK/hello.png" --flash=0)"
+  local JSON; JSON="$(target --match-image="$WORK/hello.png" --flash=0s)"
   check_eq "name is the template file name"       "$(_jq "$JSON" '.[0].name')" "hello.png"
   check_eq "score >= 0.99 for an exact copy"      "$(_jq "$JSON" '.[0].score >= 0.99')" "true"
   check_eq "region OCR text"                      "$(_jq "$JSON" '.[0].text[0]')" "HELLO WORLD"
@@ -203,24 +206,24 @@ feat_image_similarity(){
   feature image-similarity
   fx_image; fx_image_blurred
   local JSON
-  JSON="$(target --imagePath="$WORK/hello_blur.png" --imageSimilarity=0.5 --flash=0)"
+  JSON="$(target --match-image="$WORK/hello_blur.png" --min-score=0.5 --flash=0s)"
   check_eq "a low floor accepts the blurred template" "$(_jq "$JSON" '.[0].name')" "hello_blur.png"
-  JSON="$(target --imagePath="$WORK/hello_blur.png" --imageSimilarity=0.99 --flash=0)"
+  JSON="$(target --match-image="$WORK/hello_blur.png" --min-score=0.99 --flash=0s)"
   check_eq "a high floor rejects it"                  "$(_jq "$JSON" '.[0].status')" "notFound"
 }
 feat_maxsim_ceiling(){
   feature maxsim-ceiling
   fx_image
-  local JSON; JSON="$(target --imagePath="$WORK/hello.png" --maxSim=0.5 --flash=0)"
+  local JSON; JSON="$(target --match-image="$WORK/hello.png" --max-score=0.5 --flash=0s)"
   check_eq "a low ceiling rejects even a perfect match" "$(_jq "$JSON" '.[0].status')" "notFound"
 }
 feat_text_hint(){
   feature text-hint
   fx_image
   local JSON
-  JSON="$(target --imagePath="$WORK/hello.png" --textHint=HELLO --flash=0)"
+  JSON="$(target --match-image="$WORK/hello.png" --match-text=HELLO --flash=0s)"
   check_eq "a matching hint accepts"      "$(_jq "$JSON" '.[0].name')" "hello.png"
-  JSON="$(target --imagePath="$WORK/hello.png" --textHint=NOPE --flash=0)"
+  JSON="$(target --match-image="$WORK/hello.png" --match-text=NOPE --flash=0s)"
   check_eq "a non-matching hint rejects"  "$(_jq "$JSON" '.[0].status')" "notFound"
 }
 feat_image_wait(){
@@ -228,20 +231,20 @@ feat_image_wait(){
   convert -size 600x200 xc:white -pointsize 60 -fill black -gravity center -annotate +0+0 "HELLO WORLD" "$WORK/hello.png"
   fx_blank
   ( sleep 3; display -window root "$WORK/hello.png" >/dev/null 2>&1 ) &
-  local JSON; JSON="$(target --imagePath="$WORK/hello.png" --imageWaitTime=8 --flash=0)"
+  local JSON; JSON="$(target --match-image="$WORK/hello.png" --wait=8s --flash=0s)"
   check_eq "the call blocks until the target appears at t+3s" "$(_jq "$JSON" '.[0].name')" "hello.png"
 }
 feat_image_maxcount(){
   feature image-maxcount
   fx_two_tiles
-  local JSON; JSON="$(target --imagePath="$WORK/tile.png" --imageMaxCount=2 --flash=0)"
+  local JSON; JSON="$(target --match-image="$WORK/tile.png" --limit=2 --flash=0s)"
   check_eq "two identical tiles yield two results" "$(_jq "$JSON" 'length')" "2"
   check_eq "the two matches are distinct"          "$(_jq "$JSON" '.[0].center.x != .[1].center.x')" "true"
 }
 feat_image_missing(){
   feature image-missing
   fx_image
-  local JSON; JSON="$(target --imagePath="$WORK/nope.png" --flash=0)"
+  local JSON; JSON="$(target --match-image="$WORK/nope.png" --flash=0s)"
   check_eq "status is notFound" "$(_jq "$JSON" '.[0].status')" "notFound"
   check_eq "the payload is still an array" "$(_jq "$JSON" 'type')" "array"
 }
@@ -249,19 +252,19 @@ feat_flash(){
   feature flash
   fx_image
   printf '   \033[2m        timed without the fixture re-show (NOSHOW=1)\033[0m\n' >&2
-  NOSHOW=1 target --imagePath="$WORK/hello.png" >/dev/null                # warm
+  NOSHOW=1 target --match-image="$WORK/hello.png" >/dev/null                # warm
   local best_def="" best_none="" ms t0 t1
   # Minimum of five per mode: the minimum is the least noisy estimator of a fixed cost,
   # and both modes pay the identical JVM/match cost, so the difference is the flash.
   # The threshold only has to separate "flash applied (~1 s)" from "not applied (0 ms)",
   # which is the regression this guards: measured while broken, the delta was 15-284 ms;
   # applied, it is 780-1010 ms. The ceiling catches a runaway flash.
-  for _ in 1 2 3 4 5; do t0=$(now_ms); NOSHOW=1 target --imagePath="$WORK/hello.png" >/dev/null; t1=$(now_ms)
+  for _ in 1 2 3 4 5; do t0=$(now_ms); NOSHOW=1 target --match-image="$WORK/hello.png" >/dev/null; t1=$(now_ms)
     ms=$(( t1 - t0 )); [ -z "$best_def" ] || [ "$ms" -lt "$best_def" ] && best_def="$ms"; done
-  for _ in 1 2 3 4 5; do t0=$(now_ms); NOSHOW=1 target --imagePath="$WORK/hello.png" --flash=0 >/dev/null; t1=$(now_ms)
+  for _ in 1 2 3 4 5; do t0=$(now_ms); NOSHOW=1 target --match-image="$WORK/hello.png" --flash=0s >/dev/null; t1=$(now_ms)
     ms=$(( t1 - t0 )); [ -z "$best_none" ] || [ "$ms" -lt "$best_none" ] && best_none="$ms"; done
   local delta=$(( best_def - best_none ))
-  printf '   \033[2m        measured: default %s ms vs --flash=0 %s ms -> delta %s ms\033[0m\n' "$best_def" "$best_none" "$delta" >&2
+  printf '   \033[2m        measured: default %s ms vs --flash=0s %s ms -> delta %s ms\033[0m\n' "$best_def" "$best_none" "$delta" >&2
   check_ge "the default flash pauses for at least 0.5 s (0 ms would mean the flash is not applied)" "$delta" 500
   if [ "$delta" -le 2500 ]; then _ok "the flash pause is bounded = $delta ms (<= 2500)"; else _no "the flash pause is unbounded (got $delta ms)"; fi
 }
@@ -273,8 +276,9 @@ feat_flash(){
 # proves the action reached the X server rather than only being reported in JSON.
 action_case(){
   local action="$1" expect_click="$2" JSON cx cy
+  TARGET_ACTION="$3"
   xdotool mousemove 3 3; sleep 0.3
-  JSON="$(target --imagePath="$WORK/hello.png" --imageAction="$action" --flash=0)"
+  JSON="$(target --match-image="$WORK/hello.png" $TARGET_ACTION --flash=0s)"
   cx="$(_jq "$JSON" '.[0].center.x')"; cy="$(_jq "$JSON" '.[0].center.y')"
   if [ "$expect_click" = "click" ]; then
     check_eq "reports clicked == center" "$(_jq "$JSON" '.[0].clicked.x')" "$cx"
@@ -283,16 +287,16 @@ action_case(){
   fi
   check_eq "the pointer is really at the reported centre" "$(pointer)" "$cx,$cy"
 }
-feat_action_click(){       feature action-click;       fx_image; action_case click click; }
-feat_action_doubleclick(){ feature action-doubleclick; fx_image; action_case doubleClick click; }
-feat_action_rightclick(){  feature action-rightclick;  fx_image; action_case rightClick click; }
-feat_action_hoverclick(){  feature action-hoverclick;  fx_image; action_case hoverClick click; }
-feat_action_hover(){       feature action-hover;       fx_image; action_case hover hover; }
+feat_action_click(){       feature action-click;       fx_image; action_case click click "--click"; }
+feat_action_doubleclick(){ feature action-doubleclick; fx_image; action_case doubleClick click "--double-click"; }
+feat_action_rightclick(){  feature action-rightclick;  fx_image; action_case rightClick click "--right-click"; }
+feat_action_hoverclick(){  feature action-hoverclick;  fx_image; action_case hoverClick click "--hover --click"; }
+feat_action_hover(){       feature action-hover;       fx_image; action_case hover hover "--hover"; }
 feat_action_none(){
   feature action-none
   fx_image
   xdotool mousemove 3 3; sleep 0.3
-  local JSON; JSON="$(target --imagePath="$WORK/hello.png" --imageAction=none --flash=0)"
+  local JSON; JSON="$(target --match-image="$WORK/hello.png"  --flash=0s)"
   check_eq "clicked stays null"        "$(_jq "$JSON" '.[0].clicked')" "null"
   check_eq "the pointer is untouched"  "$(pointer)" "3,3"
 }
@@ -303,7 +307,7 @@ feat_action_none(){
 feat_ocr_detect(){
   feature ocr-detect
   fx_ocr
-  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR" --ocrDetail=word)"
+  local JSON; JSON="$(target --match-text="AUTOTEST OCR" --box)"
   check_eq "one match"                 "$(_jq "$JSON" 'length')" "1"
   check_eq "matched text"              "$(_jq "$JSON" '.[0].ocrDetails[0].text')" "AUTOTEST OCR"
   check_eq "bbox has x/y/width/height" "$(_jq "$JSON" '.[0].ocrDetails[0] | has("x") and has("y") and has("width") and has("height")')" "true"
@@ -312,26 +316,26 @@ feat_ocr_detect(){
 feat_ocr_detail_none(){
   feature ocr-detail-none
   fx_ocr
-  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR")"
+  local JSON; JSON="$(target --match-text="AUTOTEST OCR")"
   check_eq "the extension field is absent" "$(_jq "$JSON" '.[0] | has("ocrDetails")')" "false"
   check_eq "core fields are present" "$(_jq "$JSON" '.[0] | has("name") and has("center") and has("text")')" "true"
 }
 feat_ocr_detail_line(){
   feature ocr-detail-line
   fx_ocr
-  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR" --ocrDetail=line)"
+  local JSON; JSON="$(target --match-text="AUTOTEST OCR" --box=line)"
   check_eq "the extension field is present" "$(_jq "$JSON" '.[0] | has("ocrDetails")')" "true"
 }
 feat_ocr_similarity(){
   feature ocr-similarity
   fx_ocr
   local JSON
-  JSON="$(target --ocrPath="AUTOTEST OCR" --ocrSimilarity=0.8)"
+  JSON="$(target --match-text="AUTOTEST OCR" --min-score=0.8)"
   check_eq "the floor argument is accepted and detection still works" "$(_jq "$JSON" '.[0].name')" "AUTOTEST OCR"
-  JSON="$(target --ocrPath="NO SUCH TEXT HERE")"
+  JSON="$(target --match-text="NO SUCH TEXT HERE")"
   check_eq "absent text is rejected" "$(_jq "$JSON" '.[0].status')" "notFound"
   # Deliberately NOT asserted: that raising --ocrSimilarity rejects a text whose
-  # confidence is below it. Measured: with the text on screen, --ocrSimilarity=0.99
+  # confidence is below it. Measured: with the text on screen, --min-score=0.99
   # still returns a match, because this build's OCR path has no per-match confidence to
   # filter on (the image floor IS applied: see image-similarity). Asserting rejection
   # here would pass only when the screen happens to be blank — a false green.
@@ -342,21 +346,21 @@ feat_ocr_wait(){
   convert -size 600x200 xc:white -pointsize 60 -fill black -gravity center -annotate +0+0 "AUTOTEST OCR" "$WORK/ocr.png"
   fx_blank
   ( sleep 2; display -window root "$WORK/ocr.png" >/dev/null 2>&1 ) &
-  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR" --ocrWaitTime=8000)"
+  local JSON; JSON="$(target --match-text="AUTOTEST OCR" --wait=8000ms)"
   check_eq "the call waits for text that appears at t+2s" "$(_jq "$JSON" '.[0].name')" "AUTOTEST OCR"
 }
 feat_ocr_action(){
   feature ocr-action
   fx_ocr
   xdotool mousemove 3 3; sleep 0.3
-  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR" --ocrAction=click --ocrDetail=word)"
+  local JSON; JSON="$(target --match-text="AUTOTEST OCR" --click --box)"
   check_eq "reports clicked == center" "$(_jq "$JSON" '.[0].clicked.x')" "$(_jq "$JSON" '.[0].center.x')"
   check_eq "the pointer is really at the reported centre" "$(pointer)" "$(_jq "$JSON" '.[0].center.x'),$(_jq "$JSON" '.[0].center.y')"
 }
 feat_ocr_psm_oem(){
   feature ocr-psm-oem
   fx_ocr
-  local JSON; JSON="$(target --ocrPath="AUTOTEST OCR" --ocrPSM=7 --ocrOEM=3)"
+  local JSON; JSON="$(target --match-text="AUTOTEST OCR" --psm=7 --oem=3)"
   check_eq "explicit psm/oem still matches" "$(_jq "$JSON" '.[0].name')" "AUTOTEST OCR"
 }
 
@@ -368,8 +372,8 @@ feat_json_on_error(){
   # The env assignment must precede the binary; printing it as an argument (as the
   # previous version did) reproduced a *different* test: a successful screen read.
   local OUT rc payload
-  OUT="$(DISPLAY=:77 "$TARGET_BIN" --imagePath=Screen 2>/dev/null)"; rc=$?
-  printf '   \033[2mrun:    DISPLAY=:77 %s --imagePath=Screen   [rc=%s]\033[0m\n' "$TARGET_BIN" "$rc"
+  OUT="$(DISPLAY=:77 "$TARGET_BIN" --match-image=Screen 2>/dev/null)"; rc=$?
+  printf '   \033[2mrun:    DISPLAY=:77 %s --match-image=Screen   [rc=%s]\033[0m\n' "$TARGET_BIN" "$rc"
   payload="$(printf '%s' "$OUT" | sed -n 's/.*target_result: //p')"
   check_eq "exit status is 0" "$rc" "0"
   check_eq "exactly one result line" "$(printf '%s' "$OUT" | grep -c 'target_result:')" "1"
@@ -380,7 +384,7 @@ feat_json_on_error(){
 feat_additive_args(){
   feature additive-args
   fx_image
-  local JSON; JSON="$(target --imagePath="$WORK/hello.png" --someFutureArg=1 --flash=0)"
+  local JSON; JSON="$(target --match-image="$WORK/hello.png" --someFutureArg=1 --flash=0s)"
   check_eq "an unknown argument does not break matching" "$(_jq "$JSON" '.[0].name')" "hello.png"
 }
 
@@ -391,10 +395,10 @@ feat_latency(){
   feature latency
   fx_image
   printf '   \033[2m        timed without the fixture re-show (NOSHOW=1)\033[0m\n' >&2
-  NOSHOW=1 target --imagePath="$WORK/hello.png" --flash=0 >/dev/null      # warm
+  NOSHOW=1 target --match-image="$WORK/hello.png" --flash=0s >/dev/null      # warm
   local best="" ms t0 t1
   for _ in 1 2 3; do
-    t0=$(now_ms); NOSHOW=1 target --imagePath="$WORK/hello.png" --flash=0 >/dev/null 2>&1; t1=$(now_ms)
+    t0=$(now_ms); NOSHOW=1 target --match-image="$WORK/hello.png" --flash=0s >/dev/null 2>&1; t1=$(now_ms)
     ms=$(( t1 - t0 )); [ -z "$best" ] || [ "$ms" -lt "$best" ] && best="$ms"
   done
   if [ "${best:-99999}" -le 1500 ]; then _ok "warm match ${best} ms (budget 1500 ms)"; else _no "warm match ${best} ms (> 1500 ms budget)"; fi
@@ -439,19 +443,20 @@ feat_list(){
   out="$(findTargetImage --list 2>/dev/null)"; rc=$?
   printf '   \033[2mrun:    findTargetImage --list   [rc=%s]\033[0m\n' "$rc" >&2
   check_eq "exit status is 0" "$rc" "0"
-  check_has "lists the screen read flow" "$out" "--imagePath=Screen"
-  check_has "lists the acting flow" "$out" "--imageAction=click"
+  check_has "lists the screen read as its own verb" "$out" "read-text"
+  check_has "lists the picture flow" "$out" "--match-image=logo.png"
+  check_has "lists the acting flow" "$out" "--click"
 }
 feat_usage_error(){
   feature usage-error
   local out rc
   # An unusable value must fail loudly: silently behaving like the default would look
   # like a working call to an agent.
-  out="$(findTargetImage --imageAction=bogus 2>&1 >/dev/null)"; rc=$?
-  printf '   \033[2mrun:    findTargetImage --imageAction=bogus   [rc=%s]\033[0m\n' "$rc" >&2
+  out="$(findTargetImage --min-score=abc 2>&1 >/dev/null)"; rc=$?
+  printf '   \033[2mrun:    findTargetImage --min-score=abc   [rc=%s]\033[0m\n' "$rc" >&2
   check_eq "exit status is 2 (usage error)" "$rc" "2"
-  check_has "names the offending flag" "$out" "--imageAction"
-  check_has "lists the accepted values" "$out" "click"
+  check_has "names the offending flag" "$out" "--min-score"
+  check_has "says what it expected" "$out" "expects a number"
 }
 
 
@@ -486,7 +491,7 @@ feat_front_door_read_text(){
 feat_front_door_find_target(){
   feature front-door-find-target
   fx_image
-  local JSON; JSON="$(target_bin "$FRONT_DOOR" find-target --imagePath="$WORK/hello.png" --flash=0)"
+  local JSON; JSON="$(target_bin "$FRONT_DOOR" find-target --match-image="$WORK/hello.png" --flash=0s)"
   check_eq "find-target matches a picture" "$(_jq "$JSON" '.[0].name')" "hello.png"
   # A consumer branches on the exit status, so a successful match must exit 0. Seen once
   # as 139 (SIGSEGV during native teardown) under a loaded host; not reproducible in 23
@@ -507,15 +512,33 @@ feat_alias_transparent(){
   # Both surfaces must agree, and the deprecation notice must not touch stdout: every
   # consumer parses stdout as `target_result: <json>`.
   local legacy_stdout front_stdout payload
-  legacy_stdout="$(findTargetImage --imagePath="$WORK/hello.png" --flash=0 2>"$WORK/legacy.err")"
-  printf '   \033[2mrun:    findTargetImage --imagePath=%s --flash=0\033[0m\n' "$WORK/hello.png" >&2
+  legacy_stdout="$(findTargetImage --match-image="$WORK/hello.png" --flash=0s 2>"$WORK/legacy.err")"
+  printf '   \033[2mrun:    findTargetImage --match-image=%s --flash=0s\033[0m\n' "$WORK/hello.png" >&2
   payload="$(printf '%s' "$legacy_stdout" | sed -n 's/.*target_result: //p')"
   check_eq "the alias still answers" "$(_jq "$payload" '.[0].name')" "hello.png"
   check_has "the deprecation notice goes to stderr" "$(cat "$WORK/legacy.err")" "deprecated"
   check_eq "stdout carries exactly one result line" "$(printf '%s' "$legacy_stdout" | grep -c 'target_result:')" "1"
   check_eq "stdout carries no notice" "$(printf '%s' "$legacy_stdout" | grep -c 'deprecated')" "0"
-  front_stdout="$(target_bin "$FRONT_DOOR" find-target --imagePath="$WORK/hello.png" --flash=0)"
+  front_stdout="$(target_bin "$FRONT_DOOR" find-target --match-image="$WORK/hello.png" --flash=0s)"
   check_eq "the front door and the alias agree" "$(_jq "$front_stdout" '.[0].name')" "$(_jq "$payload" '.[0].name')"
+}
+
+
+feat_legacy_flags(){
+  feature legacy-flags
+  fx_image
+  # A v1 consumer must keep working untouched. The translation happens in the engine and
+  # warns on stderr only, so stdout still carries exactly one clean result line.
+  local out rc payload
+  out="$(findTargetImage --imagePath="$WORK/hello.png" --imageSimilarity=0.5 --maxSim=1 \
+         --imageWaitTime=2 --imageMaxCount=1 --imageAction=click --flash=0 2>"$WORK/legacy.err")"; rc=$?
+  printf '   \033[2mrun:    findTargetImage --imagePath=… --imageSimilarity=0.5 --imageAction=click   [rc=%s]\033[0m\n' "$rc" >&2
+  payload="$(printf '%s' "$out" | sed -n 's/.*target_result: //p')"
+  check_eq "the v1 flags still match" "$(_jq "$payload" '.[0].name')" "hello.png"
+  check_eq "and the v1 action still clicks" "$(_jq "$payload" '.[0].clicked|type')" "object"
+  check_eq "stdout carries exactly one result line" "$(printf '%s' "$out" | grep -c 'target_result:')" "1"
+  check_has "stdout names no deprecation" "$(printf '%s' "$out" | grep -c 'deprecated')" "0"
+  check_has "the deprecation goes to stderr" "$(cat "$WORK/legacy.err")" "deprecated"
 }
 
 # ---------------------------------------------------------------------------
@@ -577,6 +600,7 @@ FEATURES=(
   "$GROUP_J|front-door-find-target|find a target through the find-target verb"
   "$GROUP_J|front-door-unknown-verb|refuse an unknown verb with a usage error"
   "$GROUP_J|alias-transparent|keep findTargetImage working while warning on stderr only"
+  "$GROUP_J|legacy-flags|translate the v1 argument names, warning on stderr only"
 )
 
 run_feature(){

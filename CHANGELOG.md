@@ -29,6 +29,22 @@ the convention.
 - One uniform screenshot watermark on every step/final capture — a dark bottom band with
   the remark (green passed / red failed).
 
+**Base seam — argument vocabulary.** The v1 names described *how we look* (`image` vs `ocr`)
+and disagreed with themselves: `--imageSimilarity`/`--ocrSimilarity` were one concept, and
+`--imageWaitTime` was **seconds** while `--ocrWaitTime` was **milliseconds**. The v2 names
+describe *what you want*: `--match-image` / `--match-text` are the two ways to name the
+target, and everything else is stated once — `--min-score`, `--max-score`, `--wait`,
+`--limit`, `--box`, `--psm`, `--oem`. Actions became composable flags, so `--hover --click`
+replaces the `hoverClick` enum string; `--match-text` is **literal by default** with
+`--match-regex` opting in, so a search phrase containing `:` or `(` cannot silently change
+meaning (v1 `--textHint` was regex and keeps that behaviour through the legacy path).
+Durations now carry their unit (`--wait 5s`, `--wait 800ms`), which removes the s/ms split.
+
+Every v1 name is still accepted: it is translated in the engine and warns **on stderr only**
+(stdout carries the payload), so existing consumers keep working unchanged. See
+`docs/CONTRACT.md` §2b. Verified: the whole conformance matrix runs green on the new
+vocabulary, and a `legacy-flags` feature asserts the v1 names still match and still click.
+
 **Base seam — front door.** The interface is now verb-object: `autobdd find-target …`
 locates a target (optionally acting on it) and `autobdd read-text` reads the screen, so
 "read the screen" is no longer spelled as "find a target called Screen". The engine moved

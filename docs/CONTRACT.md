@@ -50,6 +50,48 @@ shadow the engine or collide with the verb names.
 
 ## 2. Arguments
 
+Canonical (v2) vocabulary. Names mirror the JSON fields they control (`--min-score` ↔
+`score`, `--box` ↔ `ocrDetails`, `--limit` ↔ the array length), and durations carry their
+unit, so a value cannot be misread.
+
+| Argument | Default | Meaning |
+|---|---|---|
+| `--match-image=<file\|Screen>` | — | the target picture. `Screen` reads the whole screen as text. **Required** unless `--match-text` is given. |
+| `--match-text=<text>` | — | the target text. With `--match-image` it gates the matched region; alone it searches the screen. |
+| `--match-regex` | off | treat `--match-text` as a regular expression (default: literal substring, case‑insensitive) |
+| `--min-score=<0-1>` | 0.8 | score floor |
+| `--max-score=<0-1>` | 1 | score ceiling |
+| `--wait=<dur>` | 1s | wait for the target. Durations carry a unit: `5s`, `800ms`; a bare number means seconds. |
+| `--limit=<n>` | 1 | at most n matches |
+| `--flash=<dur>` | 1s | on‑screen match flash; `0s` disables the pause |
+| `--click` `--double-click` `--right-click` `--hover` | off | actions, composable — `--hover --click` means hover then click |
+| `--box[=<none\|line\|word>]` | off | include the matched box |
+| `--psm=<n>` `--oem=<n>` | 7 / 3 | Tesseract knobs |
+
+Presence of a predicate defines the mode, so there are no modes to remember: `--match-image`
+alone, `--match-text` alone, or both (picture gated on its region's text).
+
+## 2b. Deprecated v1 arguments
+
+Still accepted, translated in the engine, and warned about **on stderr** (stdout stays pure
+payload). Removal is a future major.
+
+| v1 | becomes |
+|---|---|
+| `--imagePath` | `--match-image` |
+| `--ocrPath` | `--match-text` |
+| `--textHint` | `--match-text --match-regex` (v1 was regex; the new default is literal) |
+| `--imageSimilarity`, `--ocrSimilarity` | `--min-score` |
+| `--maxSim`, `--ocrMaxSim` | `--max-score` |
+| `--imageWaitTime` (seconds) | `--wait` (e.g. `5s`) |
+| `--ocrWaitTime` (milliseconds) | `--wait` (e.g. `800ms`) |
+| `--imageMaxCount`, `--ocrMaxCount` | `--limit` |
+| `--imageAction`, `--ocrAction` | `--click` / `--double-click` / `--right-click` / `--hover` (`single` and `hoverClick` are accepted) |
+| `--ocrDetail` | `--box` |
+| `--ocrPSM`, `--ocrOEM` | `--psm`, `--oem` |
+
+## 2c. Raw arguments
+
 | Arg | Type | Default | Meaning |
 |---|---|---|---|
 | `--imagePath` | string | `Screen` | Path to the **target image**, or `Screen` for whole-screen OCR mode. |

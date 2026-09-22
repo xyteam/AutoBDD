@@ -49,21 +49,18 @@ object (or array) on **stdout**.
 ### Basic usage (image matching)
 
 ```bash
-findTargetImage \
-    --imagePath=<path-to‑template.png> \
-    --imageSimilarity=0.8 \
-    --maxSim=1.0 \
-    --imageWaitTime=1000 \
-    --imageAction=click \
-    --imageMaxCount=1
+autobdd find-target --match-image=<path-to-template.png> \
+                    --min-score=0.8 --max-score=1.0 \
+                    --wait=5s --click --limit=1
 ```
 
 ### The front door
 
 ```bash
-autobdd find-target --imagePath=logo.png --imageAction=click   # locate, then click
-autobdd read-text                                              # read the screen as text
-autobdd --help                                                 # verbs, flags, exit codes
+autobdd find-target --match-image=logo.png --click    # locate, then click
+autobdd find-target --match-text="Submit" --box       # find text, report its box
+autobdd read-text                                     # read the whole screen as text
+autobdd --help                                        # verbs, flags, exit codes
 ```
 
 `findTargetImage` still works and is behaviourally identical — it is a **deprecated alias**
@@ -206,7 +203,7 @@ an empty array – existing parsers that ignore this field see no change.
 ## Feature conformance — what the base image can do, and how to check each bit
 
 The base image's feature set is enumerated as a **catalogue** in
-`test-projects/autobdd-base-test/base-test/features.sh` (currently **43 features**).
+`test-projects/autobdd-base-test/base-test/features.sh` (currently **44 features**).
 The suite is organised per feature, and every feature prints the single command that
 reproduces it — so the output doubles as documentation.
 
@@ -248,7 +245,7 @@ AutoBDD_Ver=<v> make base-test          # ~3 min; ends with "ALL FEATURES OK"
    ✓ the flash pause is bounded = 903 ms (<= 2500)
 
 ════════════════════════════════════════════════════════════════════════════
-feature conformance: 124 passed, 0 failed
+feature conformance: 130 passed, 0 failed
 ALL FEATURES OK
 ════════════════════════════════════════════════════════════════════════════
 ```
@@ -322,7 +319,7 @@ This repo ships two suites. Both run the **locally built** image only
 (`pull_policy: never` — build it, or pre‑pull the published tag):
 
 * **`test-projects/autobdd-base-test`** – the **no‑browser** feature‑conformance suite for
-  the **base** image (L0/L1 + the frozen CLI seam). 43 features, no Chrome required. See
+  the **base** image (L0/L1 + the frozen CLI seam). 44 features, no Chrome required. See
   **Feature conformance** above for the one‑liners and the catalogue:
 
   ```bash

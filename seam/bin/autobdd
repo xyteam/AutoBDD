@@ -2,7 +2,7 @@
 # autobdd — the front door to the AutoBDD base image's screen engine.
 #
 # Verbs are verb-object, so a call reads as an instruction:
-#     autobdd find-target --imagePath=logo.png --imageAction=click
+#     autobdd find-target --match-image=logo.png --click
 #     autobdd read-text
 #
 # The engine itself lives OUT of PATH (/opt/autobdd/seam/src); only this dispatcher and
@@ -39,10 +39,10 @@ DISCOVERY
 
 EXAMPLES
   autobdd read-text
-  autobdd find-target --imagePath=logo.png
-  autobdd find-target --imagePath=logo.png --imageAction=click
-  autobdd find-target --imagePath=card.png --textHint=Total
-  autobdd find-target --ocrPath="Submit" --ocrDetail=word
+  autobdd find-target --match-image=logo.png
+  autobdd find-target --match-image=logo.png --click
+  autobdd find-target --match-image=card.png --match-text=Total
+  autobdd find-target --match-text="Submit" --box
 
 EXIT STATUS
   0   a result was produced (including notFound — parse the JSON to branch)
@@ -61,7 +61,7 @@ case "$1" in
     shift
     # A screen read is the engine's whole-screen mode. An explicit --imagePath from the
     # caller wins, because the engine parses the last occurrence of a repeated flag.
-    exec "$ENGINE" --imagePath=Screen "$@"
+    exec "$ENGINE" --match-image=Screen "$@"
     ;;
   --help|-h|help) usage; exit 0 ;;
   --version)      exec "$ENGINE" --version ;;

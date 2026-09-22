@@ -16,36 +16,50 @@ const minimist = require('minimist');
 // flag catalogue — the single source for --help, --list and unknown-flag detection
 // ---------------------------------------------------------------------------
 const FLAGS = [
-  ['--imagePath=<file>',      'Screen', 'target picture; "Screen" reads the whole screen as text'],
-  ['--imageSimilarity=<0-1>', '0.8',    'minimum match score (floor)'],
-  ['--maxSim=<0-1>',          '1',      'maximum accepted score (ceiling)'],
-  ['--textHint=<regex>',      "''",     "the matched region's OCR text must match this"],
-  ['--imageWaitTime=<sec>',   '1',      'wait up to this long for the target to appear'],
-  ['--imageAction=<action>',  'none',   'none|click (alias single)|hover|hoverClick|doubleClick|rightClick'],
-  ['--imageMaxCount=<n>',     '1',      'return/act on at most n matches'],
-  ['--flash=<sec>',           '1.0',    'on-screen match flash; 0 disables the pause'],
-  ['--ocrPath=<text>',        'unset',  'opt-in: search the screen for this text instead of a picture'],
-  ['--ocrSimilarity=<0-1>',   '0.8',    'opt-in: OCR floor (accepted; see KNOWN GAPS)'],
-  ['--ocrMaxSim=<0-1>',       '1.0',    'opt-in: OCR ceiling'],
-  ['--ocrWaitTime=<ms>',      '1000',   'opt-in: poll for the text for this many MILLISECONDS'],
-  ['--ocrMaxCount=<n>',       '1',      'opt-in: at most n text matches'],
-  ['--ocrAction=<action>',    'none',   'opt-in: same action set as --imageAction'],
-  ['--ocrDetail=<level>',     'none',   'opt-in: none|line|word — include the matched box'],
-  ['--ocrPSM=<n>',            '7',      'opt-in: Tesseract page segmentation mode'],
-  ['--ocrOEM=<n>',            '3',      'opt-in: Tesseract OCR engine mode'],
+  ['--match-image=<file>',   '—',      'the target picture; "Screen" reads the whole screen'],
+  ['--match-text=<text>',    '—',      'the target text; with --match-image it gates the matched region'],
+  ['--match-regex',          'off',    'treat --match-text as a regular expression (default: literal)'],
+  ['--min-score=<0-1>',      '0.8',    'minimum match score (floor)'],
+  ['--max-score=<0-1>',      '1',      'maximum accepted score (ceiling)'],
+  ['--wait=<dur>',           '1s',     'wait up to this long for the target (5s, 800ms; bare = seconds)'],
+  ['--limit=<n>',            '1',      'return/act on at most n matches'],
+  ['--flash=<dur>',          '1s',     'on-screen match flash; --flash=0s disables the pause'],
+  ['--click',                'off',    'click the centre of the match'],
+  ['--double-click',         'off',    'double-click the centre'],
+  ['--right-click',          'off',    'right-click the centre'],
+  ['--hover',                'off',    'hover over the centre (combine with --click to hover then click)'],
+  ['--box[=<level>]',        'off',    'include the matched box (none|line|word)'],
+  ['--psm=<n>',              '7',      'Tesseract page segmentation mode'],
+  ['--oem=<n>',              '3',      'Tesseract OCR engine mode'],
+];
+
+// v1 names, still accepted and translated (docs/CONTRACT.md §2b)
+const LEGACY = [
+  ['--imagePath', '--match-image'], ['--ocrPath', '--match-text'],
+  ['--textHint', '--match-text --match-regex'],
+  ['--imageSimilarity', '--min-score'], ['--ocrSimilarity', '--min-score'],
+  ['--maxSim', '--max-score'], ['--ocrMaxSim', '--max-score'],
+  ['--imageWaitTime', '--wait'], ['--ocrWaitTime', '--wait'],
+  ['--imageMaxCount', '--limit'], ['--ocrMaxCount', '--limit'],
+  ['--imageAction', '--click|--double-click|--right-click|--hover'],
+  ['--ocrAction', '--click|--double-click|--right-click|--hover'],
+  ['--ocrDetail', '--box'], ['--ocrPSM', '--psm'], ['--ocrOEM', '--oem'],
 ];
 
 const FLOWS = [
-  ['read the whole screen as text', 'findTargetImage --imagePath=Screen --flash=0'],
-  ['find a picture on screen',      'findTargetImage --imagePath=logo.png'],
-  ['find a picture, gated on text', 'findTargetImage --imagePath=card.png --textHint=Total'],
-  ['find text on screen',           'findTargetImage --ocrPath="Submit" --ocrDetail=word'],
-  ['find a picture, then click it', 'findTargetImage --imagePath=logo.png --imageAction=click'],
-  ['find several matches',          'findTargetImage --imagePath=tile.png --imageMaxCount=2'],
+  ['read the whole screen as text', 'autobdd read-text'],
+  ['find a picture on screen',      'autobdd find-target --match-image=logo.png'],
+  ['find a picture, gated on text', 'autobdd find-target --match-image=card.png --match-text=Total'],
+  ['find text on screen',           'autobdd find-target --match-text="Submit" --box'],
+  ['find a picture, then click it', 'autobdd find-target --match-image=logo.png --click'],
+  ['find several matches',          'autobdd find-target --match-image=tile.png --limit=2'],
+  ['hover, then click',             'autobdd find-target --match-image=logo.png --hover --click'],
 ];
 
 const KNOWN = new Set(
-  FLAGS.map((f) => f[0].replace(/^--/, '').split('=')[0]).concat(['help', 'h', 'version', 'list'])
+  FLAGS.map((f) => f[0].replace(/^--/, '').split('=')[0])
+    .concat(LEGACY.map((l) => l[0].replace(/^--/, '')))
+    .concat(['help', 'h', 'version', 'list'])
 );
 const ACTIONS = new Set(['none', 'click', 'single', 'hover', 'hoverClick', 'double', 'doubleClick', 'right', 'rightClick']);
 const DETAILS = new Set(['none', 'line', 'word']);
@@ -79,9 +93,13 @@ EXIT STATUS
   2   usage error — an unparseable number or an unknown action/level
 
 KNOWN GAPS
-  --ocrSimilarity is accepted but not applied: this build's OCR path exposes no
-  per-match confidence to filter on (the image floor IS applied).
+  --min-score is applied to image matches; the OCR path exposes no per-match
+  confidence to filter on, so it is accepted but not applied for text targets.
+  --box reports the matched region, not one entry per token.
   --ocrDetail=word reports the matched region, not one entry per token.
+
+DEPRECATED (translated, with a warning on stderr)
+${LEGACY.map(([o, n]) => `  ${pad(o, 26)} -> ${n}`).join('\n')}
 
 FLAGS
 ${rows}
@@ -172,28 +190,102 @@ try {
 const _sleepBuf = new Int32Array(new SharedArrayBuffer(4));
 const sleepMs = (ms) => { if (ms > 0) Atomics.wait(_sleepBuf, 0, 0, ms); };
 
-// All args are used as plain JS values (we never build a shell command line here),
-// so they must NOT be shell-quoted. Numbers and enums are validated above, so a typo
-// fails loudly instead of silently behaving like its default.
-const imagePath = str(argv.imagePath, null);
-const imageSimilarity = num('--imageSimilarity', argv.imageSimilarity, parseFloat(process.env.imageSimilarity || 0.8));
-const maxSim = num('--maxSim', argv.maxSim, 1);
-const textHint = str(argv.textHint, '');
-const imageAction = oneOf('--imageAction', argv.imageAction, ACTIONS, 'none');
-const imageWaitTime = num('--imageWaitTime', argv.imageWaitTime, parseInt(process.env.imageWaitTime || 1));
-const imageMaxCount = num('--imageMaxCount', argv.imageMaxCount, 1);
-const flashSecs = num('--flash', argv.flash, 1.0);
+// --- vocabulary ---------------------------------------------------------------------
+// Canonical arguments are used as plain JS values (never shell-quoted). The v1 names are
+// translated below, with one warning per name on stderr, so an existing consumer keeps
+// working; stdout stays pure payload.
+const has = (k) => argv[k] != null && argv[k] !== 'undefined';
+const dep = (old, nu) => process.stderr.write(`findTargetImage: ${old} is deprecated — use ${nu}\n`);
 
-// OCR-specific arguments (all opt-in). ocrPath === null means "image matching mode".
-const ocrPath = (argv.ocrPath != null && argv.ocrPath !== 'undefined') ? String(argv.ocrPath) : null;
-const ocrSimilarity = num('--ocrSimilarity', argv.ocrSimilarity, 0.8);
-const ocrMaxSim = num('--ocrMaxSim', argv.ocrMaxSim, 1.0);
-const ocrWaitTime = num('--ocrWaitTime', argv.ocrWaitTime, 1000);
-const ocrMaxCount = num('--ocrMaxCount', argv.ocrMaxCount, 1);
-const ocrAction = oneOf('--ocrAction', argv.ocrAction, ACTIONS, 'none');
-const ocrDetail = oneOf('--ocrDetail', argv.ocrDetail, DETAILS, 'none');
-const ocrPSM = num('--ocrPSM', argv.ocrPSM, 7);
-const ocrOEM = num('--ocrOEM', argv.ocrOEM, 3);
+// durations carry their unit (5s / 800ms); a bare number means seconds. Internally
+// everything is milliseconds, which is what removes the old s-vs-ms split.
+const dur = (flag, raw, dfltMs) => {
+  if (raw == null || raw === 'undefined') return dfltMs;
+  if (raw === true) die(`${flag} needs a value, e.g. ${flag}=5s`);
+  const m = String(raw).trim().match(/^([0-9]*\.?[0-9]+)\s*(ms|s)?$/i);
+  if (!m) die(`${flag} expects a duration like 5s or 800ms, got '${raw}'`);
+  const n = parseFloat(m[1]);
+  return (m[2] && m[2].toLowerCase() === 'ms') ? n : n * 1000;
+};
+
+// --- target ---------------------------------------------------------------------------
+let matchImage = null, matchText = null, regexMode = false;
+if (has('match-image')) matchImage = String(argv['match-image']);
+if (has('match-text'))  matchText  = String(argv['match-text']);
+if (has('match-regex')) regexMode = true;
+if (has('imagePath')) { dep('--imagePath', '--match-image'); matchImage = String(argv.imagePath); }
+if (has('ocrPath'))   { dep('--ocrPath', '--match-text');    matchText  = String(argv.ocrPath); }
+if (has('textHint'))  { dep('--textHint', '--match-text --match-regex'); matchText = String(argv.textHint); regexMode = true; }
+
+// --- scores ---------------------------------------------------------------------------
+let minScore = has('min-score') ? num('--min-score', argv['min-score'], 0.8) : (parseFloat(process.env.imageSimilarity) || 0.8);
+let maxScore = has('max-score') ? num('--max-score', argv['max-score'], 1) : 1;
+if (has('imageSimilarity')) { dep('--imageSimilarity', '--min-score'); minScore = num('--imageSimilarity', argv.imageSimilarity, minScore); }
+if (has('ocrSimilarity'))   { dep('--ocrSimilarity', '--min-score');   minScore = num('--ocrSimilarity', argv.ocrSimilarity, minScore); }
+if (has('maxSim'))          { dep('--maxSim', '--max-score');          maxScore = num('--maxSim', argv.maxSim, maxScore); }
+if (has('ocrMaxSim'))       { dep('--ocrMaxSim', '--max-score');       maxScore = num('--ocrMaxSim', argv.ocrMaxSim, maxScore); }
+
+// --- wait (canonical: ms). Legacy --imageWaitTime was SECONDS, --ocrWaitTime was MS. ---
+let waitMs = has('wait') ? dur('--wait', argv.wait, 1000) : null;
+if (has('imageWaitTime')) { dep('--imageWaitTime', '--wait (seconds, e.g. 5s)'); waitMs = num('--imageWaitTime', argv.imageWaitTime, 1) * 1000; }
+if (has('ocrWaitTime'))   { dep('--ocrWaitTime', '--wait (milliseconds, e.g. 800ms)'); waitMs = num('--ocrWaitTime', argv.ocrWaitTime, 1000); }
+if (waitMs == null) waitMs = 1000;
+
+// --- limit ----------------------------------------------------------------------------
+let limit = has('limit') ? num('--limit', argv.limit, 1) : 1;
+if (has('imageMaxCount')) { dep('--imageMaxCount', '--limit'); limit = num('--imageMaxCount', argv.imageMaxCount, limit); }
+if (has('ocrMaxCount'))   { dep('--ocrMaxCount', '--limit');   limit = num('--ocrMaxCount', argv.ocrMaxCount, limit); }
+
+// --- actions (composable flags; --hover --click means hover then click) ---------------
+let action = 'none';
+if (has('hover') && has('click')) action = 'hoverClick';
+else if (has('click')) action = 'click';
+else if (has('double-click')) action = 'doubleClick';
+else if (has('right-click')) action = 'rightClick';
+else if (has('hover')) action = 'hover';
+const legacyAct = has('imageAction') ? 'imageAction' : (has('ocrAction') ? 'ocrAction' : null);
+if (legacyAct) {
+  dep(`--${legacyAct}`, '--click|--double-click|--right-click|--hover');
+  const v = oneOf(`--${legacyAct}`, argv[legacyAct], ACTIONS, 'none');
+  action = (v === 'single') ? 'click' : v;          // 'single' was a click alias
+}
+
+// --- output detail --------------------------------------------------------------------
+let ocrDetail = 'none';
+if (has('box')) ocrDetail = (argv.box === true) ? 'line' : oneOf('--box', argv.box, DETAILS, 'line');
+if (has('ocrDetail')) { dep('--ocrDetail', '--box'); ocrDetail = oneOf('--ocrDetail', argv.ocrDetail, DETAILS, 'none'); }
+
+// --- tesseract knobs ------------------------------------------------------------------
+let psm = has('psm') ? num('--psm', argv.psm, 7) : 7;
+let oem = has('oem') ? num('--oem', argv.oem, 3) : 3;
+if (has('ocrPSM')) { dep('--ocrPSM', '--psm'); psm = num('--ocrPSM', argv.ocrPSM, psm); }
+if (has('ocrOEM')) { dep('--ocrOEM', '--oem'); oem = num('--ocrOEM', argv.ocrOEM, oem); }
+
+// --- flash ----------------------------------------------------------------------------
+const flashSecs = (has('flash') ? dur('--flash', argv.flash, 1000) : 1000) / 1000;
+
+// --- map the canonical options onto the engine's internal variables -------------------
+// The image and text paths below are unchanged; only these values differ from before.
+const imagePath = matchImage;
+const ocrPath = matchImage ? null : matchText;        // text search only when no picture
+const imageSimilarity = minScore;
+const maxSim = maxScore;
+const imageAction = action;
+const imageWaitTime = waitMs / 1000;                  // the image path takes seconds
+const imageMaxCount = limit;
+const ocrSimilarity = minScore;
+const ocrMaxSim = maxScore;
+const ocrWaitTime = waitMs;                           // the text path takes milliseconds
+const ocrMaxCount = limit;
+const ocrAction = action;
+const ocrPSM = psm;
+const ocrOEM = oem;
+// A text gate on an image match: literal by default (regex metacharacters escaped),
+// regex only when asked for — so a phrase containing ':' or '(' cannot silently change
+// meaning. --textHint keeps today's regex semantics via the legacy path above.
+const textHint = matchText
+  ? (regexMode ? matchText : matchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  : '';
 
 // default output
 const notFoundStatus = {status: 'notFound'};
@@ -426,9 +518,9 @@ const findImageOcr = (ocrPath, ocrSimilarity, ocrMaxSim, ocrWaitTime, ocrMaxCoun
 // The target is required (docs/CONTRACT.md §1). Omitting it used to default to a
 // whole-screen OCR scan, so a mistyped flag silently cost ~3 s and looked like a
 // successful call; and it made `find-target` indistinguishable from `read-text`.
-if (imagePath === null && ocrPath === null) {
-  die('no target given — pass --imagePath=<file|Screen> (or --ocrPath=<text>); to read the '
-    + 'screen use: autobdd read-text');
+if (matchImage === null && matchText === null) {
+  die('no target given — pass --match-image=<file|Screen> or --match-text=<text>; to read '
+    + 'the whole screen use: autobdd read-text');
 }
 let target_result;
 if (ocrPath !== null) {
