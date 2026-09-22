@@ -17,14 +17,26 @@ module.exports = {
     var outputBuffer;
     var outputString;
     var returnVal;
-    var runCommand = 'findTargetImage'
-                    + ' --imagePath=' + imagePath
-                    + ' --imageSimilarity=' + imageSimilarity
-                    + ' --maxSim=' + maxSim
-                    + ' --textHint="' + textHint + '"'
-                    + ' --imageWaitTime=' + imageWaitTime
-                    + ' --imageAction=' + imageAction
-                    + ' --imageMaxCount=' + imageMaxCount;
+    // Canonical v2 vocabulary via the front door. This was the last v1 emitter: the v1
+    // names still work (they are translated) but would warn on stderr on every call.
+    //   * --min-score / --max-score replace --imageSimilarity / --maxSim
+    //   * --imageWaitTime was SECONDS, so --wait carries the unit
+    //   * the action enum becomes composable flags (--hover --click)
+    //   * textHint was a REGEX, so --match-regex is passed to keep its semantics; the v2
+    //     default for --match-text is a literal, which callers can opt into by dropping it
+    const actionFlags = {
+      none: '', click: '--click', single: '--click',
+      hover: '--hover', hoverClick: '--hover --click',
+      doubleClick: '--double-click', rightClick: '--right-click'
+    }[imageAction] || '';
+    var runCommand = 'autobdd find-target'
+                    + ' --match-image=' + imagePath
+                    + ' --min-score=' + imageSimilarity
+                    + ' --max-score=' + maxSim
+                    + (textHint ? ' --match-text="' + textHint + '" --match-regex' : '')
+                    + ' --wait=' + imageWaitTime + 's'
+                    + (actionFlags ? ' ' + actionFlags : '')
+                    + ' --limit=' + imageMaxCount;
     try {
       // display run command for debugging
       console.log(runCommand);

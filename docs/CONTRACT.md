@@ -90,7 +90,9 @@ payload). Removal is a future major.
 | `--ocrDetail` | `--box` |
 | `--ocrPSM`, `--ocrOEM` | `--psm`, `--oem` |
 
-## 2c. Raw arguments
+## 2c. Raw argument reference (v1 — deprecated)
+
+Kept only as a reference for the v1 semantics; §2b maps every row to its v2 replacement.
 
 | Arg | Type | Default | Meaning |
 |---|---|---|---|
@@ -128,7 +130,7 @@ An **array**. On success, one object per match:
 | `text` | string[] | OCR lines of the matched region (Screen mode: whole screen). |
 | `location` | `{x,y}` | Top-left of the match, screen pixels. |
 | `dimension` | `{width,height}` | Match size in pixels. |
-| `center` | `{x,y}` | Click point (used by `--imageAction`). |
+| `center` | `{x,y}` | Click point (used by the click actions). |
 | `clicked` | `{x,y}` \| null | Set when an action was performed. |
 
 **Not found:** the array contains a single status object:
@@ -161,7 +163,7 @@ Two failure modes are explicit rather than silent:
 
 * **Unknown arguments** are warned about on **stderr** and otherwise ignored (the argument
   surface is additive, so an older consumer must keep working).
-* **Unusable values** (a non-numeric threshold, an unknown `--imageAction`/`--ocrDetail`)
+* **Unusable values** (a non-numeric threshold, an unknown `--box` level)
   print `findTargetImage: <flag> expects …` on stderr and exit **2**. Silently behaving
   like the default would look like a successful call to an automated caller.
 

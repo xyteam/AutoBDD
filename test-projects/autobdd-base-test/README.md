@@ -53,6 +53,7 @@ commands above. Always go through `docker compose run` (or `make docker-run`).
 |---|---|---|
 | `AutoBDD_Ver` | `dev` (from `.env`) | the image tag: `xyteam/autobdd-base:<v>`. Must match what you built. |
 | `TARGET_BIN` | `/usr/local/libexec/autobdd/find-target` | the entry point under test. Set to `findTargetImage` for the deprecated-alias surface. |
+| `EXPECTED_VERSION` | unset | the release the image must report. Unset, the suite checks only that the image's reported version agrees with its own build stamp; set, a mismatch fails the run (CI sets it from `package.json`). |
 | `RESOLUTION` | `1920x1200x24` | Xvfb geometry. |
 | `NOSHOW` | unset | internal: timing features set it to keep the fixture re-show out of the measured window. |
 

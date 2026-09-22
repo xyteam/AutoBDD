@@ -96,7 +96,7 @@ KNOWN GAPS
   --min-score is applied to image matches; the OCR path exposes no per-match
   confidence to filter on, so it is accepted but not applied for text targets.
   --box reports the matched region, not one entry per token.
-  --ocrDetail=word reports the matched region, not one entry per token.
+  --box reports the matched region, not one entry per token.
 
 DEPRECATED (translated, with a warning on stderr)
 ${LEGACY.map(([o, n]) => `  ${pad(o, 26)} -> ${n}`).join('\n')}
@@ -109,11 +109,14 @@ ${rows}
 function printList() { process.stdout.write(FLOWS.map(([what, cmd]) => `${cmd}\n    # ${what}\n`).join('')); }
 
 function version() {
-  let built = 'unknown';
-  try { built = (fs.readFileSync('/etc/autobdd-versions', 'utf8').match(/^built=(.*)$/m) || [])[1] || 'unknown'; } catch (e) {}
-  return `findTargetImage — AutoBDD base seam
-image  : built ${built}
-oculix : ${process.env.OCULIX_VER || '4.0.0'}
+  const stamp = (key, dflt) => {
+    try { return (fs.readFileSync('/etc/autobdd-versions', 'utf8').match(new RegExp('^' + key + '=(.*)$', 'm')) || [])[1] || dflt; }
+    catch (e) { return dflt; }
+  };
+  return `autobdd — AutoBDD base image
+version: ${stamp('version', 'unknown')}
+image  : built ${stamp('built', 'unknown')}
+oculix : ${stamp('oculix', process.env.OCULIX_VER || '4.0.0')}
 node   : ${process.version}
 `;
 }

@@ -1,18 +1,31 @@
 # AutoBDD
 
-**AutoBDD** — a BDD automation framework that drives the **screen** (image matching +
-OCR), not just the DOM. `package.json` `3.0.0`.
+**AutoBDD 4.0.0 — the base line.** A **docker-runnable GUI** (X display + window manager +
+VNC) with a screen engine inside, exposed as one CLI so that **higher-level tools drive it**:
+your framework, your own scripts, or an agent. It finds things on screen — a picture, or
+text — and can act on them. `package.json` `4.0.0`.
+
+The job of this release is deliberately narrow: be the **substrate**. It does not ship a
+browser, a test runner or a BDD layer. Everything above that plugs in through the
+`autobdd` interface described in [`docs/CONTRACT.md`](docs/CONTRACT.md).
+
+> **3.0.0 is unchanged and stays published.** That tag, release and image
+> (`xyteam/autobdd-framework:3.0.0`, plus the `xyteam/autobdd` alias) remain exactly as
+> shipped — the last release of the **framework** line, which bundled the base with Chrome,
+> WebdriverIO and Cucumber. 4.0.0 is a new line cut from it, focused on the base.
 
 ## What this repository is (and isn't)
 
-This repo is the **framework source and the build source of the AutoBDD docker
-images**. You do **not** need to clone it to use AutoBDD.
+This repo is the **build source of the AutoBDD docker images**. You do **not** need to
+clone it to use them.
 
 * The images are built here and **published to Docker Hub**:
-  **`xyteam/autobdd-base`** and **`xyteam/autobdd-framework`**. **`xyteam/autobdd`**
-  is kept as a **deprecated alias** of `autobdd-framework` (same image, two tags),
-  so existing consumers keep working.
-* The image is **Ubuntu 24.04** based.
+  **`xyteam/autobdd-base`** — the 4.0.0 line, and what this release is about —
+  and **`xyteam/autobdd-framework`**, the 3.0.0 line (base + browser + BDD). The
+  framework image still builds from this repo and pins its base with
+  `AUTOBDD_VERSION`; re-baselining it onto the 4.0.0 base is future work.
+  **`xyteam/autobdd`** is a **deprecated alias** of `autobdd-framework`.
+* The images are **Ubuntu 24.04** based.
 * **Test repositories pull and run the image directly** — e.g.
   [AutoBDD-example](https://github.com/xyteam/AutoBDD-example) runs its suite
   against `xyteam/autobdd:<version>` with no framework clone required.
@@ -22,7 +35,7 @@ images**. You do **not** need to clone it to use AutoBDD.
 # a test repo selects the published image via AutoBDD_Ver and runs its own compose;
 # no AutoBDD framework clone is required
 cd ~/Projects/AutoBDD-example
-AutoBDD_Ver=3.0.0 ABDD_PROJECT=AutoBDD-example \
+AutoBDD_Ver=3.0.0 ABDD_PROJECT=AutoBDD-example \   # 3.0.0 = the framework line
   USER=$(whoami) PASSWORD=ubuntu HOSTOS=Linux USERID=$(id -u) GROUPID=$(id -g) \
   docker compose run --rm autobdd-example-run "make e2e-test"
 # (see the test repo's docker-compose.yml / README for its exact run service)
@@ -39,20 +52,13 @@ The product is published as two tags that are also two **layers** of one stack:
 
 `xyteam/autobdd:<v>` is a **deprecated alias** of `xyteam/autobdd-framework:<v>`.
 
-## The public interface of the base image (the frozen seam)
+## The public interface of the base image
 
-The base image exposes a single command‑line program, **`findTargetImage`**, which is the
-frozen public contract described in [`docs/CONTRACT.md`](docs/CONTRACT.md).  
-All communication with the base image happens through this program; it returns a JSON
-object (or array) on **stdout**.
-
-### Basic usage (image matching)
-
-```bash
-autobdd find-target --match-image=<path-to-template.png> \
-                    --min-score=0.8 --max-score=1.0 \
-                    --wait=5s --click --limit=1
-```
+Everything you can do with the base image is reached through **`autobdd`**, the front door
+described in [`docs/CONTRACT.md`](docs/CONTRACT.md). It writes a JSON object (or array) to
+**stdout** on a single line, and the verbs are verb-object so a call reads as an instruction.
+`findTargetImage` — the v1 name — still works as a **deprecated alias**, and the engine
+behind both lives at `/opt/autobdd/seam/src/`, out of `PATH`.
 
 ### The front door
 
@@ -95,85 +101,46 @@ These are answered **before the JVM and native engine start** — measured at ~4
 was produced — **including `notFound`, which is an answer, not a fault** (branch on
 `.[0].status`) — and `2` for a usage error. Unknown arguments warn on stderr and are
 otherwise ignored, because the argument surface is additive; an *unusable value* (a
-non‑numeric threshold, an unknown `--imageAction`) exits `2` instead of silently behaving
+non‑numeric threshold, an unknown `--box` level) exits `2` instead of silently behaving
 like the default.
 
-### Opt‑in OCR mode (new)
+### Arguments
 
-All OCR‑related arguments are **optional**; if none of them are supplied the seam
-behaves exactly as described above (pure image matching).  
-When `--ocrPath` is supplied the seam runs OCR instead of image matching.
+The full, authoritative list lives in **[`docs/CONTRACT.md`](docs/CONTRACT.md) §2** (canonical)
+and **§2b** (the deprecated v1 names, still accepted and translated). In short:
 
-| Argument | Type | Default | Meaning |
-|----------|------|---------|---------|
-| `--ocrPath <text>` | string | *(required for OCR mode)* | Text to search for via OCR. |
-| `--ocrSimilarity <float>` | float | `0.8` | Minimum OCR confidence (0‑1) to treat as a match. |
-| `--ocrMaxSim <float>` | float | `1.0` | Maximum OCR confidence (upper bound). |
-| `--ocrWaitTime <ms>` | integer | `1000` | How long (ms) to wait for the OCR text to appear (polls until found or timeout). |
-| `--ocrMaxCount <int>` | integer | `1` | Maximum number of OCR matches to return. |
-| `--ocrAction <action>` | string | `none` | Action to perform on each OCR match: `none`, `click`, `doubleClick`, `rightClick`, `hover`, `hoverClick`. |
-| `--ocrDetail <none|line|word>` | string | `none` | Include the OCR bounding box in the result. `line` and `word` both emit the matched text region: a tight box when the engine exposes one for the query, otherwise the searched region's rectangle. `none` omits `ocrDetails` entirely (backward‑compatible). |
-| `--ocrPSM <int>` | integer | `7` | Tesseract Page Segmentation Mode (passed through to Oculix). |
-| `--ocrOEM <int>` | integer | `3` | Tesseract OCR Engine Mode (passed through to Oculix). |
+| Argument | Default | Meaning |
+|---|---|---|
+| `--match-image=<file\|Screen>` | — | the target picture; `Screen` reads the whole screen. Required unless `--match-text` is given. |
+| `--match-text=<text>` | — | the target text. With `--match-image` it gates the matched region; alone it searches the screen. |
+| `--match-regex` | off | treat `--match-text` as a regex (default: literal, case‑insensitive) |
+| `--min-score` / `--max-score` | 0.8 / 1 | score floor / ceiling (mirrors the JSON `score` field) |
+| `--wait=<dur>` | 1s | wait for the target — `5s`, `800ms`; a bare number means seconds |
+| `--limit=<n>` | 1 | at most n matches |
+| `--flash=<dur>` | 1s | on‑screen match flash; `0s` disables the pause |
+| `--click` `--double-click` `--right-click` `--hover` | off | actions, composable — `--hover --click` is hover‑then‑click |
+| `--box[=<none\|line\|word>]` | off | include the matched box |
+| `--psm=<n>` / `--oem=<n>` | 7 / 3 | Tesseract knobs |
 
-### Output format (backward‑compatible)
+Presence defines the mode, so there is nothing to remember: `--match-image` alone,
+`--match-text` alone, or both (a picture gated on its region's text).
 
-The seam always returns a JSON array (or a single `{status:'notFound'}` object).  
-Each result object contains the original fields:
+### Examples
 
-```json
-{
-  "name": "<string>",                 // matched text (or template name)
-  "score": <number>,                  // OCR confidence (0‑1) or image similarity
-  "text": [<string>, ...],           // OCR lines (full text split by '\n')
-  "location": { "x":<num>, "y":<num>, "width":<num>, "height":<num> },
-  "dimension": { "width":<num>, "height":<num> },
-  "center": { "x":<num>, "y":<num> },
-  "clicked": { "x":<num>, "y":<num> } | null,   // set only for clicking actions (click/doubleClick/rightClick/hoverClick)
-  "ocrDetails": [                     // <-- ONLY present when --ocrDetail ≠ none
-    {
-      "text": "<string>",             // the OCR word or line
-      "x":<num>, "y":<num>,           // top‑left corner
-      "width":<num>, "height":<num>,  // size in pixels
-      "confidence":<number>           // OCR confidence for this token (0‑1)
-    },
-    ...
-  ]
-}
+```bash
+autobdd find-target --match-image=logo.png                          # locate a picture
+autobdd find-target --match-text="SUBMIT" --box                     # find text, report its box
+autobdd find-target --match-text="SUBMIT" --click                   # find text, click it
+autobdd find-target --match-image=card.png --match-text=Total       # gate a picture on its text
+autobdd find-target --match-image=tile.png --limit=2 --wait=5s      # several matches, wait
+autobdd find-target --match-image=logo.png --hover --click          # hover, then click
+autobdd read-text                                                   # read the whole screen
 ```
 
-If `--ocrDetail=none` (the default) the `ocrDetails` field may be omitted or set to
-an empty array – existing parsers that ignore this field see no change.
-
-### Example usages
-
-* **Detect a word and get its bounding box (no action)**  
-
-  ```bash
-  findTargetImage --ocrPath="SUBMIT" --ocrDetail=word
-  ```
-
-* **Click the first occurrence of a word**  
-
-  ```bash
-  findTargetImage --ocrPath="SUBMIT" --ocrAction=click --ocrDetail=word
-  ```
-
-* **Double‑click the second occurrence of a phrase**  
-
-  ```bash
-  findTargetImage --ocrPath="END TEST" --ocrAction=doubleClick \
-                  --ocrDetail=word --ocrMaxCount=2
-  ```
-
-* **Hover over a line of text (no click)**  
-
-  ```bash
-  findTargetImage --ocrPath="Status:" --ocrAction=hover --ocrDetail=line
-  ```
-
-* **Combine image matching with OCR gating (textHint)** – unchanged from the original
-  seam; see `docs/CONTRACT.md` for details.
+**Deprecated, still working:** every v1 name (`--imagePath`, `--ocrPath`, `--textHint`,
+`--imageSimilarity`, `--maxSim`, `--imageWaitTime`, `--imageAction`, `--ocrDetail`, …) is
+translated and warns on **stderr only**, so a v1 consumer keeps working untouched — see
+`docs/CONTRACT.md` §2b.
 
 ## Under the hood
 
@@ -194,7 +161,8 @@ an empty array – existing parsers that ignore this field see no change.
 |---------|--------|-------------|------|---------|
 | **v2.3.0** | 96 | 7 | 12 | original pinned runtime (Node 12.22.7 + Chrome 96) |
 | **v2.4.0** | modern (latest stable, e.g. 153) | 7 | 14 | re‑activated v2.3.0 line; builds against current Chrome; matching browser driver baked into the image |
-| **v3.0.0** | modern (latest stable, e.g. 153) | 9 | 20 | runtime re‑baseline: Node 20 + Java 17 + WebdriverIO 9 + Oculix 4.0.0 (image matching/OCR) |
+| **v3.0.0** | modern (latest stable, e.g. 153) | 9 | 20 | runtime re‑baseline: Node 20 + Java 17 + WebdriverIO 9 + Oculix 4.0.0 (image matching/OCR) — **last framework‑line release; frozen** |
+| **v4.0.0** | — | — | 24 | **base line**: Ubuntu 24.04 + Java 17 + Node 24 + Oculix 4.0.0, the `autobdd` front door with a verb vocabulary, self‑contained Oculix natives, and a 44‑feature conformance suite. No browser, no runner — a GUI you drive from higher‑level tools. |
 
 > From the next release the product is published as two tags — **`xyteam/autobdd-base`**
 > (screen‑only) and **`xyteam/autobdd-framework`** (the full product), with
@@ -235,18 +203,18 @@ AutoBDD_Ver=<v> make docker-run jobs="base-test"    # ~3.5 min; ends "ALL FEATUR
 
 ▸ image-similarity — accept a weak match at a low floor and reject it at a high one
    repro: base-test/one.sh image-similarity
-   run:    findTargetImage --imagePath=/tmp/base-test.VGxClH/hello_blur.png \
-             --imageSimilarity=0.5 --flash=0   [rc=0]
+   run:    /usr/local/libexec/autobdd/find-target \
+             --match-image=/tmp/base-test.VGxClH/hello_blur.png --min-score=0.5 --flash=0s   [rc=0]
    ✓ a low floor accepts the blurred template = hello_blur.png
-   run:    findTargetImage --imagePath=/tmp/base-test.VGxClH/hello_blur.png \
-             --imageSimilarity=0.99 --flash=0   [rc=0]
+   run:    /usr/local/libexec/autobdd/find-target \
+             --match-image=/tmp/base-test.VGxClH/hello_blur.png --min-score=0.99 --flash=0s   [rc=0]
    ✓ a high floor rejects it = notFound
 
 ▸ flash — hold the on-screen match flash for the requested time
    repro: base-test/one.sh flash
            timed without the fixture re-show (NOSHOW=1)
-   run:    findTargetImage --imagePath=/tmp/.../hello.png   [rc=0]
-   run:    findTargetImage --imagePath=/tmp/.../hello.png --flash=0   [rc=0]
+   run:    /usr/local/libexec/autobdd/find-target --match-image=/tmp/.../hello.png   [rc=0]
+   run:    /usr/local/libexec/autobdd/find-target --match-image=/tmp/.../hello.png --flash=0s   [rc=0]
            measured: default 2241 ms vs --flash=0 1338 ms -> delta 903 ms
    ✓ the default flash pauses for at least 0.5 s (0 ms would mean the flash is not applied) = 903 (>= 500)
    ✓ the flash pause is bounded = 903 ms (<= 2500)
@@ -284,10 +252,10 @@ Each feature is one line to reproduce inside the image: `base-test/one.sh <featu
 |---|---|---|
 | **A — runtime substrate** | `tools` `java17` `natives` `screen-only` `provenance` | the L0 essentials are present, Java is the pinned 17 series, the Oculix natives are baked and loader‑visible, the image really is browser‑free, and `/etc/autobdd-versions` records the build inputs |
 | **B — display + desktop** | `display` `wm` `vnc` `pointer` | Xvfb serves `DISPLAY` at the requested geometry, openbox runs, x11vnc exposes `:5900`, and the OS pointer can be driven |
-| **C — whole‑screen OCR** | `screen-mode` | `--imagePath=Screen` returns the whole screen's text with `score: null` |
-| **D — image matching** | `image-match` `image-similarity` `maxsim-ceiling` `text-hint` `image-wait` `image-maxcount` `image-missing` `flash` | every contract field; the similarity **floor** and `maxSim` **ceiling**; `--textHint` gating; `--imageWaitTime` waiting for a late target; several matches via `--imageMaxCount`; `notFound` as a status object; the `--flash` pause |
-| **E — actions** | `action-click` `action-doubleclick` `action-rightclick` `action-hoverclick` `action-hover` `action-none` | each `--imageAction` is **verified against the OS pointer** (`xdotool`), so a reported click point must equal where the pointer actually went |
-| **F — opt‑in OCR** | `ocr-detect` `ocr-detail-none` `ocr-detail-line` `ocr-similarity` `ocr-wait` `ocr-action` `ocr-psm-oem` | text search by `--ocrPath`, the optional `ocrDetails` box, its floor, wait, action dispatch and PSM/OEM pass‑through |
+| **C — whole‑screen OCR** | `screen-mode` | `autobdd read-text` returns the whole screen's text with `score: null` |
+| **D — image matching** | `image-match` `image-similarity` `maxsim-ceiling` `text-hint` `image-wait` `image-maxcount` `image-missing` `flash` | every contract field; the `--min-score` **floor** and `--max-score` **ceiling**; `--match-text` gating; `--wait` for a late target; several matches via `--limit`; `notFound` as a status object; the `--flash` pause |
+| **E — actions** | `action-click` `action-doubleclick` `action-rightclick` `action-hoverclick` `action-hover` `action-none` | each action is **verified against the OS pointer** (`xdotool`), so a reported click point must equal where the pointer actually went |
+| **F — opt‑in OCR** | `ocr-detect` `ocr-detail-none` `ocr-detail-line` `ocr-similarity` `ocr-wait` `ocr-action` `ocr-psm-oem` | text search by `--match-text`, the optional `ocrDetails` box, its score floor, wait, action dispatch and PSM/OEM pass‑through |
 | **G — contract robustness** | `json-on-error` `additive-args` | an unusable display still yields JSON on stdout with exit 0, and unknown arguments are ignored (additive contract) |
 | **H — non‑functional** | `latency` | NFR‑T2: a warm image match stays inside its budget |
 | **I — discovery** | `help` `version` `list` `usage-error` | the tool explains itself *without* starting the engine (~40 ms, no screen scan), reports what is running, lists its flows, and fails loudly on an unusable value |
@@ -308,13 +276,13 @@ feature, and groups can be run alone by letter, which makes a red run easy to bi
 * `--flash=0` is used except where the flash is the subject: the flash is a pure visual
   pause, and paying ~1 s for it on every feature would triple the run time for no extra
   coverage. The `flash` feature measures the default path explicitly.
-* **`--ocrSimilarity` is accepted but not applied.** Measured: with the text on screen,
-  `--ocrSimilarity=0.99` still matches, because this build's OCR path exposes no per‑match
+* **`--min-score` is not applied to text targets.** Measured: with the text on screen,
+  `--min-score=0.99` still matches, because this build's OCR path exposes no per‑match
   confidence to filter on. The *image* floor **is** applied (`image-similarity` asserts both
   directions). The report prints a `known-gap:` line rather than asserting a rejection that
   would pass only when the screen happens to be blank — a false green.
-* **`--ocrDetail=word` reports the matched region**, not one entry per token (a tight box
-  when the engine exposes one, otherwise the searched region's rectangle).
+* **`--box` reports the matched region**, not one entry per token (a tight box when the
+  engine exposes one, otherwise the searched region's rectangle).
 * Feature descriptions live in the catalogue table alone, so `--list`, the suite headers and
   the run lines cannot drift apart.
 

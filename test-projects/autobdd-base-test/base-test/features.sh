@@ -144,6 +144,17 @@ feat_provenance(){
   check_has "records node="          "$f" "node="
   check_has "records ubuntu_digest=" "$f" "ubuntu_digest=sha256:"
   check_has "records built="         "$f" "built="
+  # The image records the version it was BUILT as, which is whatever AUTOBDD_VERSION the
+  # builder passed -- `dev` for a CI pull-request build, the release number otherwise. So
+  # assert consistency here, and gate on the declared version only when EXPECTED_VERSION
+  # says what that should be (the release job sets it from package.json).
+  local ver; ver="$(printf '%s' "$f" | sed -n 's/^version=//p')"
+  if [ -n "$ver" ] && [ "$ver" != "unknown" ]; then _ok "records the build version = $ver"; else _no "records the build version (got '$ver')"; fi
+  if [ -n "${EXPECTED_VERSION:-}" ]; then
+    check_eq "the build version is the declared release" "$ver" "$EXPECTED_VERSION"
+  else
+    printf '   \033[2m        EXPECTED_VERSION unset: consistency checked, no release gate\033[0m\n' >&2
+  fi
 }
 
 # ---------------------------------------------------------------------------
@@ -335,12 +346,12 @@ feat_ocr_similarity(){
   check_eq "the floor argument is accepted and detection still works" "$(_jq "$JSON" '.[0].name')" "AUTOTEST OCR"
   JSON="$(target --match-text="NO SUCH TEXT HERE")"
   check_eq "absent text is rejected" "$(_jq "$JSON" '.[0].status')" "notFound"
-  # Deliberately NOT asserted: that raising --ocrSimilarity rejects a text whose
+  # Deliberately NOT asserted: that raising --min-score rejects a text whose
   # confidence is below it. Measured: with the text on screen, --min-score=0.99
   # still returns a match, because this build's OCR path has no per-match confidence to
   # filter on (the image floor IS applied: see image-similarity). Asserting rejection
   # here would pass only when the screen happens to be blank — a false green.
-  printf '   \033[33mknown-gap: --ocrSimilarity is accepted but not applied by this build; only the image floor filters\033[0m\n' >&2
+  printf '   \033[33mknown-gap: --min-score is applied to image matches but not to text targets by this build\033[0m\n' >&2
 }
 feat_ocr_wait(){
   feature ocr-wait
@@ -416,11 +427,12 @@ now_ms(){ echo $(( $(date +%s%N) / 1000000 )); }
 feat_help(){
   feature help
   local t0 t1 out rc ms
-  t0=$(now_ms); out="$(findTargetImage --help 2>/dev/null)"; rc=$?; t1=$(now_ms); ms=$(( t1 - t0 ))
-  printf '   \033[2mrun:    findTargetImage --help   [rc=%s, %s ms]\033[0m\n' "$rc" "$ms" >&2
+  t0=$(now_ms); out="$("$TARGET_BIN" --help 2>/dev/null)"; rc=$?; t1=$(now_ms); ms=$(( t1 - t0 ))
+  printf '   \033[2mrun:    %s --help   [rc=%s, %s ms]\033[0m\n' "$TARGET_BIN" "$rc" "$ms" >&2
   check_eq "exit status is 0" "$rc" "0"
   check_has "prints the flows" "$out" "FLOWS"
-  check_has "prints the flags" "$out" "--imagePath"
+  check_has "prints the canonical flags" "$out" "--match-image"
+  check_has "lists the deprecated v1 names" "$out" "--imagePath"
   # A real result line is always `target_result: [` + JSON; the help text merely names
   # the marker, so match the payload, not the documentation.
   check_eq "emits no result payload" "$(printf '%s' "$out" | grep -c 'target_result: \[')" "0"
@@ -432,17 +444,25 @@ feat_help(){
 feat_version(){
   feature version
   local out rc
-  out="$(findTargetImage --version 2>/dev/null)"; rc=$?
-  printf '   \033[2mrun:    findTargetImage --version   [rc=%s]\033[0m\n' "$rc" >&2
+  out="$("$TARGET_BIN" --version 2>/dev/null)"; rc=$?
+  printf '   \033[2mrun:    %s --version   [rc=%s]\033[0m\n' "$TARGET_BIN" "$rc" >&2
   check_eq "exit status is 0" "$rc" "0"
-  check_has "names the seam" "$out" "AutoBDD base seam"
+  check_has "names the product" "$out" "AutoBDD base image"
   check_has "reports the image build stamp" "$out" "image  : built "
+  # --version and /etc/autobdd-versions must agree: one is the other, reported.
+  local printed stampver
+  printed="$(printf '%s' "$out"  | sed -n 's/^version: //p')"
+  stampver="$(sed -n 's/^version=//p' /etc/autobdd-versions 2>/dev/null)"
+  check_eq "--version agrees with the image's own stamp" "$printed" "$stampver"
+  if [ -n "${EXPECTED_VERSION:-}" ]; then
+    check_eq "--version is the declared release" "$printed" "$EXPECTED_VERSION"
+  fi
 }
 feat_list(){
   feature list
   local out rc
-  out="$(findTargetImage --list 2>/dev/null)"; rc=$?
-  printf '   \033[2mrun:    findTargetImage --list   [rc=%s]\033[0m\n' "$rc" >&2
+  out="$("$TARGET_BIN" --list 2>/dev/null)"; rc=$?
+  printf '   \033[2mrun:    %s --list   [rc=%s]\033[0m\n' "$TARGET_BIN" "$rc" >&2
   check_eq "exit status is 0" "$rc" "0"
   check_has "lists the screen read as its own verb" "$out" "read-text"
   check_has "lists the picture flow" "$out" "--match-image=logo.png"
@@ -453,8 +473,8 @@ feat_usage_error(){
   local out rc
   # An unusable value must fail loudly: silently behaving like the default would look
   # like a working call to an agent.
-  out="$(findTargetImage --min-score=abc 2>&1 >/dev/null)"; rc=$?
-  printf '   \033[2mrun:    findTargetImage --min-score=abc   [rc=%s]\033[0m\n' "$rc" >&2
+  out="$("$TARGET_BIN" --min-score=abc 2>&1 >/dev/null)"; rc=$?
+  printf '   \033[2mrun:    %s --min-score=abc   [rc=%s]\033[0m\n' "$TARGET_BIN" "$rc" >&2
   check_eq "exit status is 2 (usage error)" "$rc" "2"
   check_has "names the offending flag" "$out" "--min-score"
   check_has "says what it expected" "$out" "expects a number"
