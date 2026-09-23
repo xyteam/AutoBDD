@@ -299,6 +299,11 @@ const notFoundStatus = {status: 'notFound'};
 // it ever paints. Flash for a visible duration and hold the process so the box
 // actually renders.
 const flashOnMatch = (region) => {
+  // --flash=0 means "no flash", so do not paint at all. Region.highlight() paints on a
+  // background native thread and returns immediately; painting and then exiting 0 ms later
+  // races that thread against process teardown, on what is now the default automation path.
+  // Nothing visible is lost: the caller asked for no flash.
+  if (flashSecs <= 0) return;
   region.highlight();
   sleepMs(Math.round(flashSecs * 1000));
 };
