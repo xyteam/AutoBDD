@@ -186,6 +186,23 @@ What that meant in practice, all in this release:
   reproducible (`base-test/one.sh <feature>`), each printing the exact command it ran and the
   value it observed. Writing it found and fixed six real defects in the engine, and five in
   the suite's own narration.
+* **The dev desktop could not start as root, and the fix is wider than that.** The
+  supervisord config carries `%USER%`/`%HOME%` placeholders, and the startup script
+  substituted them **only inside the non-root branch** — so the obvious invocation
+  (`docker run … /root/autobdd-dev.startup.sh`, no `USER`) left them in place and
+  supervisord refused to run: *"Format string '%USER%' for 'program:lxpanel.user' is badly
+  formatted"*, exit 2. The substitution was also **non-global**, so lines carrying two
+  placeholders (`environment=DISPLAY=":1",HOME="%HOME%",USER="%USER%"`) kept one even for a
+  named user. Both fixed: the substitution now happens for either case and replaces every
+  occurrence. Verified by starting the desktop both ways — as root and as a non-root
+  `USER=runner` (uid 1001): container up, VNC `:5900` and ssh `:22` reachable, no
+  placeholders left in the config, and `autobdd --version` works as that user.
+* **Documentation split.** `README.md` is now the `xyteam/autobdd-base:4.0.0` usage guide —
+  pull, run (desktop or one-shot), drive, and how to check a build. The frozen 3.0.0
+  framework release moved to **`README-3.0.0.md`**, which also documents what that tag's
+  build system actually was (a three-stage `.docker/` compose build producing
+  `xyteam/autobdd:3.0.0`; `autobdd-base.dockerfile`/`autobdd-framework.dockerfile` did not
+  exist yet, so the earlier rebuild instructions named files that were not there).
 * **The image reports what it is.** `version=` is recorded in `/etc/autobdd-versions` and
   printed by `autobdd --version`, and CI resolves that value from `package.json` so the
   build arg, the image tags and the suite's expectation cannot drift: the base suite checks

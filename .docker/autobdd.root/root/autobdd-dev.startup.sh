@@ -59,12 +59,16 @@ if [ "$USER" != "root" ]; then
       chown -R $USER:$USER $HOME
     fi
 
-    # OTHER
-    sed -i "s|%USER%|$USER|" /etc/supervisor/conf.d/supervisord.conf
-    sed -i "s|%HOME%|$HOME|" /etc/supervisor/conf.d/supervisord.conf
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
     mkdir -p /run/sshd
 fi
+
+# Fill the supervisord placeholders for BOTH cases. These used to be substituted only inside
+# the non-root branch, so starting the desktop without a USER (i.e. as root) left %USER% in
+# the config and supervisord refused to start:
+#   Format string '%USER%' for 'program:lxpanel.user' is badly formatted  -> exit 2
+sed -i "s|%USER%|$USER|g" /etc/supervisor/conf.d/supervisord.conf
+sed -i "s|%HOME%|$HOME|g" /etc/supervisor/conf.d/supervisord.conf
 
 # set ABDD_PROJECT from .env in .bash_profile
 if [[ ! -z "$ABDD_PROJECT" ]]; then
